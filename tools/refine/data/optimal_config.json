@@ -1,0 +1,15 @@
+{
+  "irisRadius": 0.12,
+  "pupilRadius": 0.04,
+  "jawVolatilityMultiplier": 0.3,
+  "jawVolatilityThreshold": 1.0,
+  "maxJaw": 0.5,
+  "expressionIntensity": 15.0,
+  "semantifyExprIntensity": 12.0,
+  "maxNeckPitch": 0.25,
+  "maxNeckYaw": 0.3,
+  "maxEyeHorizontal": 0.35,
+  "maxEyeVertical": 0.25,
+  "deviationSteepness": 4.0,
+  "velocitySteepness": 3.0
+}
