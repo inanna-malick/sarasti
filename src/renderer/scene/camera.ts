@@ -64,14 +64,19 @@ export class CameraController {
 
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
-    const diagonal = size.length();
 
-    // Field of view in radians
+    // Aspect-aware framing: fit the tighter axis so nothing is clipped
     const fov = (this.camera.fov * Math.PI) / 180;
+    const aspect = this.camera.aspect;
 
-    // Distance required to fit the diagonal into the view, plus 20% padding.
-    // We use diagonal/2 because distance = (half-height) / tan(fov/2)
-    const distance = (diagonal / 2) / Math.tan(fov / 2) * 1.2;
+    // Distance needed to fit height
+    const distH = (size.y / 2) / Math.tan(fov / 2);
+    // Distance needed to fit width (horizontal fov = atan(tan(fov/2) * aspect))
+    const distW = (size.x / 2) / Math.tan(fov / 2) / aspect;
+
+    // Use whichever is larger, plus padding for the face meshes themselves
+    const padding = 1.3;
+    const distance = Math.max(distH, distW, 5) * padding;
 
     this.camera.position.set(center.x, center.y, center.z + distance);
     this.controls.target.copy(center);

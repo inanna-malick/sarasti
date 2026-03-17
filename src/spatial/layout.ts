@@ -28,41 +28,45 @@ export function computeLayout(tickers: TickerConfig[], strategy: LayoutStrategy)
 
 function computeFamilyRows(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
   const assetClassOrder: AssetClass[] = ['energy', 'fear', 'currency', 'equity', 'media'];
-  
-  // Group tickers by family, maintaining asset class order for families
-  const families: { id: string, class: AssetClass, tickers: TickerConfig[] }[] = [];
-  
-  // To preserve order of families as they appear in assetClassOrder
+
+  // One row per asset class. Within each row, tickers are grouped by family
+  // then sorted by age (youngest left, oldest right).
+  const rows: TickerConfig[][] = [];
   for (const ac of assetClassOrder) {
     const acTickers = tickers.filter(t => t.class === ac);
-    const acFamilies: string[] = [];
+    if (acTickers.length === 0) continue;
+
+    // Group by family, sort families by first ticker's age, sort within family by age
+    const familyMap = new Map<string, TickerConfig[]>();
     for (const t of acTickers) {
-      if (!acFamilies.includes(t.family)) {
-        acFamilies.push(t.family);
-      }
+      let fam = familyMap.get(t.family);
+      if (!fam) { fam = []; familyMap.set(t.family, fam); }
+      fam.push(t);
     }
-    for (const familyId of acFamilies) {
-      families.push({
-        id: familyId,
-        class: ac,
-        tickers: acTickers.filter(t => t.family === familyId).sort((a, b) => a.age - b.age)
-      });
+    const sorted: TickerConfig[] = [];
+    const families = [...familyMap.entries()].sort(
+      ([, a], [, b]) => Math.min(...a.map(t => t.age)) - Math.min(...b.map(t => t.age))
+    );
+    for (const [, fam] of families) {
+      sorted.push(...fam.sort((a, b) => a.age - b.age));
     }
+    rows.push(sorted);
   }
 
-  // Energy families top (highest Y), Media bottom (lowest Y)
-  // We have 'families.length' rows.
-  const rowCount = families.length;
-  const startY = rowCount > 0 ? (rowCount - 1) * SPACING / 2 : 0;
+  // Find the widest row to left-align all rows consistently
+  const maxCols = Math.max(...rows.map(r => r.length));
+  const totalWidth = (maxCols - 1) * SPACING;
+  const rowCount = rows.length;
+  const startY = (rowCount - 1) * SPACING / 2;
 
-  families.forEach((family, rowIndex) => {
+  rows.forEach((row, rowIndex) => {
     const y = startY - rowIndex * SPACING;
-    const rowWidth = (family.tickers.length - 1) * SPACING;
+    // Center each row
+    const rowWidth = (row.length - 1) * SPACING;
     const startX = -rowWidth / 2;
 
-    family.tickers.forEach((ticker, colIndex) => {
-      const x = startX + colIndex * SPACING;
-      positions.set(ticker.id, [x, y, 0]);
+    row.forEach((ticker, colIndex) => {
+      positions.set(ticker.id, [startX + colIndex * SPACING, y, 0]);
     });
   });
 }
@@ -82,7 +86,9 @@ function computeClassClusters(tickers: TickerConfig[], positions: Map<string, [n
     [0, 0], [1, 0]
   ];
 
-  const CLUSTER_SPACING = SPACING * 10;
+  // Gap between cluster centers — derived from the largest cluster so they don't overlap
+  const maxClusterSize = Math.max(...clusters.map(c => Math.ceil(Math.sqrt(c.tickers.length))));
+  const CLUSTER_SPACING = SPACING * (maxClusterSize + 3);
 
   clusters.forEach((cluster, i) => {
     if (cluster.tickers.length === 0) return;

@@ -65,6 +65,7 @@ export class SceneCompositor {
       if (!fm) {
         fm = new FlameFaceMesh(this.pipeline);
         fm.mesh.scale.setScalar(FACE_MESH_SCALE);
+        fm.mesh.userData.baseScale = FACE_MESH_SCALE;
         this.meshes.set(instance.id, fm);
         this.meshToId.set(fm.mesh, instance.id);
         this.scene.add(fm.mesh);

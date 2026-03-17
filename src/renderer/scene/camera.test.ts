@@ -72,8 +72,8 @@ describe('CameraController', () => {
     // Camera should be pushed back along Z
     expect(controller.camera.position.z).toBeGreaterThan(0);
     
-    // With FOV=45 and diagonal ~17.3, distance should be significant
-    expect(controller.camera.position.z).toBeGreaterThan(20);
+    // With FOV=45 and a 10x10x10 box, camera should be well back
+    expect(controller.camera.position.z).toBeGreaterThan(10);
     controller.dispose();
   });
 

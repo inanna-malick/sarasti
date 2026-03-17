@@ -73,25 +73,27 @@ export class FacePicker {
     const meshes = this.compositor.getMeshes();
 
     if (id === null) {
-      // Restore all to default
+      // Restore all to default — preserve existing base scale
       for (const mesh of meshes) {
-        mesh.scale.set(1, 1, 1);
+        const baseScale = mesh.userData.baseScale ?? 1;
+        mesh.scale.setScalar(baseScale);
         const mat = mesh.material as THREE.MeshMatcapMaterial;
         mat.opacity = 1;
         mat.transparent = false;
       }
     } else {
-      // Apply highlight and dim others
+      // Apply highlight and dim others — preserve existing base scale
       for (const mesh of meshes) {
         const meshId = this.compositor.getIdForMesh(mesh);
         const mat = mesh.material as THREE.MeshMatcapMaterial;
+        const baseScale = mesh.userData.baseScale ?? 1;
 
         if (meshId === id) {
-          mesh.scale.set(1.05, 1.05, 1.05);
+          mesh.scale.setScalar(baseScale * 1.05);
           mat.opacity = 1;
           mat.transparent = false;
         } else {
-          mesh.scale.set(1, 1, 1);
+          mesh.scale.setScalar(baseScale);
           mat.opacity = DIM_OPACITY;
           mat.transparent = true;
         }

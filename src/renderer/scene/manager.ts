@@ -34,6 +34,7 @@ export async function createFlameSceneRenderer(
   let container: HTMLElement;
   let animationFrameId: number | null = null;
   let lastTime = 0;
+  let hasFramedCamera = false;
 
   function animate(time: number) {
     const dt = lastTime > 0 ? (time - lastTime) / 1000 : 0;
@@ -93,10 +94,11 @@ export async function createFlameSceneRenderer(
     setInstances(instances: FaceInstance[]): void {
       compositor.setInstances(instances);
 
-      // Auto-frame camera to show all faces
-      const positions = instances.map(i => i.position);
-      if (positions.length > 0) {
+      // Frame camera once on first data, then let user control it
+      if (!hasFramedCamera && instances.length > 0) {
+        const positions = instances.map(i => i.position);
         cameraController.frameAll(positions);
+        hasFramedCamera = true;
       }
     },
 
