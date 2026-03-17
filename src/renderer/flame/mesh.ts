@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import type { FlamePipeline } from './pipeline';
 import type { FaceParams } from '../../types';
+import { identifyEyeVertices } from './eyes';
+import { createEyeMaterial } from './eyeMaterial';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
@@ -10,6 +12,8 @@ export class FlameFaceMesh {
   public readonly mesh: THREE.Mesh;
   private geometry: THREE.BufferGeometry;
   private material: THREE.MeshStandardMaterial;
+  private leftEyeMaterial: THREE.ShaderMaterial;
+  private rightEyeMaterial: THREE.ShaderMaterial;
   private pipeline: FlamePipeline;
 
   constructor(pipeline: FlamePipeline, tickerId: string) {
@@ -18,7 +22,50 @@ export class FlameFaceMesh {
 
     // 1. Create BufferGeometry
     this.geometry = new THREE.BufferGeometry();
-    this.geometry.setIndex(new THREE.BufferAttribute(model.faces, 1));
+    
+    // Identify eye vertices and faces
+    const eyeGroups = identifyEyeVertices(model.weights, model.faces, model.n_vertices, model.n_joints);
+    
+    // Reorder face index buffer
+    const eyeFaceIndices = new Set([...eyeGroups.leftEyeFaces, ...eyeGroups.rightEyeFaces]);
+    const nonEyeFaces: number[] = [];
+    for (let i = 0; i < model.n_faces; i++) {
+      if (!eyeFaceIndices.has(i)) {
+        nonEyeFaces.push(i);
+      }
+    }
+
+    const newIndices = new Uint32Array(model.faces.length);
+    let offset = 0;
+    
+    // Non-eye faces (group 0)
+    for (const f of nonEyeFaces) {
+      newIndices[offset++] = model.faces[f * 3];
+      newIndices[offset++] = model.faces[f * 3 + 1];
+      newIndices[offset++] = model.faces[f * 3 + 2];
+    }
+    const nonEyeIndexCount = nonEyeFaces.length * 3;
+
+    // Left eye faces (group 1)
+    for (const f of eyeGroups.leftEyeFaces) {
+      newIndices[offset++] = model.faces[f * 3];
+      newIndices[offset++] = model.faces[f * 3 + 1];
+      newIndices[offset++] = model.faces[f * 3 + 2];
+    }
+    const leftEyeIndexCount = eyeGroups.leftEyeFaces.length * 3;
+
+    // Right eye faces (group 2)
+    for (const f of eyeGroups.rightEyeFaces) {
+      newIndices[offset++] = model.faces[f * 3];
+      newIndices[offset++] = model.faces[f * 3 + 1];
+      newIndices[offset++] = model.faces[f * 3 + 2];
+    }
+    const rightEyeIndexCount = eyeGroups.rightEyeFaces.length * 3;
+
+    this.geometry.setIndex(new THREE.BufferAttribute(newIndices, 1));
+    this.geometry.addGroup(0, nonEyeIndexCount, 0);
+    this.geometry.addGroup(nonEyeIndexCount, leftEyeIndexCount, 1);
+    this.geometry.addGroup(nonEyeIndexCount + leftEyeIndexCount, rightEyeIndexCount, 2);
 
     const positions = new Float32Array(model.n_vertices * 3);
     const normals = new Float32Array(model.n_vertices * 3);
@@ -28,8 +75,8 @@ export class FlameFaceMesh {
     this.geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
     this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    // 2. Create Material
-    // Smooth alpha fade at neck base (around Y=-0.08 to Y=-0.15 in FLAME meters)
+    // 2. Create Materials
+    // Face Material: Smooth alpha fade at neck base
     this.material = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.7,
@@ -64,8 +111,24 @@ gl_FragColor.a *= fade;`
       );
     };
 
-    // 3. Create Mesh
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    // Eye Materials
+    const irisColor = this.computeIrisColor(tickerId);
+    this.leftEyeMaterial = createEyeMaterial({ irisColor });
+    this.rightEyeMaterial = createEyeMaterial({ irisColor });
+
+    // Compute eye centers from template (stable in mesh space for now)
+    const leftCenter = this.computeVertexGroupCenter(model.template, eyeGroups.leftEyeVertices);
+    const rightCenter = this.computeVertexGroupCenter(model.template, eyeGroups.rightEyeVertices);
+    
+    this.leftEyeMaterial.uniforms.eyeCenter.value.copy(leftCenter);
+    this.rightEyeMaterial.uniforms.eyeCenter.value.copy(rightCenter);
+
+    // 3. Create Mesh with multi-material
+    this.mesh = new THREE.Mesh(this.geometry, [
+      this.material,
+      this.leftEyeMaterial,
+      this.rightEyeMaterial,
+    ]);
   }
 
   public updateFromParams(params: FaceParams): void {
@@ -79,6 +142,16 @@ gl_FragColor.a *= fade;`
 
     positionAttr.needsUpdate = true;
     normalAttr.needsUpdate = true;
+
+    // Update gaze offsets
+    this.leftEyeMaterial.uniforms.gazeOffset.value.set(
+      params.pose.leftEye[0],
+      params.pose.leftEye[1]
+    );
+    this.rightEyeMaterial.uniforms.gazeOffset.value.set(
+      params.pose.rightEye[0],
+      params.pose.rightEye[1]
+    );
 
     // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();
@@ -155,8 +228,55 @@ gl_FragColor.a *= fade;`
     return coeffs;
   }
 
+  /**
+   * Deterministic iris color from tickerId.
+   */
+  private computeIrisColor(tickerId: string): THREE.Color {
+    // We can use the first few coefficients from the albedo hash for variety
+    const coeffs = this.getHashedCoefficients(tickerId, 3);
+    
+    // Default eye colors: brown, blue, green
+    const bases = [
+      new THREE.Color(0.2, 0.1, 0.05), // Brown
+      new THREE.Color(0.1, 0.2, 0.4),  // Blue
+      new THREE.Color(0.1, 0.3, 0.1),  // Green
+    ];
+    
+    // Pick base based on hash
+    let hash = 0;
+    for (let i = 0; i < tickerId.length; i++) {
+      hash = (hash * 31 + tickerId.charCodeAt(i)) | 0;
+    }
+    const base = bases[Math.abs(hash) % bases.length].clone();
+    
+    // Perturb color slightly with coefficients
+    base.r = Math.max(0, Math.min(1, base.r + coeffs[0] * 0.1));
+    base.g = Math.max(0, Math.min(1, base.g + coeffs[1] * 0.1));
+    base.b = Math.max(0, Math.min(1, base.b + coeffs[2] * 0.1));
+    
+    return base;
+  }
+
+  /**
+   * Computes the geometric center of a group of vertices.
+   */
+  private computeVertexGroupCenter(vertices: Float32Array, indices: number[]): THREE.Vector3 {
+    const center = new THREE.Vector3(0, 0, 0);
+    if (indices.length === 0) return center;
+
+    for (const idx of indices) {
+      center.x += vertices[idx * 3];
+      center.y += vertices[idx * 3 + 1];
+      center.z += vertices[idx * 3 + 2];
+    }
+
+    return center.divideScalar(indices.length);
+  }
+
   public dispose(): void {
     this.geometry.dispose();
     this.material.dispose();
+    this.leftEyeMaterial.dispose();
+    this.rightEyeMaterial.dispose();
   }
 }

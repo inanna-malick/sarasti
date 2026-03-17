@@ -45,12 +45,20 @@ describe('FlameFaceMesh', () => {
     expect(geometry.getAttribute('position').count).toBe(3);
     expect(geometry.getAttribute('color').count).toBe(3);
     expect(geometry.index?.count).toBe(3);
-    expect(meshWrapper.mesh.material).toBeInstanceOf(THREE.MeshStandardMaterial);
     
-    const material = meshWrapper.mesh.material as THREE.MeshStandardMaterial;
-    expect(material.vertexColors).toBe(true);
-    expect(material.transparent).toBe(true);
-    expect(material.alphaTest).toBe(0.01);
+    // Multi-material
+    expect(Array.isArray(meshWrapper.mesh.material)).toBe(true);
+    const materials = meshWrapper.mesh.material as THREE.Material[];
+    expect(materials.length).toBe(3);
+    
+    const faceMaterial = materials[0] as THREE.MeshStandardMaterial;
+    expect(faceMaterial.vertexColors).toBe(true);
+    expect(faceMaterial.transparent).toBe(true);
+    expect(faceMaterial.alphaTest).toBe(0.01);
+
+    const leftEyeMaterial = materials[1] as THREE.ShaderMaterial;
+    expect(leftEyeMaterial.uniforms.irisColor).toBeDefined();
+    expect(leftEyeMaterial.uniforms.gazeOffset).toBeDefined();
   });
 
   it('should update geometry in-place when updateFromParams is called', () => {
@@ -73,7 +81,8 @@ describe('FlameFaceMesh', () => {
 
   it('setCrisis is a no-op (expression geometry carries crisis signal)', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
-    const material = meshWrapper.mesh.material as THREE.MeshStandardMaterial;
+    const materials = meshWrapper.mesh.material as THREE.Material[];
+    const material = materials[0] as THREE.MeshStandardMaterial;
 
     const colorBefore = material.color.clone();
     meshWrapper.setCrisis(0);
