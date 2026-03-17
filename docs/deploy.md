@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document outlines the deployment process for The Tidal Scream.
+This document outlines the deployment process for the Hormuz Crisis Monitor.
 
 ## Prerequisites
 

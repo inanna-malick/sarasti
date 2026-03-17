@@ -5,10 +5,9 @@ import { useStore } from '../store';
  * Landing overlay: shown before playback starts.
  *
  * Dark background over the face field (faces visible behind at T=Feb 25, calm).
- * Title: "The Tidal Scream"
- * Subtitle about the piece.
+ * Title: "Hormuz Crisis Monitor"
+ * Technical summary of the visualization.
  * "Click anywhere to begin" prompt.
- * The Watts quote at the bottom.
  * Fades out when playback starts.
  *
  * Props:
@@ -19,10 +18,10 @@ interface LandingProps {
 }
 
 export const LANDING_CONTENT = {
-  title: 'THE TIDAL SCREAM',
-  subtitle: 'Twenty-five financial instruments rendered as faces.\nExpression maps to crisis dynamics. Shape maps to structural identity.\nSeventeen days of data. Press play.',
+  title: 'HORMUZ CRISIS MONITOR',
+  subtitle: 'High-dimensional visualization of the Hormuz crisis.\nTwenty-five financial instruments rendered as 3D faces.\nExpression encodes market dynamics. Shape encodes structural identity.',
   prompt: 'click anywhere to begin',
-  quote: '"What do they represent?"\n"Software customizes output for user."',
+  quote: '',
 };
 
 export function Landing({ onStart }: LandingProps) {
@@ -56,24 +55,24 @@ export function Landing({ onStart }: LandingProps) {
           marginBottom: 16,
         }}
       >
-        THE TIDAL SCREAM
+        HORMUZ CRISIS MONITOR
       </h1>
 
       <p
         style={{
           color: '#888',
           fontSize: 12,
-          maxWidth: 400,
+          maxWidth: 450,
           textAlign: 'center',
           lineHeight: 1.8,
           marginBottom: 48,
         }}
       >
-        Twenty-five financial instruments rendered as faces.
+        High-dimensional visualization of the Hormuz crisis.
         <br />
-        Expression maps to crisis dynamics. Shape maps to structural identity.
+        Twenty-five financial instruments rendered as 3D faces.
         <br />
-        Seventeen days of data. Press play.
+        Expression encodes market dynamics. Shape encodes structural identity.
       </p>
 
       <div
@@ -86,23 +85,6 @@ export function Landing({ onStart }: LandingProps) {
         }}
       >
         click anywhere to begin
-      </div>
-
-      {/* Watts quote */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 32,
-          textAlign: 'center',
-          color: '#444',
-          fontSize: 12,
-          fontStyle: 'italic',
-          lineHeight: 1.8,
-        }}
-      >
-        "What do they represent?"
-        <br />
-        "Software customizes output for user."
       </div>
 
       <style>{`

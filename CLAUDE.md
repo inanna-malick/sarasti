@@ -1,4 +1,4 @@
-# The Tidal Scream — sarasti
+# Hormuz Crisis Monitor — sarasti
 
 ## What This Is
 A face-field of ~25 financial instruments rendered as FLAME 3D faces.
@@ -44,10 +44,10 @@ public/data/        — baked data files (.bin, .json)
 - `TimelineDataset` — all frames + ticker configs
 - `PlaybackState` — current_index, playing, speed, loop
 
-## Binding Doctrine
+## Binding Principles
 - Shape = structural identity. Determined by TickerConfig (age, class, family). Fixed per face.
 - Expression = crisis dynamics. Determined by TickerFrame (deviation, velocity, volatility). Changes each frame.
-- The artist's hand is in the mapping. The expressions are statistics.
+- The visual mapping is a deliberate analytical choice. The expressions represent statistical deviations.
 
 ## Conventions
 - Paths use `@/` alias for `src/`

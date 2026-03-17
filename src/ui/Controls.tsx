@@ -8,7 +8,7 @@ import type { LayoutStrategy } from '../types';
  * Contains:
  * - Layout selector: family-rows / class-clusters / reactivity-sweep
  * - Loop toggle
- * - "About this piece" info button
+ * - "Technical summary" info button
  *
  * Props:
  * - onLayoutChange: callback to FrameDriver.setLayout()
@@ -105,7 +105,7 @@ export function Controls({ onLayoutChange, onLoopChange }: ControlsProps) {
             textDecoration: 'underline',
           }}
         >
-          about
+          Technical summary
         </button>
       </div>
     </div>

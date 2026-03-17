@@ -31,7 +31,7 @@ export function getClassDescription(assetClass: AssetClass): string {
     case 'fear':     return 'narrow, sharp features';
     case 'currency': return 'neutral baseline';
     case 'equity':   return 'rounder, softer features';
-    case 'media':    return 'most angular, alien features';
+    case 'media':    return 'angular, high-contrast features';
     default:         return 'standard features';
   }
 }

@@ -9,12 +9,12 @@ import { N_EXPR } from '../../constants';
  *
  * Velocity → expression type modifier:
  *   sharp negative velocity → amplify shock components (sudden drop)
- *   sustained negative → amplify dread components (grinding down)
- *   positive velocity → shift toward relief
+ *   sustained negative → amplify sustained volatility components (grinding down)
+ *   positive velocity → shift toward recovery
  *
  * Volatility → expression complexity:
- *   high vol → multiple expression components active (conflicted face)
- *   low vol → clean single-register expression (frozen scream or frozen calm)
+ *   high vol → multiple expression components active (increased uncertainty)
+ *   low vol → clean single-register expression (stable deformation or baseline)
  */
 export function mapDynamicsToExpression(
   baseExpression: Float32Array,
@@ -35,10 +35,10 @@ export function mapDynamicsToExpression(
     // Sharp negative velocity → add shock components (sudden drop = shock)
     blendRegister(expression, config.expression.shock, Math.abs(velMapped) * 0.5);
   } else if (velMapped < -0.05) {
-    // Sustained negative → add dread components
+    // Sustained negative → add sustained volatility components
     blendRegister(expression, config.expression.dread, Math.abs(velMapped) * 0.6);
   } else if (velMapped > 0.1) {
-    // Positive velocity → blend in relief
+    // Positive velocity → blend in recovery
     blendRegister(expression, config.expression.relief, velMapped * 0.4);
   }
 

@@ -9,10 +9,6 @@ import { getTooltipPosition } from './hover';
  * - Ticker name + id
  * - Asset class + family
  * - Current values: close, deviation, velocity, volatility
- * - "Why is this face screaming?" section:
- *     deviation from baseline: +47%
- *     velocity: -2.3σ/hr (sharp drop)
- *     volatility: 4.1× normal
  *
  * Positions near cursor, avoiding viewport overflow.
  * Reads hoveredId + instances from store.

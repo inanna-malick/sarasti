@@ -111,9 +111,9 @@ describe('interaction/detail.tsx', () => {
 
     render(<DetailPanel />);
     
-    expect(screen.getByText(/Shock\/surge — 15% above baseline/)).toBeDefined();
-    expect(screen.getByText(/Sharp drop amplifies fear/)).toBeDefined();
-    expect(screen.getByText(/High volatility — expression is conflicted/)).toBeDefined();
+    expect(screen.getByText(/Positive Surge — 15% above baseline/)).toBeDefined();
+    expect(screen.getByText(/Rapid decline indicates market pressure/)).toBeDefined();
+    expect(screen.getByText(/Elevated volatility detected/)).toBeDefined();
   });
 
   it('renders family members', () => {

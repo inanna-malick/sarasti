@@ -21,7 +21,7 @@ interface ComponentInfo {
 const EXISTING_EXPR_DESC: Record<number, string> = {
   0: "jaw open + smile",
   1: "smile/frown",
-  2: "mouth open shock/scream",
+  2: "mouth open extreme open",
   3: "lip parting / protrusion",
   4: "brow raise/lower",
   5: "lip pursing forward/back",

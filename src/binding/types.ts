@@ -63,13 +63,13 @@ export interface ExpressionRegister {
 
 export interface ExpressionAllocation {
   // ─── Tier 1 (ψ₁₋₅): deviation ──────────────────
-  /** Distress: brow furrow + mouth downturn (negative deviation) */
+  /** Significant Drawdown: brow furrow + mouth downturn (negative deviation) */
   distress: ExpressionRegister;
   /** Shock: brow raise + mouth open (sudden moves) */
   shock: ExpressionRegister;
   /** Relief: slight smile + brow relax (positive deviation) */
   relief: ExpressionRegister;
-  /** Dread: sustained negative (velocity-modulated distress) */
+  /** Sustained Volatility: sustained negative (velocity-modulated drawdown) */
   dread: ExpressionRegister;
   // ─── Tier 2 (ψ₁₆₋₂₀): volume anomaly ─────────
   /** Alertness: widened eyes, flared nostrils (volume surge) */
@@ -104,7 +104,7 @@ export interface ResponseCurve {
 }
 
 // ─── Binding Config ─────────────────────────────────
-// Full binding configuration. The artist's hand is here.
+// Full binding configuration. Defines the mapping between financial data and visual registers.
 
 export interface BindingConfig {
   shape: ShapeAllocation;
