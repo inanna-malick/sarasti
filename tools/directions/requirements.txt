@@ -1,0 +1,9 @@
+numpy>=1.24
+scipy>=1.10
+torch>=2.0
+torchvision>=0.15
+clip @ git+https://github.com/openai/CLIP.git
+trimesh>=4.0
+pyrender>=0.1.45
+Pillow>=10.0
+tqdm>=4.60
