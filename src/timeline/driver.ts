@@ -82,22 +82,27 @@ export class FrameDriver {
     // Lerp pose params
     const ap = a.pose;
     const bp = b.pose;
-    out.pose = {
-      neck: [
-        ap.neck[0] * s + bp.neck[0] * t,
-        ap.neck[1] * s + bp.neck[1] * t,
-        ap.neck[2] * s + bp.neck[2] * t,
-      ],
-      jaw: ap.jaw * s + bp.jaw * t,
-      leftEye: [
-        ap.leftEye[0] * s + bp.leftEye[0] * t,
-        ap.leftEye[1] * s + bp.leftEye[1] * t,
-      ],
-      rightEye: [
-        ap.rightEye[0] * s + bp.rightEye[0] * t,
-        ap.rightEye[1] * s + bp.rightEye[1] * t,
-      ],
-    };
+
+    if (ap && bp) {
+      out.pose = {
+        neck: [
+          ap.neck[0] * s + bp.neck[0] * t,
+          ap.neck[1] * s + bp.neck[1] * t,
+          ap.neck[2] * s + bp.neck[2] * t,
+        ],
+        jaw: ap.jaw * s + bp.jaw * t,
+        leftEye: [
+          ap.leftEye[0] * s + bp.leftEye[0] * t,
+          ap.leftEye[1] * s + bp.leftEye[1] * t,
+        ],
+        rightEye: [
+          ap.rightEye[0] * s + bp.rightEye[0] * t,
+          ap.rightEye[1] * s + bp.rightEye[1] * t,
+        ],
+      };
+    } else {
+      out.pose = ap ?? bp ?? zeroPose();
+    }
   }
 
   /** Render at a fractional position, interpolating between adjacent frames. */

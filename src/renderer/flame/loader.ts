@@ -36,6 +36,9 @@ export async function loadFlameModel(basePath: string): Promise<FlameModel> {
     throw new Error(`Failed to load kintree from ${basePath}: ${kintreeResponse.statusText}`);
   }
   const kintreeTable: number[][] = await kintreeResponse.json();
+  if (!Array.isArray(kintreeTable) || kintreeTable.length < 2) {
+    throw new Error(`Invalid kintree data from ${basePath}: expected [[parents], [children]]`);
+  }
 
   const template = new Float32Array(templateBuf);
   const faces = new Uint32Array(facesBuf);
