@@ -16,18 +16,17 @@ import { RefineHarness } from './refine/RefineHarness';
 const DATA_URL = '/data/market-data.json';
 
 export function App() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('refine') === 'true') {
-    return <RefineHarness />;
-  }
-
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<FaceRenderer | null>(null);
   const driverRef = useRef<FrameDriver | null>(null);
   const [status, setStatus] = useState<string>('Loading...');
   const [ready, setReady] = useState(false);
 
+  const params = new URLSearchParams(window.location.search);
+  const isRefine = params.get('refine') === 'true';
+
   useEffect(() => {
+    if (isRefine) return;
     let disposed = false;
     let hoverDispose: (() => void) | null = null;
     let clickDispose: (() => void) | null = null;
@@ -126,6 +125,10 @@ export function App() {
     useStore.getState().setShowLanding(false);
     driverRef.current?.play();
   };
+
+  if (isRefine) {
+    return <RefineHarness />;
+  }
 
   return (
     <div id="app" style={{ width: '100%', height: '100%', position: 'relative' }}>

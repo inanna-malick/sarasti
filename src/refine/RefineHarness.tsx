@@ -32,6 +32,8 @@ declare global {
   interface Window {
     __REFINE_CONFIG?: RefineConfig;
     __REFINE_READY?: boolean;
+    __REFINE_TARGET_VERSION?: number;
+    __REFINE_RENDERED_VERSION?: number;
   }
 }
 
@@ -59,7 +61,7 @@ export function RefineHarness() {
         // Setup Three.js minimal scene (512x512)
         const size = 512;
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(1); // Force pixel ratio 1 for deterministic screenshots
         renderer.setSize(size, size);
         renderer.setClearColor(0x1a1a1a);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -128,7 +130,7 @@ export function RefineHarness() {
               const customConfig: BindingConfig = {
                 ...DEFAULT_BINDING_CONFIG,
                 expression_intensity: config.overrides.expressionIntensity ?? DEFAULT_BINDING_CONFIG.expression_intensity,
-                semantify_expr_intensity: config.overrides.semantifyExprIntensity ?? (DEFAULT_BINDING_CONFIG as any).semantify_expr_intensity,
+                semantify_expr_intensity: config.overrides.semantifyExprIntensity ?? DEFAULT_BINDING_CONFIG.semantify_expr_intensity,
                 deviation_curve: {
                   ...DEFAULT_BINDING_CONFIG.deviation_curve,
                   steepness: config.overrides.deviationSteepness ?? DEFAULT_BINDING_CONFIG.deviation_curve.steepness,
@@ -165,6 +167,10 @@ export function RefineHarness() {
           }
 
           renderer.render(scene, camera);
+
+          if (window.__REFINE_TARGET_VERSION) {
+            window.__REFINE_RENDERED_VERSION = window.__REFINE_TARGET_VERSION;
+          }
         }
 
         renderLoop();

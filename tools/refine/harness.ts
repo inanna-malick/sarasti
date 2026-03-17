@@ -25,50 +25,59 @@ async function main() {
     args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
   });
 
-  const page = await browser.newPage();
-  await page.setViewportSize({ width: 512, height: 512 });
+  try {
+    const page = await browser.newPage();
+    await page.setViewportSize({ width: 512, height: 512 });
 
-  const url = `${baseUrl}/?refine=true`;
-  await page.goto(url, { waitUntil: 'networkidle' });
+    const url = `${baseUrl}/?refine=true`;
+    await page.goto(url, { waitUntil: 'networkidle' });
 
-  // Wait for the harness to declare itself ready
-  await page.waitForFunction(() => (window as any).__REFINE_READY === true, { timeout: 15000 });
+    // Wait for the harness to declare itself ready
+    await page.waitForFunction(() => (window as any).__REFINE_READY === true, { timeout: 15000 });
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false
-  });
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    });
 
-  for await (const line of rl) {
-    if (!line.trim()) continue;
-    
-    try {
-      const config = JSON.parse(line);
+    for await (const line of rl) {
+      if (!line.trim()) continue;
       
-      // Inject config
-      await page.evaluate((cfg) => {
-        (window as any).__REFINE_CONFIG = cfg;
-      }, config);
+      try {
+        const config = JSON.parse(line);
+        const currentRenderVersion = Date.now();
+        
+        // Inject config
+        await page.evaluate(({cfg, version}) => {
+          (window as any).__REFINE_CONFIG = cfg;
+          (window as any).__REFINE_TARGET_VERSION = version;
+        }, { cfg: config, version: currentRenderVersion });
 
-      // Wait a short moment for render loop to pick it up and Three.js to draw
-      await page.waitForTimeout(50);
-      
-      const hash = crypto.createHash('md5').update(line).digest('hex').substring(0, 8);
-      const filename = `render_${config.tickerId}_${hash}_${Date.now()}.png`;
-      const path = resolve(RENDERS_DIR, filename);
+        // Wait for the render loop to acknowledge the config and finish rendering
+        await page.waitForFunction(
+          (version) => (window as any).__REFINE_RENDERED_VERSION === version,
+          currentRenderVersion,
+          { timeout: 5000 }
+        );
+        
+        const hash = crypto.createHash('md5').update(line).digest('hex').substring(0, 8);
+        const safeTickerId = config.tickerId.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 32);
+        const filename = `render_${safeTickerId}_${hash}_${currentRenderVersion}.png`;
+        const path = resolve(RENDERS_DIR, filename);
 
-      await page.screenshot({ path, type: 'png' });
-      
-      // Write path to stdout
-      console.log(path);
-    } catch (err) {
-      console.error(`Error processing line: ${err instanceof Error ? err.message : String(err)}`);
+        await page.screenshot({ path, type: 'png' });
+        
+        // Write path to stdout
+        console.log(path);
+      } catch (err) {
+        console.error(`Error processing line: ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
+  } finally {
+    await browser?.close();
+    await server?.close();
   }
-
-  await browser.close();
-  await server.close();
 }
 
 main().catch(err => {
