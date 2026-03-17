@@ -7,6 +7,7 @@ import { mapIdentityToShape } from './shape/identity';
 import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
 import { DEFAULT_BINDING_CONFIG } from './config';
+import { applyCurve } from './curves';
 
 // ─── Shape Resolver ─────────────────────────────────
 
@@ -115,16 +116,77 @@ export function createExpressionResolver(
 function mapEnrichedToExpression(
   expression: Float32Array,
   frame: TickerFrame,
-  _config: BindingConfig,
+  config: BindingConfig,
 ): void {
+  const tiers = config.tier_intensities || [1.0, 0.5, 0.2, 0.1];
+  const t1Intensity = config.expression_intensity;
+
+  // Tier 2: volume_anomaly → ψ₁₆₋₂₀ (alertness/exhaustion)
+  if (frame.volume_anomaly !== undefined && config.volume_anomaly_curve) {
+    const volMapped = applyCurve(config.volume_anomaly_curve, frame.volume_anomaly);
+    const tier2Intensity = t1Intensity * tiers[1];
+
+    if (volMapped > 0 && config.expression.alertness) {
+      // Surge → Alertness
+      blendRegister(expression, config.expression.alertness, volMapped * tier2Intensity);
+    } else if (volMapped < 0 && config.expression.exhaustion) {
+      // Collapse → Exhaustion
+      blendRegister(expression, config.expression.exhaustion, Math.abs(volMapped) * tier2Intensity);
+    }
+  }
+
+  // Tier 3: structural expressions (ψ₂₁₋₄₀)
+  const tier3Intensity = t1Intensity * tiers[2];
+
+  // Correlation breakdown (ψ₂₁₋₂₅)
+  if (frame.corr_breakdown !== undefined && config.corr_breakdown_curve && config.expression.corr_breakdown) {
+    const val = applyCurve(config.corr_breakdown_curve, frame.corr_breakdown);
+    blendRegister(expression, config.expression.corr_breakdown, val * tier3Intensity);
+  }
+
+  // Term structure slope (ψ₂₆₋₃₀)
+  if (frame.term_slope !== undefined && config.term_slope_curve && config.expression.term_structure) {
+    const val = applyCurve(config.term_slope_curve, frame.term_slope);
+    blendRegister(expression, config.expression.term_structure, val * tier3Intensity);
+  }
+
+  // Cross-asset contagion (ψ₃₁₋₃₅)
+  if (frame.cross_contagion !== undefined && config.cross_contagion_curve && config.expression.contagion) {
+    const val = applyCurve(config.cross_contagion_curve, frame.cross_contagion);
+    blendRegister(expression, config.expression.contagion, val * tier3Intensity);
+  }
+
+  // High-low ratio (strain) (ψ₃₆₋₄₀)
+  if (frame.high_low_ratio !== undefined && config.high_low_ratio_curve && config.expression.strain) {
+    const val = applyCurve(config.high_low_ratio_curve, frame.high_low_ratio);
+    blendRegister(expression, config.expression.strain, val * tier3Intensity);
+  }
+
   // Sarasti residual: direct injection if present
   if (frame.expr_residuals) {
     const residualStart = 40; // ψ₄₁₋₁₀₀
+    const residualIntensity = tiers[3]; // residuals are already scaled in pre-computation usually, but we use the tier scale
     for (let i = 0; i < frame.expr_residuals.length && (residualStart + i) < N_EXPR; i++) {
-      expression[residualStart + i] = frame.expr_residuals[i];
+      expression[residualStart + i] = frame.expr_residuals[i] * residualIntensity;
     }
   }
-  // Tier 2/3 named bindings: stub — expression-enrichment dev fills this in
+}
+
+/**
+ * Additively blend a register into an expression vector.
+ * Shared logic with mapDynamicsToExpression.
+ */
+function blendRegister(
+  expression: Float32Array,
+  register: { indices: number[]; weights: number[] },
+  strength: number,
+): void {
+  for (let i = 0; i < register.indices.length; i++) {
+    const idx = register.indices[i];
+    if (idx < expression.length) {
+      expression[idx] += register.weights[i] * strength;
+    }
+  }
 }
 
 // ─── Unified Resolver ───────────────────────────────
