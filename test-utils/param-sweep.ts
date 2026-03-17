@@ -1,5 +1,6 @@
 import { N_SHAPE, N_EXPR } from '../src/constants';
 import type { FaceParams, FaceInstance, TickerConfig, TickerFrame } from '../src/types';
+import { zeroPose } from '../src/types';
 
 /**
  * Generate FaceParams with a single component swept across a range.
@@ -24,7 +25,7 @@ export function sweepSingleComponent(
       expression[componentIndex] = value;
     }
 
-    return { shape, expression };
+    return { shape, expression, pose: zeroPose() };
   });
 }
 
@@ -82,6 +83,6 @@ export function makeGallery9(): FaceParams[] {
     expression[1] = (row - 1) * 1.0;
     expression[2] = (i / 8 - 0.5) * 1.5;
 
-    return { shape, expression };
+    return { shape, expression, pose: zeroPose() };
   });
 }

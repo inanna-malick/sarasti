@@ -1,4 +1,5 @@
 import type { TickerConfig, TickerFrame, Frame, TimelineDataset, FaceParams } from '../src/types';
+import { zeroPose } from '../src/types';
 import { N_SHAPE, N_EXPR } from '../src/constants';
 
 // ─── Synthetic test dataset ─────────────────────────
@@ -58,6 +59,7 @@ export function zeroFaceParams(): FaceParams {
   return {
     shape: new Float32Array(N_SHAPE),
     expression: new Float32Array(N_EXPR),
+    pose: zeroPose(),
   };
 }
 
@@ -66,5 +68,5 @@ export function randomFaceParams(): FaceParams {
   const expression = new Float32Array(N_EXPR);
   for (let i = 0; i < N_SHAPE; i++) shape[i] = (Math.random() - 0.5) * 2;
   for (let i = 0; i < N_EXPR; i++) expression[i] = (Math.random() - 0.5) * 2;
-  return { shape, expression };
+  return { shape, expression, pose: zeroPose() };
 }

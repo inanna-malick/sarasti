@@ -1,6 +1,15 @@
 // FLAME model dimensions (truncated for performance)
 export const N_SHAPE = 100;
 export const N_EXPR = 100;
+export const N_JOINTS = 5; // neck, jaw, left_eye, right_eye, root
+
+// Pose safe ranges (radians)
+export const MAX_NECK_PITCH = 0.25;
+export const MAX_NECK_YAW = 0.30;
+export const MAX_NECK_ROLL = 0.15;
+export const MAX_JAW_OPEN = 0.5;
+export const MAX_EYE_HORIZONTAL = 0.35;
+export const MAX_EYE_VERTICAL = 0.25;
 
 // Timeline
 export const TIMELINE_START = '2026-02-25T00:00:00Z';

@@ -1,4 +1,5 @@
-import type { TickerConfig, TickerFrame, TickerStatic, FaceParams } from '../types';
+import type { TickerConfig, TickerFrame, TickerStatic, FaceParams, PoseParams } from '../types';
+import { zeroPose } from '../types';
 import type { ShapeResolver, ExpressionResolver, BindingConfig } from './types';
 import { emptyShape, emptyExpression } from './types';
 import { N_SHAPE, N_EXPR } from '../constants';
@@ -320,6 +321,7 @@ export function resolve(
   return {
     shape: shapeResolver.resolve(ticker),
     expression: exprResolver.resolve(frame),
+    pose: zeroPose(),
   };
 }
 
@@ -343,6 +345,7 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       return {
         shape,
         expression: exprResolver.resolve(frame),
+        pose: zeroPose(),
       };
     },
 
