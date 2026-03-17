@@ -2,13 +2,13 @@ import * as THREE from 'three';
 
 export interface EyeMaterialOptions {
   irisColor: THREE.Color;    // deterministic from ticker hash
-  irisRadius?: number;       // default 0.12
-  pupilRadius?: number;      // default 0.04
+  irisRadius?: number;       // default 0.26
+  pupilRadius?: number;      // default 0.09
 }
 
 export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMaterial {
-  const irisRadius = options.irisRadius ?? 0.12;
-  const pupilRadius = options.pupilRadius ?? 0.04;
+  const irisRadius = options.irisRadius ?? 0.26;
+  const pupilRadius = options.pupilRadius ?? 0.09;
 
   const vertexShader = `
     varying vec3 vLocalPos;
@@ -70,9 +70,9 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
         color = mix(color, vec3(0.8, 0.4, 0.4), (n - 0.8) * 0.5);
       }
 
-      // Limbal ring (dark ring between sclera and iris)
-      float limbal = smoothstep(irisRadius + 0.01, irisRadius - 0.01, dist);
-      float limbalDarkness = smoothstep(irisRadius + 0.005, irisRadius, dist) * 0.3;
+      // Limbal ring (dark ring at the edge of the iris)
+      float limbal = (1.0 - smoothstep(irisRadius, irisRadius + 0.015, dist)) * smoothstep(irisRadius - 0.03, irisRadius, dist);
+      float limbalDarkness = limbal * 0.6;
       
       // Iris
       if (dist < irisRadius) {
@@ -81,19 +81,21 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
         float radial = 0.5 + 0.5 * sin(angle * 20.0 + noise(vLocalPos * 10.0) * 5.0);
         vec3 irisBase = mix(irisColor * 0.6, irisColor, radial);
         
-        // Darken towards pupil and limbal ring
-        irisBase *= (0.7 + 0.3 * smoothstep(pupilRadius, irisRadius, dist));
+        // Darken towards pupil (inner iris)
+        irisBase *= (0.8 + 0.2 * smoothstep(pupilRadius, irisRadius, dist));
         
-        color = mix(color, irisBase, smoothstep(irisRadius, irisRadius - 0.005, dist));
+        float irisBlend = 1.0 - smoothstep(irisRadius - 0.01, irisRadius, dist);
+        color = mix(color, irisBase, irisBlend);
       }
       
       // Pupil
       if (dist < pupilRadius) {
-        color = mix(color, vec3(0.02), smoothstep(pupilRadius, pupilRadius - 0.002, dist));
+        float pupilBlend = 1.0 - smoothstep(pupilRadius - 0.005, pupilRadius, dist);
+        color = mix(color, vec3(0.015), pupilBlend);
       }
       
-      // Apply limbal darkness
-      color -= limbalDarkness;
+      // Apply limbal darkness (properly centered on the edge)
+      color = mix(color, vec3(0.0), limbalDarkness);
 
       // Fake specular highlight (upper-left)
       vec2 specPos = vec2(-0.04, 0.04) + gazeOffset * 0.5;
