@@ -165,9 +165,10 @@ export function createLowerGumsGeometry(m: MouthMeasurements): THREE.BufferGeome
  * Tongue: flattened ellipsoid stub.
  */
 export function createTongueGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const widthRadius = m.lipWidth * 0.15;
-  const heightRadius = m.lipHeight * 0.06;
-  const lengthRadius = m.mouthDepth * 0.3;
+  const EPS = 1e-6;
+  const widthRadius = Math.max(EPS, m.lipWidth * 0.15);
+  const heightRadius = Math.max(EPS, m.lipHeight * 0.06);
+  const lengthRadius = Math.max(EPS, m.mouthDepth * 0.3);
 
   const widthSegs = 12;
   const heightSegs = 6;

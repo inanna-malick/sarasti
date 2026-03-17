@@ -48,20 +48,19 @@ describe('extractMouthMeasurements', () => {
 
     const measurements = extractMouthMeasurements(model);
 
-    expect(measurements.lipVertices).toEqual([1, 3]);
-    expect(measurements.lipWidth).toBeGreaterThan(0);
-    expect(measurements.lipHeight).toBeGreaterThanOrEqual(0);
-    expect(measurements.jawJointPosition).toBeDefined();
-    expect(measurements.mouthCenter).toBeDefined();
+    expect(measurements).not.toBeNull();
+    expect(measurements!.lipVertices).toEqual([1, 3]);
+    expect(measurements!.lipWidth).toBeGreaterThan(0);
+    expect(measurements!.lipHeight).toBeGreaterThanOrEqual(0);
+    expect(measurements!.jawJointPosition).toBeDefined();
+    expect(measurements!.mouthCenter).toBeDefined();
   });
 
-  it('returns empty lip vertices when no vertices have jaw weight in range', () => {
+  it('returns null when no vertices have jaw weight in range', () => {
     const model = makeMockFlameModel();
     // Default mock weights have no vertices in [0.3, 0.7] for jaw
 
     const measurements = extractMouthMeasurements(model);
-    expect(measurements.lipVertices).toEqual([]);
-    // With no lip vertices, extents are degenerate
-    expect(measurements.lipWidth).toBe(-Infinity);
+    expect(measurements).toBeNull();
   });
 });

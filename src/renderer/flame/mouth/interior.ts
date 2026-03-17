@@ -52,8 +52,8 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
 
   // --- Lower group (tracks jaw joint) ---
   const lowerGroup = new THREE.Group();
-  const lowerTeeth = new THREE.Mesh(lowerTeethGeo, teethMat.clone());
-  const lowerGums = new THREE.Mesh(lowerGumsGeo, gumsMat.clone());
+  const lowerTeeth = new THREE.Mesh(lowerTeethGeo, teethMat);
+  const lowerGums = new THREE.Mesh(lowerGumsGeo, gumsMat);
   const tongue = new THREE.Mesh(tongueGeo, tongueMat);
 
   // Offset tongue slightly back
@@ -75,14 +75,7 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   cavityMesh.renderOrder = -2;
 
   // Collect all materials for opacity control
-  const allMaterials: THREE.Material[] = [
-    teethMat,
-    gumsMat,
-    tongueMat,
-    cavityMat,
-    lowerTeeth.material as THREE.Material,
-    lowerGums.material as THREE.Material,
-  ];
+  const allMaterials: THREE.Material[] = [teethMat, gumsMat, tongueMat, cavityMat];
 
   // Start hidden
   upperGroup.visible = false;

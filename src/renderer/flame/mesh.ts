@@ -20,7 +20,7 @@ export class FlameFaceMesh {
   private leftEyeMaterial: THREE.ShaderMaterial;
   private rightEyeMaterial: THREE.ShaderMaterial;
   private pipeline: FlamePipeline;
-  private mouthInterior: MouthInterior;
+  private mouthInterior: MouthInterior | null;
   private baseColors!: Float32Array;
 
   constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
@@ -141,10 +141,14 @@ gl_FragColor.a *= fade;`
 
     // 4. Mouth interior — procedural geometry parented to face mesh
     const mouthMeasurements = extractMouthMeasurements(model);
-    this.mouthInterior = createMouthInterior(mouthMeasurements);
-    this.mesh.add(this.mouthInterior.upperGroup);
-    this.mesh.add(this.mouthInterior.lowerGroup);
-    this.mesh.add(this.mouthInterior.cavityMesh);
+    if (mouthMeasurements) {
+      this.mouthInterior = createMouthInterior(mouthMeasurements);
+      this.mesh.add(this.mouthInterior.upperGroup);
+      this.mesh.add(this.mouthInterior.lowerGroup);
+      this.mesh.add(this.mouthInterior.cavityMesh);
+    } else {
+      this.mouthInterior = null;
+    }
   }
 
   public updateFromParams(params: FaceParams): void {
@@ -163,7 +167,7 @@ gl_FragColor.a *= fade;`
     this.updateTexture(params.flush, params.fatigue);
 
     // Update mouth interior with jaw angle
-    this.mouthInterior.update(pose.jaw);
+    this.mouthInterior?.update(pose.jaw);
 
     // Update gaze offsets
     this.leftEyeMaterial.uniforms.gazeOffset.value.set(
@@ -355,6 +359,6 @@ gl_FragColor.a *= fade;`
     this.material.dispose();
     this.leftEyeMaterial.dispose();
     this.rightEyeMaterial.dispose();
-    this.mouthInterior.dispose();
+    this.mouthInterior?.dispose();
   }
 }

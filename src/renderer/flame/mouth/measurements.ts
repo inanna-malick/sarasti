@@ -31,11 +31,15 @@ export function identifyLipVertices(
  * Uses skinning weights to identify lip boundary vertices,
  * then computes spatial extents for geometry sizing.
  */
-export function extractMouthMeasurements(model: FlameModel): MouthMeasurements {
+export function extractMouthMeasurements(model: FlameModel): MouthMeasurements | null {
   const { template, weights, jRegressor, n_vertices, n_joints } = model;
 
   // 1. Identify lip boundary vertices
   const lipVertices = identifyLipVertices(weights, n_vertices, n_joints);
+
+  if (lipVertices.length === 0) {
+    return null;
+  }
 
   // 2. Compute bounding box of lip vertices
   let minX = Infinity, maxX = -Infinity;
@@ -59,11 +63,7 @@ export function extractMouthMeasurements(model: FlameModel): MouthMeasurements {
   }
 
   const n = lipVertices.length;
-  const mouthCenter = new THREE.Vector3(
-    n > 0 ? sumX / n : 0,
-    n > 0 ? sumY / n : 0,
-    n > 0 ? sumZ / n : 0,
-  );
+  const mouthCenter = new THREE.Vector3(sumX / n, sumY / n, sumZ / n);
 
   // 3. Compute jaw joint position from joint regressor
   const jointLocations = computeJointLocations(jRegressor, template, n_joints, n_vertices);

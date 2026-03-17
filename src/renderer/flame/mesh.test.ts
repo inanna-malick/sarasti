@@ -199,6 +199,26 @@ describe('FlameFaceMesh', () => {
     expect(() => meshWrapper.dispose()).not.toThrow();
   });
 
+  it('gracefully handles no lip vertices (no mouth interior)', () => {
+    // mockModel has all-zero weights → no lip vertices → mouthInterior is null
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+
+    // No mouth interior children (only scene graph children from Three.js internals)
+    const mouthGroups = meshWrapper.mesh.children.filter(c => c instanceof THREE.Group);
+    expect(mouthGroups.length).toBe(0);
+
+    // updateFromParams with jaw open should not throw
+    const params: FaceParams = {
+      shape: new Float32Array(100).fill(0),
+      expression: new Float32Array(100).fill(0),
+      pose: { ...zeroPose(), jaw: 0.15 },
+      flush: 0,
+      fatigue: 0,
+    };
+    expect(() => meshWrapper.updateFromParams(params)).not.toThrow();
+    expect(() => meshWrapper.dispose()).not.toThrow();
+  });
+
   it('should handle missing pose in updateFromParams without throwing', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
     
