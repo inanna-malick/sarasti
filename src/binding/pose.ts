@@ -58,11 +58,11 @@ export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
 
       // Volatility asymmetry
       const targetRoll = fullConfig.enableRoll
-        ? clamp((volatility - 1.0) * 0.3, -fullConfig.maxRoll, fullConfig.maxRoll)
+        ? clamp((volatility - 1.5) * 0.1, -fullConfig.maxRoll, fullConfig.maxRoll)
         : 0;
 
       // Higher volatility -> mouth opens
-      const targetJaw = clamp((volatility - 1.0) * 0.3, 0, fullConfig.maxJaw);
+      const targetJaw = clamp((volatility - 1.5) * 0.1, 0, fullConfig.maxJaw);
 
       // 2. Apply Smoothing
       let state = states.get(tickerId);

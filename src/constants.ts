@@ -7,7 +7,7 @@ export const N_JOINTS = 5; // neck, jaw, left_eye, right_eye, root
 export const MAX_NECK_PITCH = 0.25;
 export const MAX_NECK_YAW = 0.30;
 export const MAX_NECK_ROLL = 0.15;
-export const MAX_JAW_OPEN = 0.5;
+export const MAX_JAW_OPEN = 0.2;
 export const MAX_EYE_HORIZONTAL = 0.35;
 export const MAX_EYE_VERTICAL = 0.25;
 
