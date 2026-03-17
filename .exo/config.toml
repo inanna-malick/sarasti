@@ -1,3 +1,4 @@
 # ExoMonad project config
 tmux_session = "SARASTI"
+yolo = true
 otlp_endpoint = "http://localhost:4317"

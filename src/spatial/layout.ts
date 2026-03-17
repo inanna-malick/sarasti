@@ -1,11 +1,120 @@
-import type { TickerConfig, LayoutStrategy, LayoutResult } from '../types';
+import type { TickerConfig, LayoutStrategy, LayoutResult, AssetClass } from '../types';
+import { FACE_SPACING } from '../constants';
 
-/**
- * Compute 3D positions for faces given a layout strategy.
- */
-export function computeLayout(
-  _tickers: TickerConfig[],
-  _strategy: LayoutStrategy,
-): LayoutResult {
-  throw new Error('Not implemented — see spatial worktree');
+const FACE_RADIUS = 1.0;
+const SPACING = FACE_SPACING * FACE_RADIUS;
+
+export function computeLayout(tickers: TickerConfig[], strategy: LayoutStrategy): LayoutResult {
+  const positions = new Map<string, [number, number, number]>();
+
+  switch (strategy.kind) {
+    case 'family-rows':
+      computeFamilyRows(tickers, positions);
+      break;
+    case 'class-clusters':
+      computeClassClusters(tickers, positions);
+      break;
+    case 'reactivity-sweep':
+      computeReactivitySweep(tickers, positions);
+      break;
+    default: {
+      const exhaustiveCheck: never = strategy;
+      throw new Error(`Unhandled strategy kind: ${(exhaustiveCheck as any).kind}`);
+    }
+  }
+
+  return { positions };
+}
+
+function computeFamilyRows(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
+  const assetClassOrder: AssetClass[] = ['energy', 'fear', 'currency', 'equity', 'media'];
+  
+  // Group tickers by family, maintaining asset class order for families
+  const families: { id: string, class: AssetClass, tickers: TickerConfig[] }[] = [];
+  
+  // To preserve order of families as they appear in assetClassOrder
+  for (const ac of assetClassOrder) {
+    const acTickers = tickers.filter(t => t.class === ac);
+    const acFamilies: string[] = [];
+    for (const t of acTickers) {
+      if (!acFamilies.includes(t.family)) {
+        acFamilies.push(t.family);
+      }
+    }
+    for (const familyId of acFamilies) {
+      families.push({
+        id: familyId,
+        class: ac,
+        tickers: acTickers.filter(t => t.family === familyId).sort((a, b) => a.age - b.age)
+      });
+    }
+  }
+
+  // Energy families top (highest Y), Media bottom (lowest Y)
+  // We have 'families.length' rows.
+  const rowCount = families.length;
+  const startY = rowCount > 0 ? (rowCount - 1) * SPACING / 2 : 0;
+
+  families.forEach((family, rowIndex) => {
+    const y = startY - rowIndex * SPACING;
+    const rowWidth = (family.tickers.length - 1) * SPACING;
+    const startX = -rowWidth / 2;
+
+    family.tickers.forEach((ticker, colIndex) => {
+      const x = startX + colIndex * SPACING;
+      positions.set(ticker.id, [x, y, 0]);
+    });
+  });
+}
+
+function computeClassClusters(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
+  const assetClasses: AssetClass[] = ['energy', 'fear', 'currency', 'equity', 'media'];
+  const clusters = assetClasses.map(ac => ({
+    class: ac,
+    tickers: tickers.filter(t => t.class === ac).sort((a, b) => a.age - b.age)
+  }));
+
+  // 3x2 Grid of clusters
+  // Energy (0,1), Fear (1,1), Currency (2,1)
+  // Equity (0,0), Media (1,0)
+  const clusterCoords = [
+    [0, 1], [1, 1], [2, 1],
+    [0, 0], [1, 0]
+  ];
+
+  const CLUSTER_SPACING = SPACING * 10;
+
+  clusters.forEach((cluster, i) => {
+    if (cluster.tickers.length === 0) return;
+
+    const [cx, cy] = clusterCoords[i];
+    const centerX = (cx - 1.0) * CLUSTER_SPACING;
+    const centerY = (cy - 0.5) * CLUSTER_SPACING;
+
+    // Within cluster, arrange in a small grid or line.
+    // Ensure cols is at least 1.
+    const cols = Math.max(1, Math.ceil(Math.sqrt(cluster.tickers.length)));
+    const startX = centerX - ((cols - 1) * SPACING) / 2;
+    const startY = centerY + ((Math.ceil(cluster.tickers.length / cols) - 1) * SPACING) / 2;
+
+    cluster.tickers.forEach((ticker, index) => {
+      const r = Math.floor(index / cols);
+      const c = index % cols;
+      positions.set(ticker.id, [
+        startX + c * SPACING,
+        startY - r * SPACING,
+        0
+      ]);
+    });
+  });
+}
+
+function computeReactivitySweep(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
+  const sorted = [...tickers].sort((a, b) => a.age - b.age);
+  const totalWidth = sorted.length > 0 ? (sorted.length - 1) * SPACING : 0;
+  const startX = -totalWidth / 2;
+
+  sorted.forEach((ticker, index) => {
+    positions.set(ticker.id, [startX + index * SPACING, 0, 0]);
+  });
 }
