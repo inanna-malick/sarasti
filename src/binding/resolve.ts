@@ -134,14 +134,6 @@ function mapStaticsToShape(
     }
   }
 
-  // β₂₆₋₃₀ ← market_cap (proxy: spread_from_family)
-  if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.market_cap_indices) {
-    const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
-    for (const idx of config.shape.market_cap_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
   // β₃₁₋₃₅ ← spread_from_family
   if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.spread_indices) {
     const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
