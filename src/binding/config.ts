@@ -50,35 +50,36 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   },
 
   expression: {
-    // DISTRESS: market falling — frown, jaw clench, brow furrow, nose wrinkle
-    // ψ1- frown, ψ0- jaw clench, ψ9 brow furrow, ψ4 eye squint,
-    // ψ5 nose wrinkle/sneer, ψ2- lips press, ψ7 chin tension
+    // DISTRESS: market falling — SCREAM. Jaw open, mouth wide, brow furrowed, frown.
+    // ψ0+ jaw open (scream), ψ2+ mouth open wide, ψ1- frown (corners down),
+    // ψ4+ brow furrow/squint, ψ9+ brow tension, ψ3+ lip part
     distress: {
-      indices: [1, 0, 9, 4, 5, 2, 7],
-      weights: [-1.0, -0.6, 0.8, 0.5, 0.6, -0.5, 0.4],
+      indices: [0, 2, 1, 4, 9, 3],
+      weights: [1.0, 1.0, -0.8, 0.7, 0.6, 0.5],
     },
 
-    // SHOCK: unexpected spike — jaw drops, mouth open, brow raise, eyes wide
-    // ψ0+ jaw open, ψ2+ mouth/brow raise, ψ1+ lips spread,
-    // ψ3+ lip part, ψ4- eyes widen (anti-squint), ψ9- brow unfurrow
+    // SHOCK: unexpected spike — gasp. Jaw drops, eyes wide, brow raised.
+    // ψ0+ jaw open, ψ2+ mouth open, ψ4- eyes wide (anti-squint),
+    // ψ9- brow raise (unfurrow), ψ3+ lip part, ψ1+ slight smile (ironic)
     shock: {
-      indices: [0, 2, 1, 3, 4, 9],
-      weights: [1.0, 0.9, 0.3, 0.5, -0.5, -0.4],
+      indices: [0, 2, 4, 9, 3, 1],
+      weights: [1.0, 0.9, -0.7, -0.6, 0.5, 0.2],
     },
 
-    // RELIEF: recovery — smile, relaxed brow, soft
-    // ψ1+ smile, ψ0+ jaw relax, ψ4- eyes relax, ψ5- nose relax
+    // RELIEF: recovery — smile, relaxed jaw, soft.
+    // ψ1+ smile, ψ0+ jaw relax, ψ4- eyes relax, ψ9- brow relax
     relief: {
-      indices: [1, 0, 4, 5, 9],
-      weights: [1.0, 0.4, -0.3, -0.2, -0.3],
+      indices: [1, 0, 4, 9, 5],
+      weights: [1.0, 0.3, -0.4, -0.3, -0.2],
     },
 
-    // DREAD: grinding sustained negative — tight grimace, compressed, tense
-    // ψ1- downturn, ψ2- lips pressed, ψ0- jaw clench, ψ9 brow furrow,
-    // ψ7 chin tension, ψ4 eye squint, ψ6 asymmetry
+    // DREAD: grinding sustained negative — frozen scream, tight, furrowed.
+    // ψ0+ jaw open (but less than distress), ψ1- deep frown,
+    // ψ4+ heavy squint, ψ9+ intense brow furrow, ψ2+ lips apart,
+    // ψ7 chin tension, ψ6 asymmetry (face breaks symmetry under strain)
     dread: {
-      indices: [1, 2, 0, 9, 7, 4, 6],
-      weights: [-0.9, -0.8, -0.5, 0.7, 0.5, 0.4, 0.3],
+      indices: [0, 1, 4, 9, 2, 7, 6],
+      weights: [0.6, -1.0, 0.8, 0.9, 0.5, 0.4, 0.3],
     },
 
     // ─── Tier 2 (ψ₁₆₋₂₀): alertness/exhaustion ──────────
@@ -123,11 +124,11 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     steepness: 4,
   },
 
-  // Velocity: exponential so small velocity changes still register
+  // Velocity: wider range than deviation — velocity can spike harder
   velocity_curve: {
     type: 'exponential',
-    input_min: -MAX_DEVIATION_SIGMA,
-    input_max: MAX_DEVIATION_SIGMA,
+    input_min: -3.0,
+    input_max: 3.0,
     output_min: -1,
     output_max: 1,
     steepness: 3,
