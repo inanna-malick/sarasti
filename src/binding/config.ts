@@ -288,3 +288,22 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     steepness: 1,
   },
 };
+
+export const TEXTURE_CONFIG = {
+  ema_window: 20,
+  ema_alpha: 2 / (20 + 1),
+  flush: {
+    components: [0, 2],
+    weights: [2.0, 1.5],
+    sigmoid_center: 0.15,
+    sigmoid_steepness: 4,
+    sigmoid_range: [0, 0.3] as [number, number],
+  },
+  fatigue: {
+    components: [5, 8],
+    weights: [1.5, -1.0],
+    sigmoid_center: 1.25,
+    sigmoid_steepness: 3,
+    sigmoid_range: [0.5, 2.0] as [number, number],
+  },
+};

@@ -136,4 +136,26 @@ describe('createResolver (cached)', () => {
     expect(calm.shape).toBe(crisis.shape);
     expect(calm.expression).not.toBe(crisis.expression);
   });
+
+  it('updates flush/fatigue and can be reset', () => {
+    const resolver = createResolver();
+    const ticker = TICKERS[0];
+    
+    // Initial resolve
+    const first = resolver.resolve(ticker, makeTickerFrame({ deviation: 0, volatility: 1.0 }));
+    expect(first.flush).toBeLessThan(0); // Near baseline
+    expect(first.fatigue).toBeLessThan(0.1); // Near baseline
+    
+    // High deviation frames
+    for (let i = 0; i < 30; i++) {
+      resolver.resolve(ticker, makeTickerFrame({ deviation: 0.5, volatility: 1.0 }));
+    }
+    const afterHighDev = resolver.resolve(ticker, makeTickerFrame({ deviation: 0.5, volatility: 1.0 }));
+    expect(afterHighDev.flush).toBeGreaterThan(0.5);
+    
+    // Reset accumulators
+    resolver.resetAccumulators();
+    const afterReset = resolver.resolve(ticker, makeTickerFrame({ deviation: 0, volatility: 1.0 }));
+    expect(afterReset.flush).toBeLessThan(0); // Back to baseline
+  });
 });
