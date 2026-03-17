@@ -21,3 +21,17 @@ export function mapIdentityToShape(
 
   return { class_entries, family_entries };
 }
+
+/**
+ * Returns a human-readable description of the shape intent for an asset class.
+ */
+export function getClassDescription(assetClass: AssetClass): string {
+  switch (assetClass) {
+    case 'energy':   return 'wider face, heavier jaw';
+    case 'fear':     return 'narrow, sharp features';
+    case 'currency': return 'neutral baseline';
+    case 'equity':   return 'rounder, softer features';
+    case 'media':    return 'most angular, alien features';
+    default:         return 'standard features';
+  }
+}

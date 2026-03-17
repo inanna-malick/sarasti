@@ -20,8 +20,10 @@ export function mapAgeToShape(
   age: number,
   mapping: AgeMapping = DEFAULT_AGE_MAPPING,
 ): AgeShapeResult {
-  // Normalize age to [0, 1]
-  const t = Math.max(0, Math.min(1, (age - 20) / 40));
+  // Normalize age to [0, 1]. Default to 0.5 (middle age) if age is NaN.
+  let t = (age - 20) / 40;
+  if (Number.isNaN(t)) t = 0.5;
+  t = Math.max(0, Math.min(1, t));
 
   const entries: [number, number][] = mapping.indices.map((idx, i) => {
     const value = mapping.young_values[i] + t * (mapping.old_values[i] - mapping.young_values[i]);
@@ -29,4 +31,25 @@ export function mapAgeToShape(
   });
 
   return { entries };
+}
+
+/**
+ * Validates that age mapping indices don't overlap with identity indices.
+ */
+export function validateAgeMapping(mapping: AgeMapping): boolean {
+  const identityIndices = new Set([
+    ...SHAPE_ALLOCATION.class_indices,
+    ...SHAPE_ALLOCATION.family_indices,
+  ]);
+  return !mapping.indices.some((idx) => identityIndices.has(idx));
+}
+
+/**
+ * Returns a human-readable description for debugging/tooltips.
+ */
+export function getAgeDescription(age: number): string {
+  if (age < 30) return `young (${age})`;
+  if (age < 45) return `middle-aged (${age})`;
+  if (age < 55) return `adult (${age})`;
+  return `elder (${age})`;
 }
