@@ -44,8 +44,39 @@ export class SceneCompositor {
    * Sync the scene graph to match the given instances.
    * Creates new meshes, updates existing, removes stale.
    */
-  setInstances(_instances: FaceInstance[]): void {
-    throw new Error('Not implemented — compositor Dev worktree');
+  setInstances(instances: FaceInstance[]): void {
+    // 1. Build a Set of incoming ids.
+    const incomingIds = new Set(instances.map(inst => inst.id));
+
+    // 2. Remove meshes whose id is no longer present.
+    for (const [id, fm] of this.meshes.entries()) {
+      if (!incomingIds.has(id)) {
+        this.scene.remove(fm.mesh);
+        this.meshToId.delete(fm.mesh);
+        fm.dispose();
+        this.meshes.delete(id);
+      }
+    }
+
+    // 3. For each instance: update if exists, or create new.
+    for (const instance of instances) {
+      let fm = this.meshes.get(instance.id);
+      if (!fm) {
+        fm = new FlameFaceMesh(this.pipeline);
+        this.meshes.set(instance.id, fm);
+        this.meshToId.set(fm.mesh, instance.id);
+        this.scene.add(fm.mesh);
+      }
+
+      // 4. Update position and parameters.
+      const [x, y, z] = instance.position;
+      fm.mesh.position.set(x, y, z);
+      fm.updateFromParams(instance.params);
+
+      // Crisis intensity from deviation.
+      const crisis = Math.min(1, Math.abs(instance.frame.deviation));
+      fm.setCrisis(crisis);
+    }
   }
 
   dispose(): void {
