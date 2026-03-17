@@ -44,6 +44,17 @@ describe('getFrame', () => {
     expect(getFrame(ds, -1).timestamp).toBe(ds.timestamps[0]);
     expect(getFrame(ds, 999).timestamp).toBe(ds.timestamps[ds.timestamps.length - 1]);
   });
+
+  it('handles empty frames gracefully', () => {
+    const emptyDs = {
+      tickers: [],
+      frames: [],
+      timestamps: [],
+      baseline_timestamp: '',
+    };
+    // This would have crashed with access to frames[0] or similar
+    expect(() => getFrame(emptyDs, 0)).not.toThrow();
+  });
 });
 
 describe('getFrameAtTime', () => {

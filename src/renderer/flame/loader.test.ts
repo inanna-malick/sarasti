@@ -94,18 +94,20 @@ describe('loadFlameModel', () => {
   it('throws a clear error if kintreeTable is null', async () => {
     // Modify fetch mock for this test only
     const originalFetch = global.fetch;
-    global.fetch = vi.fn(async (url: string | URL | Request) => {
-      const urlStr = typeof url === 'string' ? url : url instanceof URL ? url.href : url.url;
-      if (urlStr.includes('flame_kintree.json')) {
-        return new Response('null', {
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-      return (originalFetch as any)(url);
-    }) as unknown as typeof fetch;
+    try {
+      global.fetch = vi.fn(async (url: string | URL | Request) => {
+        const urlStr = typeof url === 'string' ? url : url instanceof URL ? url.href : url.url;
+        if (urlStr.includes('flame_kintree.json')) {
+          return new Response('null', {
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+        return (originalFetch as any)(url);
+      }) as unknown as typeof fetch;
 
-    await expect(loadFlameModel('/data/')).rejects.toThrow(/kintreeTable/i);
-    
-    global.fetch = originalFetch;
+      await expect(loadFlameModel('/data/')).rejects.toThrow(/Invalid kintree data/i);
+    } finally {
+      global.fetch = originalFetch;
+    }
   });
 });
