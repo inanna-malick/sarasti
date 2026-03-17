@@ -3,13 +3,17 @@
 Distill Semantify pretrained mappers into semantic direction LUTs.
 
 For each of our 4 axes (age, build, valence, aperture):
-  1. Encode positive/negative text prompts with CLIP ViT-B/32
+  1. Encode multiple keyframe prompts (5-7 per axis) with CLIP ViT-B/32
   2. At 20 points t=linspace(-3, 3, 20):
-     - Interpolate CLIP embedding: lerp(neg_emb, pos_emb, (t+3)/6)
-     - Compute cosine similarity against Semantify's descriptor vocabulary
+     - Find bracketing keyframes, lerp their descriptor sims
+     - Amplify relative to midpoint (gain targets ±0.3 swing at t=±3)
      - Forward through Semantify C2M mapper → 10 FLAME params
      - Pad to 100 dims
   3. Save as JSON lookup table
+
+Multi-keyframe prompts with hyperbolic extremes give the Semantify mapper
+richer nonlinear coverage across each axis, pushing into parameter ranges
+that realistic-face training never touches.
 
 Also computes identity offset basis (nullspace of shape direction matrix).
 
@@ -53,33 +57,58 @@ class C2M(nn.Module):
 
 
 # ─── Axis Definitions ─────────────────────────────────
-# Caricatured prompts — vivid, medium-probability descriptors
-# that give CLIP strong signal for fine features.
+# Multi-keyframe prompts with hyperbolic extremes.
+# Each axis has (t_score, prompt) keyframes independently CLIP-encoded,
+# giving the Semantify mapper richer nonlinear coverage.
 
 AXES = {
     'age': {
         'space': 'shape',
         'mapper': 'flame_shape',
-        'negative': "a strikingly young baby-smooth face with plump cheeks",
-        'positive': "a deeply weathered elderly face with heavy wrinkles and sunken eyes",
+        'prompts': [
+            (-3.0, "a strikingly young baby-smooth face with plump cheeks"),
+            (-1.5, "a youthful face in their twenties, smooth skin, soft jaw"),
+            ( 0.0, "a middle-aged face, some lines around eyes and mouth"),
+            ( 1.5, "a face showing clear signs of aging, wrinkles, sagging skin"),
+            ( 3.0, "a deeply weathered elderly face with heavy wrinkles and sunken eyes"),
+        ],
     },
     'build': {
         'space': 'shape',
         'mapper': 'flame_shape',
-        'negative': "an extremely gaunt hollow-cheeked emaciated face with sharp bones showing",
-        'positive': "an extremely heavy round fleshy face with full puffy cheeks and double chin",
+        'prompts': [
+            (-3.0, "an extremely gaunt hollow-cheeked emaciated face with sharp bones showing"),
+            (-1.5, "a thin face with visible cheekbones and lean jaw"),
+            ( 0.0, "an average face, neither thin nor heavy"),
+            ( 1.5, "a full round face with soft cheeks and wide jaw"),
+            ( 3.0, "an extremely heavy round fleshy face with full puffy cheeks and double chin"),
+        ],
     },
     'valence': {
         'space': 'expression',
         'mapper': 'flame_expression',
-        'negative': "a face twisted in anguish and distress with furrowed brow and grimace",
-        'positive': "a face beaming with genuine relief and happiness with relaxed warm smile",
+        'prompts': [
+            (-3.0, "the most distressed terrified horrified face imaginable — absolute panic, every muscle screaming"),
+            (-2.0, "a face contorted in fear and anguish, brow deeply furrowed, teeth clenched in dread"),
+            (-1.0, "a face showing clear worry and unease, slight frown, tense jaw"),
+            ( 0.0, "a perfectly neutral expressionless face"),
+            ( 1.0, "a face showing mild contentment, hint of a warm smile"),
+            ( 2.0, "a face beaming with genuine happiness, broad relaxed smile, bright eyes"),
+            ( 3.0, "a face flooded with pure overwhelming relief and ecstatic joy, every muscle released in bliss"),
+        ],
     },
     'aperture': {
         'space': 'expression',
         'mapper': 'flame_expression',
-        'negative': "a face with eyes squeezed tightly shut and jaw clenched hard in pain",
-        'positive': "a face with eyes blown wide open and jaw dropped in stunned shock",
+        'prompts': [
+            (-3.0, "mouth pressed as tightly shut as humanly possible, jaw locked, eyes narrowed to slits in grim furious determination"),
+            (-2.0, "a face with eyes squeezed shut and jaw clenched hard in pain"),
+            (-1.0, "a face with slightly narrowed eyes and closed mouth, tense but controlled"),
+            ( 0.0, "a relaxed neutral face, mouth gently closed, eyes at rest"),
+            ( 1.0, "a face with eyes slightly widened and lips parted in mild surprise"),
+            ( 2.0, "a face with eyes wide open and mouth dropped open in shock"),
+            ( 3.0, "mouth hanging as wide open as possible in total speechless shock, eyes stretched to the absolute limit"),
+        ],
     },
 }
 
@@ -132,52 +161,80 @@ def encode_descriptors(descriptors, clip_model, device):
 
 def distill_axis(axis_name, axis_cfg, clip_model, clip_preprocess, mappers, desc_features, device, n_points=20):
     """
-    Distill one semantic axis into a LUT.
+    Distill one semantic axis into a LUT using multi-keyframe interpolation.
 
-    Strategy: work in descriptor-similarity space with amplification.
-    CLIP text-text cosine sims live in a narrow range (~0.72-0.90), so
-    the raw delta between pos/neg prompts is only ~0.05. The Semantify
-    mapper was trained on image-descriptor sims with much wider range.
-    We amplify the delta direction in sim-space so the mapper sees
-    meaningful input variation across our t-range.
+    Strategy:
+    1. Encode ALL keyframe prompts independently with CLIP
+    2. Compute descriptor sims for each keyframe → array of sim vectors keyed by t
+    3. For each LUT t-value: find bracketing keyframes, lerp their sim vectors
+    4. Amplify relative to midpoint, forward through Semantify mapper
     """
     mapper_name = axis_cfg['mapper']
     mapper = mappers[mapper_name]
     desc_feats = desc_features[mapper_name]  # (N_desc, clip_dim)
+    keyframes = axis_cfg['prompts']  # list of (t_score, prompt)
 
-    # Encode positive and negative prompts
-    neg_tok = clip.tokenize([axis_cfg['negative']]).to(device)
-    pos_tok = clip.tokenize([axis_cfg['positive']]).to(device)
-    with torch.no_grad():
-        neg_emb = clip_model.encode_text(neg_tok).float()
-        neg_emb = neg_emb / neg_emb.norm(dim=-1, keepdim=True)
-        pos_emb = clip_model.encode_text(pos_tok).float()
-        pos_emb = pos_emb / pos_emb.norm(dim=-1, keepdim=True)
+    # Encode all keyframe prompts and compute their descriptor sims
+    kf_t_values = []
+    kf_sims = []
+    for t_score, prompt in keyframes:
+        tok = clip.tokenize([prompt]).to(device)
+        with torch.no_grad():
+            emb = clip_model.encode_text(tok).float()
+            emb = emb / emb.norm(dim=-1, keepdim=True)
+        sim = (emb @ desc_feats.T).squeeze()  # (N_desc,)
+        kf_t_values.append(t_score)
+        kf_sims.append(sim)
+        print(f"  kf t={t_score:+.1f}: sims=[{', '.join(f'{v:.4f}' for v in sim.cpu().numpy())}]")
 
-    # Compute descriptor similarities at the two poles
-    sim_neg = (neg_emb @ desc_feats.T).squeeze()  # (N_desc,)
-    sim_pos = (pos_emb @ desc_feats.T).squeeze()  # (N_desc,)
-    sim_mid = (sim_neg + sim_pos) / 2.0
-    sim_delta = sim_pos - sim_neg  # direction in sim-space
+    # Find midpoint sim (t=0 keyframe or interpolated)
+    sim_mid = None
+    for i, t in enumerate(kf_t_values):
+        if abs(t) < 1e-6:
+            sim_mid = kf_sims[i]
+            break
+    if sim_mid is None:
+        # Interpolate to t=0 between bracketing keyframes
+        for i in range(len(kf_t_values) - 1):
+            if kf_t_values[i] <= 0 <= kf_t_values[i + 1]:
+                alpha = (0 - kf_t_values[i]) / (kf_t_values[i + 1] - kf_t_values[i])
+                sim_mid = (1 - alpha) * kf_sims[i] + alpha * kf_sims[i + 1]
+                break
+        if sim_mid is None:
+            sim_mid = kf_sims[len(kf_sims) // 2]
 
-    # Amplification: scale delta so that t=±3 produces ~±0.3 swing
-    # (Semantify was trained on sims that vary by ~0.3-0.5 across faces)
-    raw_range = sim_delta.abs().max().item()
-    if raw_range > 1e-6:
-        gain = 0.3 / raw_range  # target ±0.3 at t=±3
+    # Compute max excursion across all keyframes relative to midpoint
+    max_excursion = 0.0
+    for sim in kf_sims:
+        excursion = (sim - sim_mid).abs().max().item()
+        max_excursion = max(max_excursion, excursion)
+
+    # Gain: target ±0.3 swing at the extremes
+    if max_excursion > 1e-6:
+        gain = 0.3 / max_excursion
     else:
         gain = 1.0
 
-    print(f"  sim_delta: [{', '.join(f'{v:+.4f}' for v in sim_delta.cpu().numpy())}]")
-    print(f"  raw_range: {raw_range:.4f}, gain: {gain:.1f}x")
+    print(f"  max_excursion: {max_excursion:.4f}, gain: {gain:.1f}x")
 
     t_values = np.linspace(-3.0, 3.0, n_points)
     points = []
 
     for t in t_values:
-        # Sweep in sim-space: midpoint + t/3 * gain * delta
-        # t/3 normalizes so t=±3 maps to ±1 * gain * delta
-        sims = sim_mid + (t / 3.0) * gain * sim_delta
+        # Find bracketing keyframes
+        if t <= kf_t_values[0]:
+            raw_sims = kf_sims[0]
+        elif t >= kf_t_values[-1]:
+            raw_sims = kf_sims[-1]
+        else:
+            for i in range(len(kf_t_values) - 1):
+                if kf_t_values[i] <= t <= kf_t_values[i + 1]:
+                    alpha = (t - kf_t_values[i]) / (kf_t_values[i + 1] - kf_t_values[i])
+                    raw_sims = (1 - alpha) * kf_sims[i] + alpha * kf_sims[i + 1]
+                    break
+
+        # Apply gain amplification relative to midpoint
+        sims = sim_mid + gain * (raw_sims - sim_mid)
         sims = sims.unsqueeze(0)  # (1, N_desc)
 
         # Forward through Semantify mapper
@@ -273,8 +330,7 @@ def main():
     all_tables = []
     for axis_name, axis_cfg in AXES.items():
         print(f"\nDistilling axis: {axis_name} ({axis_cfg['space']})")
-        print(f"  neg: {axis_cfg['negative']}")
-        print(f"  pos: {axis_cfg['positive']}")
+        print(f"  {len(axis_cfg['prompts'])} keyframe prompts")
         table = distill_axis(
             axis_name, axis_cfg, clip_model, clip_preprocess,
             mappers, desc_features, device
