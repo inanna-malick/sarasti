@@ -38,13 +38,17 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   const tongueGeo = createTongueGeometry(m);
   const cavityGeo = createCavityGeometry(m);
 
+  // Recess depth: push geometry behind the lip surface
+  const recessZ = -m.mouthDepth * 0.4;
+
   // --- Upper group (parents to head) ---
   const upperGroup = new THREE.Group();
   const upperTeeth = new THREE.Mesh(upperTeethGeo, teethMat);
   const upperGums = new THREE.Mesh(upperGumsGeo, gumsMat);
   upperGroup.add(upperTeeth, upperGums);
   upperGroup.position.copy(m.mouthCenter);
-  upperGroup.position.y += m.lipHeight * 0.25;
+  upperGroup.position.y += m.lipHeight * 0.15;
+  upperGroup.position.z += recessZ;
 
   // --- Lower group (tracks jaw joint) ---
   const lowerGroup = new THREE.Group();
@@ -57,12 +61,18 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
 
   lowerGroup.add(lowerTeeth, lowerGums, tongue);
   lowerGroup.position.copy(m.mouthCenter);
-  lowerGroup.position.y -= m.lipHeight * 0.25;
+  lowerGroup.position.y -= m.lipHeight * 0.15;
+  lowerGroup.position.z += recessZ;
 
   // --- Cavity ---
   const cavityMesh = new THREE.Mesh(cavityGeo, cavityMat);
   cavityMesh.position.copy(m.mouthCenter);
-  cavityMesh.position.z -= m.mouthDepth * 0.5;
+  cavityMesh.position.z += recessZ - m.mouthDepth * 0.3;
+
+  // Render mouth interior behind face skin to avoid z-fighting
+  upperGroup.renderOrder = -1;
+  lowerGroup.renderOrder = -1;
+  cavityMesh.renderOrder = -2;
 
   // Collect all materials for opacity control
   const allMaterials: THREE.Material[] = [

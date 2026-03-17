@@ -70,9 +70,9 @@ function buildTeethArch(
  * Upper teeth: smooth arch with subtle sine-wave tooth divisions.
  */
 export function createUpperTeethGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const width = m.lipWidth * 0.85;
-  const height = m.lipHeight * 0.35;
-  const depth = m.mouthDepth * 0.6;
+  const width = m.lipWidth * 0.35;
+  const height = m.lipHeight * 0.15;
+  const depth = m.mouthDepth * 0.4;
   return buildTeethArch(width, height, depth, 8, depth * 0.08);
 }
 
@@ -80,9 +80,9 @@ export function createUpperTeethGeometry(m: MouthMeasurements): THREE.BufferGeom
  * Lower teeth: mirror of upper, slightly smaller.
  */
 export function createLowerTeethGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const width = m.lipWidth * 0.78;
-  const height = m.lipHeight * 0.3;
-  const depth = m.mouthDepth * 0.55;
+  const width = m.lipWidth * 0.32;
+  const height = m.lipHeight * 0.12;
+  const depth = m.mouthDepth * 0.35;
   return buildTeethArch(width, height, depth, 8, depth * 0.06);
 }
 
@@ -145,9 +145,9 @@ function buildGumGeometry(
  * Upper gums: wraps around upper teeth arch.
  */
 export function createUpperGumsGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const width = m.lipWidth * 0.95;
-  const height = m.lipHeight * 0.5;
-  const depth = m.mouthDepth * 0.65;
+  const width = m.lipWidth * 0.4;
+  const height = m.lipHeight * 0.2;
+  const depth = m.mouthDepth * 0.45;
   return buildGumGeometry(width, height, depth);
 }
 
@@ -155,9 +155,9 @@ export function createUpperGumsGeometry(m: MouthMeasurements): THREE.BufferGeome
  * Lower gums: wraps around lower teeth.
  */
 export function createLowerGumsGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const width = m.lipWidth * 0.88;
-  const height = m.lipHeight * 0.45;
-  const depth = m.mouthDepth * 0.6;
+  const width = m.lipWidth * 0.38;
+  const height = m.lipHeight * 0.18;
+  const depth = m.mouthDepth * 0.4;
   return buildGumGeometry(width, height, depth);
 }
 
@@ -165,9 +165,9 @@ export function createLowerGumsGeometry(m: MouthMeasurements): THREE.BufferGeome
  * Tongue: flattened ellipsoid stub.
  */
 export function createTongueGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const widthRadius = m.lipWidth * 0.35;
-  const heightRadius = m.lipHeight * 0.15;
-  const lengthRadius = m.mouthDepth * 0.5;
+  const widthRadius = m.lipWidth * 0.15;
+  const heightRadius = m.lipHeight * 0.06;
+  const lengthRadius = m.mouthDepth * 0.3;
 
   const widthSegs = 12;
   const heightSegs = 6;
@@ -204,8 +204,8 @@ export function createTongueGeometry(m: MouthMeasurements): THREE.BufferGeometry
  * Cavity: half-cylinder backdrop behind teeth for depth illusion.
  */
 export function createCavityGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const radius = m.lipWidth * 0.5;
-  const length = m.mouthDepth * 1.5;
+  const radius = m.lipWidth * 0.2;
+  const length = m.mouthDepth * 0.8;
   const segs = 16;
   const rows = 4;
 
