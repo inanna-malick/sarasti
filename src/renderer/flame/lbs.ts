@@ -112,6 +112,13 @@ export function computeJointLocations(
 }
 
 /**
+ * Identity 3x3 matrix (row-major).
+ */
+function identityMatrix(): Float32Array {
+  return new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+}
+
+/**
  * Propagate transforms through joint tree.
  */
 export function forwardKinematics(
@@ -120,6 +127,15 @@ export function forwardKinematics(
   jointLocations: Float32Array
 ): { worldTransforms: Float32Array[], worldTranslations: Float32Array } {
   const nJoints = localRotations.length;
+
+  if (!kintreeTable || kintreeTable.length < 2) {
+    // Return identity transforms — face stays at rest pose
+    return {
+      worldTransforms: localRotations.map(() => identityMatrix()),
+      worldTranslations: new Float32Array(nJoints * 3)
+    };
+  }
+
   const worldTransforms: Float32Array[] = new Array(nJoints);
   const worldTranslations = new Float32Array(nJoints * 3);
   const parents = kintreeTable[0];
