@@ -1,5 +1,6 @@
 import type { FaceRenderer, FaceInstance } from '../../types';
 import type { SvgRendererOptions } from '../types';
+import { generateFaceSvg } from './generator';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -26,18 +27,9 @@ export function createSvgRenderer(options?: SvgRendererOptions): FaceRenderer {
   let highlightedId: string | null = null;
   const faceElements = new Map<string, SVGGElement>();
 
-  function renderFace(_instance: FaceInstance): SVGGElement {
+  function renderFace(instance: FaceInstance): SVGGElement {
     const g = document.createElementNS(SVG_NS, 'g');
-    // Stub — svg Dev will implement the 30+ controllable face dimensions
-    // mapping shape[] → head geometry and expression[] → facial features
-    const placeholder = document.createElementNS(SVG_NS, 'ellipse');
-    placeholder.setAttribute('cx', String(opts.faceWidth / 2));
-    placeholder.setAttribute('cy', String(opts.faceHeight / 2));
-    placeholder.setAttribute('rx', String(opts.faceWidth * 0.4));
-    placeholder.setAttribute('ry', String(opts.faceHeight * 0.45));
-    placeholder.setAttribute('fill', '#c8b8a8');
-    placeholder.setAttribute('stroke', '#666');
-    g.appendChild(placeholder);
+    g.innerHTML = generateFaceSvg(instance.params);
     return g;
   }
 
@@ -50,7 +42,27 @@ export function createSvgRenderer(options?: SvgRendererOptions): FaceRenderer {
       svgRoot.style.position = 'absolute';
       svgRoot.style.top = '0';
       svgRoot.style.left = '0';
+      svgRoot.style.overflow = 'visible'; // Allow faces to be partially outside
       container.appendChild(svgRoot);
+
+      // Add basic styles for highlighting
+      const style = document.createElement('style');
+      style.textContent = `
+        .highlighted path, .highlighted ellipse, .highlighted circle, .highlighted rect {
+          stroke: #fff;
+          stroke-width: 2px;
+          filter: drop-shadow(0 0 4px rgba(255,255,255,0.8));
+        }
+        .dimmed {
+          opacity: 0.35;
+          filter: grayscale(0.5);
+        }
+        g[data-face-id] {
+          cursor: pointer;
+          transition: transform 0.2s ease-out, opacity 0.3s ease;
+        }
+      `;
+      container.appendChild(style);
     },
 
     setInstances(newInstances: FaceInstance[]) {
@@ -61,12 +73,26 @@ export function createSvgRenderer(options?: SvgRendererOptions): FaceRenderer {
       faceElements.forEach(el => el.remove());
       faceElements.clear();
 
+      // Get container dimensions for centering
+      const rect = container?.getBoundingClientRect() || { width: 800, height: 600 };
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
       // Create new face elements
       for (const inst of instances) {
         const g = renderFace(inst);
-        // Position via transform (world coords → screen coords done externally)
+        // Position via transform
+        // We assume world coordinates where (0,0,0) is center of screen
+        // and 1 unit = faceWidth distance approx.
         const [x, y] = inst.position;
-        g.setAttribute('transform', `translate(${x * opts.faceWidth}, ${y * opts.faceHeight})`);
+        const screenX = centerX + x * opts.faceWidth;
+        const screenY = centerY - y * opts.faceHeight; // Flip Y for screen space
+
+        // Offset by half face size to center the SVG face on the position
+        const tx = screenX - opts.faceWidth / 2;
+        const ty = screenY - opts.faceHeight / 2;
+
+        g.setAttribute('transform', `translate(${tx}, ${ty})`);
         g.dataset.faceId = inst.id;
         svgRoot.appendChild(g);
         faceElements.set(inst.id, g);
