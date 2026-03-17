@@ -43,7 +43,7 @@ export class FrameDriver {
   private resolver = createResolver();
   private positions: Map<string, [number, number, number]>;
 
-  constructor(dataset: TimelineDataset, renderer: FaceRenderer) {
+  constructor(dataset: TimelineDataset, renderer: FaceRenderer, initialIndex: number = 0) {
     this.dataset = dataset;
     this.renderer = renderer;
 
@@ -59,8 +59,10 @@ export class FrameDriver {
     // Listen for frame changes
     this.engine.onFrameChange((index) => this.renderFrame(index));
 
-    // Render initial frame
-    this.renderFrame(0);
+    // Seek to initial index and render
+    const clamped = Math.max(0, Math.min(initialIndex, dataset.frames.length - 1));
+    this.engine.seek(clamped);
+    this.renderFrame(clamped);
   }
 
   /** Build FaceInstance[] from a frame and current positions. */

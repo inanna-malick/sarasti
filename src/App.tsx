@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { FaceRenderer, LayoutStrategy } from './types';
 import { createFlameSceneRenderer } from './renderer';
-import { loadDataset } from './data/loader';
+import { loadDataset, getFrameAtTime } from './data/loader';
 import { FrameDriver } from './timeline/driver';
 import { setupHoverInteraction, setupClickInteraction } from './interaction/hover';
 import { Tooltip } from './interaction/Tooltip';
@@ -45,7 +45,17 @@ export function App() {
         if (disposed) return;
 
         // 3. Create frame driver (wires engine → data → binding → renderer)
-        const driver = new FrameDriver(dataset, renderer);
+        // If ?t= query param is set, start at that timestamp
+        let initialIndex = 0;
+        const params = new URLSearchParams(window.location.search);
+        const targetTime = params.get('t');
+        if (targetTime && dataset.frames.length > 0) {
+          const targetFrame = getFrameAtTime(dataset, targetTime);
+          initialIndex = dataset.frames.indexOf(targetFrame);
+          if (initialIndex < 0) initialIndex = 0;
+        }
+
+        const driver = new FrameDriver(dataset, renderer, initialIndex);
         driverRef.current = driver;
 
         // 4. Setup interactions
