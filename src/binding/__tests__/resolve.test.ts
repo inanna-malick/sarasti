@@ -3,6 +3,33 @@ import { resolve, createShapeResolver, createExpressionResolver, createResolver 
 import { makeTickerFrame, TEST_TICKERS } from '../../../test-utils/fixtures';
 import { N_SHAPE, N_EXPR } from '../../constants';
 import { TICKERS } from '../../tickers';
+import { DEFAULT_BINDING_CONFIG } from '../config';
+import type { TickerStatic } from '../../types';
+import { vi } from 'vitest';
+
+// Mock directions so baseline tests have non-zero results
+vi.mock('../directions', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../directions')>();
+  return {
+    ...actual,
+    getTable: (axis: string) => ({
+      axis,
+      space: axis === 'age' || axis === 'build' ? 'shape' : 'expression',
+      dims: 100,
+      points: [
+        { t: -3, params: new Array(100).fill(0).map((_, i) => (i === 0 && axis === 'age') || (i === 1 && axis === 'build') ? -1 : 0) },
+        { t: 3, params: new Array(100).fill(0).map((_, i) => (i === 0 && axis === 'age') || (i === 1 && axis === 'build') ? 1 : 0) },
+      ],
+    }),
+    getIdentityBasis: () => ({
+      dims: 100,
+      n_basis: 10,
+      vectors: new Array(10).fill(0).map((_, b) => 
+        new Array(100).fill(0).map((_, i) => i === 10 + b ? 1 : 0)
+      ),
+    }),
+  };
+});
 
 describe('resolve', () => {
   it('zero deviation → near-zero expression', () => {
@@ -78,7 +105,7 @@ describe('resolve', () => {
 });
 
 describe('createShapeResolver', () => {
-  it('resolves all 25 tickers without error', () => {
+  it('resolves all tickers without error', () => {
     const resolver = createShapeResolver();
     for (const ticker of TICKERS) {
       const shape = resolver.resolve(ticker);
@@ -157,5 +184,81 @@ describe('createResolver (cached)', () => {
     resolver.resetAccumulators();
     const afterReset = resolver.resolve(ticker, makeTickerFrame({ deviation: 0, volatility: 1.0 }));
     expect(afterReset.flush).toBeLessThan(0); // Back to baseline
+  });
+});
+
+describe('Shape Enrichment (Tier 2/3 + Sarasti)', () => {
+  const resolver = createShapeResolver();
+
+  const mockStatics: TickerStatic = {
+    avg_volume: 150000,
+    hist_volatility: 0.03,
+    corr_to_brent: 0.9,
+    corr_to_spy: 0.2,
+    skewness: -0.5,
+    spread_from_family: 0.05,
+    shape_residuals: new Array(50).fill(0.1),
+  };
+
+  it('enriched shapes use more non-zero β dimensions than basic shapes', () => {
+    const ticker = TICKERS[0];
+    const basicShape = resolver.resolve(ticker);
+    const enrichedShape = resolver.resolve(ticker, mockStatics);
+
+    const basicNonZero = Array.from(basicShape).filter(v => Math.abs(v) > 0.0001).length;
+    const enrichedNonZero = Array.from(enrichedShape).filter(v => Math.abs(v) > 0.0001).length;
+
+    expect(enrichedNonZero).toBeGreaterThan(basicNonZero);
+    // Basic shape uses β₀₋₈ (9 components). Enriched should use significantly more.
+    expect(basicNonZero).toBeLessThanOrEqual(20);
+    expect(enrichedNonZero).toBeGreaterThan(25);
+  });
+
+  it('different statics produce different shapes for the same ticker', () => {
+    const ticker = TICKERS[0];
+    const staticsA: TickerStatic = { ...mockStatics, avg_volume: 50000 };
+    const staticsB: TickerStatic = { ...mockStatics, avg_volume: 150000 };
+
+    const shapeA = resolver.resolve(ticker, staticsA);
+    const shapeB = resolver.resolve(ticker, staticsB);
+
+    let diff = 0;
+    for (let i = 0; i < N_SHAPE; i++) {
+      diff += Math.abs(shapeA[i] - shapeB[i]);
+    }
+    expect(diff).toBeGreaterThan(0.01);
+  });
+
+  it('Sarasti residuals are correctly injected into β₅₀₋₉₉', () => {
+    const ticker = TICKERS[0];
+    const residuals = new Array(50).fill(0).map((_, i) => i * 0.01);
+    const statics: TickerStatic = { ...mockStatics, shape_residuals: residuals };
+
+    const shape = resolver.resolve(ticker, statics);
+
+    for (let i = 0; i < 50; i++) {
+      // residual_indices start at 50 (β₅₀)
+      expect(shape[50 + i]).toBeCloseTo(residuals[i]);
+    }
+  });
+
+  it('tier intensities scale the perturbations correctly', () => {
+    const ticker = TICKERS[0];
+    const statics: TickerStatic = { ...mockStatics, shape_residuals: undefined };
+    
+    // Custom tier intensities: zero out tier 2 and 3
+    const resolverZero = createShapeResolver({
+      ...DEFAULT_BINDING_CONFIG,
+      tier_intensities: [1.0, 0, 0, 1.0],
+    });
+
+    const shapeZero = resolverZero.resolve(ticker, statics);
+
+    // Indices for tier 2 and 3 should be zero in the result if they were zero before
+    const shapeNoStatics = resolverZero.resolve(ticker);
+
+    for (let i = 0; i < N_SHAPE; i++) {
+      expect(shapeZero[i]).toBeCloseTo(shapeNoStatics[i], 5);
+    }
   });
 });

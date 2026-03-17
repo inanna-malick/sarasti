@@ -37,7 +37,7 @@ export const SHAPE_ALLOCATION: ShapeAllocation = {
   // Tier 2 (β₁₁₋₂₀)
   volume_indices: [11, 12, 13],
   hist_vol_indices: [14, 15, 16],
-  corr_brent_indices: [17, 18, 19],
+  corr_brent_indices: [17, 18, 19, 20],
 
   // Tier 3 (β₂₁₋₅₀)
   corr_spy_indices: [21, 22, 23, 24, 25],
