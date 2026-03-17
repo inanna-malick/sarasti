@@ -132,7 +132,11 @@ describe('getAgeDescription', () => {
     expect(getAgeDescription(40)).toBe('middle-aged (40)');
   });
 
-  it('returns adult (30)', () => {
-    expect(getAgeDescription(30)).toBe('adult (30)');
+  it('returns middle-aged (30)', () => {
+    expect(getAgeDescription(30)).toBe('middle-aged (30)');
+  });
+
+  it('returns adult (50)', () => {
+    expect(getAgeDescription(50)).toBe('adult (50)');
   });
 });

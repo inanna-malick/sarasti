@@ -48,8 +48,8 @@ export function validateAgeMapping(mapping: AgeMapping): boolean {
  * Returns a human-readable description for debugging/tooltips.
  */
 export function getAgeDescription(age: number): string {
-  if (age <= 25) return `young (${age})`;
-  if (age >= 55) return `elder (${age})`;
-  if (age >= 35 && age <= 45) return `middle-aged (${age})`;
-  return `adult (${age})`;
+  if (age < 30) return `young (${age})`;
+  if (age < 45) return `middle-aged (${age})`;
+  if (age < 55) return `adult (${age})`;
+  return `elder (${age})`;
 }
