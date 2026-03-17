@@ -52,9 +52,75 @@ def get_principal_directions(scores, params):
         directions.append(w)
     return np.concatenate(directions, axis=0) # (4, 100)
 
-def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, device):
+def main():
+    parser = argparse.ArgumentParser(description="Train semantic mappers from CLIP scores to FLAME parameters.")
+    parser.add_argument("--epochs", type=int, default=500, help="Number of epochs to train.")
+    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate.")
+    parser.add_argument("--batch-size", type=int, default=256, help="Batch size.")
+    parser.add_argument("--mode", type=str, default="default", choices=["default", "hybrid"])
+    args = parser.parse_args()
+
+    ensure_dirs()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    is_hybrid = args.mode == 'hybrid'
+    if is_hybrid:
+        params_path = os.path.join(os.path.dirname(PARAMS_FILE), "hybrid_params.npz")
+        scores_path = os.path.join(os.path.dirname(SCORES_FILE), "hybrid_scores.npz")
+    else:
+        params_path = PARAMS_FILE
+        scores_path = SCORES_FILE
+
+    # Load data
+    if not os.path.exists(params_path) or not os.path.exists(scores_path):
+        print(f"Error: Required data files not found ({params_path}, {scores_path}). Ensure stage 1 & 2 are complete.")
+        return
+
+    params_data = np.load(params_path)
+    scores_data = np.load(scores_path)
+    
+    beta = params_data['beta']
+    psi = params_data['psi']
+    scores = scores_data['scores']
+    axis_labels = params_data.get('axis_labels') if is_hybrid else None
+
+    # Pre-compute principal directions
+    beta_directions = get_principal_directions(scores, beta)
+    psi_directions = get_principal_directions(scores, psi)
+
+    # Train each axis
+    for i, (axis_name, space, pos, neg) in enumerate(ALL_AXES):
+        if space == 'shape':
+            target_params = beta
+            target_directions = beta_directions
+        else:
+            target_params = psi
+            target_directions = psi_directions
+        
+        if is_hybrid:
+            # Only use samples for this axis, and only dims 10-99
+            mask = (axis_labels == i)
+            x_axis = scores[mask]
+            y_axis = target_params[mask][:, 10:100]
+            # Use principal directions of the 90-dim tail for disentanglement
+            dirs_axis = target_directions[:, 10:100]
+            output_dim = 90
+            suffix = "_hybrid"
+        else:
+            x_axis = scores
+            y_axis = target_params
+            dirs_axis = target_directions
+            output_dim = 100
+            suffix = ""
+            
+        train_axis_hybrid(i, axis_name, x_axis, y_axis, dirs_axis, args, device, output_dim, suffix)
+
+    print("\nTraining complete. All mappers saved to", CHECKPOINTS_DIR)
+
+def train_axis_hybrid(axis_idx, axis_name, scores_np, params_np, all_directions, args, device, output_dim, suffix):
     """
-    Train a single mapper for one semantic axis.
+    Train a single mapper for one semantic axis (supports hybrid mode).
     """
     x = scores_np[:, axis_idx:axis_idx+1]
     y = params_np
@@ -76,20 +142,19 @@ def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, 
     # Identify indices and directions for disentanglement penalty
     other_indices = [i for i in range(4) if i != axis_idx]
     other_axes_names = [ALL_AXES[i][0] for i in other_indices]
-    other_directions = torch.from_numpy(all_directions[other_indices]).float().to(device) # (3, 100)
+    other_directions = torch.from_numpy(all_directions[other_indices]).float().to(device)
     
-    model = DirectionMapper().to(device)
+    model = DirectionMapper(output_dim=output_dim).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.MSELoss()
     
     best_val_loss = float('inf')
     patience_counter = 0
     
-    print(f"\n>>> Training mapper for axis: {axis_name} ({axis_idx})")
+    print(f"\n>>> Training mapper for axis: {axis_name} ({axis_idx}) mode={'hybrid' if suffix else 'default'}")
     
     pbar = tqdm(range(args.epochs), desc=axis_name)
     for epoch in pbar:
-        # λ schedule: start at 0.1, increase to 1.0 over first 200 epochs
         if epoch < 200:
             lmbda = 0.1 + (1.0 - 0.1) * (epoch / 200)
         else:
@@ -106,13 +171,9 @@ def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, 
             optimizer.zero_grad()
             pred = model(batch_x)
             
-            # L2 reconstruction loss
             recon_loss = criterion(pred, batch_y)
-            
-            # Disentanglement penalty: ||predicted_params @ other_directions.T||²
-            # proj: (B, 3)
             proj = pred @ other_directions.T
-            disent_axes = torch.mean(proj**2, dim=0) # (3,)
+            disent_axes = torch.mean(proj**2, dim=0)
             disent_loss = torch.sum(disent_axes)
             
             loss = recon_loss + lmbda * disent_loss
@@ -128,7 +189,6 @@ def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, 
         train_disent_axes_avg = train_disent_axes_total / len(train_dataset)
         train_total_avg = train_recon_avg + lmbda * train_disent_avg
         
-        # Validation
         model.eval()
         val_recon_total = 0
         with torch.no_grad():
@@ -144,19 +204,14 @@ def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, 
             'disent': f"{train_disent_avg:.6f}"
         })
         
-        # Log to stdout as requested every 10 epochs or on early stopping/start/end
-        # To avoid flooding stdout too much, we could print every epoch but the user asked for a log to stdout.
-        # Tqdm post-fixes are good for interactive, but let's follow the requirement.
-        disent_log = ", ".join([f"{name}={train_disent_axes_avg[i]:.6f}" for i, name in enumerate(other_axes_names)])
-        if epoch % 10 == 0 or epoch == args.epochs - 1:
+        if epoch % 50 == 0 or epoch == args.epochs - 1:
+            disent_log = ", ".join([f"{name}={train_disent_axes_avg[i]:.6f}" for i, name in enumerate(other_axes_names)])
             print(f"Epoch {epoch}: train_loss={train_total_avg:.6f}, val_loss={val_recon_avg:.6f}, disent_loss=[{disent_log}]")
 
-        # Early stopping on validation loss
         if val_recon_avg < best_val_loss:
             best_val_loss = val_recon_avg
             patience_counter = 0
-            # Save checkpoint
-            save_path = os.path.join(CHECKPOINTS_DIR, f"{axis_name}.pt")
+            save_path = os.path.join(CHECKPOINTS_DIR, f"{axis_name}{suffix}.pt")
             torch.save(model.state_dict(), save_path)
         else:
             patience_counter += 1
@@ -165,49 +220,6 @@ def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, 
                 break
 
     return model
-
-def main():
-    parser = argparse.ArgumentParser(description="Train semantic mappers from CLIP scores to FLAME parameters.")
-    parser.add_argument("--epochs", type=int, default=500, help="Number of epochs to train.")
-    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate.")
-    parser.add_argument("--batch-size", type=int, default=256, help="Batch size.")
-    args = parser.parse_args()
-
-    ensure_dirs()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-
-    # Load data
-    if not os.path.exists(PARAMS_FILE) or not os.path.exists(SCORES_FILE):
-        print(f"Error: Required data files not found ({PARAMS_FILE}, {SCORES_FILE}). Ensure stage 1 & 2 are complete.")
-        return
-
-    params_data = np.load(PARAMS_FILE)
-    scores_data = np.load(SCORES_FILE)
-    
-    # beta: (10000, 100), psi: (10000, 100)
-    beta = params_data['beta']
-    psi = params_data['psi']
-    # scores: (10000, 4) - age, build, valence, aperture
-    scores = scores_data['scores']
-
-    # Pre-compute principal directions in both beta and psi spaces for disentanglement
-    beta_directions = get_principal_directions(scores, beta)
-    psi_directions = get_principal_directions(scores, psi)
-
-    # Train each axis
-    for i, (axis_name, space, pos, neg) in enumerate(ALL_AXES):
-        # Determine target parameter space
-        if space == 'shape':
-            target_params = beta
-            target_directions = beta_directions
-        else:
-            target_params = psi
-            target_directions = psi_directions
-            
-        train_axis(i, axis_name, scores, target_params, target_directions, args, device)
-
-    print("\nTraining complete. All mappers saved to", CHECKPOINTS_DIR)
 
 if __name__ == "__main__":
     main()

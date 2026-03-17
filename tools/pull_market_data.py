@@ -5,6 +5,17 @@ import sys
 import random
 import math
 
+
+def sanitize_nans(obj):
+    """Replace NaN/Infinity with 0.0 recursively for valid JSON output."""
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return 0.0
+    if isinstance(obj, dict):
+        return {k: sanitize_nans(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize_nans(v) for v in obj]
+    return obj
+
 # Try to import requested libraries
 try:
     import yfinance as yf
@@ -391,6 +402,7 @@ def main():
         output = generate_synthetic_fallback()
         
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    output = sanitize_nans(output)
     with open(OUTPUT_PATH, 'w') as f:
         json.dump(output, f, indent=2)
         

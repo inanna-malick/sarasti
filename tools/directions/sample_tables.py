@@ -33,16 +33,26 @@ class DirectionMapper(nn.Module):
 
 # ─── Sampling ──────────────────────────────────────────
 
-def sample_mapper(axis_name, space, n_points=20):
+def sample_mapper_hybrid(axis_name, space, n_points=20, is_hybrid=False):
     """Load checkpoint and sample points across the t-range."""
-    ckpt_path = os.path.join(CHECKPOINTS_DIR, f"{axis_name}.pt")
+    suffix = "_hybrid" if is_hybrid else ""
+    ckpt_path = os.path.join(CHECKPOINTS_DIR, f"{axis_name}{suffix}.pt")
     if not os.path.exists(ckpt_path):
         print(f"Warning: Checkpoint not found at {ckpt_path}")
         return None
 
-    model = DirectionMapper(output_dim=100)
+    output_dim = 90 if is_hybrid else 100
+    model = DirectionMapper(output_dim=output_dim)
     model.load_state_dict(torch.load(ckpt_path, map_location='cpu'))
     model.eval()
+
+    # If hybrid, we need the original Semantify 10-dim values to merge
+    semantify_points = None
+    if is_hybrid:
+        sem_path = os.path.join(ASSETS_DIR, f"{axis_name}.json")
+        with open(sem_path, 'r') as f:
+            sem_table = json.load(f)
+        semantify_points = {round(p['t'], 6): p['params'][:10] for p in sem_table['points']}
 
     t_values = np.linspace(-3.0, 3.0, n_points)
     points = []
@@ -50,10 +60,20 @@ def sample_mapper(axis_name, space, n_points=20):
     with torch.no_grad():
         for t in t_values:
             t_tensor = torch.tensor([[t]], dtype=torch.float32)
-            params = model(t_tensor).squeeze().numpy().tolist()
+            learned_params = model(t_tensor).squeeze().numpy().tolist()
+            
+            if is_hybrid:
+                # Find closest t in semantify_points
+                closest_t = min(semantify_points.keys(), key=lambda k: abs(k - t))
+                sem_10 = semantify_points[closest_t]
+                # Merge: concat(semantify_10, learned_90)
+                final_params = sem_10 + learned_params
+            else:
+                final_params = learned_params
+                
             points.append({
                 "t": float(t),
-                "params": params
+                "params": final_params
             })
 
     return {
@@ -111,27 +131,38 @@ def compute_identity_basis(tables):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--n-points', type=int, default=20)
+    parser.add_argument('--mode', type=str, default='default', choices=['default', 'hybrid'])
     args = parser.parse_args()
 
     ensure_dirs()
-    print(f"Sampling mappers to {ASSETS_DIR}...")
+    is_hybrid = args.mode == 'hybrid'
+    
+    if is_hybrid:
+        # DATA_DIR/hybrid_tables
+        output_dir = os.path.join(os.path.dirname(ASSETS_DIR), '..', 'tools', 'directions', 'data', 'hybrid_tables')
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Sampling hybrid mappers to {output_dir}...")
+    else:
+        output_dir = ASSETS_DIR
+        print(f"Sampling mappers to {ASSETS_DIR}...")
 
     all_tables = []
     for axis, space, _, _ in tqdm(ALL_AXES, desc="Sampling axes"):
-        table = sample_mapper(axis, space, args.n_points)
+        table = sample_mapper_hybrid(axis, space, args.n_points, is_hybrid=is_hybrid)
         if table:
-            output_path = os.path.join(ASSETS_DIR, f"{axis}.json")
+            output_path = os.path.join(output_dir, f"{axis}.json")
             with open(output_path, 'w') as f:
                 json.dump(table, f, indent=2)
             all_tables.append(table)
 
-    # Identity basis
-    basis = compute_identity_basis(all_tables)
-    if basis:
-        basis_path = os.path.join(ASSETS_DIR, "identity_basis.json")
-        with open(basis_path, 'w') as f:
-            json.dump(basis, f, indent=2)
-        print(f"Saved identity basis to {basis_path}")
+    # Identity basis (only for default mode)
+    if not is_hybrid:
+        basis = compute_identity_basis(all_tables)
+        if basis:
+            basis_path = os.path.join(ASSETS_DIR, "identity_basis.json")
+            with open(basis_path, 'w') as f:
+                json.dump(basis, f, indent=2)
+            print(f"Saved identity basis to {basis_path}")
 
 if __name__ == "__main__":
     main()

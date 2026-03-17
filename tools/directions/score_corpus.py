@@ -19,13 +19,18 @@ from common import RENDERS_DIR, SCORES_FILE, ALL_AXES, ensure_dirs
 def main():
     parser = argparse.ArgumentParser(description="Score FLAME renders using CLIP.")
     parser.add_argument("--batch-size", type=int, default=64, help="Batch size for CLIP inference.")
+    parser.add_argument("--renders-dir", type=str, default=None, help="Override renders directory.")
+    parser.add_argument("--scores-file", type=str, default=None, help="Override scores output file.")
     args = parser.parse_args()
 
     ensure_dirs()
 
-    if not os.path.exists(RENDERS_DIR):
-        print(f"Error: Renders directory not found at {RENDERS_DIR}")
-        print("Expected path:", RENDERS_DIR)
+    renders_dir = args.renders_dir or RENDERS_DIR
+    scores_file = args.scores_file or SCORES_FILE
+
+    if not os.path.exists(renders_dir):
+        print(f"Error: Renders directory not found at {renders_dir}")
+        print("Expected path:", renders_dir)
         return
 
     # 1. Load CLIP model
@@ -51,10 +56,10 @@ def main():
     # 3. List and group renders
     # Expecting 30,000 files: sample_{i:05d}_view_{v}.png
     # Standard alphabetical sort works for zero-padded names
-    all_files = sorted([f for f in os.listdir(RENDERS_DIR) if f.lower().endswith('.png')])
-    
+    all_files = sorted([f for f in os.listdir(renders_dir) if f.lower().endswith('.png')])
+
     if not all_files:
-        print(f"Error: No PNG files found in {RENDERS_DIR}")
+        print(f"Error: No PNG files found in {renders_dir}")
         return
     
     n_renders = len(all_files)
@@ -72,7 +77,7 @@ def main():
         batch_files = all_files[i : i + args.batch_size]
         images = []
         for f in batch_files:
-            img_path = os.path.join(RENDERS_DIR, f)
+            img_path = os.path.join(renders_dir, f)
             images.append(preprocess(Image.open(img_path)))
         
         image_input = torch.stack(images).to(device)
@@ -106,8 +111,8 @@ def main():
     final_scores = (final_scores - means) / stds
 
     # 7. Save
-    print(f"Saving scores to {SCORES_FILE}...")
-    np.savez(SCORES_FILE, scores=final_scores.astype(np.float32), axis_names=axis_names)
+    print(f"Saving scores to {scores_file}...")
+    np.savez(scores_file, scores=final_scores.astype(np.float32), axis_names=axis_names)
     print("Done.")
 
 if __name__ == "__main__":
