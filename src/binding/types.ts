@@ -113,6 +113,8 @@ export interface BindingConfig {
   velocity_curve: ResponseCurve;
   /** How volatility modulates expression complexity */
   volatility_curve: ResponseCurve;
+  /** Intensity scaling per tier: [tier1, tier2, tier3, sarasti] */
+  tier_intensities?: [number, number, number, number];
   /** Global expression intensity multiplier (0-1) */
   expression_intensity: number;
   /** Per-class shape profiles: class → array of [index, value] pairs */
@@ -130,8 +132,6 @@ export interface BindingConfig {
   cross_contagion_curve?: ResponseCurve;
   /** How high_low_ratio maps to tier 3 strain expression */
   high_low_ratio_curve?: ResponseCurve;
-  /** Intensity scaling per tier: [tier1, tier2, tier3, sarasti] */
-  tier_intensities?: [number, number, number, number];
 }
 
 // ─── Helpers ────────────────────────────────────────

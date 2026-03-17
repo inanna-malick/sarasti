@@ -68,6 +68,37 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
       indices: [1, 2, 0, 9, 7, 4, 6],
       weights: [-0.9, -0.8, -0.5, 0.7, 0.5, 0.4, 0.3],
     },
+
+    // ─── Tier 2 (ψ₁₆₋₂₀): alertness/exhaustion ──────────
+    // volume_anomaly: surge (>1) → alertness, collapse (<1) → exhaustion
+    // ψ9: eye/cheek region, ψ16-19: tier 2 components
+    alertness: {
+      indices: [9, 16, 17, 18, 19],
+      weights: [1.0, 0.8, 0.7, 0.5, 0.4],
+    },
+    exhaustion: {
+      indices: [9, 16, 17, 18, 19],
+      weights: [-1.0, -0.8, -0.7, -0.5, -0.4],
+    },
+
+    // ─── Tier 3 (ψ₂₁₋₄₀): structural expressions ────────
+    // Indices and weights for correlation breakdown, term structure, contagion, and strain
+    corr_breakdown: {
+      indices: [21, 22, 23, 24, 25],
+      weights: [1.0, 0.9, 0.8, 0.7, 0.6],
+    },
+    term_structure: {
+      indices: [26, 27, 28, 29, 30],
+      weights: [1.0, 0.9, 0.8, 0.7, 0.6],
+    },
+    contagion: {
+      indices: [31, 32, 33, 34, 35],
+      weights: [1.0, 0.9, 0.8, 0.7, 0.6],
+    },
+    strain: {
+      indices: [36, 37, 38, 39, 40],
+      weights: [1.0, 0.9, 0.8, 0.7, 0.6],
+    },
   },
 
   // Sigmoid: dev ±0.1 → ~40% intensity, dev ±0.3 → ~85%, dev ±0.5+ → saturates
@@ -100,7 +131,60 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     steepness: 1,
   },
 
+  // Volume anomaly: 0 (collapse) → -1 (exhaustion), 1 (neutral) → 0, 2 (surge) → 1 (alertness)
+  volume_anomaly_curve: {
+    type: 'linear',
+    input_min: 0,
+    input_max: 2,
+    output_min: -1,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  // Correlation breakdown: 0 (no breakdown) → 0, 1 (max breakdown) → 1
+  corr_breakdown_curve: {
+    type: 'linear',
+    input_min: 0,
+    input_max: 1,
+    output_min: 0,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  // Term slope: typical range -0.5 to 0.5
+  term_slope_curve: {
+    type: 'linear',
+    input_min: -0.5,
+    input_max: 0.5,
+    output_min: -1,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  // Cross-asset contagion: rolling correlation 0 to 1
+  cross_contagion_curve: {
+    type: 'linear',
+    input_min: 0,
+    input_max: 1,
+    output_min: 0,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  // High-low ratio (spread proxy): typical values 0 to 0.05
+  high_low_ratio_curve: {
+    type: 'linear',
+    input_min: 0,
+    input_max: 0.05,
+    output_min: 0,
+    output_max: 1,
+    steepness: 1,
+  },
+
   expression_intensity: EXPRESSION_INTENSITY_DEFAULT,
+
+  // Per-tier intensity scaling: [tier1, tier2, tier3, sarasti]
+  tier_intensities: [1.0, 0.5, 0.2, 0.1],
 
   // Per-class shape profiles: [β_index, value] pairs
   // Using high-variance components for maximum visual distinction
