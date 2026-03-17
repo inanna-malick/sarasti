@@ -1,4 +1,4 @@
-import { FaceInstance, TickerConfig, TickerFrame } from '../src/types';
+import type { FaceInstance, TickerConfig, TickerFrame } from '../../types';
 
 export function makeFaceInstance(id: string, overrides: Partial<FaceInstance> = {}): FaceInstance {
   const ticker: TickerConfig = {

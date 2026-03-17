@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import React, { act } from 'react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Tooltip } from '../Tooltip';
 import { DetailPanel } from '../detail';
