@@ -22,14 +22,20 @@ export async function loadDataset(url: string): Promise<TimelineDataset> {
 export function parseDataset(raw: RawMarketHistory): TimelineDataset {
   const timestamps = raw.frames.map(f => f.timestamp);
 
-  // Only include tickers that appear in the data
+  // Check for missing tickers and log warnings
   const presentIds = new Set<string>();
   for (const frame of raw.frames) {
     for (const id of Object.keys(frame.values)) {
       presentIds.add(id);
     }
   }
-  const tickers = TICKERS.filter(t => presentIds.has(t.id));
+  const tickers = TICKERS.filter(t => {
+    const isPresent = presentIds.has(t.id);
+    if (!isPresent) {
+      console.warn(`Ticker data mismatch: ${t.id} in TICKERS list but missing from frame data.`);
+    }
+    return isPresent;
+  });
 
   const frames: Frame[] = raw.frames.map(rf => ({
     timestamp: rf.timestamp,

@@ -12,6 +12,10 @@ We extract:
   public/data/flame_faces.bin      — uint32  [N_FACES * 3]
   public/data/flame_shapedirs.bin  — float32 [N_SHAPE * N_VERTICES * 3]  (contiguous by component)
   public/data/flame_exprdirs.bin   — float32 [N_EXPR * N_VERTICES * 3]   (contiguous by component)
+  public/data/flame_weights.bin    — float32 [N_VERTICES * N_JOINTS]     (LBS skinning weights)
+  public/data/flame_posedirs.bin   — float32 [N_VERTICES * 3 * (N_JOINTS-1)*9] (pose correctives)
+  public/data/flame_kintree.json   — [2][N_JOINTS] parent-child joint tree
+  public/data/flame_J_regressor.bin — float32 [N_JOINTS * N_VERTICES]    (joint regressor, dense)
   public/data/flame_meta.json      — dimensions metadata
 
 Truncated to N_SHAPE=100, N_EXPR=100.
@@ -99,36 +103,91 @@ def main():
     exprdirs = np.transpose(expr_raw[:, :, :n_expr], (2, 0, 1)).astype(np.float32)
     exprdirs_flat = exprdirs.flatten()
 
-    # 4. Write binary files
+    # 4. Extract LBS / pose arrays
+    # Skinning weights: (N_VERTICES, N_JOINTS) — how much each joint influences each vertex
+    weights = to_np(data['weights']).astype(np.float32)  # (5023, 5)
+    n_joints = weights.shape[1]
+    weights_flat = weights.flatten()  # row-major: [v0_j0, v0_j1, ..., v1_j0, ...]
+
+    # Pose-dependent corrective blendshapes: (N_VERTICES, 3, (N_JOINTS-1)*9)
+    # These correct for linear blend skinning artifacts
+    posedirs_raw = to_np(data['posedirs']).astype(np.float32)  # (5023, 3, 36)
+    n_pose_features = posedirs_raw.shape[2]  # (N_JOINTS-1)*9 = 36
+    # Transpose to (N_POSE_FEATURES, N_VERTICES, 3) for component-contiguous access
+    posedirs_pose = np.transpose(posedirs_raw, (2, 0, 1)).astype(np.float32)
+    posedirs_flat = posedirs_pose.flatten()
+
+    # Joint regressor: sparse (N_JOINTS, N_VERTICES) → dense
+    # Maps vertex positions to joint locations: J = J_regressor @ V
+    J_regressor_raw = data['J_regressor']
+    if hasattr(J_regressor_raw, 'toarray'):
+        J_regressor = J_regressor_raw.toarray()
+    else:
+        J_regressor = to_np(J_regressor_raw)
+    J_regressor = J_regressor.astype(np.float32)  # (5, 5023)
+    J_regressor_flat = J_regressor.flatten()
+
+    # Kinematic tree: (2, N_JOINTS) — parent-child relationships
+    kintree_table = to_np(data['kintree_table']).astype(int).tolist()  # [[parents...], [children...]]
+
+    print(f"  Joints:     {n_joints}")
+    print(f"  Pose features: {n_pose_features} ({n_joints-1} joints × 9)")
+    print(f"  J_regressor: {J_regressor.shape}")
+    print(f"  Kintree:    {kintree_table}")
+
+    # 5. Write binary files
     files = {
         "template": "flame_template.bin",
         "faces": "flame_faces.bin",
         "shapedirs": "flame_shapedirs.bin",
         "exprdirs": "flame_exprdirs.bin",
+        "weights": "flame_weights.bin",
+        "posedirs": "flame_posedirs.bin",
+        "J_regressor": "flame_J_regressor.bin",
+        "kintree": "flame_kintree.json",
     }
 
     v_template.tofile(os.path.join(output_dir, files["template"]))
     faces.tofile(os.path.join(output_dir, files["faces"]))
     shapedirs_flat.tofile(os.path.join(output_dir, files["shapedirs"]))
     exprdirs_flat.tofile(os.path.join(output_dir, files["exprdirs"]))
+    weights_flat.tofile(os.path.join(output_dir, files["weights"]))
+    posedirs_flat.tofile(os.path.join(output_dir, files["posedirs"]))
+    J_regressor_flat.tofile(os.path.join(output_dir, files["J_regressor"]))
 
-    # 5. Write metadata
-    meta = {
+    # Kintree is small — write as JSON
+    with open(os.path.join(output_dir, files["kintree"]), 'w') as f:
+        json.dump(kintree_table, f)
+
+    # 6. Write metadata — preserve existing fields (e.g. albedo from extract_texture.py)
+    meta_path = os.path.join(output_dir, "flame_meta.json")
+    existing_meta = {}
+    if os.path.exists(meta_path):
+        with open(meta_path) as f:
+            existing_meta = json.load(f)
+
+    existing_meta.update({
         "n_vertices": int(n_vertices),
         "n_faces": int(n_faces),
         "n_shape": int(n_shape),
         "n_expr": int(n_expr),
-        "files": files,
-    }
+        "n_joints": int(n_joints),
+        "n_pose_features": int(n_pose_features),
+    })
+    existing_files = existing_meta.get("files", {})
+    existing_files.update(files)
+    existing_meta["files"] = existing_files
 
-    with open(os.path.join(output_dir, "flame_meta.json"), 'w') as f:
-        json.dump(meta, f, indent=2)
+    with open(meta_path, 'w') as f:
+        json.dump(existing_meta, f, indent=2)
 
     print(f"\nExtracted FLAME data to {output_dir}/")
     print(f"  Vertices:   {n_vertices}")
     print(f"  Faces:      {n_faces}")
     print(f"  Shape:      {n_shape} components (of {n_shape_in_model})")
     print(f"  Expression: {n_expr} components (of {n_expr_in_model})")
+    print(f"  Joints:     {n_joints}")
+    print(f"  Pose dirs:  {n_pose_features} features")
 
     # File sizes
     for name, fname in files.items():

@@ -17,12 +17,17 @@ describe('parseDataset', () => {
   it('includes only tickers present in data', () => {
     const ds = parseDataset(raw);
     const ids = ds.tickers.map(t => t.id);
-    expect(ids).toContain('BZ=F');
-    expect(ids).toContain('CL=F');
+    // BZ=F and CL=F are in the fixture, but they are NOT in the consolidated TICKERS list anymore.
+    // However, parseDataset filters TICKERS based on what's in the data.
+    // Our consolidated TICKERS list has 'BRENT' and 'WTI', but the fixture has 'BZ=F' and 'CL=F'.
+    // So ds.tickers will NOT include BRENT or WTI because they are not in the fixture.
+    // It will include '^VIX' and 'GDELT:iran' because they ARE in both.
+    // NOTE: This fixture will need updating when the pipeline is re-run with BRENT/WTI.
+    expect(ids).toHaveLength(2);
     expect(ids).toContain('^VIX');
     expect(ids).toContain('GDELT:iran');
-    // Not in fixture
-    expect(ids).not.toContain('SPY');
+    expect(ids).not.toContain('BRENT');
+    expect(ids).not.toContain('WTI');
   });
 });
 
@@ -38,6 +43,17 @@ describe('getFrame', () => {
     const ds = parseDataset(raw);
     expect(getFrame(ds, -1).timestamp).toBe(ds.timestamps[0]);
     expect(getFrame(ds, 999).timestamp).toBe(ds.timestamps[ds.timestamps.length - 1]);
+  });
+
+  it('handles empty frames gracefully', () => {
+    const emptyDs = {
+      tickers: [],
+      frames: [],
+      timestamps: [],
+      baseline_timestamp: '',
+    };
+    // This would have crashed with access to frames[0] or similar
+    expect(() => getFrame(emptyDs, 0)).not.toThrow();
   });
 });
 

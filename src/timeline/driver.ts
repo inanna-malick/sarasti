@@ -3,8 +3,10 @@ import type {
   FaceInstance,
   FaceRenderer,
   FaceParams,
+  PoseParams,
   Frame,
 } from '../types';
+import { zeroPose } from '../types';
 import { getFrame } from '../data/loader';
 import { createResolver } from '../binding/resolve';
 import { computeLayout } from '../spatial/layout';
@@ -77,6 +79,35 @@ export class FrameDriver {
     }
     out.flush = a.flush * s + b.flush * t;
     out.fatigue = a.fatigue * s + b.fatigue * t;
+
+    // Lerp pose params — defensive guards for missing pose data
+    const ap = a.pose || zeroPose();
+    const bp = b.pose || zeroPose();
+    const an = ap.neck || [0, 0, 0];
+    const bn = bp.neck || [0, 0, 0];
+    const aj = ap.jaw ?? 0;
+    const bj = bp.jaw ?? 0;
+    const ale = ap.leftEye || [0, 0];
+    const ble = bp.leftEye || [0, 0];
+    const are = ap.rightEye || [0, 0];
+    const bre = bp.rightEye || [0, 0];
+
+    out.pose = {
+      neck: [
+        an[0] * s + bn[0] * t,
+        an[1] * s + bn[1] * t,
+        an[2] * s + bn[2] * t,
+      ],
+      jaw: aj * s + bj * t,
+      leftEye: [
+        ale[0] * s + ble[0] * t,
+        ale[1] * s + ble[1] * t,
+      ],
+      rightEye: [
+        are[0] * s + bre[0] * t,
+        are[1] * s + bre[1] * t,
+      ],
+    };
   }
 
   /** Render at a fractional position, interpolating between adjacent frames. */
@@ -104,8 +135,8 @@ export class FrameDriver {
       if (t > 0 && tickerFrameB && indexA !== indexB) {
         // resolveNoAccumulate: get expression for frame B without advancing EMA
         const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB);
-        // Reuse paramsA arrays as output buffer
-        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), flush: 0, fatigue: 0 };
+        // Allocate output buffer for interpolation
+        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0 };
         this.lerpParams(paramsA, paramsB, t, params);
         // Lerp the scalar frame values for crisis intensity etc.
         tickerFrame = {

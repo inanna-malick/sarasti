@@ -4,6 +4,7 @@ import { FlameFaceMesh } from './mesh';
 import type { FlamePipeline } from './pipeline';
 import type { FlameModel, FlameBuffers } from './types';
 import type { FaceParams } from '../../types';
+import { zeroPose } from '../../types';
 
 describe('FlameFaceMesh', () => {
   const mockModel: FlameModel = {
@@ -13,10 +14,16 @@ describe('FlameFaceMesh', () => {
     exprdirs: new Float32Array(3 * 3 * 100),
     albedoMean: new Float32Array([0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]),
     albedoBasis: new Float32Array(3 * 3 * 10).fill(0.1),
+    weights: new Float32Array(3 * 5),
+    posedirs: new Float32Array(36 * 3 * 3),
+    jRegressor: new Float32Array(5 * 3),
+    kintreeTable: [[-1, 0, 1, 1, 1], [0, 1, 2, 3, 4]],
     n_vertices: 3,
     n_faces: 1,
     n_shape: 100,
     n_expr: 100,
+    n_joints: 5,
+    n_pose_features: 36,
     n_albedo_components: 10,
   };
 
@@ -38,12 +45,20 @@ describe('FlameFaceMesh', () => {
     expect(geometry.getAttribute('position').count).toBe(3);
     expect(geometry.getAttribute('color').count).toBe(3);
     expect(geometry.index?.count).toBe(3);
-    expect(meshWrapper.mesh.material).toBeInstanceOf(THREE.MeshStandardMaterial);
     
-    const material = meshWrapper.mesh.material as THREE.MeshStandardMaterial;
-    expect(material.vertexColors).toBe(true);
-    expect(material.transparent).toBe(true);
-    expect(material.alphaTest).toBe(0.01);
+    // Multi-material
+    expect(Array.isArray(meshWrapper.mesh.material)).toBe(true);
+    const materials = meshWrapper.mesh.material as THREE.Material[];
+    expect(materials.length).toBe(3);
+    
+    const faceMaterial = materials[0] as THREE.MeshStandardMaterial;
+    expect(faceMaterial.vertexColors).toBe(true);
+    expect(faceMaterial.transparent).toBe(true);
+    expect(faceMaterial.alphaTest).toBe(0.01);
+
+    const leftEyeMaterial = materials[1] as THREE.ShaderMaterial;
+    expect(leftEyeMaterial.uniforms.irisColor).toBeDefined();
+    expect(leftEyeMaterial.uniforms.gazeOffset).toBeDefined();
   });
 
   it('should update geometry in-place when updateFromParams is called', () => {
@@ -54,6 +69,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(1),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0,
     };
@@ -67,7 +83,8 @@ describe('FlameFaceMesh', () => {
 
   it('setCrisis is a no-op (expression geometry carries crisis signal)', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
-    const material = meshWrapper.mesh.material as THREE.MeshStandardMaterial;
+    const materials = meshWrapper.mesh.material as THREE.Material[];
+    const material = materials[0] as THREE.MeshStandardMaterial;
 
     const colorBefore = material.color.clone();
     meshWrapper.setCrisis(0);
@@ -106,6 +123,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(0),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 0.5,
       fatigue: 0,
     };
@@ -134,6 +152,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(0),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0.5,
     };
@@ -160,6 +179,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(0),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 10.0, // Extreme flush
       fatigue: 10.0, // Extreme fatigue
     };
@@ -177,5 +197,20 @@ describe('FlameFaceMesh', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
     
     expect(() => meshWrapper.dispose()).not.toThrow();
+  });
+
+  it('should handle missing pose in updateFromParams without throwing', () => {
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+    
+    // Construct FaceParams with missing pose
+    const params = {
+      shape: new Float32Array(100).fill(0),
+      expression: new Float32Array(50).fill(0),
+      // pose is missing
+      flush: 0,
+      fatigue: 0,
+    } as any;
+
+    expect(() => meshWrapper.updateFromParams(params)).not.toThrow();
   });
 });

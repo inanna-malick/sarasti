@@ -137,14 +137,6 @@ function mapStaticsToShape(
     }
   }
 
-  // β₂₆₋₃₀ ← market_cap (proxy: spread_from_family)
-  if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.market_cap_indices) {
-    const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
-    for (const idx of config.shape.market_cap_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
   // β₃₁₋₃₅ ← spread_from_family
   if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.spread_indices) {
     const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
@@ -175,7 +167,7 @@ function mapStaticsToShape(
  * This is applied ON TOP of the Semantify output, preserving the learned
  * nonlinear trajectory while amplifying it into data-viz range.
  */
-const SEMANTIFY_EXPR_INTENSITY = 20.0;
+const SEMANTIFY_EXPR_INTENSITY = 12.0;
 
 export function createExpressionResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,

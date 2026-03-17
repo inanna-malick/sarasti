@@ -154,4 +154,34 @@ describe('FrameDriver', () => {
     expect(useStore.getState().playback.current_index).toBe(1);
     expect(useStore.getState().currentTimestamp).toBe(mockFrames[1].timestamp);
   });
+
+  it('lerpParams with missing pose returns valid FaceParams without throwing', () => {
+    // Construct two FaceParams objects where pose is undefined
+    // Use real dimensions from src/constants
+    const a = {
+      shape: new Float32Array(100),
+      expression: new Float32Array(100),
+      flush: 0,
+      fatigue: 0
+    } as any;
+    const b = {
+      shape: new Float32Array(100),
+      expression: new Float32Array(100),
+      flush: 0,
+      fatigue: 0
+    } as any;
+
+    const out = {
+      shape: new Float32Array(100),
+      expression: new Float32Array(100),
+      pose: { neck: [0, 0, 0], jaw: 0, leftEye: [0, 0], rightEye: [0, 0] },
+      flush: 0,
+      fatigue: 0
+    };
+
+    // Call lerpParams(a, b, 0.5, out)
+    // This should NOT throw even if a.pose/b.pose are missing
+    expect(() => (driver as any).lerpParams(a, b, 0.5, out)).not.toThrow();
+    expect(out.pose).toBeDefined();
+  });
 });

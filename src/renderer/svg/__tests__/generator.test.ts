@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { generateFaceSvg } from '../generator';
 import type { FaceParams } from '../../../types';
+import { zeroPose } from '../../../types';
 import { N_SHAPE, N_EXPR } from '../../../constants';
 
 describe('SVG Face Generator', () => {
   const createNeutralParams = (): FaceParams => ({
     shape: new Float32Array(N_SHAPE),
     expression: new Float32Array(N_EXPR),
+    pose: zeroPose(),
     flush: 0,
     fatigue: 0,
   });
