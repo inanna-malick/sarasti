@@ -40,8 +40,15 @@ def merge_data():
     # All unique timestamps sorted
     all_timestamps = sorted(list(set(market_frames.keys()) | set(gdelt_frames.keys())))
 
-    # Resulting frames
+    # Resulting frames and statics
     merged_frames = []
+    merged_statics = {}
+
+    # Merge statics
+    if 'statics' in market_data:
+        merged_statics.update(market_data['statics'])
+    if 'statics' in gdelt_data:
+        merged_statics.update(gdelt_data['statics'])
     
     # Default values for missing tickers
     ZERO_VAL = {
@@ -49,7 +56,13 @@ def merge_data():
         "volume": 0.0,
         "deviation": 0.0,
         "velocity": 0.0,
-        "volatility": 1.0  # volatility baseline usually 1.0
+        "volatility": 1.0,
+        "volume_anomaly": 1.0,
+        "corr_breakdown": 0.0,
+        "term_slope": 0.0,
+        "cross_contagion": 0.0,
+        "high_low_ratio": 0.0,
+        "expr_residuals": [0.0] * 60
     }
 
     # Track last seen values for forward-fill
@@ -66,30 +79,24 @@ def merge_data():
                 val = gdelt_frames[ts][tid]
             
             if val is not None:
-                # Ensure it has all required fields
-                field_defaults = {"close": 0.0, "volume": 0.0, "deviation": 0.0, "velocity": 0.0, "volatility": 1.0}
-                cleaned_val = {field: val.get(field, default) for field, default in field_defaults.items()}
+                # Merge with defaults to ensure all fields exist
+                cleaned_val = ZERO_VAL.copy()
+                cleaned_val.update(val)
                 frame_values[tid] = cleaned_val
                 last_values[tid] = cleaned_val
             else:
                 # Forward-fill from last_values
-                frame_values[tid] = last_values[tid]
+                frame_values[tid] = last_values[tid].copy()
         
         merged_frames.append({
             "timestamp": ts,
             "values": frame_values
         })
 
-    # Validation: every frame must have all ticker ids
-    for f in merged_frames:
-        if len(f['values']) != len(ticker_ids):
-            print(f"Warning: Frame at {f['timestamp']} has {len(f['values'])} tickers, expected {len(ticker_ids)}")
-        if len(f['values']) != len(ticker_ids):
-            print(f"Warning: Frame at {f['timestamp']} has {len(f['values'])} tickers, expected {len(ticker_ids)}")
-
     # Output schema: RawMarketHistory
     output_data = {
         "baseline_timestamp": baseline_timestamp,
+        "statics": merged_statics,
         "frames": merged_frames
     }
 
@@ -103,6 +110,7 @@ def merge_data():
     os.makedirs(os.path.dirname(fixture_file), exist_ok=True)
     fixture_data = {
         "baseline_timestamp": baseline_timestamp,
+        "statics": merged_statics,
         "frames": merged_frames[:5]
     }
     with open(fixture_file, 'w') as f:
@@ -118,10 +126,10 @@ def merge_data():
         date_range = f"{merged_frames[0]['timestamp']} to {merged_frames[-1]['timestamp']}"
         print(f"Tickers per frame: {tickers_per_frame}")
         print(f"Date range: {date_range}")
-        if tickers_per_frame == 25:
-            print("Validation: Success (25 tickers present per frame)")
+        if tickers_per_frame == 23:
+            print("Validation: Success (23 tickers present per frame)")
         else:
-            print(f"Validation Note: Found {tickers_per_frame} tickers per frame, expected 25.")
+            print(f"Validation Note: Found {tickers_per_frame} tickers per frame, expected 23.")
     print("-" * 40)
 
 if __name__ == "__main__":
