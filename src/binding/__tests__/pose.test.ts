@@ -44,6 +44,34 @@ describe('PoseResolver', () => {
     expect(pose.jaw).toBeLessThanOrEqual(DEFAULT_POSE_CONFIG.maxJaw);
   });
 
+  it('jaw boundary: remains closed at or below 1.5, opens above 1.5', () => {
+    resolver.reset();
+    
+    const poseBelow = resolver.resolve('T1', { ...neutralFrame, volatility: 1.4 });
+    expect(poseBelow.jaw).toBe(0);
+
+    const poseAt = resolver.resolve('T1', { ...neutralFrame, volatility: 1.5 });
+    expect(poseAt.jaw).toBe(0);
+
+    const poseAbove = resolver.resolve('T1', { ...neutralFrame, volatility: 1.6 });
+    expect(poseAbove.jaw).toBeGreaterThan(0);
+  });
+
+  it('jaw closes faster than it opens when rested', () => {
+    resolver.reset();
+    
+    // Open the jaw over a couple of frames
+    resolver.resolve('T1', { ...neutralFrame, volatility: 3.0 });
+    const openedPose = resolver.resolve('T1', { ...neutralFrame, volatility: 3.0 });
+    const jawOpen = openedPose.jaw;
+    
+    // Now close it by dropping volatility below threshold
+    const closingPose = resolver.resolve('T1', { ...neutralFrame, volatility: 1.0 });
+    
+    // With smoothing alpha of 0.5 when target is 0, jaw should be exactly half of previous state
+    expect(closingPose.jaw).toBeCloseTo(jawOpen * 0.5, 5);
+  });
+
   it('clamping: extreme values do not exceed max ranges', () => {
     const frame: TickerFrame = {
       ...neutralFrame,
