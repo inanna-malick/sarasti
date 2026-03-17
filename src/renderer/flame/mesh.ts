@@ -19,7 +19,7 @@ export class FlameFaceMesh {
   private pipeline: FlamePipeline;
   private baseColors!: Float32Array;
 
-  constructor(pipeline: FlamePipeline, tickerId: string) {
+  constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
     const { model } = pipeline;
 
@@ -116,15 +116,15 @@ gl_FragColor.a *= fade;`
       );
     };
 
-    // Eye Materials
+    // Eye Materials — pass through any overrides from RefineHarness
     const irisColor = this.computeIrisColor(tickerId);
-    this.leftEyeMaterial = createEyeMaterial({ irisColor });
-    this.rightEyeMaterial = createEyeMaterial({ irisColor });
+    this.leftEyeMaterial = createEyeMaterial({ irisColor, ...eyeOverrides });
+    this.rightEyeMaterial = createEyeMaterial({ irisColor, ...eyeOverrides });
 
     // Compute eye centers from template (stable in mesh space for now)
     const leftCenter = this.computeVertexGroupCenter(model.template, eyeGroups.leftEyeVertices);
     const rightCenter = this.computeVertexGroupCenter(model.template, eyeGroups.rightEyeVertices);
-    
+
     this.leftEyeMaterial.uniforms.eyeCenter.value.copy(leftCenter);
     this.rightEyeMaterial.uniforms.eyeCenter.value.copy(rightCenter);
 
@@ -151,6 +151,7 @@ gl_FragColor.a *= fade;`
 
     this.updateTexture(params.flush, params.fatigue);
 
+
     // Update gaze offsets
     this.leftEyeMaterial.uniforms.gazeOffset.value.set(
       pose.leftEye[0],
@@ -160,6 +161,7 @@ gl_FragColor.a *= fade;`
       pose.rightEye[0],
       pose.rightEye[1]
     );
+
 
     // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();

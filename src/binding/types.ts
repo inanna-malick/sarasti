@@ -119,6 +119,8 @@ export interface BindingConfig {
   tier_intensities?: [number, number, number, number];
   /** Global expression intensity multiplier (0-1) */
   expression_intensity: number;
+  /** Intensity for semantify directions */
+  semantify_expr_intensity?: number;
   /** Per-class shape profiles: class → array of [index, value] pairs */
   class_profiles: Record<AssetClass, [number, number][]>;
   /** Per-family shape perturbations: family → array of [index, value] pairs */

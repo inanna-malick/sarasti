@@ -191,16 +191,18 @@ export function createExpressionResolver(
       const valenceTable = getTable('valence');
       const apertureTable = getTable('aperture');
 
+      const semantifyIntensity = config.semantify_expr_intensity ?? SEMANTIFY_EXPR_INTENSITY;
+
       if (valenceTable) {
         const valenceScore = applyCurve(config.deviation_curve, frame.deviation) * 3;
         const valenceParams = interpolateLUT(valenceTable, valenceScore);
-        addScaledVec(expression, valenceParams, SEMANTIFY_EXPR_INTENSITY);
+        addScaledVec(expression, valenceParams, semantifyIntensity);
       }
 
       if (apertureTable) {
         const apertureScore = applyCurve(config.volatility_curve, frame.volatility) * 3;
         const apertureParams = interpolateLUT(apertureTable, apertureScore);
-        addScaledVec(expression, apertureParams, SEMANTIFY_EXPR_INTENSITY);
+        addScaledVec(expression, apertureParams, semantifyIntensity);
       }
 
       // Tier 2/3 + Sarasti: enriched expression from per-frame fields
