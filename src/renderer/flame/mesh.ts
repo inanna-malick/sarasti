@@ -14,7 +14,7 @@ export class FlameFaceMesh {
   private pipeline: FlamePipeline;
   private baseColors!: Float32Array;
 
-  constructor(pipeline: FlamePipeline, tickerId: string) {
+  constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
     const { model } = pipeline;
 

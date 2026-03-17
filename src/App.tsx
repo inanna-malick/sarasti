@@ -11,10 +11,16 @@ import { Controls } from './ui/Controls';
 import { Landing } from './ui/Landing';
 import { useStore } from './store';
 import { loadDirectionTables } from './binding/directions';
+import { RefineHarness } from './refine/RefineHarness';
 
 const DATA_URL = '/data/market-data.json';
 
 export function App() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('refine') === 'true') {
+    return <RefineHarness />;
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<FaceRenderer | null>(null);
   const driverRef = useRef<FrameDriver | null>(null);
