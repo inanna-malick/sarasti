@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createFlamePipeline } from './pipeline';
 import { mockModelToFiles, MOCK_N_VERTICES, makeMockFlameModel } from '../../../test-utils/flame-fixtures';
 import { N_SHAPE, N_EXPR } from '../../constants';
+import { zeroPose } from '../../types';
 
 function setupMockFetch() {
   const files = mockModelToFiles();
@@ -33,6 +34,7 @@ describe('FlamePipeline (loader → deformer)', () => {
     const params = {
       shape: new Float32Array(N_SHAPE),
       expression: new Float32Array(N_EXPR),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0,
     };
@@ -51,6 +53,7 @@ describe('FlamePipeline (loader → deformer)', () => {
     const params = {
       shape: new Float32Array(N_SHAPE),
       expression: new Float32Array(N_EXPR),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0,
     };
@@ -70,10 +73,10 @@ describe('FlamePipeline (loader → deformer)', () => {
   it('multiple deformations are independent (no state leak)', async () => {
     const pipeline = await createFlamePipeline('/data/');
 
-    const params1 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR), flush: 0, fatigue: 0 };
+    const params1 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR), pose: zeroPose(), flush: 0, fatigue: 0 };
     params1.shape[0] = 1.0;
 
-    const params2 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR), flush: 0, fatigue: 0 };
+    const params2 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR), pose: zeroPose(), flush: 0, fatigue: 0 };
 
     const r1 = pipeline.deformFace(params1);
     const r2 = pipeline.deformFace(params2);

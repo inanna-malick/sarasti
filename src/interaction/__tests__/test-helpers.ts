@@ -1,4 +1,5 @@
 import type { FaceInstance, TickerConfig, TickerFrame } from '../../types';
+import { zeroPose } from '../../types';
 
 export function makeFaceInstance(id: string, overrides: Partial<FaceInstance> = {}): FaceInstance {
   const ticker: TickerConfig = {
@@ -27,6 +28,7 @@ export function makeFaceInstance(id: string, overrides: Partial<FaceInstance> = 
     params: {
       shape: new Float32Array(100),
       expression: new Float32Array(100),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0,
     },

@@ -4,6 +4,7 @@ import { FlameFaceMesh } from './mesh';
 import type { FlamePipeline } from './pipeline';
 import type { FlameModel, FlameBuffers } from './types';
 import type { FaceParams } from '../../types';
+import { zeroPose } from '../../types';
 
 describe('FlameFaceMesh', () => {
   const mockModel: FlameModel = {
@@ -13,10 +14,16 @@ describe('FlameFaceMesh', () => {
     exprdirs: new Float32Array(3 * 3 * 100),
     albedoMean: new Float32Array([0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]),
     albedoBasis: new Float32Array(3 * 3 * 10).fill(0.1),
+    weights: new Float32Array(3 * 5),
+    posedirs: new Float32Array(36 * 3 * 3),
+    jRegressor: new Float32Array(5 * 3),
+    kintreeTable: [[-1, 0, 1, 1, 1], [0, 1, 2, 3, 4]],
     n_vertices: 3,
     n_faces: 1,
     n_shape: 100,
     n_expr: 100,
+    n_joints: 5,
+    n_pose_features: 36,
     n_albedo_components: 10,
   };
 
@@ -54,6 +61,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(1),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0,
     };
@@ -106,6 +114,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(0),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 0.5,
       fatigue: 0,
     };
@@ -134,6 +143,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(0),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 0,
       fatigue: 0.5,
     };
@@ -160,6 +170,7 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(0),
       expression: new Float32Array(50).fill(0),
+      pose: zeroPose(),
       flush: 10.0, // Extreme flush
       fatigue: 10.0, // Extreme fatigue
     };
