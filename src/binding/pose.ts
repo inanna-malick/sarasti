@@ -62,7 +62,7 @@ export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
         : 0;
 
       // Higher volatility -> mouth opens
-      const targetJaw = clamp((volatility - 1.0) * 0.3, 0, fullConfig.maxJaw);
+      const targetJaw = clamp((volatility - 1.5) * 0.1, 0, fullConfig.maxJaw);
 
       // 2. Apply Smoothing
       let state = states.get(tickerId);
@@ -79,7 +79,9 @@ export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
         state.pitch = alpha * targetPitch + (1 - alpha) * state.pitch;
         state.yaw = alpha * targetYaw + (1 - alpha) * state.yaw;
         state.roll = alpha * targetRoll + (1 - alpha) * state.roll;
-        state.jaw = alpha * targetJaw + (1 - alpha) * state.jaw;
+        
+        const jawAlpha = targetJaw === 0 ? Math.max(alpha, 0.5) : alpha;
+        state.jaw = jawAlpha * targetJaw + (1 - jawAlpha) * state.jaw;
       }
 
       const pose = zeroPose();
