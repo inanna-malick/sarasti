@@ -65,6 +65,7 @@ export async function createFlameSceneRenderer(
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.0;
+      renderer.localClippingEnabled = true;
       el.appendChild(renderer.domElement);
 
       // Scene
