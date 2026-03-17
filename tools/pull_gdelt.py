@@ -83,14 +83,21 @@ def generate_synthetic_data():
     # Statistics for normalization
     # Pre-crisis baseline is the first 72 hours (3 days)
     pre_crisis_n = 72
-    stats = {}
+    statics = {}
     for tid in TICKER_IDS:
         subset = raw_series[tid][:pre_crisis_n]
-        mean = sum(subset) / len(subset)
-        std = math.sqrt(sum((x - mean)**2 for x in subset) / len(subset))
-        stats[tid] = {
+        mean_val = sum(subset) / len(subset)
+        std_val = math.sqrt(sum((x - mean_val)**2 for x in subset) / len(subset))
+        statics[tid] = {
+            "avg_volume": mean_val * 10,
+            "hist_volatility": std_val / (abs(mean_val) if abs(mean_val) > 1e-6 else 1.0),
+            "corr_to_brent": 0.0, # Not computed for synthetic GDELT
+            "corr_to_spy": 0.0,
+            "skewness": 0.0,
+            "spread_from_family": 0.0,
             "baseline_close": raw_series[tid][0],
-            "baseline_std": std if std > 1e-6 else 1.0
+            "baseline_std": std_val if std_val > 1e-6 else 1.0,
+            "shape_residuals": [random.uniform(-1, 1) for _ in range(50)]
         }
 
     # Build frames
@@ -99,7 +106,7 @@ def generate_synthetic_data():
         frame_values = {}
         for tid in TICKER_IDS:
             close = raw_series[tid][i]
-            stat = stats[tid]
+            stat = statics[tid]
             
             # Deviation
             if abs(stat["baseline_close"]) > 1e-6:
@@ -127,7 +134,13 @@ def generate_synthetic_data():
                 "volume": abs(close * 10), # Pseudo-volume
                 "deviation": deviation,
                 "velocity": velocity,
-                "volatility": volatility
+                "volatility": volatility,
+                "volume_anomaly": 1.0,
+                "corr_breakdown": 0.0,
+                "term_slope": 0.0,
+                "cross_contagion": 0.0,
+                "high_low_ratio": 0.0,
+                "expr_residuals": [random.uniform(-0.1, 0.1) for _ in range(60)]
             }
         
         final_frames.append({
@@ -135,18 +148,19 @@ def generate_synthetic_data():
             "values": frame_values
         })
         
-    return final_frames, timestamps[0]
+    return final_frames, timestamps[0], statics
 
 def main():
     print(f"Generating GDELT data from {START_DATE.date()} to {END_DATE.date()}...")
     
     # In a real scenario, we'd try to call the GDELT API here.
     # But since the dates are in 2026, we use synthetic data.
-    frames, baseline_ts = generate_synthetic_data()
+    frames, baseline_ts, statics = generate_synthetic_data()
     
     output = {
         "ticker_ids": TICKER_IDS,
         "baseline_timestamp": baseline_ts,
+        "statics": statics,
         "frames": frames
     }
     

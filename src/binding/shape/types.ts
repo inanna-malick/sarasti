@@ -33,6 +33,20 @@ export const SHAPE_ALLOCATION: ShapeAllocation = {
   age_indices: [0, 1, 2],
   class_indices: [0, 3, 4],
   family_indices: [5, 6, 7, 8],
+
+  // Tier 2 (β₁₁₋₂₀)
+  volume_indices: [11, 12, 13],
+  hist_vol_indices: [14, 15, 16],
+  corr_brent_indices: [17, 18, 19],
+
+  // Tier 3 (β₂₁₋₅₀)
+  corr_spy_indices: [21, 22, 23, 24, 25],
+  market_cap_indices: [26, 27, 28, 29, 30],
+  spread_indices: [31, 32, 33, 34, 35],
+  skewness_indices: [36, 37, 38, 39, 40],
+
+  // Sarasti (β₅₁₋₁₀₀)
+  residual_indices: Array.from({ length: 50 }, (_, i) => 50 + i),
 };
 
 /**
