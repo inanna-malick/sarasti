@@ -16,6 +16,7 @@ import type { FlameModel, FlameMeta } from '../src/renderer/flame/types';
 
 export const MOCK_N_VERTICES = 4;
 export const MOCK_N_FACES = 4;
+export const MOCK_N_ALBEDO = 10;
 
 // ─── Template: regular tetrahedron centered at origin ──
 
@@ -70,6 +71,16 @@ export function makeMockExprdirs(): Float32Array {
   return data;
 }
 
+// ─── Albedo basis and mean ──────────────────────────
+
+export function makeMockAlbedoMean(): Float32Array {
+  return new Float32Array(MOCK_N_VERTICES * 3).fill(0.5);
+}
+
+export function makeMockAlbedoBasis(): Float32Array {
+  return new Float32Array(MOCK_N_VERTICES * 3 * MOCK_N_ALBEDO).fill(0.01);
+}
+
 // ─── Complete mock model ────────────────────────────
 
 export function makeMockFlameModel(): FlameModel {
@@ -78,10 +89,13 @@ export function makeMockFlameModel(): FlameModel {
     faces: makeMockFaces(),
     shapedirs: makeMockShapedirs(),
     exprdirs: makeMockExprdirs(),
+    albedoMean: makeMockAlbedoMean(),
+    albedoBasis: makeMockAlbedoBasis(),
     n_vertices: MOCK_N_VERTICES,
     n_faces: MOCK_N_FACES,
     n_shape: N_SHAPE,
     n_expr: N_EXPR,
+    n_albedo_components: MOCK_N_ALBEDO,
   };
 }
 
@@ -93,11 +107,14 @@ export function makeMockFlameMeta(): FlameMeta {
     n_faces: MOCK_N_FACES,
     n_shape: N_SHAPE,
     n_expr: N_EXPR,
+    n_albedo_components: MOCK_N_ALBEDO,
     files: {
       template: 'flame_template.bin',
       faces: 'flame_faces.bin',
       shapedirs: 'flame_shapedirs.bin',
       exprdirs: 'flame_exprdirs.bin',
+      albedo_mean: 'flame_albedo_mean.bin',
+      albedo_basis: 'flame_albedo_basis.bin',
     },
   };
 }
@@ -112,6 +129,8 @@ export function mockModelToFiles(): Map<string, ArrayBuffer> {
   files.set('flame_faces.bin', model.faces.buffer as ArrayBuffer);
   files.set('flame_shapedirs.bin', model.shapedirs.buffer as ArrayBuffer);
   files.set('flame_exprdirs.bin', model.exprdirs.buffer as ArrayBuffer);
+  files.set('flame_albedo_mean.bin', model.albedoMean.buffer as ArrayBuffer);
+  files.set('flame_albedo_basis.bin', model.albedoBasis.buffer as ArrayBuffer);
   files.set('flame_meta.json', new TextEncoder().encode(JSON.stringify(meta)).buffer as ArrayBuffer);
   return files;
 }

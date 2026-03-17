@@ -42,6 +42,8 @@ describe('SceneCompositor', () => {
 
     expect(compositor.getMeshes().length).toBe(2);
     expect(FlameFaceMesh).toHaveBeenCalledTimes(2);
+    expect(FlameFaceMesh).toHaveBeenNthCalledWith(1, pipeline, '1');
+    expect(FlameFaceMesh).toHaveBeenNthCalledWith(2, pipeline, '2');
 
     const mesh1 = compositor.getFaceMesh('1');
     expect(mesh1).toBeDefined();
