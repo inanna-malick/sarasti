@@ -9,7 +9,7 @@
  * We truncate to N_SHAPE=100, N_EXPR=100 per project convention.
  */
 
-import { N_SHAPE, N_EXPR } from '../src/constants';
+import { N_SHAPE, N_EXPR, N_JOINTS } from '../src/constants';
 import type { FlameModel, FlameMeta } from '../src/renderer/flame/types';
 
 // ─── Dimensions ─────────────────────────────────────
@@ -17,6 +17,8 @@ import type { FlameModel, FlameMeta } from '../src/renderer/flame/types';
 export const MOCK_N_VERTICES = 4;
 export const MOCK_N_FACES = 4;
 export const MOCK_N_ALBEDO = 10;
+export const MOCK_N_JOINTS = N_JOINTS;
+export const MOCK_N_POSE_FEATURES = (N_JOINTS - 1) * 9; // 36
 
 // ─── Template: regular tetrahedron centered at origin ──
 
@@ -81,6 +83,51 @@ export function makeMockAlbedoBasis(): Float32Array {
   return new Float32Array(MOCK_N_VERTICES * 3 * MOCK_N_ALBEDO).fill(0.01);
 }
 
+// ─── LBS mock data ──────────────────────────────────
+
+export function makeMockWeights(): Float32Array {
+  // [N_VERTICES * N_JOINTS] — each vertex has weights summing to 1
+  const data = new Float32Array(MOCK_N_VERTICES * MOCK_N_JOINTS);
+  for (let v = 0; v < MOCK_N_VERTICES; v++) {
+    // Assign primary weight to joint (v % N_JOINTS), small weights to others
+    for (let j = 0; j < MOCK_N_JOINTS; j++) {
+      data[v * MOCK_N_JOINTS + j] = (j === v % MOCK_N_JOINTS) ? 0.8 : 0.05;
+    }
+  }
+  return data;
+}
+
+export function makeMockPosedirs(): Float32Array {
+  // [N_POSE_FEATURES * N_VERTICES * 3] — small corrective displacements
+  const data = new Float32Array(MOCK_N_POSE_FEATURES * MOCK_N_VERTICES * 3);
+  for (let f = 0; f < MOCK_N_POSE_FEATURES; f++) {
+    const vertex = f % MOCK_N_VERTICES;
+    const axis = f % 3;
+    data[f * MOCK_N_VERTICES * 3 + vertex * 3 + axis] = 0.01;
+  }
+  return data;
+}
+
+export function makeMockJRegressor(): Float32Array {
+  // [N_JOINTS * N_VERTICES] — sparse: each joint averages a subset of vertices
+  const data = new Float32Array(MOCK_N_JOINTS * MOCK_N_VERTICES);
+  for (let j = 0; j < MOCK_N_JOINTS; j++) {
+    // Each joint is located at one vertex
+    const v = j % MOCK_N_VERTICES;
+    data[j * MOCK_N_VERTICES + v] = 1.0;
+  }
+  return data;
+}
+
+export function makeMockKintreeTable(): number[][] {
+  // [2][N_JOINTS] — parent (row 0) and child (row 1)
+  // Joint 0 = root (parent -1), joint 1 = neck (parent 0), etc.
+  return [
+    [-1, 0, 1, 1, 1], // parents
+    [0, 1, 2, 3, 4],  // children
+  ];
+}
+
 // ─── Complete mock model ────────────────────────────
 
 export function makeMockFlameModel(): FlameModel {
@@ -91,10 +138,16 @@ export function makeMockFlameModel(): FlameModel {
     exprdirs: makeMockExprdirs(),
     albedoMean: makeMockAlbedoMean(),
     albedoBasis: makeMockAlbedoBasis(),
+    weights: makeMockWeights(),
+    posedirs: makeMockPosedirs(),
+    jRegressor: makeMockJRegressor(),
+    kintreeTable: makeMockKintreeTable(),
     n_vertices: MOCK_N_VERTICES,
     n_faces: MOCK_N_FACES,
     n_shape: N_SHAPE,
     n_expr: N_EXPR,
+    n_joints: MOCK_N_JOINTS,
+    n_pose_features: MOCK_N_POSE_FEATURES,
     n_albedo_components: MOCK_N_ALBEDO,
   };
 }
@@ -107,6 +160,8 @@ export function makeMockFlameMeta(): FlameMeta {
     n_faces: MOCK_N_FACES,
     n_shape: N_SHAPE,
     n_expr: N_EXPR,
+    n_joints: MOCK_N_JOINTS,
+    n_pose_features: MOCK_N_POSE_FEATURES,
     n_albedo_components: MOCK_N_ALBEDO,
     files: {
       template: 'flame_template.bin',
@@ -115,6 +170,10 @@ export function makeMockFlameMeta(): FlameMeta {
       exprdirs: 'flame_exprdirs.bin',
       albedo_mean: 'flame_albedo_mean.bin',
       albedo_basis: 'flame_albedo_basis.bin',
+      weights: 'flame_weights.bin',
+      posedirs: 'flame_posedirs.bin',
+      J_regressor: 'flame_J_regressor.bin',
+      kintree: 'flame_kintree.json',
     },
   };
 }
@@ -131,6 +190,10 @@ export function mockModelToFiles(): Map<string, ArrayBuffer> {
   files.set('flame_exprdirs.bin', model.exprdirs.buffer as ArrayBuffer);
   files.set('flame_albedo_mean.bin', model.albedoMean.buffer as ArrayBuffer);
   files.set('flame_albedo_basis.bin', model.albedoBasis.buffer as ArrayBuffer);
+  files.set('flame_weights.bin', model.weights.buffer as ArrayBuffer);
+  files.set('flame_posedirs.bin', model.posedirs.buffer as ArrayBuffer);
+  files.set('flame_J_regressor.bin', model.jRegressor.buffer as ArrayBuffer);
+  files.set('flame_kintree.json', new TextEncoder().encode(JSON.stringify(model.kintreeTable)).buffer as ArrayBuffer);
   files.set('flame_meta.json', new TextEncoder().encode(JSON.stringify(meta)).buffer as ArrayBuffer);
   return files;
 }

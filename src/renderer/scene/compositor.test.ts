@@ -34,8 +34,8 @@ describe('SceneCompositor', () => {
 
   it('setInstances creates new meshes for new ids', () => {
     const instances: any[] = [
-      { id: '1', position: [1, 2, 3], params: { shape: new Float32Array(100), expression: new Float32Array(50), flush: 0, fatigue: 0 }, frame: { deviation: 0.5 } },
-      { id: '2', position: [4, 5, 6], params: { shape: new Float32Array(100), expression: new Float32Array(50), flush: 0, fatigue: 0 }, frame: { deviation: -0.2 } },
+      { id: '1', position: [1, 2, 3], params: { shape: new Float32Array(100), expression: new Float32Array(50), pose: { neck: [0,0,0] as [number,number,number], jaw: 0, leftEye: [0,0] as [number,number], rightEye: [0,0] as [number,number] }, flush: 0, fatigue: 0 }, frame: { deviation: 0.5 } },
+      { id: '2', position: [4, 5, 6], params: { shape: new Float32Array(100), expression: new Float32Array(50), pose: { neck: [0,0,0] as [number,number,number], jaw: 0, leftEye: [0,0] as [number,number], rightEye: [0,0] as [number,number] }, flush: 0, fatigue: 0 }, frame: { deviation: -0.2 } },
     ];
 
     compositor.setInstances(instances);

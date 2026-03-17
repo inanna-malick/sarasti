@@ -3,8 +3,10 @@ import type {
   FaceInstance,
   FaceRenderer,
   FaceParams,
+  PoseParams,
   Frame,
 } from '../types';
+import { zeroPose } from '../types';
 import { getFrame } from '../data/loader';
 import { createResolver } from '../binding/resolve';
 import { computeLayout } from '../spatial/layout';
@@ -77,6 +79,25 @@ export class FrameDriver {
     }
     out.flush = a.flush * s + b.flush * t;
     out.fatigue = a.fatigue * s + b.fatigue * t;
+    // Lerp pose params
+    const ap = a.pose;
+    const bp = b.pose;
+    out.pose = {
+      neck: [
+        ap.neck[0] * s + bp.neck[0] * t,
+        ap.neck[1] * s + bp.neck[1] * t,
+        ap.neck[2] * s + bp.neck[2] * t,
+      ],
+      jaw: ap.jaw * s + bp.jaw * t,
+      leftEye: [
+        ap.leftEye[0] * s + bp.leftEye[0] * t,
+        ap.leftEye[1] * s + bp.leftEye[1] * t,
+      ],
+      rightEye: [
+        ap.rightEye[0] * s + bp.rightEye[0] * t,
+        ap.rightEye[1] * s + bp.rightEye[1] * t,
+      ],
+    };
   }
 
   /** Render at a fractional position, interpolating between adjacent frames. */
@@ -104,8 +125,8 @@ export class FrameDriver {
       if (t > 0 && tickerFrameB && indexA !== indexB) {
         // resolveNoAccumulate: get expression for frame B without advancing EMA
         const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB);
-        // Reuse paramsA arrays as output buffer
-        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), flush: 0, fatigue: 0 };
+        // Allocate output buffer for interpolation
+        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0 };
         this.lerpParams(paramsA, paramsB, t, params);
         // Lerp the scalar frame values for crisis intensity etc.
         tickerFrame = {

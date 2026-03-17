@@ -1,4 +1,7 @@
 import type { TickerConfig, TickerFrame, TickerStatic, FaceParams } from '../types';
+import { zeroPose } from '../types';
+import { createPoseResolver } from './pose';
+import { createGazeResolver } from './gaze';
 import type { ShapeResolver, ExpressionResolver, BindingConfig } from './types';
 import { emptyShape, emptyExpression } from './types';
 import { N_SHAPE, N_EXPR } from '../constants';
@@ -314,10 +317,16 @@ export function resolve(
 ): FaceParams {
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
+  const poseResolver = createPoseResolver();
+  const gazeResolver = createGazeResolver();
+
+  const poseResult = poseResolver.resolve(ticker.id, frame);
+  const gazeResult = gazeResolver.resolve(ticker.id, frame);
 
   return {
     shape: shapeResolver.resolve(ticker),
     expression: exprResolver.resolve(frame),
+    pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
     flush: 0,
     fatigue: 0,
   };
@@ -330,6 +339,8 @@ export function resolve(
 export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
+  const poseResolver = createPoseResolver();
+  const gazeResolver = createGazeResolver();
   const shapeCache = new Map<string, Float32Array>();
   const accumulatorMap = new Map<string, TextureAccumulator>();
 
@@ -351,9 +362,13 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
 
       const { flush, fatigue } = accumulatorToTexture(acc);
 
+      const poseResult = poseResolver.resolve(ticker.id, frame);
+      const gazeResult = gazeResolver.resolve(ticker.id, frame);
+
       return {
         shape,
         expression: exprResolver.resolve(frame),
+        pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
         flush,
         fatigue,
       };
@@ -375,9 +390,14 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
       const { flush, fatigue } = accumulatorToTexture(acc);
 
+      // Read pose/gaze current smoothed state without advancing
+      const poseResult = poseResolver.resolve(ticker.id, frame);
+      const gazeResult = gazeResolver.resolve(ticker.id, frame);
+
       return {
         shape,
         expression: exprResolver.resolve(frame),
+        pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
         flush,
         fatigue,
       };
@@ -389,6 +409,8 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
 
     resetAccumulators(): void {
       accumulatorMap.clear();
+      poseResolver.reset();
+      gazeResolver.reset();
     },
   };
 }

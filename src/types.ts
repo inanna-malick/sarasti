@@ -65,11 +65,34 @@ export interface TimelineDataset {
   statics?: Record<string, TickerStatic>;
 }
 
+// ─── Pose ───────────────────────────────────────────
+
+export interface PoseParams {
+  /** Neck rotation [pitch, yaw, roll] in radians */
+  neck: [number, number, number];
+  /** Jaw open angle in radians */
+  jaw: number;
+  /** Left eye gaze [horizontal, vertical] in radians */
+  leftEye: [number, number];
+  /** Right eye gaze [horizontal, vertical] in radians */
+  rightEye: [number, number];
+}
+
+export function zeroPose(): PoseParams {
+  return {
+    neck: [0, 0, 0],
+    jaw: 0,
+    leftEye: [0, 0],
+    rightEye: [0, 0],
+  };
+}
+
 // ─── Face ───────────────────────────────────────────
 
 export interface FaceParams {
   shape: Float32Array;
   expression: Float32Array;
+  pose: PoseParams;
   flush: number;      // [-1, 1] — -1 bloodless, 0 baseline, +1 flushed
   fatigue: number;    // [-1, 1] — -1 alert, 0 baseline, +1 fatigued
 }
