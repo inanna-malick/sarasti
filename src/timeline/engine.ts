@@ -1,6 +1,8 @@
 import type { PlaybackState } from '../types';
 
 export type FrameChangeCallback = (index: number) => void;
+/** Called every rAF with fractional position (e.g. 5.3 = 30% between frame 5 and 6). */
+export type ContinuousCallback = (position: number) => void;
 
 /**
  * Manages PlaybackState and requestAnimationFrame loop.
@@ -32,9 +34,11 @@ export class TimelineEngine {
   private _state: PlaybackState;
   private _frameCount: number;
   private _listeners: FrameChangeCallback[] = [];
+  private _continuousListeners: ContinuousCallback[] = [];
   private _rafId: number | null = null;
   private _lastTimestamp: number = 0;
   private _accumulator: number = 0;
+  private _fractional: number = 0;
 
   constructor(frameCount: number) {
     this._frameCount = frameCount;
@@ -58,6 +62,16 @@ export class TimelineEngine {
     this._listeners.push(cb);
   }
 
+  /** Register a continuous callback — fires every rAF with fractional position. */
+  onContinuous(cb: ContinuousCallback): void {
+    this._continuousListeners.push(cb);
+  }
+
+  /** Current fractional position (e.g. 5.3). */
+  get fractionalPosition(): number {
+    return this._state.current_index + this._fractional;
+  }
+
   play(): void {
     if (this._state.playing) return;
     this._state.playing = true;
@@ -78,7 +92,10 @@ export class TimelineEngine {
     const clamped = Math.max(0, Math.min(index, this._frameCount - 1));
     if (clamped !== this._state.current_index) {
       this._state.current_index = clamped;
+      this._fractional = 0;
+      this._accumulator = 0;
       this._notifyListeners();
+      this._notifyContinuous();
     }
   }
 
@@ -102,16 +119,19 @@ export class TimelineEngine {
     const dt = (now - this._lastTimestamp) / 1000; // seconds
     this._lastTimestamp = now;
 
-    // speed = seconds of wall-clock per hour of data
-    // Each frame ≈ 1 hour of data.
-    // So interval between frames = speed seconds.
-    const interval = this._state.speed;
+    // speed = playback multiplier (1x = 1 frame/sec, 4x = 4 frames/sec)
+    // interval = seconds between frames = 1/speed
+    const interval = 1 / this._state.speed;
     this._accumulator += dt;
+
+    // Compute fractional progress within current frame
+    this._fractional = Math.min(this._accumulator / interval, 1);
 
     if (this._accumulator >= interval) {
       // Advance by however many frames accumulated (handles lag)
       const steps = Math.floor(this._accumulator / interval);
       this._accumulator -= steps * interval;
+      this._fractional = this._accumulator / interval;
 
       let newIndex = this._state.current_index + steps;
 
@@ -130,12 +150,22 @@ export class TimelineEngine {
       }
     }
 
+    // Always notify continuous listeners with fractional position
+    this._notifyContinuous();
+
     this._rafId = requestAnimationFrame(this._tick);
   };
 
   private _notifyListeners(): void {
     for (const cb of this._listeners) {
       cb(this._state.current_index);
+    }
+  }
+
+  private _notifyContinuous(): void {
+    const pos = this._state.current_index + this._fractional;
+    for (const cb of this._continuousListeners) {
+      cb(pos);
     }
   }
 }

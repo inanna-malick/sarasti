@@ -122,7 +122,7 @@ describe('TimelineEngine', () => {
   });
 
   it('handles high speed (skipping frames)', () => {
-    engine.setSpeed(0.1); // 10 frames per second
+    engine.setSpeed(10); // 10 frames per second (interval = 0.1s)
     engine.play();
 
     (global as any).advanceTime(500); // 0.5s = 5 frames

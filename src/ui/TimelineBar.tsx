@@ -25,7 +25,7 @@ interface TimelineBarProps {
   onSpeedChange: (speed: number) => void;
 }
 
-const SPEEDS = [0.25, 0.5, 1, 2, 4];
+const SPEEDS = [0.25, 0.5, 1, 2, 4, 8];
 
 // Key events for tick marks
 export const KEY_EVENTS = [

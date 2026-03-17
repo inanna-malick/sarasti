@@ -2,6 +2,7 @@ import type {
   TimelineDataset,
   FaceInstance,
   FaceRenderer,
+  FaceParams,
   Frame,
 } from '../types';
 import { getFrame } from '../data/loader';
@@ -56,46 +57,81 @@ export class FrameDriver {
     this.engine = new TimelineEngine(dataset.frames.length);
     useStore.getState().setFrameCount(dataset.frames.length);
 
-    // Listen for frame changes
-    this.engine.onFrameChange((index) => this.renderFrame(index));
+    // Listen for continuous interpolated updates
+    this.engine.onContinuous((position) => this.renderInterpolated(position));
 
     // Seek to initial index and render
     const clamped = Math.max(0, Math.min(initialIndex, dataset.frames.length - 1));
     this.engine.seek(clamped);
-    this.renderFrame(clamped);
+    this.renderInterpolated(clamped);
   }
 
-  /** Build FaceInstance[] from a frame and current positions. */
-  private buildInstances(frame: Frame): FaceInstance[] {
+  /** Lerp two FaceParams. Mutates `out` arrays in place for zero-alloc. */
+  private lerpParams(a: FaceParams, b: FaceParams, t: number, out: FaceParams): void {
+    const s = 1 - t;
+    for (let i = 0; i < a.shape.length; i++) {
+      out.shape[i] = a.shape[i] * s + b.shape[i] * t;
+    }
+    for (let i = 0; i < a.expression.length; i++) {
+      out.expression[i] = a.expression[i] * s + b.expression[i] * t;
+    }
+  }
+
+  /** Render at a fractional position, interpolating between adjacent frames. */
+  private renderInterpolated(position: number): void {
+    const maxIndex = this.dataset.frames.length - 1;
+    const indexA = Math.min(Math.floor(position), maxIndex);
+    const indexB = Math.min(indexA + 1, maxIndex);
+    const t = position - indexA; // fractional part [0, 1)
+
+    const frameA = getFrame(this.dataset, indexA);
+    const frameB = indexA === indexB ? frameA : getFrame(this.dataset, indexB);
+
     const instances: FaceInstance[] = [];
     for (const ticker of this.dataset.tickers) {
-      const tickerFrame = frame.values[ticker.id];
-      if (!tickerFrame) continue;
+      const tickerFrameA = frameA.values[ticker.id];
+      const tickerFrameB = frameB.values[ticker.id];
+      if (!tickerFrameA) continue;
       const pos = this.positions.get(ticker.id);
       if (!pos) continue;
 
+      const paramsA = this.resolver.resolve(ticker, tickerFrameA);
+
+      let params: FaceParams;
+      let tickerFrame = tickerFrameA;
+      if (t > 0 && tickerFrameB && indexA !== indexB) {
+        const paramsB = this.resolver.resolve(ticker, tickerFrameB);
+        // Reuse paramsA arrays as output buffer
+        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length) };
+        this.lerpParams(paramsA, paramsB, t, params);
+        // Lerp the scalar frame values for crisis intensity etc.
+        tickerFrame = {
+          ...tickerFrameA,
+          close: tickerFrameA.close * (1 - t) + tickerFrameB.close * t,
+          deviation: tickerFrameA.deviation * (1 - t) + tickerFrameB.deviation * t,
+          velocity: tickerFrameA.velocity * (1 - t) + tickerFrameB.velocity * t,
+          volatility: tickerFrameA.volatility * (1 - t) + tickerFrameB.volatility * t,
+          volume: tickerFrameA.volume * (1 - t) + tickerFrameB.volume * t,
+        };
+      } else {
+        params = paramsA;
+      }
+
       instances.push({
         id: ticker.id,
-        params: this.resolver.resolve(ticker, tickerFrame),
+        params,
         position: pos,
         ticker,
         frame: tickerFrame,
       });
     }
-    return instances;
-  }
-
-  /** Render a single frame by index. */
-  private renderFrame(index: number): void {
-    const frame = getFrame(this.dataset, index);
-    const instances = this.buildInstances(frame);
 
     this.renderer.setInstances(instances);
 
-    // Sync to store
+    // Sync to store — use the floor index for timeline UI
     const store = useStore.getState();
-    store.setCurrentIndex(index);
-    store.setCurrentTimestamp(frame.timestamp);
+    store.setCurrentIndex(indexA);
+    store.setCurrentTimestamp(frameA.timestamp);
     store.setInstances(instances);
   }
 
@@ -137,7 +173,7 @@ export class FrameDriver {
     this.positions = layout.positions;
     useStore.getState().setLayout(strategy);
     // Re-render current frame with new positions
-    this.renderFrame(this.engine.state.current_index);
+    this.renderInterpolated(this.engine.state.current_index);
   }
 
   get currentEngine(): TimelineEngine {

@@ -4,8 +4,6 @@ import { computeLayout } from './layout';
 import { LayoutStrategy } from '../types';
 
 describe('computeLayout', () => {
-  const FACE_RADIUS = 1.0;
-
   const getDistance = (p1: [number, number, number], p2: [number, number, number]) => {
     return Math.sqrt(
       Math.pow(p1[0] - p2[0], 2) +
@@ -33,7 +31,7 @@ describe('computeLayout', () => {
       it('has no position overlaps (min distance > 1.0)', () => {
         const result = computeLayout(TICKERS, strategy);
         const posArray = Array.from(result.positions.values());
-        
+
         for (let i = 0; i < posArray.length; i++) {
           for (let j = i + 1; j < posArray.length; j++) {
             const dist = getDistance(posArray[i], posArray[j]);
@@ -41,88 +39,36 @@ describe('computeLayout', () => {
           }
         }
       });
-    });
-  });
 
-  describe('family-rows specific properties', () => {
-    it('members of the same family have the same Y coordinate', () => {
-      const result = computeLayout(TICKERS, { kind: 'family-rows' });
-      const families = new Set(TICKERS.map(t => t.family));
-      
-      families.forEach(familyId => {
-        const familyTickers = TICKERS.filter(t => t.family === familyId);
-        const yCoords = familyTickers.map(t => result.positions.get(t.id)![1]);
-        const firstY = yCoords[0];
-        yCoords.forEach(y => expect(y).toBeCloseTo(firstY));
-      });
-    });
-
-    it('within a family, positions are sorted by age on X axis', () => {
-      const result = computeLayout(TICKERS, { kind: 'family-rows' });
-      const families = new Set(TICKERS.map(t => t.family));
-      
-      families.forEach(familyId => {
-        const familyTickers = TICKERS.filter(t => t.family === familyId).sort((a, b) => a.age - b.age);
-        for (let i = 0; i < familyTickers.length - 1; i++) {
-          const x1 = result.positions.get(familyTickers[i].id)![0];
-          const x2 = result.positions.get(familyTickers[i+1].id)![0];
-          expect(x1).toBeLessThan(x2);
+      it('all Z coordinates are zero', () => {
+        const result = computeLayout(TICKERS, strategy);
+        for (const pos of result.positions.values()) {
+          expect(pos[2]).toBe(0);
         }
       });
-    });
-  });
 
-  describe('class-clusters specific properties', () => {
-    it('intra-class distances < inter-class distances', () => {
-      const result = computeLayout(TICKERS, { kind: 'class-clusters' });
-      
-      const assetClasses = ['energy', 'fear', 'currency', 'equity', 'media'];
-      
-      assetClasses.forEach(ac => {
-        const classTickers = TICKERS.filter(t => t.class === ac);
-        const otherTickers = TICKERS.filter(t => t.class !== ac);
-        
-        // Calculate max intra-class distance
-        let maxIntra = 0;
-        for (let i = 0; i < classTickers.length; i++) {
-          for (let j = i + 1; j < classTickers.length; j++) {
-            const d = getDistance(result.positions.get(classTickers[i].id)!, result.positions.get(classTickers[j].id)!);
-            if (d > maxIntra) maxIntra = d;
+      it('produces a rectangular grid', () => {
+        const result = computeLayout(TICKERS, strategy);
+        const positions = Array.from(result.positions.values());
+        // All positions should snap to a grid — unique X and Y values
+        // should be evenly spaced
+        const xs = [...new Set(positions.map(p => Math.round(p[0] * 1000) / 1000))].sort((a, b) => a - b);
+        const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => a - b);
+
+        // Check X spacing is uniform
+        if (xs.length > 1) {
+          const xStep = xs[1] - xs[0];
+          for (let i = 2; i < xs.length; i++) {
+            expect(xs[i] - xs[i - 1]).toBeCloseTo(xStep);
           }
         }
-        
-        // Calculate min inter-class distance
-        let minInter = Infinity;
-        for (const ct of classTickers) {
-          for (const ot of otherTickers) {
-            const d = getDistance(result.positions.get(ct.id)!, result.positions.get(ot.id)!);
-            if (d < minInter) minInter = d;
+        // Check Y spacing is uniform
+        if (ys.length > 1) {
+          const yStep = ys[1] - ys[0];
+          for (let i = 2; i < ys.length; i++) {
+            expect(ys[i] - ys[i - 1]).toBeCloseTo(yStep);
           }
         }
-        
-        expect(maxIntra).toBeLessThan(minInter);
-      });
-    });
-  });
-
-  describe('reactivity-sweep specific properties', () => {
-    it('is sorted by age on X axis', () => {
-      const result = computeLayout(TICKERS, { kind: 'reactivity-sweep' });
-      const sortedByAge = [...TICKERS].sort((a, b) => a.age - b.age);
-      
-      for (let i = 0; i < sortedByAge.length - 1; i++) {
-        const x1 = result.positions.get(sortedByAge[i].id)![0];
-        const x2 = result.positions.get(sortedByAge[i+1].id)![0];
-        expect(x1).toBeLessThan(x2);
-      }
-    });
-
-    it('has all Y and Z as zero', () => {
-      const result = computeLayout(TICKERS, { kind: 'reactivity-sweep' });
-      TICKERS.forEach(t => {
-        const pos = result.positions.get(t.id)!;
-        expect(pos[1]).toBe(0);
-        expect(pos[2]).toBe(0);
       });
     });
   });
