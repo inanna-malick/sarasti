@@ -1,0 +1,28 @@
+name = "sarasti"
+main = "worker/index.ts"
+compatibility_date = "2024-12-01"
+
+# Static assets from Vite build
+[assets]
+directory = "./dist"
+
+# KV namespace for cached market data
+[[kv_namespaces]]
+binding = "MARKET_DATA"
+id = "PLACEHOLDER_KV_ID"
+preview_id = "PLACEHOLDER_PREVIEW_KV_ID"
+
+# Daily data refresh cron
+[triggers]
+crons = ["0 6 * * *"]
+
+# Build command — Vite builds the static site
+[build]
+command = "npm run build"
+
+# Environment-specific overrides
+[env.production]
+# Set real KV IDs via `wrangler kv:namespace create MARKET_DATA`
+
+[env.preview]
+# Preview uses preview_id automatically
