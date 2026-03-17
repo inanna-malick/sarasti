@@ -5,6 +5,9 @@ import { zeroPose } from '../../types';
 import { TEXTURE_CONFIG } from '../../binding/config';
 import { identifyEyeVertices } from './eyes';
 import { createEyeMaterial } from './eyeMaterial';
+import { extractMouthMeasurements } from './mouth/measurements';
+import { createMouthInterior } from './mouth/interior';
+import type { MouthInterior } from './mouth/types';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
@@ -17,6 +20,7 @@ export class FlameFaceMesh {
   private leftEyeMaterial: THREE.ShaderMaterial;
   private rightEyeMaterial: THREE.ShaderMaterial;
   private pipeline: FlamePipeline;
+  private mouthInterior: MouthInterior;
   private baseColors!: Float32Array;
 
   constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
@@ -134,6 +138,13 @@ gl_FragColor.a *= fade;`
       this.leftEyeMaterial,
       this.rightEyeMaterial,
     ]);
+
+    // 4. Mouth interior — procedural geometry parented to face mesh
+    const mouthMeasurements = extractMouthMeasurements(model);
+    this.mouthInterior = createMouthInterior(mouthMeasurements);
+    this.mesh.add(this.mouthInterior.upperGroup);
+    this.mesh.add(this.mouthInterior.lowerGroup);
+    this.mesh.add(this.mouthInterior.cavityMesh);
   }
 
   public updateFromParams(params: FaceParams): void {
@@ -151,6 +162,8 @@ gl_FragColor.a *= fade;`
 
     this.updateTexture(params.flush, params.fatigue);
 
+    // Update mouth interior with jaw angle
+    this.mouthInterior.update(pose.jaw);
 
     // Update gaze offsets
     this.leftEyeMaterial.uniforms.gazeOffset.value.set(
@@ -342,5 +355,6 @@ gl_FragColor.a *= fade;`
     this.material.dispose();
     this.leftEyeMaterial.dispose();
     this.rightEyeMaterial.dispose();
+    this.mouthInterior.dispose();
   }
 }
