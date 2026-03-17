@@ -119,9 +119,11 @@ def main():
 
     # Joint regressor: sparse (N_JOINTS, N_VERTICES) → dense
     # Maps vertex positions to joint locations: J = J_regressor @ V
-    J_regressor = to_np(data['J_regressor'])
-    if hasattr(J_regressor, 'toarray'):
-        J_regressor = J_regressor.toarray()  # scipy sparse → dense
+    J_regressor_raw = data['J_regressor']
+    if hasattr(J_regressor_raw, 'toarray'):
+        J_regressor = J_regressor_raw.toarray()
+    else:
+        J_regressor = to_np(J_regressor_raw)
     J_regressor = J_regressor.astype(np.float32)  # (5, 5023)
     J_regressor_flat = J_regressor.flatten()
 

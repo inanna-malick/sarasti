@@ -28,6 +28,9 @@ playwright-report/
 
 # Data (baked locally, not committed except fixtures)
 public/data/*.bin
+!public/data/flame_weights.bin
+!public/data/flame_posedirs.bin
+!public/data/flame_J_regressor.bin
 public/data/market-history.json
 
 # Tool runtime artifacts (renders, npz, logs)
