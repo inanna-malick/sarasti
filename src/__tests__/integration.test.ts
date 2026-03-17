@@ -9,7 +9,7 @@ import { N_SHAPE, N_EXPR } from '../constants';
 
 function loadRealDataset(): TimelineDataset {
   const raw = JSON.parse(
-    readFileSync(pathResolve(__dirname, '../../public/data/market-history.json'), 'utf-8'),
+    readFileSync(pathResolve(__dirname, '../../public/data/market-data.json'), 'utf-8'),
   );
   return parseDataset(raw);
 }

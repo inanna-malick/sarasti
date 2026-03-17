@@ -15,6 +15,7 @@ import type { LayoutStrategy } from '../types';
  */
 interface ControlsProps {
   onLayoutChange: (strategy: LayoutStrategy) => void;
+  onLoopChange: (loop: boolean) => void;
 }
 
 const LAYOUTS: { label: string; strategy: LayoutStrategy }[] = [
@@ -23,7 +24,7 @@ const LAYOUTS: { label: string; strategy: LayoutStrategy }[] = [
   { label: 'Reactivity', strategy: { kind: 'reactivity-sweep' } },
 ];
 
-export function Controls({ onLayoutChange }: ControlsProps) {
+export function Controls({ onLayoutChange, onLoopChange }: ControlsProps) {
   const currentLayout = useStore((s) => s.layout);
   const loop = useStore((s) => s.playback.loop);
 
@@ -84,7 +85,7 @@ export function Controls({ onLayoutChange }: ControlsProps) {
         <input
           type="checkbox"
           checked={loop}
-          onChange={(e) => useStore.getState().setLoop(e.target.checked)}
+          onChange={(e) => onLoopChange(e.target.checked)}
           style={{ accentColor: '#888' }}
         />
         loop
