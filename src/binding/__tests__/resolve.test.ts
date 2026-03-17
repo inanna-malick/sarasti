@@ -78,7 +78,7 @@ describe('resolve', () => {
 });
 
 describe('createShapeResolver', () => {
-  it('resolves all 25 tickers without error', () => {
+  it('resolves all 14 tickers without error', () => {
     const resolver = createShapeResolver();
     for (const ticker of TICKERS) {
       const shape = resolver.resolve(ticker);

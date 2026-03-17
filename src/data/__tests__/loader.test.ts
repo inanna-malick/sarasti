@@ -17,12 +17,15 @@ describe('parseDataset', () => {
   it('includes only tickers present in data', () => {
     const ds = parseDataset(raw);
     const ids = ds.tickers.map(t => t.id);
-    expect(ids).toContain('BZ=F');
-    expect(ids).toContain('CL=F');
+    // BZ=F and CL=F are in the fixture, but they are NOT in the consolidated TICKERS list anymore.
+    // However, parseDataset filters TICKERS based on what's in the data.
+    // Our consolidated TICKERS list has 'BRENT' and 'WTI', but the fixture has 'BZ=F' and 'CL=F'.
+    // So ds.tickers will NOT include BRENT or WTI because they are not in the fixture.
+    // It will include '^VIX' and 'GDELT:iran' because they ARE in both.
     expect(ids).toContain('^VIX');
     expect(ids).toContain('GDELT:iran');
-    // Not in fixture
-    expect(ids).not.toContain('SPY');
+    expect(ids).not.toContain('BRENT');
+    expect(ids).not.toContain('WTI');
   });
 });
 
