@@ -367,6 +367,30 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       };
     },
 
+    /**
+     * Resolve shape + expression for an interpolation target frame WITHOUT
+     * advancing the EMA accumulators. Use this for frame B in sub-frame
+     * interpolation so the accumulator advances only once per displayed frame.
+     */
+    resolveNoAccumulate(ticker: TickerConfig, frame: TickerFrame, statics?: TickerStatic): FaceParams {
+      let shape = shapeCache.get(ticker.id);
+      if (!shape) {
+        shape = shapeResolver.resolve(ticker, statics);
+        shapeCache.set(ticker.id, shape);
+      }
+
+      // Read current accumulator state without updating it
+      const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
+      const { flush, fatigue } = accumulatorToTexture(acc);
+
+      return {
+        shape,
+        expression: exprResolver.resolve(frame),
+        flush,
+        fatigue,
+      };
+    },
+
     clearCache(): void {
       shapeCache.clear();
     },

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { FlamePipeline } from './pipeline';
 import type { FaceParams } from '../../types';
+import { TEXTURE_CONFIG } from '../../binding/config';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
@@ -106,23 +107,27 @@ gl_FragColor.a *= fade;`
     const { albedoBasis, n_vertices } = this.pipeline.model;
     const stride = n_vertices * 3;
 
-    // Flush: PC0 (global warmth) + PC2 (temple redness)
+    // Flush: PC components from TEXTURE_CONFIG (global warmth + temple redness)
     if (flush !== 0) {
-      const pc0Offset = 0 * stride;
-      const pc2Offset = 2 * stride;
+      const [fc0, fc1] = TEXTURE_CONFIG.flush.components;
+      const [fw0, fw1] = TEXTURE_CONFIG.flush.weights;
+      const pc0Offset = fc0 * stride;
+      const pc1Offset = fc1 * stride;
       for (let i = 0; i < stride; i++) {
-        arr[i] += flush * 2.0 * albedoBasis[pc0Offset + i];
-        arr[i] += flush * 1.5 * albedoBasis[pc2Offset + i];
+        arr[i] += flush * fw0 * albedoBasis[pc0Offset + i];
+        arr[i] += flush * fw1 * albedoBasis[pc1Offset + i];
       }
     }
 
-    // Fatigue: PC5 (eye-area warmth) + PC8 (eye-area darkness, inverted)
+    // Fatigue: PC components from TEXTURE_CONFIG (eye-area warmth/darkness)
     if (fatigue !== 0) {
-      const pc5Offset = 5 * stride;
-      const pc8Offset = 8 * stride;
+      const [fc0, fc1] = TEXTURE_CONFIG.fatigue.components;
+      const [fw0, fw1] = TEXTURE_CONFIG.fatigue.weights;
+      const pc0Offset = fc0 * stride;
+      const pc1Offset = fc1 * stride;
       for (let i = 0; i < stride; i++) {
-        arr[i] += fatigue * 1.5 * albedoBasis[pc5Offset + i];
-        arr[i] -= fatigue * 1.0 * albedoBasis[pc8Offset + i];
+        arr[i] += fatigue * fw0 * albedoBasis[pc0Offset + i];
+        arr[i] += fatigue * fw1 * albedoBasis[pc1Offset + i];
       }
     }
 
