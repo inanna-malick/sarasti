@@ -2,17 +2,21 @@ import json
 import subprocess
 import time
 import select
+import os
 from typing import Dict, Any
 
 class RenderBridge:
-    def __init__(self):
+    def __init__(self, harness_path: str = "tools/refine/harness.ts"):
+        if not os.path.exists(harness_path):
+            raise FileNotFoundError(f"Render harness not found at {harness_path}. Please ensure it exists or provide the correct path.")
+
         # Spawns TS harness as subprocess
         # nix-shell --run "npx tsx tools/refine/harness.ts"
         self.process = subprocess.Popen(
-            ["nix-shell", "--run", "npx tsx tools/refine/harness.ts"],
+            ["nix-shell", "--run", f"npx tsx {harness_path}"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.DEVNULL, # Ignore stderr to prevent buffer filling and blocking
             text=True,
             bufsize=1 # Line buffered
         )
@@ -20,16 +24,14 @@ class RenderBridge:
         # Wait for the process to be ready or handle immediate errors
         time.sleep(1)
         if self.process.poll() is not None:
-            stderr_output = self.process.stderr.read()
-            raise RuntimeError(f"RenderBridge failed to start: {stderr_output}")
+            raise RuntimeError(f"RenderBridge failed to start (exit code {self.process.returncode})")
 
     def render(self, config: Dict[str, Any]) -> str:
         """
         writes JSON line to stdin, reads screenshot path from stdout
         """
         if self.process.poll() is not None:
-            stderr_output = self.process.stderr.read()
-            raise RuntimeError(f"RenderBridge process has terminated unexpectedly. Error: {stderr_output}")
+            raise RuntimeError(f"RenderBridge process has terminated unexpectedly (exit code {self.process.returncode})")
             
         try:
             # Send config
@@ -64,7 +66,11 @@ class RenderBridge:
     def close(self):
         if self.process.poll() is None:
             self.process.terminate()
-            self.process.wait(timeout=5)
+            try:
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+                self.process.wait()
             
     def __enter__(self):
         return self

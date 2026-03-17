@@ -1,6 +1,10 @@
-import torch
-import clip
-from PIL import Image
+try:
+    import torch
+    import clip
+    from PIL import Image
+except ImportError as e:
+    raise ImportError("Missing required dependencies for scorer. Please install them with: pip install torch openai-clip Pillow") from e
+
 import os
 
 class QualityScorer:
@@ -45,7 +49,7 @@ class QualityScorer:
             img_features /= img_features.norm(dim=-1, keepdim=True)
             
             for key, text_features in self.texts.items():
-                logits = (100.0 * img_features @ text_features.T).softmax(dim=-1)
-                scores[key] = float(logits[0, 0] - logits[0, 1])
+                probs = (100.0 * img_features @ text_features.T).softmax(dim=-1)
+                scores[key] = float(probs[0, 0] - probs[0, 1])
                 
         return scores

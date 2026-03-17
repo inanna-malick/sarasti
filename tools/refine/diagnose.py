@@ -2,24 +2,25 @@ import json
 import os
 import time
 
-# We will need to set up the path to import from tools.refine
-import sys
-# Ensure the root project directory is in sys.path so 'tools.refine' is resolvable
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
-from tools.refine.scorer import QualityScorer
-from tools.refine.ipc import RenderBridge
+try:
+    # When run as a module (e.g., python -m tools.refine.diagnose)
+    from tools.refine.scorer import QualityScorer
+    from tools.refine.ipc import RenderBridge
+except ImportError:
+    # When run as a script directly
+    from scorer import QualityScorer
+    from ipc import RenderBridge
 
 SCENARIOS = {
-    "neutral": {"dev": 0, "vel": 0, "vol": 1},
-    "mild_crisis": {"dev": -0.1, "vel": -0.05, "vol": 1.5},
-    "extreme_crisis": {"dev": -0.2, "vel": -0.15, "vol": 2.5},
-    "shock_spike": {"dev": 0.15, "vel": 0.1, "vol": 2.0},
-    "calm_recovery": {"dev": 0.05, "vel": 0.03, "vol": 0.8},
+    "neutral": {"deviation": 0, "velocity": 0, "volatility": 1},
+    "mild_crisis": {"deviation": -0.1, "velocity": -0.05, "volatility": 1.5},
+    "extreme_crisis": {"deviation": -0.2, "velocity": -0.15, "volatility": 2.5},
+    "shock_spike": {"deviation": 0.15, "velocity": 0.1, "volatility": 2.0},
+    "calm_recovery": {"deviation": 0.05, "velocity": 0.03, "volatility": 0.8},
 }
 
 class MockRenderBridge:
-    def __init__(self):
+    def __init__(self, harness_path=None):
         print("Using MockRenderBridge for testing")
         
     def render(self, config):
@@ -54,12 +55,12 @@ def main():
     
     with BridgeClass() as bridge:
         for name, params in SCENARIOS.items():
-            print(f"\\nRunning scenario: {name} {params}")
+            print(f"\nRunning scenario: {name} {params}")
             config = {
-                "tickerId": "BRENT",
-                "dev": params["dev"],
-                "vel": params["vel"],
-                "vol": params["vol"]
+                "tickerId": "BZ=F",
+                "deviation": params["deviation"],
+                "velocity": params["velocity"],
+                "volatility": params["volatility"]
             }
             
             try:
@@ -86,7 +87,7 @@ def main():
     out_path = "tools/refine/data/diagnostic.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
-    print(f"\\nSaved results to {out_path}\\n")
+    print(f"\nSaved results to {out_path}\n")
     
     # Print human-readable summary table
     metrics = ["realism", "mouth", "eyes", "expression_mild", "expression_extreme"]
