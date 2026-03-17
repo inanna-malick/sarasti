@@ -222,7 +222,7 @@ function KV({ label, value }: { label: string; value: string }) {
 }
 
 /** Human-readable description of what the face's expression represents. */
-function describeExpression(deviation: number, velocity: number, volatility: number): string {
+export function describeExpression(deviation: number, velocity: number, volatility: number): string {
   const parts: string[] = [];
 
   const absDev = Math.abs(deviation);
