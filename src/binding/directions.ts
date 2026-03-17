@@ -60,6 +60,14 @@ export async function loadDirectionTables(
   _identity = (await identityResp.json()) as IdentityBasis;
 }
 
+export function initDirectionTablesSync(
+  tables: Record<string, DirectionTable>,
+  identity: IdentityBasis,
+): void {
+  _tables = new Map(Object.entries(tables));
+  _identity = identity;
+}
+
 export function getTable(axis: string): DirectionTable | undefined {
   return _tables?.get(axis);
 }

@@ -32,7 +32,7 @@ MARKET_TICKERS = [
     'NG=F', 'HO=F', 'RB=F',
     'ALI=F',
     '^VIX', 'GC=F', 'DX=F', '^TNX',
-    'XLE', 'ITA', 'SPY', 'CF', 'NTR'
+    'XLE', 'SPY', 'CF'
 ]
 
 FAMILIES = {
@@ -56,11 +56,12 @@ for fam, config in FAMILIES.items():
 TICKER_CLASSES = {
     'BZ=F': 'energy', 'BZV26.NYM': 'energy', 'BZZ26.NYM': 'energy',
     'CL=F': 'energy', 'CLU26.NYM': 'energy', 'CLZ26.NYM': 'energy',
+    'BRENT': 'energy', 'WTI': 'energy',
     'NG=F': 'energy', 'HO=F': 'energy', 'RB=F': 'energy',
     'ALI=F': 'commodity',
     '^VIX': 'fear', 'GC=F': 'metal', 'DX=F': 'currency', '^TNX': 'rates',
-    'XLE': 'equity', 'ITA': 'equity', 'SPY': 'equity',
-    'CF': 'equity', 'NTR': 'equity'
+    'XLE': 'equity', 'SPY': 'equity',
+    'CF': 'equity'
 }
 
 BASELINE_ISO = '2026-02-25T00:00:00Z'
@@ -183,11 +184,23 @@ def run_pull_with_libs():
             processed_tickers[tid], statics = process_ticker_df(ticker_df, baseline_window)
             ticker_statics[tid] = statics
         else:
-            print(f"Warning: Ticker {tid} missing from yfinance")
-            # Create a zero-filled fallback if needed
-            idx = pd.date_range(start='2026-02-18', end='2026-03-17', freq='1h', tz='UTC')
-            df = pd.DataFrame({'Close': 0.0, 'Volume': 0.0, 'High': 0.0, 'Low': 0.0}, index=idx)
-            processed_tickers[tid], statics = process_ticker_df(df, df.iloc[:72])
+            print(f"Warning: {tid} missing from batch — trying daily fallback")
+            try:
+                single = yf.download(tid, start='2026-02-18', end='2026-03-17',
+                                     interval='1d', auto_adjust=True)
+                if single.empty: raise ValueError("empty")
+                single.index = pd.to_datetime(single.index, utc=True)
+                hourly_idx = pd.date_range('2026-02-18', '2026-03-17', freq='1h', tz='UTC')
+                ticker_df = single.reindex(hourly_idx).ffill().bfill()
+                for col in ['Close', 'High', 'Low', 'Volume']:
+                    if col not in ticker_df.columns: ticker_df[col] = 0.0
+            except Exception as e:
+                print(f"  Fallback failed for {tid}: {e} — using zeros")
+                hourly_idx = pd.date_range('2026-02-18', '2026-03-17', freq='1h', tz='UTC')
+                ticker_df = pd.DataFrame({'Close': 0.0, 'Volume': 0.0, 'High': 0.0, 'Low': 0.0}, index=hourly_idx)
+            baseline_window = ticker_df.loc[baseline_start:baseline_end]
+            if baseline_window.empty: baseline_window = ticker_df.iloc[:72]
+            processed_tickers[tid], statics = process_ticker_df(ticker_df, baseline_window)
             ticker_statics[tid] = statics
 
     # Second pass: compute cross-ticker metrics (correlation, spread, contagion)
@@ -242,6 +255,27 @@ def run_pull_with_libs():
             df['term_slope'] = slopes
         else:
             df['term_slope'] = 0.0
+
+    # Composite construction
+    COMPOSITES = {
+        'BRENT': {'spot': 'BZ=F', 'far': 'BZZ26.NYM', 'far_tenor': 12},
+        'WTI':   {'spot': 'CL=F', 'far': 'CLZ26.NYM', 'far_tenor': 12},
+    }
+    for comp_id, cfg in COMPOSITES.items():
+        spot_df = processed_tickers[cfg['spot']].copy()
+        if cfg['far'] in processed_tickers:
+            spot_df['term_slope'] = (
+                processed_tickers[cfg['far']]['Close'] - spot_df['Close']
+            ) / cfg['far_tenor']
+        processed_tickers[comp_id] = spot_df
+        ticker_statics[comp_id] = ticker_statics[cfg['spot']].copy()
+        ticker_statics[comp_id]['spread_from_family'] = 0.0
+        TICKER_CLASSES[comp_id] = 'energy'
+
+    # Pop raw family members from output
+    for tid in ['BZ=F','BZV26.NYM','BZZ26.NYM','CL=F','CLU26.NYM','CLZ26.NYM']:
+        processed_tickers.pop(tid, None)
+        ticker_statics.pop(tid, None)
 
     # Sarasti Residuals
     ref_idx = next(iter(processed_tickers.values())).index
@@ -358,6 +392,34 @@ def generate_synthetic_fallback():
             curr += timedelta(hours=1)
         ticker_history[tid] = history
         
+    # Composite construction
+    COMPOSITES = {
+        'BRENT': {'spot': 'BZ=F', 'far': 'BZZ26.NYM', 'far_tenor': 12},
+        'WTI':   {'spot': 'CL=F', 'far': 'CLZ26.NYM', 'far_tenor': 12},
+    }
+    for comp_id, cfg in COMPOSITES.items():
+        if cfg['spot'] in ticker_history:
+            # Copy history from spot
+            ticker_history[comp_id] = [h.copy() for h in ticker_history[cfg['spot']]]
+            ticker_statics[comp_id] = ticker_statics[cfg['spot']].copy()
+            ticker_statics[comp_id]['spread_from_family'] = 0.0
+            
+            # Compute term_slope if far future exists
+            if cfg['far'] in ticker_history:
+                for i in range(len(ticker_history[comp_id])):
+                    spot_p = ticker_history[cfg['spot']][i]['close']
+                    far_p = ticker_history[cfg['far']][i]['close']
+                    ticker_history[comp_id][i]['term_slope'] = (far_p - spot_p) / cfg['far_tenor']
+    
+    # Pop raw family members
+    raw_to_pop = ['BZ=F', 'BZV26.NYM', 'BZZ26.NYM', 'CL=F', 'CLU26.NYM', 'CLZ26.NYM']
+    for tid in raw_to_pop:
+        ticker_history.pop(tid, None)
+        ticker_statics.pop(tid, None)
+    
+    # Update and re-sort all_ticker_ids
+    all_ticker_ids = sorted(ticker_history.keys())
+    
     frames = []
     steps = len(ticker_history[all_ticker_ids[0]])
     for i in range(steps):
