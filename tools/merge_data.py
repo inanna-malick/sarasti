@@ -67,8 +67,8 @@ def merge_data():
             
             if val is not None:
                 # Ensure it has all required fields
-                required_fields = ["close", "volume", "deviation", "velocity", "volatility"]
-                cleaned_val = {field: val.get(field, 0.0) for field in required_fields}
+                field_defaults = {"close": 0.0, "volume": 0.0, "deviation": 0.0, "velocity": 0.0, "volatility": 1.0}
+                cleaned_val = {field: val.get(field, default) for field, default in field_defaults.items()}
                 frame_values[tid] = cleaned_val
                 last_values[tid] = cleaned_val
             else:
@@ -84,9 +84,8 @@ def merge_data():
     for f in merged_frames:
         if len(f['values']) != len(ticker_ids):
             print(f"Warning: Frame at {f['timestamp']} has {len(f['values'])} tickers, expected {len(ticker_ids)}")
-        if len(f['values']) != 25:
-             # Just a warning if it's not 25, as requested in prompt "Every frame must have all 25 ticker ids"
-             pass
+        if len(f['values']) != len(ticker_ids):
+            print(f"Warning: Frame at {f['timestamp']} has {len(f['values'])} tickers, expected {len(ticker_ids)}")
 
     # Output schema: RawMarketHistory
     output_data = {

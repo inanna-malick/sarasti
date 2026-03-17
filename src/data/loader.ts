@@ -1,4 +1,4 @@
-import type { TimelineDataset, TickerConfig, Frame, TickerFrame } from '../types';
+import type { TimelineDataset, Frame, TickerFrame } from '../types';
 import type { RawMarketHistory } from './schema';
 import { TICKERS } from '../tickers';
 
@@ -21,7 +21,6 @@ export async function loadDataset(url: string): Promise<TimelineDataset> {
  */
 export function parseDataset(raw: RawMarketHistory): TimelineDataset {
   const timestamps = raw.frames.map(f => f.timestamp);
-  const tickerMap = new Map(TICKERS.map(t => [t.id, t]));
 
   // Only include tickers that appear in the data
   const presentIds = new Set<string>();
