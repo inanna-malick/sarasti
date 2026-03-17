@@ -54,22 +54,17 @@ describe('FlameFaceMesh', () => {
     expect(positionAttr.array[2]).toBe(1); // Z-coordinate of first vertex shifted to 1
   });
 
-  it('should update material color based on intensity via setCrisis', () => {
+  it('setCrisis is a no-op (expression geometry carries crisis signal)', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline);
     const material = meshWrapper.mesh.material as THREE.MeshMatcapMaterial;
 
-    // Calm intensity
+    const colorBefore = material.color.clone();
     meshWrapper.setCrisis(0);
-    const calmColor = material.color.clone();
-
-    // Crisis intensity
     meshWrapper.setCrisis(1);
-    const crisisColor = material.color.clone();
+    const colorAfter = material.color.clone();
 
-    expect(calmColor.getHex()).not.toBe(crisisColor.getHex());
-    // Cool (SlateGray #708090) vs Warm (OrangeRed #FF4500)
-    expect(calmColor.getHex()).toBe(0x708090);
-    expect(crisisColor.getHex()).toBe(0xff4500);
+    // Color should not change — single matcap, no tinting
+    expect(colorBefore.getHex()).toBe(colorAfter.getHex());
   });
 
   it('should clean up resources on dispose', () => {

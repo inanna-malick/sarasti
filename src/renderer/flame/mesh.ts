@@ -40,7 +40,6 @@ export class FlameFaceMesh {
 
     this.material = new THREE.MeshMatcapMaterial({
       matcap: FlameFaceMesh.matcapTexture,
-      color: new THREE.Color(0x888888), // Neutral base
     });
 
     // 3. Create Mesh
@@ -66,46 +65,97 @@ export class FlameFaceMesh {
   }
 
   /**
-   * Set the crisis intensity (0-1) to shift the matcap tint.
-   * @param intensity 0 (cool/calm) to 1 (warm/crisis)
+   * Set the crisis intensity (0-1). Currently a no-op — expression geometry
+   * carries the crisis signal. Kept for interface compatibility.
    */
-  public setCrisis(intensity: number): void {
-    // Cool (blue-grey): #708090 (SlateGray)
-    // Warm (orange-red): #ff4500 (OrangeRed)
-    const coolColor = new THREE.Color(0x708090);
-    const warmColor = new THREE.Color(0xff4500);
-
-    this.material.color.copy(coolColor).lerp(warmColor, THREE.MathUtils.clamp(intensity, 0, 1));
+  public setCrisis(_intensity: number): void {
+    // No-op: single matcap, no color tinting.
   }
 
   /**
-   * Generates a simple procedural matcap texture (grey sphere).
+   * Generates a warm skin-tone matcap texture with realistic lighting.
+   * Key light from above-left, warm fill from below-right, soft ambient.
    */
   private generateMatcapTexture(): THREE.Texture {
     const size = 256;
     const data = new Uint8Array(size * size * 4);
 
+    // Skin base color (olive/Mediterranean tone)
+    const baseR = 0.76, baseG = 0.60, baseB = 0.50;
+    // Warm highlight (sunlit skin)
+    const hiR = 0.95, hiG = 0.85, hiB = 0.75;
+    // Shadow (warm dark, not grey)
+    const shR = 0.35, shG = 0.22, shB = 0.18;
+    // Subsurface scatter tint (warm red at grazing angles)
+    const sssR = 0.85, sssG = 0.35, sssB = 0.25;
+
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const idx = (y * size + x) * 4;
 
-        // Normalized coordinates from -1 to 1
         const nx = (x / size) * 2 - 1;
         const ny = (y / size) * 2 - 1;
         const r2 = nx * nx + ny * ny;
 
         if (r2 <= 1) {
           const nz = Math.sqrt(1 - r2);
-          
-          // Simple lambert-like shading for the matcap
-          // Light from top-right
-          const dot = nx * 0.5 + ny * 0.5 + nz * 0.707;
-          const val = Math.max(0, dot) * 255;
 
-          data[idx] = val;     // R
-          data[idx + 1] = val; // G
-          data[idx + 2] = val; // B
-          data[idx + 3] = 255; // A
+          // Key light: above-left, warm white
+          const keyDir = [-.5, .6, .6];
+          const keyLen = Math.sqrt(keyDir[0] ** 2 + keyDir[1] ** 2 + keyDir[2] ** 2);
+          const key = Math.max(0, (nx * keyDir[0] + ny * keyDir[1] + nz * keyDir[2]) / keyLen);
+
+          // Fill light: below-right, dimmer and warmer
+          const fillDir = [.4, -.3, .5];
+          const fillLen = Math.sqrt(fillDir[0] ** 2 + fillDir[1] ** 2 + fillDir[2] ** 2);
+          const fill = Math.max(0, (nx * fillDir[0] + ny * fillDir[1] + nz * fillDir[2]) / fillLen) * 0.35;
+
+          // Ambient
+          const ambient = 0.15;
+
+          // Total diffuse
+          const diffuse = Math.min(1, key + fill + ambient);
+
+          // Specular (key light only, broad and soft)
+          // Half-vector with view (0,0,1)
+          const hx = keyDir[0] / keyLen;
+          const hy = keyDir[1] / keyLen;
+          const hz = (keyDir[2] / keyLen + 1) / 2; // simplified half-vector
+          const hLen = Math.sqrt(hx * hx + hy * hy + hz * hz);
+          const specDot = Math.max(0, (nx * hx + ny * hy + nz * hz) / hLen);
+          const spec = Math.pow(specDot, 20) * 0.3;
+
+          // Subsurface scattering approximation: glow at grazing angles
+          const fresnel = Math.pow(1 - nz, 3) * 0.4;
+
+          // Lerp base→shadow in dark areas, base→highlight in bright areas
+          let r, g, b;
+          if (diffuse < 0.5) {
+            const t = diffuse * 2; // 0→1 in shadow range
+            r = shR + (baseR - shR) * t;
+            g = shG + (baseG - shG) * t;
+            b = shB + (baseB - shB) * t;
+          } else {
+            const t = (diffuse - 0.5) * 2; // 0→1 in highlight range
+            r = baseR + (hiR - baseR) * t;
+            g = baseG + (hiG - baseG) * t;
+            b = baseB + (hiB - baseB) * t;
+          }
+
+          // Add SSS at edges
+          r += sssR * fresnel;
+          g += sssG * fresnel;
+          b += sssB * fresnel;
+
+          // Add specular
+          r += spec;
+          g += spec;
+          b += spec;
+
+          data[idx] = Math.min(255, r * 255) | 0;
+          data[idx + 1] = Math.min(255, g * 255) | 0;
+          data[idx + 2] = Math.min(255, b * 255) | 0;
+          data[idx + 3] = 255;
         } else {
           data[idx] = 0;
           data[idx + 1] = 0;
