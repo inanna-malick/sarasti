@@ -154,4 +154,28 @@ describe('FrameDriver', () => {
     expect(useStore.getState().playback.current_index).toBe(1);
     expect(useStore.getState().currentTimestamp).toBe(mockFrames[1].timestamp);
   });
+
+  it('lerpParams with missing pose returns valid FaceParams without throwing', () => {
+    // Construct two FaceParams objects where pose is undefined
+    const a = {
+      shape: new Float32Array(50),
+      expression: new Float32Array(100),
+      flush: 0,
+      fatigue: 0
+    } as any;
+    const b = {
+      shape: new Float32Array(50),
+      expression: new Float32Array(100),
+      flush: 0,
+      fatigue: 0
+    } as any;
+
+    // Call lerpParams(a, b, 0.5)
+    // NOTE: This test would have caught the bug where lerpParams crashes on missing pose.
+    // It also expects it to return a new FaceParams object rather than mutating an 'out' param.
+    const result = (driver as any).lerpParams(a, b, 0.5);
+    
+    expect(result).toBeDefined();
+    expect(result.pose).toBeDefined();
+  });
 });
