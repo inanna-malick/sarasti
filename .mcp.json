@@ -6,7 +6,7 @@
         "--role",
         "tl",
         "--name",
-        "binding"
+        "expression"
       ],
       "command": "exomonad",
       "type": "stdio"
