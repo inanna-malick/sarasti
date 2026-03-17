@@ -10,7 +10,8 @@ export type { FlamePipeline } from './flame/index';
 // SVG renderer
 export { createSvgRenderer } from './svg/index';
 
-// Scene (wired after scene TL merges)
+// Scene — unified FaceRenderer implementation
+export { createFlameSceneRenderer } from './scene/manager';
 export { SceneCompositor } from './scene/compositor';
 export { CameraController } from './scene/camera';
 export { FacePicker } from './scene/picking';
