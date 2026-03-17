@@ -1,29 +1,95 @@
-import type { TimelineDataset, Frame } from '../types';
+import type { TimelineDataset, TickerConfig, Frame, TickerFrame } from '../types';
+import type { RawMarketHistory } from './schema';
+import { TICKERS } from '../tickers';
 
 /**
  * Fetch and parse market-history.json into TimelineDataset.
+ *
+ * @param url - URL or path to market-history.json
+ * @returns Parsed and indexed dataset ready for frame access
  */
-export async function loadDataset(_url: string): Promise<TimelineDataset> {
-  throw new Error('Not implemented — see data/loader worktree');
+export async function loadDataset(url: string): Promise<TimelineDataset> {
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch dataset: ${resp.status} ${resp.statusText}`);
+  const raw: RawMarketHistory = await resp.json();
+  return parseDataset(raw);
 }
 
 /**
- * Get frame by index.
+ * Parse raw JSON into TimelineDataset. Exported for testing
+ * (test can pass fixture directly without fetch).
  */
-export function getFrame(_dataset: TimelineDataset, _index: number): Frame {
-  throw new Error('Not implemented');
+export function parseDataset(raw: RawMarketHistory): TimelineDataset {
+  const timestamps = raw.frames.map(f => f.timestamp);
+  const tickerMap = new Map(TICKERS.map(t => [t.id, t]));
+
+  // Only include tickers that appear in the data
+  const presentIds = new Set<string>();
+  for (const frame of raw.frames) {
+    for (const id of Object.keys(frame.values)) {
+      presentIds.add(id);
+    }
+  }
+  const tickers = TICKERS.filter(t => presentIds.has(t.id));
+
+  const frames: Frame[] = raw.frames.map(rf => ({
+    timestamp: rf.timestamp,
+    values: rf.values as Record<string, TickerFrame>,
+  }));
+
+  return {
+    tickers,
+    frames,
+    timestamps,
+    baseline_timestamp: raw.baseline_timestamp,
+  };
 }
 
 /**
- * Get frame nearest to ISO timestamp.
+ * Get frame by index. Clamps to valid range.
  */
-export function getFrameAtTime(_dataset: TimelineDataset, _isoString: string): Frame {
-  throw new Error('Not implemented');
+export function getFrame(dataset: TimelineDataset, index: number): Frame {
+  const clamped = Math.max(0, Math.min(index, dataset.frames.length - 1));
+  return dataset.frames[clamped];
 }
 
 /**
- * Linear interpolation between two frames.
+ * Get frame nearest to ISO timestamp via binary search.
  */
-export function interpolateFrame(_f0: Frame, _f1: Frame, _alpha: number): Frame {
-  throw new Error('Not implemented');
+export function getFrameAtTime(dataset: TimelineDataset, isoString: string): Frame {
+  const target = new Date(isoString).getTime();
+  const timestamps = dataset.timestamps;
+
+  if (timestamps.length === 0) throw new Error('Empty dataset');
+  if (timestamps.length === 1) return dataset.frames[0];
+
+  let lo = 0;
+  let hi = timestamps.length - 1;
+
+  while (lo < hi) {
+    const mid = (lo + hi) >>> 1;
+    const midTime = new Date(timestamps[mid]).getTime();
+    if (midTime < target) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
+    }
+  }
+
+  // lo is the first timestamp >= target. Pick nearest of lo and lo-1.
+  if (lo === 0) return dataset.frames[0];
+  const prevDist = Math.abs(target - new Date(timestamps[lo - 1]).getTime());
+  const currDist = Math.abs(target - new Date(timestamps[lo]).getTime());
+  return dataset.frames[prevDist <= currDist ? lo - 1 : lo];
+}
+
+/**
+ * Get full timeseries for a single ticker across all frames.
+ * Useful for sparklines in the detail panel.
+ */
+export function getTickerTimeseries(
+  dataset: TimelineDataset,
+  tickerId: string,
+): (TickerFrame | undefined)[] {
+  return dataset.frames.map(f => f.values[tickerId]);
 }

@@ -1,0 +1,50 @@
+{
+  "baseline_timestamp": "2026-02-25T00:00:00.000Z",
+  "frames": [
+    {
+      "timestamp": "2026-02-25T00:00:00.000Z",
+      "values": {
+        "BZ=F":  { "close": 74.50, "volume": 12000, "deviation": 0.000, "velocity": 0.000, "volatility": 1.000 },
+        "CL=F":  { "close": 69.80, "volume": 15000, "deviation": 0.000, "velocity": 0.000, "volatility": 1.000 },
+        "^VIX":  { "close": 18.20, "volume": 0,     "deviation": 0.000, "velocity": 0.000, "volatility": 1.000 },
+        "GDELT:iran": { "close": 50.00, "volume": 0, "deviation": 0.000, "velocity": 0.000, "volatility": 1.000 }
+      }
+    },
+    {
+      "timestamp": "2026-02-25T01:00:00.000Z",
+      "values": {
+        "BZ=F":  { "close": 74.80, "volume": 11500, "deviation": 0.004, "velocity": 0.100, "volatility": 1.020 },
+        "CL=F":  { "close": 70.10, "volume": 14200, "deviation": 0.004, "velocity": 0.120, "volatility": 1.010 },
+        "^VIX":  { "close": 18.50, "volume": 0,     "deviation": 0.016, "velocity": 0.200, "volatility": 1.050 },
+        "GDELT:iran": { "close": 55.00, "volume": 0, "deviation": 0.100, "velocity": 0.500, "volatility": 1.200 }
+      }
+    },
+    {
+      "timestamp": "2026-02-25T02:00:00.000Z",
+      "values": {
+        "BZ=F":  { "close": 75.60, "volume": 18000, "deviation": 0.015, "velocity": 0.300, "volatility": 1.100 },
+        "CL=F":  { "close": 70.80, "volume": 20000, "deviation": 0.014, "velocity": 0.280, "volatility": 1.080 },
+        "^VIX":  { "close": 20.10, "volume": 0,     "deviation": 0.104, "velocity": 0.800, "volatility": 1.400 },
+        "GDELT:iran": { "close": 72.00, "volume": 0, "deviation": 0.440, "velocity": 1.700, "volatility": 2.100 }
+      }
+    },
+    {
+      "timestamp": "2026-02-25T03:00:00.000Z",
+      "values": {
+        "BZ=F":  { "close": 77.20, "volume": 25000, "deviation": 0.036, "velocity": 0.600, "volatility": 1.350 },
+        "CL=F":  { "close": 72.50, "volume": 28000, "deviation": 0.039, "velocity": 0.680, "volatility": 1.300 },
+        "^VIX":  { "close": 24.80, "volume": 0,     "deviation": 0.363, "velocity": 2.300, "volatility": 2.500 },
+        "GDELT:iran": { "close": 95.00, "volume": 0, "deviation": 0.900, "velocity": 2.300, "volatility": 3.200 }
+      }
+    },
+    {
+      "timestamp": "2026-02-25T04:00:00.000Z",
+      "values": {
+        "BZ=F":  { "close": 78.00, "volume": 22000, "deviation": 0.047, "velocity": 0.300, "volatility": 1.500 },
+        "CL=F":  { "close": 73.10, "volume": 24000, "deviation": 0.047, "velocity": 0.240, "volatility": 1.450 },
+        "^VIX":  { "close": 26.50, "volume": 0,     "deviation": 0.456, "velocity": 0.850, "volatility": 2.800 },
+        "GDELT:iran": { "close": 88.00, "volume": 0, "deviation": 0.760, "velocity": -0.700, "volatility": 3.500 }
+      }
+    }
+  ]
+}
