@@ -16,7 +16,7 @@ from common import (
     ensure_dirs
 )
 
-class Mapper(nn.Module):
+class DirectionMapper(nn.Module):
     """
     Small MLP that maps a scalar semantic score to a 100-dim FLAME parameter vector.
     Architecture: Linear(1, 256) → ReLU → Linear(256, 256) → ReLU → Linear(256, 100)
@@ -78,7 +78,7 @@ def train_axis(axis_idx, axis_name, scores_np, params_np, all_directions, args, 
     other_axes_names = [ALL_AXES[i][0] for i in other_indices]
     other_directions = torch.from_numpy(all_directions[other_indices]).float().to(device) # (3, 100)
     
-    model = Mapper().to(device)
+    model = DirectionMapper().to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.MSELoss()
     
