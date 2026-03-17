@@ -58,6 +58,8 @@ export function zeroFaceParams(): FaceParams {
   return {
     shape: new Float32Array(N_SHAPE),
     expression: new Float32Array(N_EXPR),
+    flush: 0,
+    fatigue: 0,
   };
 }
 
@@ -66,5 +68,5 @@ export function randomFaceParams(): FaceParams {
   const expression = new Float32Array(N_EXPR);
   for (let i = 0; i < N_SHAPE; i++) shape[i] = (Math.random() - 0.5) * 2;
   for (let i = 0; i < N_EXPR; i++) expression[i] = (Math.random() - 0.5) * 2;
-  return { shape, expression };
+  return { shape, expression, flush: 0, fatigue: 0 };
 }

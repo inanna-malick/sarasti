@@ -54,6 +54,8 @@ describe('FlameFaceMesh', () => {
     const params: FaceParams = {
       shape: new Float32Array(100).fill(1),
       expression: new Float32Array(50).fill(0),
+      flush: 0,
+      fatigue: 0,
     };
 
     meshWrapper.updateFromParams(params);

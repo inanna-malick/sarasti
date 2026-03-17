@@ -33,6 +33,8 @@ describe('FlamePipeline (loader → deformer)', () => {
     const params = {
       shape: new Float32Array(N_SHAPE),
       expression: new Float32Array(N_EXPR),
+      flush: 0,
+      fatigue: 0,
     };
 
     const result = pipeline.deformFace(params);
@@ -49,6 +51,8 @@ describe('FlamePipeline (loader → deformer)', () => {
     const params = {
       shape: new Float32Array(N_SHAPE),
       expression: new Float32Array(N_EXPR),
+      flush: 0,
+      fatigue: 0,
     };
     params.shape[0] = 2.0;
     params.expression[0] = 1.5;
@@ -66,10 +70,10 @@ describe('FlamePipeline (loader → deformer)', () => {
   it('multiple deformations are independent (no state leak)', async () => {
     const pipeline = await createFlamePipeline('/data/');
 
-    const params1 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR) };
+    const params1 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR), flush: 0, fatigue: 0 };
     params1.shape[0] = 1.0;
 
-    const params2 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR) };
+    const params2 = { shape: new Float32Array(N_SHAPE), expression: new Float32Array(N_EXPR), flush: 0, fatigue: 0 };
 
     const r1 = pipeline.deformFace(params1);
     const r2 = pipeline.deformFace(params2);
