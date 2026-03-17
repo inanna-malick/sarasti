@@ -16,6 +16,11 @@ export const DEFAULT_CAMERA_NEAR = 0.1;
 export const DEFAULT_CAMERA_FAR = 1000;
 export const DEFAULT_CAMERA_DISTANCE = 30;
 
+// ─── Face mesh scale ───────────────────────────────
+// FLAME vertices are in meters (~0.3 unit tall face).
+// Layout spacing is 2.5 units. Scale up so faces fill the grid.
+export const FACE_MESH_SCALE = 8;
+
 // ─── Picking / highlight ────────────────────────────
 export const HIGHLIGHT_EMISSIVE_BOOST = 0.3;
 export const DIM_OPACITY = 0.35;

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { FaceInstance } from '../../types';
 import type { FlamePipeline } from '../flame/pipeline';
 import { FlameFaceMesh } from '../flame/mesh';
+import { FACE_MESH_SCALE } from '../constants';
 
 /**
  * Manages N FlameFaceMesh instances in a Three.js scene graph.
@@ -63,6 +64,7 @@ export class SceneCompositor {
       let fm = this.meshes.get(instance.id);
       if (!fm) {
         fm = new FlameFaceMesh(this.pipeline);
+        fm.mesh.scale.setScalar(FACE_MESH_SCALE);
         this.meshes.set(instance.id, fm);
         this.meshToId.set(fm.mesh, instance.id);
         this.scene.add(fm.mesh);

@@ -67,8 +67,9 @@ export function App() {
 
         if (disposed) return;
 
-        // 4. Render at strike onset: Feb 28 00:00 UTC
-        const targetTime = '2026-02-28T00:00:00Z';
+        // 4. Render at target timestamp (from ?t= query param or default)
+        const params = new URLSearchParams(window.location.search);
+        const targetTime = params.get('t') || '2026-02-28T00:00:00Z';
         const frame = getFrameAtTime(dataset, targetTime);
         const instances = buildInstances(dataset, frame, layout.positions);
 
