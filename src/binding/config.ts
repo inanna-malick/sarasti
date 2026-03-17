@@ -35,6 +35,18 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     class_indices: [0, 3, 4],
     // Family resemblance: β5-β8
     family_indices: [5, 6, 7, 8],
+
+    // Tier 2 (β₁₁₋₂₀)
+    volume_indices: [11, 12, 13],
+    hist_vol_indices: [14, 15, 16],
+    corr_brent_indices: [17, 18, 19, 20], // Adjusted to include 20 as per doc β17-20
+
+    // Tier 3 (β₂₁₋₅₀)
+    corr_spy_indices: [21, 22, 23, 24, 25],
+    market_cap_indices: [26, 27, 28, 29, 30],
+    spread_indices: [31, 32, 33, 34, 35],
+    skewness_indices: [36, 37, 38, 39, 40],
+    residual_indices: Array.from({ length: 50 }, (_, i) => 50 + i),
   },
 
   expression: {
@@ -216,5 +228,63 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     sector:   [[5, 0.7], [6, -0.3], [7, 0.7], [8, -0.3]],
     broad:    [[5, 0.0], [6, 0.0], [7, 0.0], [8, 0.0]],
     gdelt:    [[5, -1.5], [6, 1.5], [7, 1.2], [8, -1.2]],
+  },
+
+  // Intensity scaling per tier: [tier1, tier2, tier3, sarasti]
+  tier_intensities: [1.0, 0.5, 0.2, 1.0],
+
+  // Tier 2/3 shape response curves (normalized ranges based on census data)
+  avg_volume_curve: {
+    type: 'sigmoid',
+    input_min: 0,
+    input_max: 200000,
+    output_min: 0,
+    output_max: 1,
+    steepness: 4,
+  },
+
+  hist_vol_curve: {
+    type: 'linear',
+    input_min: 0,
+    input_max: 0.05,
+    output_min: 0,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  corr_brent_curve: {
+    type: 'linear',
+    input_min: -1,
+    input_max: 1,
+    output_min: -1,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  corr_spy_curve: {
+    type: 'linear',
+    input_min: -1,
+    input_max: 1,
+    output_min: -1,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  spread_curve: {
+    type: 'linear',
+    input_min: -0.1,
+    input_max: 0.1,
+    output_min: -1,
+    output_max: 1,
+    steepness: 1,
+  },
+
+  skewness_curve: {
+    type: 'linear',
+    input_min: -1,
+    input_max: 1,
+    output_min: -1,
+    output_max: 1,
+    steepness: 1,
   },
 };
