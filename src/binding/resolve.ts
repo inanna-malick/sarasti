@@ -329,8 +329,8 @@ export function resolve(
 
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
-  const poseResolver = createPoseResolver();
-  const gazeResolver = createGazeResolver();
+  const poseResolver = createPoseResolver(config.poseConfig);
+  const gazeResolver = createGazeResolver(config.gazeConfig);
 
   const poseResult = poseResolver.resolve(ticker.id, frame);
   const gazeResult = gazeResolver.resolve(ticker.id, frame);
@@ -351,8 +351,8 @@ export function resolve(
 export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
-  const poseResolver = createPoseResolver();
-  const gazeResolver = createGazeResolver();
+  const poseResolver = createPoseResolver(config.poseConfig);
+  const gazeResolver = createGazeResolver(config.gazeConfig);
   const shapeCache = new Map<string, Float32Array>();
   const accumulatorMap = new Map<string, TextureAccumulator>();
 

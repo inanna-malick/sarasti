@@ -8,6 +8,7 @@ import type { TickerConfig, TickerFrame } from '../types';
 import type { BindingConfig } from '../binding/types';
 import { loadDirectionTables } from '../binding/directions';
 import { FLAME_DATA_BASE } from '../renderer/constants';
+import { TICKERS } from '../tickers';
 
 export interface RefineConfig {
   tickerId: string;
@@ -15,9 +16,8 @@ export interface RefineConfig {
     irisRadius?: number;
     pupilRadius?: number;
     maxJaw?: number;
-    jawVolatilityMultiplier?: number;
-    jawVolatilityThreshold?: number;
     maxNeckPitch?: number;
+    maxNeckYaw?: number;
     expressionIntensity?: number;
     semantifyExprIntensity?: number;
     deviationSteepness?: number;
@@ -126,7 +126,7 @@ export function RefineHarness() {
                 scene.add(mesh.mesh);
               }
 
-              // Build custom binding config
+              // Build custom binding config with pose/gaze threading
               const customConfig: BindingConfig = {
                 ...DEFAULT_BINDING_CONFIG,
                 expression_intensity: config.overrides.expressionIntensity ?? DEFAULT_BINDING_CONFIG.expression_intensity,
@@ -138,17 +138,23 @@ export function RefineHarness() {
                 velocity_curve: {
                   ...DEFAULT_BINDING_CONFIG.velocity_curve,
                   steepness: config.overrides.velocitySteepness ?? DEFAULT_BINDING_CONFIG.velocity_curve.steepness,
-                }
+                },
+                poseConfig: {
+                  maxPitch: config.overrides.maxNeckPitch,
+                  maxYaw: config.overrides.maxNeckYaw,
+                  maxJaw: config.overrides.maxJaw,
+                },
+                gazeConfig: {
+                  maxHorizontal: config.overrides.maxEyeHorizontal,
+                  maxVertical: config.overrides.maxEyeVertical,
+                },
               };
 
-              // Map other properties if they are supposed to be there (ignore if not used in current codebase)
-              // maxJaw, jawVolatilityMultiplier, etc. could be injected into custom config if we update resolve logic later.
-
-              // Resolve params
-              const mockTicker: TickerConfig = {
+              // Look up real ticker identity from registry
+              const ticker: TickerConfig = TICKERS.find(t => t.id === config.tickerId) ?? {
                 id: config.tickerId,
                 name: config.tickerId,
-                class: 'equity', // Defaulting for harness
+                class: 'equity' as const,
                 family: 'broad',
                 age: 40,
               };
@@ -161,7 +167,7 @@ export function RefineHarness() {
                 volatility: config.frame.volatility,
               };
 
-              const params = resolve(mockTicker, frameData, customConfig);
+              const params = resolve(ticker, frameData, customConfig);
               mesh.updateFromParams(params);
             }
           }

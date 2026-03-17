@@ -149,6 +149,10 @@ export interface BindingConfig {
   spread_curve?: ResponseCurve;
   /** How skewness maps to shape perturbation */
   skewness_curve?: ResponseCurve;
+  /** Optional pose resolver config overrides */
+  poseConfig?: Partial<import('./pose').PoseConfig>;
+  /** Optional gaze resolver config overrides */
+  gazeConfig?: Partial<import('./gaze').GazeConfig>;
 }
 
 // ─── Helpers ────────────────────────────────────────

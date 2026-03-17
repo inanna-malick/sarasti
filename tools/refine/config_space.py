@@ -2,14 +2,14 @@ PARAMETER_GROUPS = [
     {
         "name": "eye_shader",
         "keys": ["irisRadius", "pupilRadius"],
-        "bounds": [(0.06, 0.25), (0.02, 0.10)],
-        "defaults": [0.12, 0.04],
+        "bounds": [(0.08, 0.40), (0.03, 0.15)],
+        "defaults": [0.26, 0.09],
     },
     {
         "name": "jaw_mapping",
-        "keys": ["jawVolatilityMultiplier", "jawVolatilityThreshold", "maxJaw"],
-        "bounds": [(0.05, 0.8), (0.5, 2.0), (0.1, 0.8)],
-        "defaults": [0.3, 1.0, 0.5],
+        "keys": ["maxJaw"],
+        "bounds": [(0.05, 0.50)],
+        "defaults": [0.2],
     },
     {
         "name": "expression_intensity",

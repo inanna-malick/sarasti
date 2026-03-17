@@ -58,9 +58,12 @@ def main():
             print(f"\nRunning scenario: {name} {params}")
             config = {
                 "tickerId": "BZ=F",
-                "deviation": params["deviation"],
-                "velocity": params["velocity"],
-                "volatility": params["volatility"]
+                "overrides": {},
+                "frame": {
+                    "deviation": params["deviation"],
+                    "velocity": params["velocity"],
+                    "volatility": params["volatility"],
+                },
             }
             
             try:
@@ -72,7 +75,7 @@ def main():
                 
                 # Score
                 t0 = time.time()
-                scores = scorer.score(image_path)
+                scores = scorer.score(image_path, scenario=name)
                 score_time = time.time() - t0
                 print(f"  Scored in {score_time:.2f}s")
                 
@@ -90,7 +93,7 @@ def main():
     print(f"\nSaved results to {out_path}\n")
     
     # Print human-readable summary table
-    metrics = ["realism", "mouth", "eyes", "expression_mild", "expression_extreme"]
+    metrics = ["quality", "state", "eyes", "artifact_penalty"]
     
     print("=" * 80)
     print(f"{'Scenario':<18} | " + " | ".join(f"{m[:8]:>8}" for m in metrics))

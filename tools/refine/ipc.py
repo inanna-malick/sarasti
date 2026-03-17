@@ -36,7 +36,7 @@ class RenderBridge:
         try:
             # Send config
             json_str = json.dumps(config)
-            self.process.stdin.write(json_str + "\\n")
+            self.process.stdin.write(json_str + "\n")
             self.process.stdin.flush()
             
             # Read response (blocking with 30s timeout)
