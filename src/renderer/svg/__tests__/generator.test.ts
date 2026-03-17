@@ -7,6 +7,8 @@ describe('SVG Face Generator', () => {
   const createNeutralParams = (): FaceParams => ({
     shape: new Float32Array(N_SHAPE),
     expression: new Float32Array(N_EXPR),
+    flush: 0,
+    fatigue: 0,
   });
 
   it('generates a valid SVG string with neutral params', () => {

@@ -70,6 +70,8 @@ export interface TimelineDataset {
 export interface FaceParams {
   shape: Float32Array;
   expression: Float32Array;
+  flush: number;      // [-1, 1] — -1 bloodless, 0 baseline, +1 flushed
+  fatigue: number;    // [-1, 1] — -1 alert, 0 baseline, +1 fatigued
 }
 
 export interface FaceInstance {

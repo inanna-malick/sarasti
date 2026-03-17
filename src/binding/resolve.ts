@@ -266,6 +266,8 @@ export function resolve(
   return {
     shape: shapeResolver.resolve(ticker),
     expression: exprResolver.resolve(frame),
+    flush: 0,
+    fatigue: 0,
   };
 }
 
@@ -289,6 +291,8 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       return {
         shape,
         expression: exprResolver.resolve(frame),
+        flush: 0,
+        fatigue: 0,
       };
     },
 
