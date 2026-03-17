@@ -11,7 +11,6 @@ export class FlameFaceMesh {
   private geometry: THREE.BufferGeometry;
   private material: THREE.MeshStandardMaterial;
   private pipeline: FlamePipeline;
-  private clippingPlane: THREE.Plane;
 
   constructor(pipeline: FlamePipeline, tickerId: string) {
     this.pipeline = pipeline;
@@ -30,16 +29,40 @@ export class FlameFaceMesh {
     this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     // 2. Create Material
-    // Clipping plane at neck base (around Y=-0.12 in FLAME meters)
-    // Points where distance to plane is negative are clipped.
-    // Plane normal (0, 1, 0) with constant 0.12 means y + 0.12 = 0 plane, clips y < -0.12.
-    this.clippingPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.12);
+    // Smooth alpha fade at neck base (around Y=-0.08 to Y=-0.15 in FLAME meters)
     this.material = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.7,
       metalness: 0.0,
-      clippingPlanes: [this.clippingPlane],
+      transparent: true,
+      alphaTest: 0.01,
     });
+
+    this.material.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `#include <common>
+varying float vY;`
+      );
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+vY = position.y;`
+      );
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        `#include <common>
+varying float vY;`
+      );
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <dithering_fragment>',
+        `#include <dithering_fragment>
+float fadeStart = -0.08;
+float fadeEnd = -0.15;
+float fade = smoothstep(fadeEnd, fadeStart, vY);
+gl_FragColor.a *= fade;`
+      );
+    };
 
     // 3. Create Mesh
     this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -57,19 +80,8 @@ export class FlameFaceMesh {
     positionAttr.needsUpdate = true;
     normalAttr.needsUpdate = true;
 
-    // Update clipping plane world-space position
-    this.updateClippingPlane();
-  }
-
-  private updateClippingPlane(): void {
-    // We want the plane at Y=-0.12 in LOCAL space.
-    // Three.js Plane.applyMatrix4 transforms the plane from local to world space.
-    // We must ensure mesh.updateMatrixWorld() has been called or use it here.
+    // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();
-    
-    // Reset to local plane before applying matrix
-    this.clippingPlane.set(new THREE.Vector3(0, 1, 0), 0.12);
-    this.clippingPlane.applyMatrix4(this.mesh.matrixWorld);
   }
 
   /**

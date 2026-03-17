@@ -42,6 +42,8 @@ describe('FlameFaceMesh', () => {
     
     const material = meshWrapper.mesh.material as THREE.MeshStandardMaterial;
     expect(material.vertexColors).toBe(true);
+    expect(material.transparent).toBe(true);
+    expect(material.alphaTest).toBe(0.01);
   });
 
   it('should update geometry in-place when updateFromParams is called', () => {
@@ -90,32 +92,6 @@ describe('FlameFaceMesh', () => {
       }
     }
     expect(different).toBe(true);
-  });
-
-  it('should initialize and update clipping plane based on mesh position', () => {
-    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
-    const material = meshWrapper.mesh.material as THREE.MeshStandardMaterial;
-
-    expect(material.clippingPlanes).toBeDefined();
-    expect(material.clippingPlanes?.length).toBe(1);
-    
-    const plane = material.clippingPlanes![0] as THREE.Plane;
-    expect(plane.normal.y).toBe(1);
-    // Initial constant should be 0.12 because position is 0 and scale is 1
-    expect(plane.constant).toBe(0.12);
-
-    // Update position and params
-    meshWrapper.mesh.position.set(0, 10, 0);
-    const params: FaceParams = {
-      shape: new Float32Array(100).fill(0),
-      expression: new Float32Array(50).fill(0),
-    };
-    meshWrapper.updateFromParams(params);
-
-    // Plane is y + 0.12 = 0 in local space.
-    // In world space at y=10, it should be (y - 10) + 0.12 = 0 => y - 9.88 = 0.
-    // So constant should be -9.88.
-    expect(plane.constant).toBeCloseTo(-9.88);
   });
 
   it('should clean up resources on dispose', () => {
