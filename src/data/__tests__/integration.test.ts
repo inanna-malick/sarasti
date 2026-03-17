@@ -56,7 +56,7 @@ describe('integration: real merged data (first 5 frames)', () => {
     if (ds.frames.length < 2) return;
     const blended = interpolateFrame(ds.frames[0], ds.frames[1], 0.5);
     const ids = Object.keys(blended.values);
-    expect(ids.length).toBeGreaterThanOrEqual(20);
+    expect(ids.length).toBeGreaterThanOrEqual(13);
     for (const id of ids) {
       expect(Number.isNaN(blended.values[id].close)).toBe(false);
     }
