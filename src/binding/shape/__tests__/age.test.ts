@@ -100,18 +100,18 @@ describe('validateAgeMapping', () => {
     expect(validateAgeMapping(DEFAULT_AGE_MAPPING)).toBe(true);
   });
 
-  it('fails if index overlaps with class indices (e.g., 3)', () => {
-    const invalid: AgeMapping = {
-      indices: [0, 1, 3], // 3 is a class index
+  it('allows overlap with class indices (age + class stack additively)', () => {
+    const valid: AgeMapping = {
+      indices: [0, 1, 3], // 0 and 3 are class indices — allowed
       young_values: [0, 0, 0],
       old_values: [1, 1, 1],
     };
-    expect(validateAgeMapping(invalid)).toBe(false);
+    expect(validateAgeMapping(valid)).toBe(true);
   });
 
-  it('fails if index overlaps with family indices (e.g., 9)', () => {
+  it('fails if index overlaps with family indices (e.g., 5)', () => {
     const invalid: AgeMapping = {
-      indices: [0, 1, 9], // 9 is a family index
+      indices: [0, 1, 5], // 5 is a family index
       young_values: [0, 0, 0],
       old_values: [1, 1, 1],
     };

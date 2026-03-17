@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>FLAME Component Sweep</title>
+  <style>
+    body { margin: 0; background: #1a1a1a; color: #ccc; font-family: monospace; }
+    #controls { padding: 8px 12px; background: #222; display: flex; gap: 12px; align-items: center; }
+    #controls label { font-size: 13px; }
+    #controls select, #controls input { font-family: monospace; font-size: 13px; }
+    #grid { display: grid; gap: 4px; padding: 4px; }
+    .cell { position: relative; background: #111; }
+    .cell img { width: 100%; height: 100%; display: block; }
+    .cell .label {
+      position: absolute; bottom: 4px; left: 6px;
+      font-size: 12px; color: #fff; pointer-events: none;
+      text-shadow: 0 0 4px #000, 0 0 2px #000;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label>Mode:
+      <select id="mode">
+        <option value="expr">Expression (ψ)</option>
+        <option value="shape">Shape (β)</option>
+      </select>
+    </label>
+    <label>Range: <input id="rangeStart" type="number" value="0" min="0" max="99" style="width:40px"> –
+      <input id="rangeEnd" type="number" value="9" min="0" max="99" style="width:40px">
+    </label>
+    <label>Value: <input id="value" type="number" value="5.0" step="0.5" style="width:50px"></label>
+    <label>Cols: <input id="cols" type="number" value="4" min="1" max="10" style="width:40px"></label>
+    <button id="render">Render</button>
+    <span id="status">Ready</span>
+  </div>
+  <div id="grid"></div>
+
+  <!-- Offscreen render canvas -->
+  <canvas id="offscreen" style="display:none"></canvas>
+
+  <script type="module">
+    import * as THREE from '/node_modules/three/build/three.module.js';
+
+    // ── Load FLAME model ──
+    async function loadModel() {
+      const meta = await (await fetch('/data/flame_meta.json')).json();
+      const [tBuf, fBuf, sBuf, eBuf] = await Promise.all([
+        fetch('/data/flame_template.bin').then(r => r.arrayBuffer()),
+        fetch('/data/flame_faces.bin').then(r => r.arrayBuffer()),
+        fetch('/data/flame_shapedirs.bin').then(r => r.arrayBuffer()),
+        fetch('/data/flame_exprdirs.bin').then(r => r.arrayBuffer()),
+      ]);
+      return {
+        template: new Float32Array(tBuf),
+        faces: new Uint32Array(fBuf),
+        shapedirs: new Float32Array(sBuf),
+        exprdirs: new Float32Array(eBuf),
+        ...meta,
+      };
+    }
+
+    function deform(model, beta, psi) {
+      const verts = new Float32Array(model.template);
+      const N = model.n_vertices * 3;
+      for (let c = 0; c < model.n_shape; c++) {
+        if (beta[c] === 0) continue;
+        const off = c * N;
+        for (let i = 0; i < N; i++) verts[i] += model.shapedirs[off + i] * beta[c];
+      }
+      for (let c = 0; c < model.n_expr; c++) {
+        if (psi[c] === 0) continue;
+        const off = c * N;
+        for (let i = 0; i < N; i++) verts[i] += model.exprdirs[off + i] * psi[c];
+      }
+      const normals = new Float32Array(N);
+      for (let f = 0; f < model.n_faces; f++) {
+        const i1 = model.faces[f*3], i2 = model.faces[f*3+1], i3 = model.faces[f*3+2];
+        const ax = verts[i2*3]-verts[i1*3], ay = verts[i2*3+1]-verts[i1*3+1], az = verts[i2*3+2]-verts[i1*3+2];
+        const bx = verts[i3*3]-verts[i1*3], by = verts[i3*3+1]-verts[i1*3+1], bz = verts[i3*3+2]-verts[i1*3+2];
+        const nx = ay*bz-az*by, ny = az*bx-ax*bz, nz = ax*by-ay*bx;
+        for (const idx of [i1,i2,i3]) { normals[idx*3]+=nx; normals[idx*3+1]+=ny; normals[idx*3+2]+=nz; }
+      }
+      for (let i = 0; i < model.n_vertices; i++) {
+        const x=normals[i*3], y=normals[i*3+1], z=normals[i*3+2];
+        const l=Math.sqrt(x*x+y*y+z*z);
+        if(l>0){normals[i*3]/=l;normals[i*3+1]/=l;normals[i*3+2]/=l;}
+      }
+      return { vertices: verts, normals };
+    }
+
+    // ── Single shared renderer ──
+    const offCanvas = document.getElementById('offscreen');
+    const CELL_SIZE = 350;
+    offCanvas.width = CELL_SIZE;
+    offCanvas.height = CELL_SIZE;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: offCanvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+    renderer.setSize(CELL_SIZE, CELL_SIZE);
+    renderer.setClearColor(0x1a1a1a);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 10);
+    camera.position.set(0, 0, 0.6);
+    camera.lookAt(0, 0, 0);
+
+    function renderFace(model, beta, psi) {
+      const { vertices, normals } = deform(model, beta, psi);
+
+      const geo = new THREE.BufferGeometry();
+      geo.setIndex(new THREE.BufferAttribute(model.faces, 1));
+      geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+
+      const mat = new THREE.MeshNormalMaterial();
+      const mesh = new THREE.Mesh(geo, mat);
+
+      // Clear scene
+      while (scene.children.length > 0) scene.remove(scene.children[0]);
+      scene.add(mesh);
+
+      renderer.render(scene, camera);
+      const dataUrl = offCanvas.toDataURL('image/png');
+
+      geo.dispose();
+      mat.dispose();
+
+      return dataUrl;
+    }
+
+    // ── Main ──
+    const status = document.getElementById('status');
+    status.textContent = 'Loading FLAME model...';
+    const model = await loadModel();
+    status.textContent = `Model loaded: ${model.n_vertices} verts, ${model.n_shape} shape, ${model.n_expr} expr`;
+
+    document.getElementById('render').addEventListener('click', () => {
+      const mode = document.getElementById('mode').value;
+      const start = parseInt(document.getElementById('rangeStart').value);
+      const end = parseInt(document.getElementById('rangeEnd').value);
+      const val = parseFloat(document.getElementById('value').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const count = end - start + 1;
+
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const cellSize = Math.floor((window.innerWidth - 8) / cols) - 4;
+      grid.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+
+      status.textContent = `Rendering ${count + 1} faces...`;
+
+      // Neutral reference
+      const neutralUrl = renderFace(model, new Float32Array(model.n_shape), new Float32Array(model.n_expr));
+      const refCell = document.createElement('div');
+      refCell.className = 'cell';
+      refCell.style.height = cellSize + 'px';
+      const refImg = document.createElement('img');
+      refImg.src = neutralUrl;
+      refCell.appendChild(refImg);
+      const refLabel = document.createElement('div');
+      refLabel.className = 'label';
+      refLabel.textContent = 'NEUTRAL';
+      refCell.appendChild(refLabel);
+      grid.appendChild(refCell);
+
+      for (let i = start; i <= end; i++) {
+        const beta = new Float32Array(model.n_shape);
+        const psi = new Float32Array(model.n_expr);
+        if (mode === 'expr') psi[i] = val;
+        else beta[i] = val;
+
+        const dataUrl = renderFace(model, beta, psi);
+
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.style.height = cellSize + 'px';
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        cell.appendChild(img);
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = `${mode === 'expr' ? 'ψ' : 'β'}${i} = ${val}`;
+        cell.appendChild(label);
+        grid.appendChild(cell);
+      }
+      status.textContent = `Done: ${count + 1} faces rendered`;
+    });
+
+    // Auto-render on load if URL has params
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('mode')) {
+      document.getElementById('mode').value = params.get('mode');
+      document.getElementById('rangeStart').value = params.get('start') || '0';
+      document.getElementById('rangeEnd').value = params.get('end') || '9';
+      document.getElementById('value').value = params.get('value') || '5.0';
+      document.getElementById('cols').value = params.get('cols') || '4';
+      document.getElementById('render').click();
+    }
+  </script>
+</body>
+</html>

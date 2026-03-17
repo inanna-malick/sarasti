@@ -1,39 +1,47 @@
 import type { ExpressionAllocation, ResponseCurve } from '../types';
 
 /**
- * Expression param allocation table.
- * Documents which ψ indices map to which emotional register.
+ * Expression param allocation table — empirically tuned.
  *
- * The FLAME model has 50 expression components (ψ₀₋₄₉).
- * We use indices 0-13 across four registers; the rest stay at zero.
+ * Each register drives MULTIPLE high-variance FLAME expression components
+ * simultaneously. Components can appear in multiple registers (with different
+ * sign/weight) — this is intentional. The dynamics modulator blends registers,
+ * and overlapping indices create rich cross-register interference.
  *
- *   ψ₀₋₃:   distress register (brow furrow + mouth downturn)
- *   ψ₄₋₇:   shock register (brow raise + mouth open)
- *   ψ₈₋₁₁:  relief register (slight smile + brow relax)
- *   ψ₁₂₋₁₃: dread extension (tension components)
- *   ψ₁₄₋₄₉: reserved (zero)
+ * FLAME 2023 Open expression component catalog (empirical, ±5 sweep):
+ *   ψ0: jaw open + smile (strongest axis)
+ *   ψ1: smile/frown (cheeks raise vs corners drop)
+ *   ψ2: mouth open shock/scream vs lips pressed
+ *   ψ3: lip parting / protrusion
+ *   ψ4: brow raise / lower
+ *   ψ5: lip pursing forward / back
+ *   ψ6: jaw lateral shift
+ *   ψ7: head shape modifier
+ *   ψ8: subtle lip/nose
+ *   ψ9: eye/cheek region (squint vs widen)
  *
- * IMPORTANT: These are PLACEHOLDER indices. The crisis-mapper Dev
- * must empirically determine which FLAME expression components
- * produce each emotional register by rendering faces with individual
- * ψ components varied. Document findings with screenshots.
+ * Register design (negative weights = negative direction on that axis):
+ *   distress: frown(ψ1-), jaw clench(ψ0-), brow furrow(ψ4-), lips press(ψ2-), lips retract(ψ5-)
+ *   shock:    jaw drop(ψ0+), mouth open(ψ2+), brow raise(ψ4+), lips spread(ψ1+), lip part(ψ3+)
+ *   relief:   smile(ψ1+), jaw relax(ψ0+), cheek raise(ψ9+), brow lift(ψ4+)
+ *   dread:    lips press(ψ2-), downturn(ψ1-), jaw clench(ψ0-), lips retract(ψ5-), jaw lateral(ψ6+)
  */
 export const EXPRESSION_ALLOCATION: ExpressionAllocation = {
   distress: {
-    indices: [0, 1, 2, 3],
-    weights: [1.0, 0.8, 0.6, 0.4],
+    indices: [1, 0, 9, 4, 5, 2, 7],
+    weights: [-1.0, -0.6, 0.8, 0.5, 0.6, -0.5, 0.4],
   },
   shock: {
-    indices: [4, 5, 6, 7],
-    weights: [1.0, 0.8, 0.6, 0.4],
+    indices: [0, 2, 1, 3, 4, 9],
+    weights: [1.0, 0.9, 0.3, 0.5, -0.5, -0.4],
   },
   relief: {
-    indices: [8, 9, 10, 11],
-    weights: [1.0, 0.7, 0.5, 0.3],
+    indices: [1, 0, 4, 5, 9],
+    weights: [1.0, 0.4, -0.3, -0.2, -0.3],
   },
   dread: {
-    indices: [0, 1, 12, 13],
-    weights: [0.7, 0.5, 1.0, 0.8],
+    indices: [1, 2, 0, 9, 7, 4, 6],
+    weights: [-0.9, -0.8, -0.5, 0.7, 0.5, 0.4, 0.3],
   },
 };
 

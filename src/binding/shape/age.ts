@@ -2,14 +2,16 @@ import type { AgeMapping, AgeShapeResult } from './types';
 import { SHAPE_ALLOCATION } from './types';
 
 /**
- * Default age mapping: linear interpolation from young→old values.
- * PLACEHOLDER values — the Dev will determine real FLAME components
- * that affect perceived age by empirical exploration.
+ * Age mapping — empirically tuned from FLAME 2023 Open component sweep.
+ *
+ * β0: face width (young = narrower, old = wider)
+ * β1: face height (young = rounder/shorter, old = elongated)
+ * β2: jaw shape (young = soft pointed chin, old = square heavy jaw)
  */
 export const DEFAULT_AGE_MAPPING: AgeMapping = {
   indices: SHAPE_ALLOCATION.age_indices,
-  young_values: [-2.0, -1.0, -0.5],
-  old_values:   [2.0,   1.0,  0.5],
+  young_values: [-1.5, -1.0, -1.5],  // narrow, round, soft chin
+  old_values:   [1.5,   1.0,  1.5],  // wide, elongated, square jaw
 };
 
 /**
@@ -34,14 +36,13 @@ export function mapAgeToShape(
 }
 
 /**
- * Validates that age mapping indices don't overlap with identity indices.
+ * Validates that age mapping indices don't overlap with family indices.
+ * Note: overlap with class_indices is ALLOWED — age sets base values
+ * and class profiles add on top (e.g. β0 = head width used by both).
  */
 export function validateAgeMapping(mapping: AgeMapping): boolean {
-  const identityIndices = new Set([
-    ...SHAPE_ALLOCATION.class_indices,
-    ...SHAPE_ALLOCATION.family_indices,
-  ]);
-  return !mapping.indices.some((idx) => identityIndices.has(idx));
+  const familyIndices = new Set(SHAPE_ALLOCATION.family_indices);
+  return !mapping.indices.some((idx) => familyIndices.has(idx));
 }
 
 /**

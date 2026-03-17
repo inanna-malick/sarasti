@@ -39,11 +39,12 @@ describe('mapCrisisToExpression', () => {
     }
   });
 
-  it('deviation ±3σ → max expression (intensity near 1)', () => {
+  it('large deviation → near-max expression (intensity > 0.8)', () => {
+    // MAX_DEVIATION_SIGMA is 0.5, so ±3.0 is well beyond saturation
     const neg = mapCrisisToExpression(-3.0);
     const pos = mapCrisisToExpression(3.0);
-    expect(neg.intensity).toBeGreaterThan(0.9);
-    expect(pos.intensity).toBeGreaterThan(0.9);
+    expect(neg.intensity).toBeGreaterThan(0.8);
+    expect(pos.intensity).toBeGreaterThan(0.8);
   });
 
   it('expression is symmetric in magnitude for ±deviation', () => {

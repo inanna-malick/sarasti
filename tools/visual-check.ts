@@ -24,6 +24,12 @@ const TIMESTAMPS = [
   { label: 'present',      time: '2026-03-10T00:00:00Z' },
 ];
 
+// Close-up: zoom into a single face to see expression deformation
+const CLOSEUP_TIMESTAMPS = [
+  { label: 'closeup-pre',       time: '2026-02-25T12:00:00Z' },
+  { label: 'closeup-sustained', time: '2026-03-05T00:00:00Z' },
+];
+
 async function main() {
   mkdirSync(SCREENSHOTS_DIR, { recursive: true });
 

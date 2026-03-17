@@ -8,22 +8,31 @@ import type { ShapeAllocation } from '../types';
  * The FLAME model has 100 shape components (β₀₋₉₉).
  * We use indices 0-9 for our binding; the rest stay at zero.
  *
- *   β₀₋₂:  age (age-mapper)
- *   β₃₋₅:  asset class gross morphology (identity-mapper)
- *   β₆₋₉:  family resemblance (identity-mapper)
- *   β₁₀₋₉₉: reserved (zero)
+ * Empirical mapping (FLAME 2023 Open component sweep):
+ *   β0: head width (narrow vs wide)
+ *   β1: head height (short vs elongated)
+ *   β2: jaw shape (pointed vs square)
+ *   β3: nose size/shape
+ *   β4: cheekbone prominence
+ *   β5: eye shape/distance
+ *   β6: chin shape
+ *   β7: brow ridge / socket depth
+ *   β8: lip fullness
+ *   β9: neck/head proportions
  *
- * IMPORTANT: These are PLACEHOLDER indices. The age-mapper Dev
- * must empirically determine which FLAME shape components most
- * affect perceived age. The identity-mapper Dev must determine
- * which components produce the desired class/family morphology.
- * When they discover the real mapping, they update the allocation
- * and the config together.
+ * Allocation:
+ *   β₀₋₂:  age (width, height, jaw — strongest axes)
+ *   β₀,₃,₄: class morphology (width + nose + cheekbones)
+ *   β₅₋₈:  family resemblance (eyes, chin, brow, lips)
+ *   β₉₋₉₉: reserved (zero)
+ *
+ * Note: β0 appears in both age and class allocations. The age mapper
+ * sets it first, then class profile values are ADDED on top.
  */
 export const SHAPE_ALLOCATION: ShapeAllocation = {
   age_indices: [0, 1, 2],
-  class_indices: [3, 4, 5],
-  family_indices: [6, 7, 8, 9],
+  class_indices: [0, 3, 4],
+  family_indices: [5, 6, 7, 8],
 };
 
 /**
