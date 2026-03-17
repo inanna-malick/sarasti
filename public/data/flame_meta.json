@@ -5,6 +5,7 @@
   "n_expr": 100,
   "n_joints": 5,
   "n_pose_features": 36,
+  "n_albedo_components": 10,
   "files": {
     "template": "flame_template.bin",
     "faces": "flame_faces.bin",
@@ -12,6 +13,8 @@
     "exprdirs": "flame_exprdirs.bin",
     "weights": "flame_weights.bin",
     "posedirs": "flame_posedirs.bin",
+    "albedo_mean": "flame_albedo_mean.bin",
+    "albedo_basis": "flame_albedo_basis.bin",
     "J_regressor": "flame_J_regressor.bin",
     "kintree": "flame_kintree.json"
   }

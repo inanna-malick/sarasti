@@ -159,19 +159,27 @@ def main():
     with open(os.path.join(output_dir, files["kintree"]), 'w') as f:
         json.dump(kintree_table, f)
 
-    # 6. Write metadata
-    meta = {
+    # 6. Write metadata — preserve existing fields (e.g. albedo from extract_texture.py)
+    meta_path = os.path.join(output_dir, "flame_meta.json")
+    existing_meta = {}
+    if os.path.exists(meta_path):
+        with open(meta_path) as f:
+            existing_meta = json.load(f)
+
+    existing_meta.update({
         "n_vertices": int(n_vertices),
         "n_faces": int(n_faces),
         "n_shape": int(n_shape),
         "n_expr": int(n_expr),
         "n_joints": int(n_joints),
         "n_pose_features": int(n_pose_features),
-        "files": files,
-    }
+    })
+    existing_files = existing_meta.get("files", {})
+    existing_files.update(files)
+    existing_meta["files"] = existing_files
 
-    with open(os.path.join(output_dir, "flame_meta.json"), 'w') as f:
-        json.dump(meta, f, indent=2)
+    with open(meta_path, 'w') as f:
+        json.dump(existing_meta, f, indent=2)
 
     print(f"\nExtracted FLAME data to {output_dir}/")
     print(f"  Vertices:   {n_vertices}")
