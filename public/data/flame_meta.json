@@ -1,0 +1,12 @@
+{
+  "n_vertices": 5023,
+  "n_faces": 9976,
+  "n_shape": 100,
+  "n_expr": 100,
+  "files": {
+    "template": "flame_template.bin",
+    "faces": "flame_faces.bin",
+    "shapedirs": "flame_shapedirs.bin",
+    "exprdirs": "flame_exprdirs.bin"
+  }
+}

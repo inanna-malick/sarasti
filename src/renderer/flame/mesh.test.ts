@@ -10,11 +10,11 @@ describe('FlameFaceMesh', () => {
     template: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), // 3 vertices
     faces: new Uint32Array([0, 1, 2]),                      // 1 face
     shapedirs: new Float32Array(3 * 3 * 100),
-    exprdirs: new Float32Array(3 * 3 * 50),
+    exprdirs: new Float32Array(3 * 3 * 100),
     n_vertices: 3,
     n_faces: 1,
     n_shape: 100,
-    n_expr: 50,
+    n_expr: 100,
   };
 
   const mockPipeline: FlamePipeline = {

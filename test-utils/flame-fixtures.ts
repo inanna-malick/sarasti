@@ -6,7 +6,7 @@
  * so deformation results are analytically predictable.
  *
  * Real FLAME: ~5023 vertices, ~9976 faces, 300 shape, 100 expr components.
- * We truncate to N_SHAPE=100, N_EXPR=50 per project convention.
+ * We truncate to N_SHAPE=100, N_EXPR=100 per project convention.
  */
 
 import { N_SHAPE, N_EXPR } from '../src/constants';

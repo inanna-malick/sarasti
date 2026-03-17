@@ -5,5 +5,7 @@ pkgs.mkShell {
     nodejs
     python3
     python3Packages.pip
+    python3Packages.numpy
+    python3Packages.scipy
   ];
 }

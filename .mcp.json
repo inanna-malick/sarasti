@@ -6,7 +6,7 @@
         "--role",
         "tl",
         "--name",
-        "renderer"
+        "root"
       ],
       "command": "exomonad",
       "type": "stdio"

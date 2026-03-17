@@ -1,6 +1,6 @@
 // FLAME model dimensions (truncated for performance)
 export const N_SHAPE = 100;
-export const N_EXPR = 50;
+export const N_EXPR = 100;
 
 // Timeline
 export const TIMELINE_START = '2026-02-25T00:00:00Z';
