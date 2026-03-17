@@ -1,7 +1,8 @@
-import { TickerConfig, LayoutStrategy, LayoutResult, AssetClass } from '../types';
+import type { TickerConfig, LayoutStrategy, LayoutResult, AssetClass } from '../types';
+import { FACE_SPACING } from '../constants';
 
 const FACE_RADIUS = 1.0;
-const SPACING = 2.5 * FACE_RADIUS;
+const SPACING = FACE_SPACING * FACE_RADIUS;
 
 export function computeLayout(tickers: TickerConfig[], strategy: LayoutStrategy): LayoutResult {
   const positions = new Map<string, [number, number, number]>();
@@ -16,17 +17,20 @@ export function computeLayout(tickers: TickerConfig[], strategy: LayoutStrategy)
     case 'reactivity-sweep':
       computeReactivitySweep(tickers, positions);
       break;
+    default: {
+      const exhaustiveCheck: never = strategy;
+      throw new Error(`Unhandled strategy kind: ${(exhaustiveCheck as any).kind}`);
+    }
   }
 
   return { positions };
 }
 
 function computeFamilyRows(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
-  const assetClassOrder: AssetClass[] = ['energy', 'fear', 'equity', 'media'];
+  const assetClassOrder: AssetClass[] = ['energy', 'fear', 'currency', 'equity', 'media'];
   
   // Group tickers by family, maintaining asset class order for families
   const families: { id: string, class: AssetClass, tickers: TickerConfig[] }[] = [];
-  const familyMap = new Map<string, TickerConfig[]>();
   
   // To preserve order of families as they appear in assetClassOrder
   for (const ac of assetClassOrder) {
@@ -49,7 +53,7 @@ function computeFamilyRows(tickers: TickerConfig[], positions: Map<string, [numb
   // Energy families top (highest Y), Media bottom (lowest Y)
   // We have 'families.length' rows.
   const rowCount = families.length;
-  const startY = (rowCount - 1) * SPACING / 2;
+  const startY = rowCount > 0 ? (rowCount - 1) * SPACING / 2 : 0;
 
   families.forEach((family, rowIndex) => {
     const y = startY - rowIndex * SPACING;
@@ -64,30 +68,32 @@ function computeFamilyRows(tickers: TickerConfig[], positions: Map<string, [numb
 }
 
 function computeClassClusters(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
-  const assetClasses: AssetClass[] = ['energy', 'fear', 'equity', 'media'];
+  const assetClasses: AssetClass[] = ['energy', 'fear', 'currency', 'equity', 'media'];
   const clusters = assetClasses.map(ac => ({
     class: ac,
     tickers: tickers.filter(t => t.class === ac).sort((a, b) => a.age - b.age)
   }));
 
-  // 2x2 Grid of clusters
-  // Energy (0,1), Fear (1,1)
+  // 3x2 Grid of clusters
+  // Energy (0,1), Fear (1,1), Currency (2,1)
   // Equity (0,0), Media (1,0)
   const clusterCoords = [
-    [0, 1], [1, 1],
+    [0, 1], [1, 1], [2, 1],
     [0, 0], [1, 0]
   ];
 
   const CLUSTER_SPACING = SPACING * 10;
 
   clusters.forEach((cluster, i) => {
+    if (cluster.tickers.length === 0) return;
+
     const [cx, cy] = clusterCoords[i];
-    const centerX = (cx - 0.5) * CLUSTER_SPACING;
+    const centerX = (cx - 1.0) * CLUSTER_SPACING;
     const centerY = (cy - 0.5) * CLUSTER_SPACING;
 
-    // Within cluster, arrange in a small grid or line. Let's do a line for simplicity if few, or a small grid.
-    // Actually, "arrange by age" - let's do a simple wrap-around grid within each cluster.
-    const cols = Math.ceil(Math.sqrt(cluster.tickers.length));
+    // Within cluster, arrange in a small grid or line.
+    // Ensure cols is at least 1.
+    const cols = Math.max(1, Math.ceil(Math.sqrt(cluster.tickers.length)));
     const startX = centerX - ((cols - 1) * SPACING) / 2;
     const startY = centerY + ((Math.ceil(cluster.tickers.length / cols) - 1) * SPACING) / 2;
 
@@ -105,7 +111,7 @@ function computeClassClusters(tickers: TickerConfig[], positions: Map<string, [n
 
 function computeReactivitySweep(tickers: TickerConfig[], positions: Map<string, [number, number, number]>) {
   const sorted = [...tickers].sort((a, b) => a.age - b.age);
-  const totalWidth = (sorted.length - 1) * SPACING;
+  const totalWidth = sorted.length > 0 ? (sorted.length - 1) * SPACING : 0;
   const startX = -totalWidth / 2;
 
   sorted.forEach((ticker, index) => {

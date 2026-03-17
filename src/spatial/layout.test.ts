@@ -76,7 +76,7 @@ describe('computeLayout', () => {
     it('intra-class distances < inter-class distances', () => {
       const result = computeLayout(TICKERS, { kind: 'class-clusters' });
       
-      const assetClasses = ['energy', 'fear', 'equity', 'media'];
+      const assetClasses = ['energy', 'fear', 'currency', 'equity', 'media'];
       
       assetClasses.forEach(ac => {
         const classTickers = TICKERS.filter(t => t.class === ac);
