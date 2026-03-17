@@ -27,6 +27,8 @@ export function makeFaceInstance(id: string, overrides: Partial<FaceInstance> = 
     params: {
       shape: new Float32Array(100),
       expression: new Float32Array(100),
+      flush: 0,
+      fatigue: 0,
     },
     ...overrides,
   };

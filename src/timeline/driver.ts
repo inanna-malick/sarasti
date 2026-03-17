@@ -75,6 +75,8 @@ export class FrameDriver {
     for (let i = 0; i < a.expression.length; i++) {
       out.expression[i] = a.expression[i] * s + b.expression[i] * t;
     }
+    out.flush = a.flush * s + b.flush * t;
+    out.fatigue = a.fatigue * s + b.fatigue * t;
   }
 
   /** Render at a fractional position, interpolating between adjacent frames. */
@@ -100,9 +102,10 @@ export class FrameDriver {
       let params: FaceParams;
       let tickerFrame = tickerFrameA;
       if (t > 0 && tickerFrameB && indexA !== indexB) {
-        const paramsB = this.resolver.resolve(ticker, tickerFrameB);
+        // resolveNoAccumulate: get expression for frame B without advancing EMA
+        const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB);
         // Reuse paramsA arrays as output buffer
-        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length) };
+        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), flush: 0, fatigue: 0 };
         this.lerpParams(paramsA, paramsB, t, params);
         // Lerp the scalar frame values for crisis intensity etc.
         tickerFrame = {
@@ -154,6 +157,7 @@ export class FrameDriver {
   }
 
   seek(index: number): void {
+    this.resolver.resetAccumulators();
     this.engine.seek(index);
   }
 

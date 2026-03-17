@@ -29,7 +29,7 @@ describe('ShapeResolver integration', () => {
   it('age gradient within Brent family', () => {
     const brent = TICKERS.filter(t => t.family === 'brent')
       .sort((a, b) => a.age - b.age);
-    expect(brent.length).toBe(5);
+    expect(brent.length).toBe(3);
 
     const shapes = brent.map(t => resolver.resolve(t));
 

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { FlamePipeline } from './pipeline';
 import type { FaceParams } from '../../types';
+import { TEXTURE_CONFIG } from '../../binding/config';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
@@ -11,6 +12,7 @@ export class FlameFaceMesh {
   private geometry: THREE.BufferGeometry;
   private material: THREE.MeshStandardMaterial;
   private pipeline: FlamePipeline;
+  private baseColors!: Float32Array;
 
   constructor(pipeline: FlamePipeline, tickerId: string) {
     this.pipeline = pipeline;
@@ -22,6 +24,8 @@ export class FlameFaceMesh {
 
     const positions = new Float32Array(model.n_vertices * 3);
     const normals = new Float32Array(model.n_vertices * 3);
+    
+    // computeAlbedoColors now populates this.baseColors
     const colors = this.computeAlbedoColors(tickerId);
 
     this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -80,6 +84,8 @@ gl_FragColor.a *= fade;`
     positionAttr.needsUpdate = true;
     normalAttr.needsUpdate = true;
 
+    this.updateTexture(params.flush, params.fatigue);
+
     // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();
   }
@@ -91,41 +97,95 @@ gl_FragColor.a *= fade;`
   public setCrisis(_intensity: number): void {}
 
   /**
+   * Modulates vertex colors based on flush and fatigue scalars using the albedo PCA basis.
+   */
+  private updateTexture(flush: number, fatigue: number): void {
+    const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
+    const arr = colors.array as Float32Array;
+    arr.set(this.baseColors); // reset to identity base
+
+    const { albedoBasis, n_vertices } = this.pipeline.model;
+    const stride = n_vertices * 3;
+
+    // Flush: PC components from TEXTURE_CONFIG (global warmth + temple redness)
+    if (flush !== 0) {
+      const [fc0, fc1] = TEXTURE_CONFIG.flush.components;
+      const [fw0, fw1] = TEXTURE_CONFIG.flush.weights;
+      const pc0Offset = fc0 * stride;
+      const pc1Offset = fc1 * stride;
+      for (let i = 0; i < stride; i++) {
+        arr[i] += flush * fw0 * albedoBasis[pc0Offset + i];
+        arr[i] += flush * fw1 * albedoBasis[pc1Offset + i];
+      }
+    }
+
+    // Fatigue: PC components from TEXTURE_CONFIG (eye-area warmth/darkness)
+    if (fatigue !== 0) {
+      const [fc0, fc1] = TEXTURE_CONFIG.fatigue.components;
+      const [fw0, fw1] = TEXTURE_CONFIG.fatigue.weights;
+      const pc0Offset = fc0 * stride;
+      const pc1Offset = fc1 * stride;
+      for (let i = 0; i < stride; i++) {
+        arr[i] += fatigue * fw0 * albedoBasis[pc0Offset + i];
+        arr[i] += fatigue * fw1 * albedoBasis[pc1Offset + i];
+      }
+    }
+
+    // Clamp and apply BGR→RGB + sRGB→linear (same as computeAlbedoColors)
+    for (let i = 0; i < arr.length; i += 3) {
+      const b = Math.max(0, Math.min(1, arr[i]));
+      const g = Math.max(0, Math.min(1, arr[i + 1]));
+      const r = Math.max(0, Math.min(1, arr[i + 2]));
+
+      // Convert sRGB to Linear: pow(v, 2.2)
+      arr[i] = Math.pow(r, 2.2);
+      arr[i + 1] = Math.pow(g, 2.2);
+      arr[i + 2] = Math.pow(b, 2.2);
+    }
+
+    colors.needsUpdate = true;
+  }
+
+  /**
    * Computes per-vertex albedo colors using PCA basis and a hash of the tickerId.
    */
   private computeAlbedoColors(tickerId: string): Float32Array {
     const { model } = this.pipeline;
     const n_verts = model.n_vertices;
     const n_comp = model.n_albedo_components;
-    const colors = new Float32Array(n_verts * 3);
+    const rawColors = new Float32Array(n_verts * 3);
 
     // 1. Generate 10 deterministic coefficients from tickerId hash
     const coeffs = this.getHashedCoefficients(tickerId, n_comp);
 
     // 2. vertex_color[v] = mean[v] + sum(coeff[c] * basis[c][v])
-    colors.set(model.albedoMean);
+    rawColors.set(model.albedoMean);
 
     for (let c = 0; c < n_comp; c++) {
       const coeff = coeffs[c];
       const basisOffset = c * n_verts * 3;
       for (let i = 0; i < n_verts * 3; i++) {
-        colors[i] += coeff * model.albedoBasis[basisOffset + i];
+        rawColors[i] += coeff * model.albedoBasis[basisOffset + i];
       }
     }
 
+    // Save pre-corrected colors for dynamic updates
+    this.baseColors = new Float32Array(rawColors);
+
     // 3. Clamp and apply color space corrections (BGR -> RGB, sRGB -> Linear)
-    for (let i = 0; i < colors.length; i += 3) {
-      const b = Math.max(0, Math.min(1, colors[i]));
-      const g = Math.max(0, Math.min(1, colors[i + 1]));
-      const r = Math.max(0, Math.min(1, colors[i + 2]));
+    const finalColors = new Float32Array(rawColors.length);
+    for (let i = 0; i < rawColors.length; i += 3) {
+      const b = Math.max(0, Math.min(1, rawColors[i]));
+      const g = Math.max(0, Math.min(1, rawColors[i + 1]));
+      const r = Math.max(0, Math.min(1, rawColors[i + 2]));
 
       // Convert sRGB to Linear: pow(v, 2.2)
-      colors[i] = Math.pow(r, 2.2);
-      colors[i + 1] = Math.pow(g, 2.2);
-      colors[i + 2] = Math.pow(b, 2.2);
+      finalColors[i] = Math.pow(r, 2.2);
+      finalColors[i + 1] = Math.pow(g, 2.2);
+      finalColors[i + 2] = Math.pow(b, 2.2);
     }
 
-    return colors;
+    return finalColors;
   }
 
   /**

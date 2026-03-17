@@ -24,7 +24,7 @@ export function sweepSingleComponent(
       expression[componentIndex] = value;
     }
 
-    return { shape, expression };
+    return { shape, expression, flush: 0, fatigue: 0 };
   });
 }
 
@@ -82,6 +82,6 @@ export function makeGallery9(): FaceParams[] {
     expression[1] = (row - 1) * 1.0;
     expression[2] = (i / 8 - 0.5) * 1.5;
 
-    return { shape, expression };
+    return { shape, expression, flush: 0, fatigue: 0 };
   });
 }
