@@ -81,9 +81,16 @@ export class FlameFaceMesh {
       }
     }
 
-    // 3. Clamp to [0, 1]
-    for (let i = 0; i < colors.length; i++) {
-      colors[i] = Math.max(0, Math.min(1, colors[i]));
+    // 3. Clamp and apply color space corrections (BGR -> RGB, sRGB -> Linear)
+    for (let i = 0; i < colors.length; i += 3) {
+      const b = Math.max(0, Math.min(1, colors[i]));
+      const g = Math.max(0, Math.min(1, colors[i + 1]));
+      const r = Math.max(0, Math.min(1, colors[i + 2]));
+
+      // Convert sRGB to Linear: pow(v, 2.2)
+      colors[i] = Math.pow(r, 2.2);
+      colors[i + 1] = Math.pow(g, 2.2);
+      colors[i + 2] = Math.pow(b, 2.2);
     }
 
     return colors;
