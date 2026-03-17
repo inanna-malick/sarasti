@@ -16,21 +16,22 @@ except ImportError:
 
 # Configuration
 MARKET_TICKERS = [
-    'BZ=F', 'BZK26.NYM', 'BZN26.NYM', 'BZV26.NYM', 'BZZ26.NYM',
-    'CL=F', 'CLN26.NYM', 'CLU26.NYM', 'CLZ26.NYM',
+    'BZ=F', 'BZV26.NYM', 'BZZ26.NYM',
+    'CL=F', 'CLU26.NYM', 'CLZ26.NYM',
     'NG=F', 'HO=F', 'RB=F',
+    'ALI=F',
     '^VIX', 'GC=F', 'DX=F', '^TNX',
-    'XLE', 'ITA', 'SPY'
+    'XLE', 'ITA', 'SPY', 'CF', 'NTR'
 ]
 
 FAMILIES = {
     'brent': {
-        'tickers': ['BZ=F', 'BZK26.NYM', 'BZN26.NYM', 'BZV26.NYM', 'BZZ26.NYM'],
-        'tenors': [0, 2, 4, 8, 12]
+        'tickers': ['BZ=F', 'BZV26.NYM', 'BZZ26.NYM'],
+        'tenors': [0, 8, 12]
     },
     'wti': {
-        'tickers': ['CL=F', 'CLN26.NYM', 'CLU26.NYM', 'CLZ26.NYM'],
-        'tenors': [0, 3, 6, 12]
+        'tickers': ['CL=F', 'CLU26.NYM', 'CLZ26.NYM'],
+        'tenors': [0, 6, 12]
     }
 }
 
@@ -42,15 +43,15 @@ for fam, config in FAMILIES.items():
 
 # Asset classes for cross-contagion
 TICKER_CLASSES = {
-    'BZ=F': 'energy', 'BZK26.NYM': 'energy', 'BZN26.NYM': 'energy', 'BZV26.NYM': 'energy', 'BZZ26.NYM': 'energy',
-    'CL=F': 'energy', 'CLN26.NYM': 'energy', 'CLU26.NYM': 'energy', 'CLZ26.NYM': 'energy',
+    'BZ=F': 'energy', 'BZV26.NYM': 'energy', 'BZZ26.NYM': 'energy',
+    'CL=F': 'energy', 'CLU26.NYM': 'energy', 'CLZ26.NYM': 'energy',
     'NG=F': 'energy', 'HO=F': 'energy', 'RB=F': 'energy',
+    'ALI=F': 'commodity',
     '^VIX': 'fear', 'GC=F': 'metal', 'DX=F': 'currency', '^TNX': 'rates',
     'XLE': 'equity', 'ITA': 'equity', 'SPY': 'equity',
-    'FRED:GASREGW': 'energy'
+    'CF': 'equity', 'NTR': 'equity'
 }
 
-FRED_TICKER = 'FRED:GASREGW'
 BASELINE_ISO = '2026-02-25T00:00:00Z'
 END_PULL = '2026-03-16T00:00:00Z'
 OUTPUT_PATH = 'public/data/market-data.json'
@@ -150,8 +151,8 @@ def run_pull_with_libs():
     data = yf.download(all_tickers, start='2026-02-18', end='2026-03-17', interval='1h', group_by='ticker')
     
     processed_tickers = {}
-    baseline_start = pd.to_datetime('2026-02-25T00:00:00Z').tz_localize('UTC')
-    baseline_end = pd.to_datetime('2026-02-27T23:59:59Z').tz_localize('UTC')
+    baseline_start = pd.to_datetime('2026-02-25T00:00:00', utc=True)
+    baseline_end = pd.to_datetime('2026-02-27T23:59:59', utc=True)
     
     # First pass: compute individual ticker metrics and collect dataframes
     ticker_statics = {}
@@ -177,13 +178,6 @@ def run_pull_with_libs():
             df = pd.DataFrame({'Close': 0.0, 'Volume': 0.0, 'High': 0.0, 'Low': 0.0}, index=idx)
             processed_tickers[tid], statics = process_ticker_df(df, df.iloc[:72])
             ticker_statics[tid] = statics
-
-    # FRED gas price simulation (weekly interpolate)
-    idx = pd.date_range(start='2026-02-18', end='2026-03-17', freq='1h', tz='UTC')
-    gas_prices = 3.30 + np.cumsum(np.random.randn(len(idx)) * 0.001)
-    gas_df = pd.DataFrame({'Close': gas_prices, 'Volume': 0, 'High': gas_prices*1.01, 'Low': gas_prices*0.99}, index=idx)
-    processed_tickers[FRED_TICKER], gas_statics = process_ticker_df(gas_df, gas_df.loc[baseline_start:baseline_end])
-    ticker_statics[FRED_TICKER] = gas_statics
 
     # Second pass: compute cross-ticker metrics (correlation, spread, contagion)
     brent_baseline = processed_tickers['BZ=F'].loc[baseline_start:baseline_end]['Close']
@@ -239,7 +233,8 @@ def run_pull_with_libs():
             df['term_slope'] = 0.0
 
     # Sarasti Residuals
-    frames_idx = idx[idx >= baseline_start]
+    ref_idx = next(iter(processed_tickers.values())).index
+    frames_idx = ref_idx[ref_idx >= baseline_start]
     n_frames = len(frames_idx)
     n_tickers = len(processed_tickers)
     
@@ -309,7 +304,7 @@ def generate_synthetic_fallback():
     start_dt = datetime.strptime(BASELINE_ISO, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
     end_dt = datetime.strptime(END_PULL, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
     
-    all_ticker_ids = sorted(MARKET_TICKERS + [FRED_TICKER])
+    all_ticker_ids = sorted(MARKET_TICKERS)
     
     ticker_history = {}
     ticker_statics = {}
@@ -318,10 +313,9 @@ def generate_synthetic_fallback():
         base_price = 100.0
         if tid.startswith('^'): base_price = 20.0
         elif 'BZ' in tid or 'CL' in tid: base_price = 80.0
-        elif 'FRED' in tid: base_price = 3.30
-        
+
         ticker_statics[tid] = {
-            "avg_volume": 100000.0 if 'FRED' not in tid else 0.0,
+            "avg_volume": 100000.0,
             "hist_volatility": 0.02,
             "corr_to_brent": 0.8 if 'BZ' in tid or 'CL' in tid else 0.3,
             "corr_to_spy": 0.4,
@@ -339,7 +333,7 @@ def generate_synthetic_fallback():
             history.append({
                 "ts": curr,
                 "close": price,
-                "volume": random.randint(100, 1000) if 'FRED' not in tid else 0,
+                "volume": random.randint(100, 1000),
                 "deviation": (price - base_price) / base_price,
                 "velocity": change / (base_price * 0.01),
                 "volatility": 1.0 + 0.05 * math.sin(curr.timestamp() / 86400.0),

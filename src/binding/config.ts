@@ -208,6 +208,8 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     fear:     [[0, -2.0], [1, 1.5], [3, -1.0]],
     // Currency: neutral baseline, slightly compressed
     currency: [[0, 0.0], [1, -0.5], [3, 0.3]],
+    // Commodity: blocky, dense — wide and square (β0+ wide, β2+ square, β3+ heavy)
+    commodity: [[0, 1.5], [2, 1.0], [3, 1.0]],
     // Equity: round, soft, wide but short (β0+ wide, β1- short, β2- soft chin)
     equity:   [[0, 1.0], [1, -1.0], [4, 0.8]],
     // Media: most angular/alien — narrow, elongated, sharp chin (β0- narrow, β1+ tall, β2- pointed)

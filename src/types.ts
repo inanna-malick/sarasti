@@ -1,6 +1,6 @@
 // ─── Data ───────────────────────────────────────────
 
-export type AssetClass = 'energy' | 'fear' | 'currency' | 'equity' | 'media';
+export type AssetClass = 'energy' | 'commodity' | 'fear' | 'currency' | 'equity' | 'media';
 
 export interface TickerConfig {
   id: string;
