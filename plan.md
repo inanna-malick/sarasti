@@ -1,4 +1,4 @@
-# The Tidal Scream
+# Hormuz Crisis Monitor
 ## exomonad execution plan
 
 **repo:** `sarasti`
@@ -7,8 +7,6 @@
 **data:** Baked historical market data + optional CF cron refresh
 **model:** FLAME 2023 Open (CC-BY-4.0)
 **orchestration:** exomonad — TLs spawned with `--fork-session` (inherits parent context)
-
-*"What do they represent?" "Software customizes output for user."*
 
 ---
 
@@ -19,11 +17,11 @@ All faces show state at shared timestamp T. Timeline scrubs Feb 25 → present.
 Press play: 1 second per hour. Seventeen days of crisis in ~68 seconds.
 
 Futures term structure maps to FLAME age axis: 1M future = 20yo face,
-12M = 60yo. Backwardation is visible as the young screaming while the elder stays calm.
+12M = 60yo. Backwardation is visible as the young showing high reactivity while the elder remains stable.
 
-The binding doctrine: shape = structural identity (class, family, tenor-as-age).
+The binding principles: shape = structural identity (class, family, tenor-as-age).
 Expression = crisis dynamics (deviation, velocity, volatility).
-The artist's hand is in the mapping. The expressions are statistics.
+The visual mapping is a deliberate analytical choice. The expressions represent statistical deviations.
 
 ---
 
@@ -166,10 +164,10 @@ export interface PlaybackState {
 | RB=F | 35 | Further downstream |
 | FRED:GASREGW | 55 | Last to react |
 
-### Fear instruments (sharp features)
+### Volatility instruments (sharp features)
 | Ticker | Age | Rationale |
 |--------|-----|-----------|
-| ^VIX | 20 | Instantaneous fear |
+| ^VIX | 20 | Instantaneous volatility |
 | GC=F | 40 | Steady worrier |
 | DX=F | 35 | Structural |
 | ^TNX | 55 | Slow, heavy |
@@ -451,7 +449,7 @@ sarasti/root (TL: Opus)
 │               high vol → multiple expression components active
 │               (face looks conflicted, twitching)
 │               low vol → clean single-register expression
-│               (face looks fixed — frozen scream or frozen calm)
+│               (face looks fixed — extreme deformation or frozen calm)
 │             Tests: high velocity + high deviation → shock > dread
 │             VISUAL CHECK — REQUIRED:
 │               render 3 faces: same deviation, different velocity
@@ -461,12 +459,12 @@ sarasti/root (TL: Opus)
 │         into unified ExpressionResolver: TickerFrame → FaceParams.expression
 │         VISUAL CHECK: animate one face through 20 frames of real data
 │           from Feb 25 → Mar 1. Verify: starts calm, transitions to
-│           screaming, expression type shifts match velocity changes.
+│           extreme deformation, expression type shifts match velocity changes.
 │    
 │    BINDING TL INTEGRATION: wire ShapeResolver + ExpressionResolver
 │    into unified resolve(TickerConfig, TickerFrame) → FaceParams
 │    VISUAL CHECK: all 25 faces at T=Feb 28 00:00 (strike moment)
-│      verify: GDELT faces screaming first, oil faces starting to react,
+│      verify: GDELT faces showing initial reaction first, oil faces starting to react,
 │      equities still relatively calm. Age gradient visible.
 │
 └─── sarasti/spatial (Dev: Gemini) ──────────────────────────────
@@ -485,7 +483,7 @@ ROOT WAVE 1 INTEGRATION:
   At a single timestamp. Static frame. 25 faces visible.
   VISUAL CHECK — CRITICAL:
     screenshot at T=Feb 25 (pre-crisis): all 25 calm
-    screenshot at T=Mar 1 (peak crisis): most distressed
+    screenshot at T=Mar 1 (peak crisis): most in drawdown
     screenshot at T=Mar 10 (sustained): chronic stress visible
     family-rows layout: Brent row shows age gradient + expression gradient
 
@@ -540,7 +538,7 @@ ROOT WAVE 2 — three sub-TLs, depend on merged wave 1
 │    │   onMouseMove → renderer picking → highlight + tooltip
 │    │   Tooltip: ticker name, current values (close, deviation,
 │    │     velocity, volatility), asset class, age, tenor
-│    │   "Why is this face screaming?" section:
+│    │   "Market dynamics" section:
 │    │     deviation from baseline: +47%
 │    │     velocity: -2.3σ/hr (sharp drop)
 │    │     volatility: 4.1× normal
@@ -553,7 +551,7 @@ ROOT WAVE 2 — three sub-TLs, depend on merged wave 1
 │        Sparkline: ticker's full timeseries (tiny line chart)
 │        Current frame highlight on sparkline
 │        All binding parameters listed
-│        "What do the expressions represent" decode
+│        "Expression decode" section
 │        Family context: show all family members' current states
 │        VISUAL CHECK: screenshot with detail panel open
 │    
@@ -571,8 +569,8 @@ ROOT WAVE 2 — three sub-TLs, depend on merged wave 1
      │   Bottom of viewport. Full-width.
      │   Scrubber: drag to seek. Click to jump.
      │   Play/pause button. Speed selector (0.25x-4x).
-     │   Current timestamp display (human readable + "Day N of conflict")
-     │   Tick marks at key events: Feb 28 (strikes begin), Mar 1
+     │   Current timestamp display (human readable + "Day N of crisis")
+     │   Tick marks at key events: Feb 28 (initial strikes), Mar 1
      │     (Khamenei killed), Mar 8 (new supreme leader), etc.
      │   Mini aggregate indicator: average expression intensity
      │     across all 25 faces, shown as a thin intensity bar
@@ -586,20 +584,17 @@ ROOT WAVE 2 — three sub-TLs, depend on merged wave 1
      │   Renderer toggle: FLAME / SVG
      │   Expression intensity slider (0-1)
      │   Face size slider
-     │   "About this piece" info button
+     │   "Technical specifications" button
      │   VISUAL CHECK: screenshot of controls panel
      │
      └── sarasti/ui/landing (Dev: Gemini)
          src/ui/Landing.tsx
          Initial state before play is pressed
          Dark background. The 25 faces at T=Feb 25, calm.
-         Title: "The Tidal Scream"
-         Subtitle: a brief sentence about the piece
+         Title: "Hormuz Crisis Monitor"
+         Subtitle: descriptive technical summary
          "Press play" or "Click anywhere to begin"
          Fades out when playback starts
-         The Watts quote in small type at bottom:
-           "What do they represent?"
-           "Software customizes output for user."
          VISUAL CHECK: screenshot of landing page
      
      UI TL INTEGRATION: shell + timeline-bar + controls + landing wired
@@ -750,10 +745,10 @@ expensive-implicit and cheap-explicit. The type system enforces it.
 - [ ] Click → detail panel with sparkline
 - [ ] Family-rows layout shows the family portrait clearly
 - [ ] SVG fallback works as drop-in swap
-- [ ] Landing page with title + Watts quote
+- [ ] Landing page with project title
 - [ ] Deployed on CF Workers, publicly accessible
 - [ ] All visual checks pass
-- [ ] The Feb 25 → Feb 28 transition is viscerally legible
+- [ ] The Feb 25 → Feb 28 transition is clearly legible
 
 ### Stretch
 - [ ] CF cron extends timeline daily with new market data

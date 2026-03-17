@@ -11,7 +11,7 @@ import type { ExpressionAllocation, ResponseCurve } from '../types';
  * FLAME 2023 Open expression component catalog (empirical, ±5 sweep):
  *   ψ0: jaw open + smile (strongest axis)
  *   ψ1: smile/frown (cheeks raise vs corners drop)
- *   ψ2: mouth open shock/scream vs lips pressed
+ *   ψ2: mouth open extreme open vs lips pressed
  *   ψ3: lip parting / protrusion
  *   ψ4: brow raise / lower
  *   ψ5: lip pursing forward / back
@@ -21,10 +21,10 @@ import type { ExpressionAllocation, ResponseCurve } from '../types';
  *   ψ9: eye/cheek region (squint vs widen)
  *
  * Register design (negative weights = negative direction on that axis):
- *   distress: frown(ψ1-), jaw clench(ψ0-), brow furrow(ψ4-), lips press(ψ2-), lips retract(ψ5-)
+ *   significant drawdown: frown(ψ1-), jaw clench(ψ0-), brow furrow(ψ4-), lips press(ψ2-), lips retract(ψ5-)
  *   shock:    jaw drop(ψ0+), mouth open(ψ2+), brow raise(ψ4+), lips spread(ψ1+), lip part(ψ3+)
- *   relief:   smile(ψ1+), jaw relax(ψ0+), cheek raise(ψ9+), brow lift(ψ4+)
- *   dread:    lips press(ψ2-), downturn(ψ1-), jaw clench(ψ0-), lips retract(ψ5-), jaw lateral(ψ6+)
+ *   recovery:   smile(ψ1+), jaw relax(ψ0+), cheek raise(ψ9+), brow lift(ψ4+)
+ *   sustained volatility:    lips press(ψ2-), downturn(ψ1-), jaw clench(ψ0-), lips retract(ψ5-), jaw lateral(ψ6+)
  */
 export const EXPRESSION_ALLOCATION: ExpressionAllocation = {
   distress: {

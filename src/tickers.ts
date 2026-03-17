@@ -19,7 +19,7 @@ export const TICKERS: TickerConfig[] = [
   // ─── Hormuz commodities ───────────────────────────
   { id: 'ALI=F',       name: 'Aluminum',              class: 'commodity', family: 'metals',     age: 30 },
 
-  // ─── Fear instruments ─────────────────────────────
+  // ─── Volatility & Havens ────────────────────────
   { id: '^VIX',        name: 'VIX',                   class: 'fear', family: 'vol',      age: 20 },
   { id: 'GC=F',        name: 'Gold',                  class: 'fear', family: 'haven',    age: 40 },
   { id: 'DX=F',        name: 'US Dollar Index',       class: 'fear', family: 'currency', age: 35 },
@@ -32,7 +32,7 @@ export const TICKERS: TickerConfig[] = [
   { id: 'CF',          name: 'CF Industries',         class: 'equity', family: 'fertilizer', age: 35 },
   { id: 'NTR',         name: 'Nutrien',               class: 'equity', family: 'fertilizer', age: 40 },
 
-  // ─── Media/conflict ───────────────────────────────
+  // ─── Geopolitical Indicators ──────────────────
   { id: 'GDELT:iran',       name: 'GDELT Iran Events',     class: 'media', family: 'gdelt', age: 20 },
   { id: 'GDELT:gulf',       name: 'GDELT Gulf Events',     class: 'media', family: 'gdelt', age: 22 },
   { id: 'GDELT:tone:iran',  name: 'GDELT Iran Tone',       class: 'media', family: 'gdelt', age: 28 },

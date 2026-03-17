@@ -23,24 +23,23 @@ must be stratified to match.
 The viewer sees the ENTIRE field without fixating on any face. Parallel processing.
 This is how the playback experience works — press play, watch the crowd shift.
 
-**What the viewer perceives:** "The crowd is distressed." "That cluster changed." "It's getting worse."
+**What the viewer perceives:** "The crowd is in drawdown." "That cluster changed." "It's getting worse."
 
 **Visual channels that operate here:**
 - Gross expression (mouth open, brow furrowed) — ψ₁₋₅, highest-variance expression components
 - Gross face shape (head size, proportions) — β₁₋₃, highest-variance PCA components
 
-**NOT a channel here: skin color.** Color is locked to a single neutral Mediterranean
-matcap across all faces, all timestamps. Color maps too cleanly to race — and in a
-piece about a Middle Eastern conflict, any data-driven skin tone variation would
-produce exactly the wrong reading. The expression channel is strong enough to carry
-the tier 1 signal alone. Expression IS the face's loudest channel. We don't need
-the belt *and* the suspenders — the belt is enough.
+**NOT a channel here: skin color.** Color is locked to a single neutral matcap across 
+all faces and timestamps. In a visualization of a Middle Eastern crisis, skin tone 
+variation is excluded to maintain a strictly technical focus on facial topology.
+The expression channel is strong enough to carry the tier 1 signal alone. 
+Expression is the face's primary data channel. We don't need redundant visual markers.
 
-**Data that belongs here:** The MOST IMPORTANT crisis signal.
-- ψ₁₋₅ ← **deviation from pre-crisis baseline** (the core crisis indicator)
+**Data that belongs here:** The primary crisis indicator.
+- ψ₁₋₅ ← **deviation from baseline** (the primary indicator)
 - β₁₋₃ ← **age** (tenor/reactivity — the most structurally important identity axis)
 
-**Design rule:** These dimensions should be OBVIOUS at distance, at small face size,
+**Design rule:** These dimensions should be obvious at distance, at small face size,
 during playback. If you can't see the crisis signal from the field-read, it's wrong.
 Expression alone must carry this — no color assist.
 
@@ -73,11 +72,11 @@ This is how the viewer finds the interesting faces during playback.
 | Dims | Binding | Source | Effect |
 |------|---------|--------|--------|
 | ψ₆₋₁₀ | Velocity (rate of change) | Per-frame Δclose/Δt | Sharp drop = shock register (brow raise, mouth open). Slow grind = dread register (brow furrow, mouth tight). Recovery = relief (brow relax). |
-| ψ₁₁₋₁₅ | Volatility (local variance) | Rolling 6hr stddev | High vol = complex expression (multiple registers active — face looks conflicted). Low vol = clean expression (frozen scream or frozen calm). |
+| ψ₁₁₋₁₅ | Volatility (local variance) | Rolling 6hr stddev | High vol = complex expression (indicates uncertainty). Low vol = clean expression (stable deformation or baseline). |
 | ψ₁₆₋₂₀ | Volume anomaly | Current vol / baseline vol | Surge = widened eyes, flared nostrils (alertness). Collapse = drooping, slack (exhaustion/capitulation). |
 
 **Design rule:** These dimensions should be detectable when you LOOK AT a face, but not
-screamingly obvious from the field-read distance. They reward scanning. They're why the
+highly visible from the field-read distance. They reward scanning. They're why the
 viewer's eye lingers on one face and skips another.
 
 ### Tier 3 — The Inspection Read (2-5sec, feature-level)
@@ -129,13 +128,11 @@ the patterns in the data that aren't captured by the explicit tier 1-3 bindings.
    things about this instrument's crisis behavior that aren't captured by
    deviation/velocity/volatility/volume)
 
-**What the viewer perceives:** "Something about this face is off but I can't say what."
+**What the viewer perceives:** "Something about this face is unusual but difficult to categorize."
 The tooltip shows: `residual magnitude: 2.3σ`. The viewer noticed a pattern that
-doesn't have a name yet. The face detected it before the analyst did.
+doesn't have a name yet. The model captures patterns that precede traditional analysis.
 
-**This is the art statement.** The named bindings are journalism. The Sarasti residual
-is the thing that makes this art — the face as anomaly detector, the fusiform gyrus
-as unsupervised learning, the viewer as the instrument.
+**The Sarasti residual provides high-dimensional detail.** While named bindings follow established metrics, the Sarasti residual utilizes the face as a high-bandwidth anomaly detector, leveraging human pattern recognition as an unsupervised learning interface.
 
 ---
 
@@ -348,10 +345,10 @@ After this refinement:
 - [ ] All 200 FLAME dimensions are bound (no zero-initialized waste)
 - [ ] Tier 1 is visible during playback at field-read distance
 - [ ] Tier 2 makes individual faces pop during scanning
-- [ ] Tier 3 rewards close inspection (faces feel detailed, real, uncanny)
+- [ ] Tier 3 rewards close inspection (faces feel detailed, real, complex)
 - [ ] Sarasti residual adds perceptible richness (A/B screenshot comparison)
 - [ ] Component census documented with screenshots
 - [ ] Brent term structure shows BOTH age gradient (shape) AND crisis propagation (expression)
-- [ ] VIX face is immediately recognizable as "the fear face" from the field-read
+- [ ] VIX face is immediately recognizable as "the volatility face" from the field-read
 - [ ] GDELT faces look alien relative to financial faces (class identity working)
 - [ ] The Feb 28 wavefront is MORE dramatic with full bindings than with placeholder bindings

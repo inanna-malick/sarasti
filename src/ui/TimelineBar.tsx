@@ -9,7 +9,7 @@ import { useStore } from '../store';
  * - Play/pause button
  * - Speed selector (0.25x, 0.5x, 1x, 2x, 4x)
  * - Scrubber: drag to seek, click to jump
- * - Current timestamp display (human readable + "Day N of conflict")
+ * - Current timestamp display (human readable + "Day N of crisis")
  * - Tick marks at key events (Feb 28 strikes begin, etc.)
  * - Mini aggregate indicator: average expression intensity across all faces
  *   shown as a thin color bar (calm=cool, crisis=warm) along the scrubber track
@@ -58,7 +58,7 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
 
   const progress = frameCount > 1 ? currentIndex / (frameCount - 1) : 0;
 
-  // Compute day of conflict
+  // Compute day of crisis
   const dayLabel = timestamp ? formatDayLabel(timestamp) : '';
 
   // Compute aggregate intensity gradient
@@ -237,7 +237,7 @@ export function formatDayLabel(iso: string): string {
     const start = new Date('2026-02-25T00:00:00Z');
     const dayNum = Math.floor((d.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
     if (dayNum < 0) return '';
-    return `Day ${dayNum} of conflict`;
+    return `Day ${dayNum} of crisis`;
   } catch {
     return '';
   }

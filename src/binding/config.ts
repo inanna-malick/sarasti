@@ -11,7 +11,7 @@ import { EXPRESSION_INTENSITY_DEFAULT, MAX_DEVIATION_SIGMA } from '../constants'
  * Empirical FLAME 2023 Open component catalog (at ±5):
  *   ψ0: jaw open + smile (strongest expression axis)
  *   ψ1: smile/frown (cheeks raise vs corners drop)
- *   ψ2: mouth open shock/scream (lips apart vs pressed)
+ *   ψ2: mouth open extreme deformation (lips apart vs pressed)
  *   ψ3: lip parting / protrusion
  *   ψ4: brow raise/lower
  *   ψ5: lip pursing forward/back
@@ -50,8 +50,8 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   },
 
   expression: {
-    // DISTRESS: market falling — SCREAM. Jaw open, mouth wide, brow furrowed, frown.
-    // ψ0+ jaw open (scream), ψ2+ mouth open wide, ψ1- frown (corners down),
+    // SIGNIFICANT DRAWDOWN: market falling — extreme deformation. Jaw open, mouth wide, brow furrowed, frown.
+    // ψ0+ jaw open (deformation), ψ2+ mouth open wide, ψ1- frown (corners down),
     // ψ4+ brow furrow/squint, ψ9+ brow tension, ψ3+ lip part
     distress: {
       indices: [0, 2, 1, 4, 9, 3],
@@ -73,8 +73,8 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
       weights: [1.0, 0.3, -0.4, -0.3, -0.2],
     },
 
-    // DREAD: grinding sustained negative — frozen scream, tight, furrowed.
-    // ψ0+ jaw open (but less than distress), ψ1- deep frown,
+    // SUSTAINED VOLATILITY: grinding sustained negative — persistent deformation, tight, furrowed.
+    // ψ0+ jaw open (but less than drawdown), ψ1- deep frown,
     // ψ4+ heavy squint, ψ9+ intense brow furrow, ψ2+ lips apart,
     // ψ7 chin tension, ψ6 asymmetry (face breaks symmetry under strain)
     dread: {
@@ -204,7 +204,7 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   class_profiles: {
     // Energy: wide, heavy, square jaw (β0+ width, β3+ secondary, β2+ square jaw)
     energy:   [[0, 2.0], [3, 1.5], [4, -0.5]],
-    // Fear: narrow, sharp, elongated (β0- narrow, β1+ tall, β3- angular)
+    // Volatility-Sensitive: narrow, sharp, elongated (β0- narrow, β1+ tall, β3- angular)
     fear:     [[0, -2.0], [1, 1.5], [3, -1.0]],
     // Currency: neutral baseline, slightly compressed
     currency: [[0, 0.0], [1, -0.5], [3, 0.3]],

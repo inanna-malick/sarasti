@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker entry point for The Tidal Scream.
+ * Cloudflare Worker entry point for the Hormuz Crisis Monitor.
  *
  * Serves static Vite build from ASSETS with SPA routing.
  */

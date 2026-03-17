@@ -107,7 +107,7 @@ export function DetailPanel(): React.ReactElement | null {
       </Section>
 
       {/* Expression decode */}
-      <Section title="what the face shows">
+      <Section title="market dynamics">
         <div style={{ color: '#aaa' }}>
           {describeExpression(frame.deviation, frame.velocity, frame.volatility)}
         </div>
@@ -227,23 +227,23 @@ export function describeExpression(deviation: number, velocity: number, volatili
 
   const absDev = Math.abs(deviation);
   if (absDev < 0.02) {
-    parts.push('Calm — near baseline.');
+    parts.push('Stable — near baseline.');
   } else if (deviation < -0.1) {
-    parts.push(`Distress — ${(absDev * 100).toFixed(0)}% below baseline.`);
+    parts.push(`Significant Drawdown — ${(absDev * 100).toFixed(0)}% below baseline.`);
   } else if (deviation < 0) {
-    parts.push(`Mild concern — ${(absDev * 100).toFixed(0)}% below baseline.`);
+    parts.push(`Minor Deviation — ${(absDev * 100).toFixed(0)}% below baseline.`);
   } else if (deviation > 0.1) {
-    parts.push(`Shock/surge — ${(absDev * 100).toFixed(0)}% above baseline.`);
+    parts.push(`Positive Surge — ${(absDev * 100).toFixed(0)}% above baseline.`);
   } else {
-    parts.push(`Slight positive — ${(absDev * 100).toFixed(0)}% above baseline.`);
+    parts.push(`Minor Positive — ${(absDev * 100).toFixed(0)}% above baseline.`);
   }
 
   if (Math.abs(velocity) > 0.1) {
-    parts.push(velocity < 0 ? 'Sharp drop amplifies fear.' : 'Rally shifts toward relief.');
+    parts.push(velocity < 0 ? 'Rapid decline indicates market pressure.' : 'Positive momentum indicates recovery.');
   }
 
   if (volatility > 1) {
-    parts.push('High volatility — expression is conflicted.');
+    parts.push('Elevated volatility detected.');
   }
 
   return parts.join(' ');

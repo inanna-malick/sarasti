@@ -23,9 +23,9 @@ describe('TimelineBar helpers and constants', () => {
     });
   });
   describe('KEY_EVENTS', () => {
-    it('contains chronological events within conflict period', () => {
+    it('contains chronological events within crisis period', () => {
       const dates = KEY_EVENTS.map(e => e.date);
-      // Conflict starts 2026-02-25
+      // Crisis starts 2026-02-25
       dates.forEach(date => {
         const d = new Date(date);
         expect(d.getFullYear()).toBe(2026);
@@ -58,14 +58,14 @@ describe('TimelineBar helpers and constants', () => {
   });
 
   describe('formatDayLabel', () => {
-    it('calculates day of conflict correctly', () => {
+    it('calculates day of crisis correctly', () => {
       // Start date is 2026-02-25
-      expect(formatDayLabel('2026-02-25T12:00:00Z')).toBe('Day 0 of conflict');
-      expect(formatDayLabel('2026-02-26T12:00:00Z')).toBe('Day 1 of conflict');
-      expect(formatDayLabel('2026-03-01T12:00:00Z')).toBe('Day 4 of conflict');
+      expect(formatDayLabel('2026-02-25T12:00:00Z')).toBe('Day 0 of crisis');
+      expect(formatDayLabel('2026-02-26T12:00:00Z')).toBe('Day 1 of crisis');
+      expect(formatDayLabel('2026-03-01T12:00:00Z')).toBe('Day 4 of crisis');
     });
 
-    it('returns empty string for dates before conflict start', () => {
+    it('returns empty string for dates before crisis start', () => {
       expect(formatDayLabel('2026-02-24T12:00:00Z')).toBe('');
     });
 
