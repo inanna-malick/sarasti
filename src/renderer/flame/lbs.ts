@@ -144,7 +144,7 @@ export function forwardKinematics(
     const p = parents[j];
     const R_local = localRotations[j];
 
-    if (p === -1) {
+    if (p === -1 || p === 4294967295 || p >= nJoints) {
       // Root
       worldTransforms[j] = R_local;
       worldTranslations[j * 3 + 0] = jointLocations[j * 3 + 0];
