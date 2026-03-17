@@ -62,13 +62,16 @@ export async function createFlameSceneRenderer(
       renderer.setPixelRatio(pixelRatio);
       renderer.setSize(el.clientWidth, el.clientHeight);
       renderer.setClearColor(0x0a0a0a);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
       el.appendChild(renderer.domElement);
 
       // Scene
       scene = new THREE.Scene();
 
       // 3-point lighting
-      const keyLight = new THREE.DirectionalLight(0xfff0e0, 1.2);
+      const keyLight = new THREE.DirectionalLight(0xffddbb, 1.2);
       keyLight.position.set(-2, 3, 4);
       scene.add(keyLight);
 
