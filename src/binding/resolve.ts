@@ -315,6 +315,16 @@ export function resolve(
   frame: TickerFrame,
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
 ): FaceParams {
+  if (!frame) {
+    return {
+      shape: emptyShape(),
+      expression: emptyExpression(),
+      pose: zeroPose(),
+      flush: 0,
+      fatigue: 0,
+    };
+  }
+
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
   const poseResolver = createPoseResolver();
@@ -346,6 +356,16 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
 
   return {
     resolve(ticker: TickerConfig, frame: TickerFrame, statics?: TickerStatic): FaceParams {
+      if (!frame) {
+        return {
+          shape: emptyShape(),
+          expression: emptyExpression(),
+          pose: zeroPose(),
+          flush: 0,
+          fatigue: 0,
+        };
+      }
+
       let shape = shapeCache.get(ticker.id);
       if (!shape) {
         shape = shapeResolver.resolve(ticker, statics);
@@ -380,6 +400,16 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
      * interpolation so the accumulator advances only once per displayed frame.
      */
     resolveNoAccumulate(ticker: TickerConfig, frame: TickerFrame, statics?: TickerStatic): FaceParams {
+      if (!frame) {
+        return {
+          shape: emptyShape(),
+          expression: emptyExpression(),
+          pose: zeroPose(),
+          flush: 0,
+          fatigue: 0,
+        };
+      }
+
       let shape = shapeCache.get(ticker.id);
       if (!shape) {
         shape = shapeResolver.resolve(ticker, statics);
