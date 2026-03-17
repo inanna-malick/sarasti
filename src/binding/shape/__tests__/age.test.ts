@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapAgeToShape, DEFAULT_AGE_MAPPING } from '../age';
+import { mapAgeToShape, DEFAULT_AGE_MAPPING, validateAgeMapping, getAgeDescription } from '../age';
 import type { AgeMapping } from '../types';
 
 describe('mapAgeToShape', () => {
@@ -77,5 +77,62 @@ describe('mapAgeToShape', () => {
     expect(result.entries.length).toBe(2);
     expect(result.entries[0][0]).toBe(10);
     expect(result.entries[0][1]).toBeCloseTo(2.5);
+  });
+
+  it('handles potential edge case values for age without NaN or Infinity', () => {
+    const results = [
+      mapAgeToShape(-Infinity),
+      mapAgeToShape(NaN),
+      mapAgeToShape(Infinity),
+      mapAgeToShape(20),
+      mapAgeToShape(60),
+    ];
+    for (const res of results) {
+      for (const [, val] of res.entries) {
+        expect(Number.isFinite(val)).toBe(true);
+      }
+    }
+  });
+});
+
+describe('validateAgeMapping', () => {
+  it('passes for default mapping', () => {
+    expect(validateAgeMapping(DEFAULT_AGE_MAPPING)).toBe(true);
+  });
+
+  it('fails if index overlaps with class indices (e.g., 3)', () => {
+    const invalid: AgeMapping = {
+      indices: [0, 1, 3], // 3 is a class index
+      young_values: [0, 0, 0],
+      old_values: [1, 1, 1],
+    };
+    expect(validateAgeMapping(invalid)).toBe(false);
+  });
+
+  it('fails if index overlaps with family indices (e.g., 9)', () => {
+    const invalid: AgeMapping = {
+      indices: [0, 1, 9], // 9 is a family index
+      young_values: [0, 0, 0],
+      old_values: [1, 1, 1],
+    };
+    expect(validateAgeMapping(invalid)).toBe(false);
+  });
+});
+
+describe('getAgeDescription', () => {
+  it('returns young (20)', () => {
+    expect(getAgeDescription(20)).toBe('young (20)');
+  });
+
+  it('returns elder (60)', () => {
+    expect(getAgeDescription(60)).toBe('elder (60)');
+  });
+
+  it('returns middle-aged (40)', () => {
+    expect(getAgeDescription(40)).toBe('middle-aged (40)');
+  });
+
+  it('returns adult (30)', () => {
+    expect(getAgeDescription(30)).toBe('adult (30)');
   });
 });

@@ -76,26 +76,26 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   // Per-class shape profiles: [β_index, value] pairs
   // Devs will determine which components produce the desired morphology
   class_profiles: {
-    energy:   [[3, 0.8], [4, 0.3], [5, -0.2]],   // wider face, heavier jaw
-    fear:     [[3, -0.6], [4, 0.5], [5, 0.4]],    // narrower, sharper features
-    currency: [[3, 0.0], [4, 0.0], [5, 0.0]],     // medium proportions
-    equity:   [[3, 0.3], [4, -0.4], [5, -0.3]],   // rounder, softer
-    media:    [[3, -0.8], [4, 0.7], [5, 0.6]],    // most angular, alien
+    energy:   [[3, 1.2], [4, 0.5], [5, -0.3]],   // wider face, heavier jaw
+    fear:     [[3, -1.0], [4, 0.8], [5, 0.6]],    // narrow, sharp
+    currency: [[3, 0.0], [4, 0.0], [5, 0.0]],     // neutral baseline
+    equity:   [[3, 0.5], [4, -0.6], [5, -0.4]],   // rounder, softer
+    media:    [[3, -1.5], [4, 1.2], [5, 0.9]],    // most angular, alien
   },
 
   // Per-family perturbations from class profile
   family_profiles: {
-    brent:    [[6, 0.2], [7, -0.1]],    // narrow jaw, high brow
-    wti:      [[6, 0.3], [7, 0.1]],     // broader jaw — Brent's cousin
-    natgas:   [[6, -0.3], [7, 0.2]],
-    distill:  [[6, 0.1], [7, -0.2]],
-    consumer: [[6, -0.1], [7, 0.3]],
-    vol:      [[8, 0.4], [9, -0.2]],
-    haven:    [[8, -0.2], [9, 0.3]],
-    currency: [[8, 0.1], [9, 0.1]],
-    rates:    [[8, -0.3], [9, -0.1]],
-    sector:   [[6, 0.2], [7, 0.1]],
-    broad:    [[6, 0.0], [7, 0.0]],
-    gdelt:    [[6, -0.4], [7, 0.5], [8, 0.3], [9, -0.3]],
+    brent:    [[6, -0.3], [7, 0.4], [8, 0.0], [9, 0.0]],    // narrow jaw, high brow
+    wti:      [[6, 0.3], [7, 0.2], [8, 0.0], [9, 0.0]],     // broader jaw — Brent's cousin
+    natgas:   [[6, -0.2], [7, -0.2], [8, 0.1], [9, 0.1]],
+    distill:  [[6, 0.1], [7, -0.3], [8, -0.1], [9, 0.2]],
+    consumer: [[6, 0.4], [7, -0.4], [8, 0.2], [9, -0.2]],
+    vol:      [[6, -0.5], [7, 0.5], [8, -0.5], [9, 0.5]],
+    haven:    [[6, 0.2], [7, 0.2], [8, 0.2], [9, 0.2]],
+    currency: [[6, 0.0], [7, 0.0], [8, 0.1], [9, -0.1]],
+    rates:    [[6, -0.1], [7, 0.1], [8, -0.1], [9, 0.1]],
+    sector:   [[6, 0.3], [7, -0.1], [8, 0.3], [9, -0.1]],
+    broad:    [[6, 0.0], [7, 0.0], [8, 0.0], [9, 0.0]],
+    gdelt:    [[6, -0.6], [7, 0.6], [8, 0.6], [9, -0.6]],
   },
 };

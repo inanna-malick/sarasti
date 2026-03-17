@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapIdentityToShape } from '../identity';
+import { mapIdentityToShape, getClassDescription } from '../identity';
 import type { AssetClass } from '../../../types';
 import { TICKERS } from '../../../tickers';
 import { N_SHAPE } from '../../../constants';
@@ -15,6 +15,38 @@ describe('mapIdentityToShape', () => {
       for (const [idx] of result.class_entries) {
         expect(idx).toBeGreaterThanOrEqual(0);
         expect(idx).toBeLessThan(N_SHAPE);
+      }
+    }
+  });
+
+  it('getClassDescription returns expected strings', () => {
+    expect(getClassDescription('energy')).toBe('wider face, heavier jaw');
+    expect(getClassDescription('fear')).toBe('narrow, sharp features');
+    expect(getClassDescription('currency')).toBe('neutral baseline');
+    expect(getClassDescription('equity')).toBe('rounder, softer features');
+    expect(getClassDescription('media')).toBe('most angular, alien features');
+  });
+
+  it('class profiles are meaningfully different (L2 > 0.5)', () => {
+    const classes: AssetClass[] = ['energy', 'fear', 'currency', 'equity', 'media'];
+    
+    function l2_class(a: [number, number][], b: [number, number][]): number {
+      const mapA = new Map(a);
+      const mapB = new Map(b);
+      const allIndices = new Set([...mapA.keys(), ...mapB.keys()]);
+      let sum = 0;
+      for (const idx of allIndices) {
+        sum += ((mapA.get(idx) ?? 0) - (mapB.get(idx) ?? 0)) ** 2;
+      }
+      return Math.sqrt(sum);
+    }
+
+    for (let i = 0; i < classes.length; i++) {
+      for (let j = i + 1; j < classes.length; j++) {
+        const profileI = DEFAULT_BINDING_CONFIG.class_profiles[classes[i]];
+        const profileJ = DEFAULT_BINDING_CONFIG.class_profiles[classes[j]];
+        const dist = l2_class(profileI, profileJ);
+        expect(dist, `Distance between ${classes[i]} and ${classes[j]} is ${dist}`).toBeGreaterThan(0.5);
       }
     }
   });
