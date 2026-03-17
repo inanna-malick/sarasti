@@ -13,8 +13,9 @@ export class FlameFaceMesh {
   private material: THREE.MeshStandardMaterial;
   private pipeline: FlamePipeline;
   private baseColors!: Float32Array;
+  private eyeOverrides?: { irisRadius?: number; pupilRadius?: number };
 
-  constructor(pipeline: FlamePipeline, tickerId: string) {
+  constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
     const { model } = pipeline;
 
@@ -67,6 +68,9 @@ float fade = smoothstep(fadeEnd, fadeStart, vY);
 gl_FragColor.a *= fade;`
       );
     };
+
+    // Store eye overrides internally or pass them to eye material creation (assuming we have one later)
+    this.eyeOverrides = eyeOverrides;
 
     // 3. Create Mesh
     this.mesh = new THREE.Mesh(this.geometry, this.material);
