@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { FlamePipeline } from './pipeline';
 import type { FaceParams } from '../../types';
+import { zeroPose } from '../../types';
 import { TEXTURE_CONFIG } from '../../binding/config';
 import { identifyEyeVertices } from './eyes';
 import { createEyeMaterial } from './eyeMaterial';
@@ -136,7 +137,8 @@ gl_FragColor.a *= fade;`
   }
 
   public updateFromParams(params: FaceParams): void {
-    const buffers = this.pipeline.deformFace(params);
+    const pose = params.pose ?? zeroPose();
+    const buffers = this.pipeline.deformFace({ ...params, pose });
 
     const positionAttr = this.geometry.getAttribute('position') as THREE.BufferAttribute;
     const normalAttr = this.geometry.getAttribute('normal') as THREE.BufferAttribute;
@@ -151,12 +153,12 @@ gl_FragColor.a *= fade;`
 
     // Update gaze offsets
     this.leftEyeMaterial.uniforms.gazeOffset.value.set(
-      params.pose.leftEye[0],
-      params.pose.leftEye[1]
+      pose.leftEye[0],
+      pose.leftEye[1]
     );
     this.rightEyeMaterial.uniforms.gazeOffset.value.set(
-      params.pose.rightEye[0],
-      params.pose.rightEye[1]
+      pose.rightEye[0],
+      pose.rightEye[1]
     );
 
     // Ensure matrix world is updated for any dependent systems
