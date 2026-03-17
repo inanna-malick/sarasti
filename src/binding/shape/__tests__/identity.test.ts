@@ -24,7 +24,7 @@ describe('mapIdentityToShape', () => {
     expect(getClassDescription('fear')).toBe('narrow, sharp features');
     expect(getClassDescription('currency')).toBe('neutral baseline');
     expect(getClassDescription('equity')).toBe('rounder, softer features');
-    expect(getClassDescription('media')).toBe('most angular, alien features');
+    expect(getClassDescription('media')).toBe('angular, high-contrast features');
   });
 
   it('class profiles are meaningfully different (L2 > 0.5)', () => {

@@ -6,7 +6,7 @@ import { mapAgeToShape } from './shape/age';
 import { mapIdentityToShape } from './shape/identity';
 import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
-import { DEFAULT_BINDING_CONFIG } from './config';
+import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG } from './config';
 import { applyCurve } from './curves';
 import {
   getTable,
@@ -15,6 +15,12 @@ import {
   computeIdentityOffset,
   addVec,
 } from './directions';
+import {
+  createTextureAccumulator,
+  updateAccumulator,
+  accumulatorToTexture,
+  TextureAccumulator,
+} from './texture/accumulator';
 
 // ─── Shape Resolver ─────────────────────────────────
 
@@ -333,6 +339,7 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
   const shapeCache = new Map<string, Float32Array>();
+  const accumulatorMap = new Map<string, TextureAccumulator>();
 
   return {
     resolve(ticker: TickerConfig, frame: TickerFrame, statics?: TickerStatic): FaceParams {
@@ -342,16 +349,30 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
         shapeCache.set(ticker.id, shape);
       }
 
+      // Texture accumulation: update EMA for flush/fatigue
+      let acc = accumulatorMap.get(ticker.id);
+      if (!acc) {
+        acc = createTextureAccumulator();
+      }
+      acc = updateAccumulator(acc, frame, TEXTURE_CONFIG.ema_alpha);
+      accumulatorMap.set(ticker.id, acc);
+
+      const { flush, fatigue } = accumulatorToTexture(acc);
+
       return {
         shape,
         expression: exprResolver.resolve(frame),
-        flush: 0,
-        fatigue: 0,
+        flush,
+        fatigue,
       };
     },
 
     clearCache(): void {
       shapeCache.clear();
+    },
+
+    resetAccumulators(): void {
+      accumulatorMap.clear();
     },
   };
 }
