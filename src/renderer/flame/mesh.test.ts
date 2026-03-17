@@ -96,6 +96,83 @@ describe('FlameFaceMesh', () => {
     expect(different).toBe(true);
   });
 
+  it('should modulate vertex colors based on flush', () => {
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+    const geometry = meshWrapper.mesh.geometry as THREE.BufferGeometry;
+    const colorAttr = geometry.getAttribute('color') as THREE.BufferAttribute;
+    
+    const colorsBefore = (colorAttr.array as Float32Array).slice();
+
+    const params: FaceParams = {
+      shape: new Float32Array(100).fill(0),
+      expression: new Float32Array(50).fill(0),
+      flush: 0.5,
+      fatigue: 0,
+    };
+
+    meshWrapper.updateFromParams(params);
+    
+    const colorsAfter = colorAttr.array as Float32Array;
+    
+    let different = false;
+    for (let i = 0; i < colorsBefore.length; i++) {
+      if (colorsBefore[i] !== colorsAfter[i]) {
+        different = true;
+        break;
+      }
+    }
+    expect(different).toBe(true);
+  });
+
+  it('should modulate vertex colors based on fatigue', () => {
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+    const geometry = meshWrapper.mesh.geometry as THREE.BufferGeometry;
+    const colorAttr = geometry.getAttribute('color') as THREE.BufferAttribute;
+    
+    const colorsBefore = (colorAttr.array as Float32Array).slice();
+
+    const params: FaceParams = {
+      shape: new Float32Array(100).fill(0),
+      expression: new Float32Array(50).fill(0),
+      flush: 0,
+      fatigue: 0.5,
+    };
+
+    meshWrapper.updateFromParams(params);
+    
+    const colorsAfter = colorAttr.array as Float32Array;
+    
+    let different = false;
+    for (let i = 0; i < colorsBefore.length; i++) {
+      if (colorsBefore[i] !== colorsAfter[i]) {
+        different = true;
+        break;
+      }
+    }
+    expect(different).toBe(true);
+  });
+
+  it('should clamp vertex colors to [0, 1] range', () => {
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+    const geometry = meshWrapper.mesh.geometry as THREE.BufferGeometry;
+    const colorAttr = geometry.getAttribute('color') as THREE.BufferAttribute;
+
+    const params: FaceParams = {
+      shape: new Float32Array(100).fill(0),
+      expression: new Float32Array(50).fill(0),
+      flush: 10.0, // Extreme flush
+      fatigue: 10.0, // Extreme fatigue
+    };
+
+    meshWrapper.updateFromParams(params);
+    
+    const colors = colorAttr.array as Float32Array;
+    for (let i = 0; i < colors.length; i++) {
+      expect(colors[i]).toBeGreaterThanOrEqual(0);
+      expect(colors[i]).toBeLessThanOrEqual(1);
+    }
+  });
+
   it('should clean up resources on dispose', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
     
