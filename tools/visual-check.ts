@@ -35,9 +35,10 @@ async function main() {
 
   // Start vite dev server
   console.log('Starting vite dev server...');
-  const server = await createServer({ root: ROOT, server: { port: 3099, strictPort: true } });
+  const port = 3098;
+  const server = await createServer({ root: ROOT, server: { port, strictPort: true } });
   await server.listen();
-  const baseUrl = 'http://localhost:3099';
+  const baseUrl = `http://localhost:${port}`;
   console.log(`  Server at ${baseUrl}`);
 
   // Launch headless chromium
@@ -63,7 +64,16 @@ async function main() {
     } catch {
       console.log('  Warning: no canvas found');
     }
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1500);
+
+    // Dismiss landing overlay if present
+    try {
+      await page.click('[style*="z-index: 200"]', { timeout: 1000 });
+      await page.waitForTimeout(500);
+    } catch {
+      // Landing already dismissed or not present
+    }
+    await page.waitForTimeout(500);
 
     const path = `${SCREENSHOTS_DIR}/${label}.png`;
     await page.screenshot({ path, type: 'png' });
