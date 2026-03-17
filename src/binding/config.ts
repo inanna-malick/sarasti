@@ -196,7 +196,7 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   expression_intensity: EXPRESSION_INTENSITY_DEFAULT,
 
   // Per-tier intensity scaling: [tier1, tier2, tier3, sarasti]
-  tier_intensities: [1.0, 0.5, 0.2, 0.1],
+  tier_intensities: [1.0, 0.5, 0.2, 1.0],
 
   // Per-class shape profiles: [β_index, value] pairs
   // Using high-variance components for maximum visual distinction
@@ -229,9 +229,6 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     broad:    [[5, 0.0], [6, 0.0], [7, 0.0], [8, 0.0]],
     gdelt:    [[5, -1.5], [6, 1.5], [7, 1.2], [8, -1.2]],
   },
-
-  // Intensity scaling per tier: [tier1, tier2, tier3, sarasti]
-  tier_intensities: [1.0, 0.5, 0.2, 1.0],
 
   // Tier 2/3 shape response curves (normalized ranges based on census data)
   avg_volume_curve: {

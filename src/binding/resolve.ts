@@ -9,8 +9,6 @@ import { mapDynamicsToExpression } from './expression/dynamics';
 import { DEFAULT_BINDING_CONFIG } from './config';
 import { applyCurve } from './curves';
 
-import { applyCurve } from './curves';
-
 // ─── Shape Resolver ─────────────────────────────────
 
 /**
