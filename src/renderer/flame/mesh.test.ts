@@ -198,4 +198,19 @@ describe('FlameFaceMesh', () => {
     
     expect(() => meshWrapper.dispose()).not.toThrow();
   });
+
+  it('should handle missing pose in updateFromParams without throwing', () => {
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+    
+    // Construct FaceParams with missing pose
+    const params = {
+      shape: new Float32Array(100).fill(0),
+      expression: new Float32Array(50).fill(0),
+      // pose is missing
+      flush: 0,
+      fatigue: 0,
+    } as any;
+
+    expect(() => meshWrapper.updateFromParams(params)).not.toThrow();
+  });
 });
