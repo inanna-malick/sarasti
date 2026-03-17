@@ -3,7 +3,10 @@ import os
 import sys
 
 def main():
-    config_path = os.path.join(os.path.dirname(__file__), "data", "optimal_config.json")
+    base_dir = os.path.join(os.path.dirname(__file__), "data")
+    config_path = os.path.join(base_dir, "optimal_config_result.json")
+    if not os.path.exists(config_path):
+        config_path = os.path.join(base_dir, "optimal_config_baseline.json")
     if not os.path.exists(config_path):
         print(f"Error: Could not find config file at {config_path}")
         sys.exit(1)

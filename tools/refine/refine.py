@@ -1,7 +1,5 @@
 import json
 import os
-import sys
-import numpy as np
 from scipy.optimize import minimize
 from config_space import PARAMETER_GROUPS
 from objective import evaluate
@@ -43,7 +41,6 @@ def main():
             objective_wrapper,
             x0=defaults,
             method='Nelder-Mead',
-            bounds=bounds,
             options={'maxiter': 50, 'xatol': 0.01, 'fatol': 0.005}
         )
         
@@ -61,7 +58,7 @@ def main():
 
     output_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "optimal_config.json")
+    output_path = os.path.join(output_dir, "optimal_config_result.json")
     
     with open(output_path, "w") as f:
         json.dump(current_overrides, f, indent=2)

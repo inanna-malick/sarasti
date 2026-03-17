@@ -14,10 +14,10 @@ except ImportError:
 
 def evaluate(overrides: dict, bridge, scorer) -> float:
     scenarios = {
-        "neutral": {"dev": 0.0, "vel": 0.0, "vol": 1.0},
-        "mild_crisis": {"dev": -0.1, "vel": -0.05, "vol": 1.5},
-        "extreme_crisis": {"dev": -0.2, "vel": -0.15, "vol": 2.5},
-        "shock_spike": {"dev": 0.15, "vel": 0.1, "vol": 2.0},
+        "neutral": {"deviation": 0.0, "velocity": 0.0, "volatility": 1.0},
+        "mild_crisis": {"deviation": -0.1, "velocity": -0.05, "volatility": 1.5},
+        "extreme_crisis": {"deviation": -0.2, "velocity": -0.15, "volatility": 2.5},
+        "shock_spike": {"deviation": 0.15, "velocity": 0.1, "volatility": 2.0},
     }
 
     scores = {}
