@@ -71,7 +71,7 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       }
 
       // Limbal ring (dark ring at the edge of the iris)
-      float limbal = smoothstep(irisRadius + 0.015, irisRadius, dist) * smoothstep(irisRadius - 0.03, irisRadius, dist);
+      float limbal = (1.0 - smoothstep(irisRadius, irisRadius + 0.015, dist)) * smoothstep(irisRadius - 0.03, irisRadius, dist);
       float limbalDarkness = limbal * 0.6;
       
       // Iris
@@ -81,15 +81,17 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
         float radial = 0.5 + 0.5 * sin(angle * 20.0 + noise(vLocalPos * 10.0) * 5.0);
         vec3 irisBase = mix(irisColor * 0.6, irisColor, radial);
         
-        // Darken towards pupil (inner iris) and towards limbal ring (outer iris)
+        // Darken towards pupil (inner iris)
         irisBase *= (0.8 + 0.2 * smoothstep(pupilRadius, irisRadius, dist));
         
-        color = mix(color, irisBase, smoothstep(irisRadius, irisRadius - 0.01, dist));
+        float irisBlend = 1.0 - smoothstep(irisRadius - 0.01, irisRadius, dist);
+        color = mix(color, irisBase, irisBlend);
       }
       
       // Pupil
       if (dist < pupilRadius) {
-        color = mix(color, vec3(0.015), smoothstep(pupilRadius, pupilRadius - 0.005, dist));
+        float pupilBlend = 1.0 - smoothstep(pupilRadius - 0.005, pupilRadius, dist);
+        color = mix(color, vec3(0.015), pupilBlend);
       }
       
       // Apply limbal darkness (properly centered on the edge)
