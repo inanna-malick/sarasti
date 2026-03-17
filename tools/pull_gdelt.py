@@ -124,7 +124,7 @@ def generate_synthetic_data():
                 "corr_breakdown": 0.0,
                 "term_slope": 0.0,
                 "cross_contagion": 0.0,
-                "high_low_ratio": tone_series[i] / 10.0,
+                "high_low_ratio": max(0, -tone_series[i]) / 10.0,
                 "expr_residuals": [random.uniform(-0.1, 0.1) for _ in range(60)]
             }
         

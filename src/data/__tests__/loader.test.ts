@@ -22,6 +22,8 @@ describe('parseDataset', () => {
     // Our consolidated TICKERS list has 'BRENT' and 'WTI', but the fixture has 'BZ=F' and 'CL=F'.
     // So ds.tickers will NOT include BRENT or WTI because they are not in the fixture.
     // It will include '^VIX' and 'GDELT:iran' because they ARE in both.
+    // NOTE: This fixture will need updating when the pipeline is re-run with BRENT/WTI.
+    expect(ids).toHaveLength(2);
     expect(ids).toContain('^VIX');
     expect(ids).toContain('GDELT:iran');
     expect(ids).not.toContain('BRENT');

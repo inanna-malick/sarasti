@@ -54,6 +54,8 @@ for fam, config in FAMILIES.items():
 
 # Asset classes for cross-contagion
 TICKER_CLASSES = {
+    'BZ=F': 'energy', 'BZV26.NYM': 'energy', 'BZZ26.NYM': 'energy',
+    'CL=F': 'energy', 'CLU26.NYM': 'energy', 'CLZ26.NYM': 'energy',
     'BRENT': 'energy', 'WTI': 'energy',
     'NG=F': 'energy', 'HO=F': 'energy', 'RB=F': 'energy',
     'ALI=F': 'commodity',
@@ -390,6 +392,34 @@ def generate_synthetic_fallback():
             curr += timedelta(hours=1)
         ticker_history[tid] = history
         
+    # Composite construction
+    COMPOSITES = {
+        'BRENT': {'spot': 'BZ=F', 'far': 'BZZ26.NYM', 'far_tenor': 12},
+        'WTI':   {'spot': 'CL=F', 'far': 'CLZ26.NYM', 'far_tenor': 12},
+    }
+    for comp_id, cfg in COMPOSITES.items():
+        if cfg['spot'] in ticker_history:
+            # Copy history from spot
+            ticker_history[comp_id] = [h.copy() for h in ticker_history[cfg['spot']]]
+            ticker_statics[comp_id] = ticker_statics[cfg['spot']].copy()
+            ticker_statics[comp_id]['spread_from_family'] = 0.0
+            
+            # Compute term_slope if far future exists
+            if cfg['far'] in ticker_history:
+                for i in range(len(ticker_history[comp_id])):
+                    spot_p = ticker_history[cfg['spot']][i]['close']
+                    far_p = ticker_history[cfg['far']][i]['close']
+                    ticker_history[comp_id][i]['term_slope'] = (far_p - spot_p) / cfg['far_tenor']
+    
+    # Pop raw family members
+    raw_to_pop = ['BZ=F', 'BZV26.NYM', 'BZZ26.NYM', 'CL=F', 'CLU26.NYM', 'CLZ26.NYM']
+    for tid in raw_to_pop:
+        ticker_history.pop(tid, None)
+        ticker_statics.pop(tid, None)
+    
+    # Update and re-sort all_ticker_ids
+    all_ticker_ids = sorted(ticker_history.keys())
+    
     frames = []
     steps = len(ticker_history[all_ticker_ids[0]])
     for i in range(steps):
