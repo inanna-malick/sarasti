@@ -67,8 +67,21 @@ export async function createFlameSceneRenderer(
       // Scene
       scene = new THREE.Scene();
 
-      // Ambient light for matcap visibility
-      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+      // 3-point lighting
+      const keyLight = new THREE.DirectionalLight(0xfff0e0, 1.2);
+      keyLight.position.set(-2, 3, 4);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0xe0e8ff, 0.4);
+      fillLight.position.set(3, 1, 2);
+      scene.add(fillLight);
+
+      const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+      backLight.position.set(0, 2, -4);
+      scene.add(backLight);
+
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+      scene.add(ambientLight);
 
       // Camera
       cameraController = new CameraController(renderer.domElement);

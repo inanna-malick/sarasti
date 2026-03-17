@@ -3,10 +3,13 @@
   "n_faces": 9976,
   "n_shape": 100,
   "n_expr": 100,
+  "n_albedo_components": 10,
   "files": {
     "template": "flame_template.bin",
     "faces": "flame_faces.bin",
     "shapedirs": "flame_shapedirs.bin",
-    "exprdirs": "flame_exprdirs.bin"
+    "exprdirs": "flame_exprdirs.bin",
+    "albedo_mean": "flame_albedo_mean.bin",
+    "albedo_basis": "flame_albedo_basis.bin"
   }
 }
