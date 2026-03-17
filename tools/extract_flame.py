@@ -144,6 +144,7 @@ def main():
         "weights": "flame_weights.bin",
         "posedirs": "flame_posedirs.bin",
         "J_regressor": "flame_J_regressor.bin",
+        "kintree": "flame_kintree.json",
     }
 
     v_template.tofile(os.path.join(output_dir, files["template"]))
@@ -155,7 +156,7 @@ def main():
     J_regressor_flat.tofile(os.path.join(output_dir, files["J_regressor"]))
 
     # Kintree is small — write as JSON
-    with open(os.path.join(output_dir, "flame_kintree.json"), 'w') as f:
+    with open(os.path.join(output_dir, files["kintree"]), 'w') as f:
         json.dump(kintree_table, f)
 
     # 6. Write metadata
