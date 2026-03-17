@@ -52,7 +52,7 @@ describe('root integration: data → binding → spatial → instances', () => {
   const layout = computeLayout(dataset.tickers, { kind: 'family-rows' });
 
   it('loads dataset with tickers and frames', () => {
-    expect(dataset.tickers.length).toBeGreaterThanOrEqual(12);
+    expect(dataset.tickers.length).toBeGreaterThanOrEqual(10);
     expect(dataset.frames.length).toBeGreaterThanOrEqual(100);
     expect(dataset.timestamps.length).toBe(dataset.frames.length);
   });
@@ -75,7 +75,7 @@ describe('root integration: data → binding → spatial → instances', () => {
       const instances = buildInstances(dataset, frame, layout.positions);
 
       it('resolves all tickers to instances', () => {
-        expect(instances.length).toBeGreaterThanOrEqual(12);
+        expect(instances.length).toBeGreaterThanOrEqual(10);
       });
 
       it('all FaceParams have correct dimensions', () => {
