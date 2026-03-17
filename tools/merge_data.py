@@ -126,10 +126,10 @@ def merge_data():
         date_range = f"{merged_frames[0]['timestamp']} to {merged_frames[-1]['timestamp']}"
         print(f"Tickers per frame: {tickers_per_frame}")
         print(f"Date range: {date_range}")
-        if tickers_per_frame == 23:
-            print("Validation: Success (23 tickers present per frame)")
+        if tickers_per_frame == 14:
+            print("Validation: Success (14 tickers present per frame)")
         else:
-            print(f"Validation Note: Found {tickers_per_frame} tickers per frame, expected 23.")
+            print(f"Validation Note: Found {tickers_per_frame} tickers per frame, expected 14.")
     print("-" * 40)
 
 if __name__ == "__main__":

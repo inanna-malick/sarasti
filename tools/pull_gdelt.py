@@ -8,9 +8,7 @@ import sys
 
 # Constants
 TICKER_IRAN = "GDELT:iran"
-TICKER_GULF = "GDELT:gulf"
-TICKER_TONE_IRAN = "GDELT:tone:iran"
-TICKER_IDS = [TICKER_IRAN, TICKER_GULF, TICKER_TONE_IRAN]
+TICKER_IDS = [TICKER_IRAN]
 
 START_DATE = datetime.datetime(2026, 2, 25, 0, 0, 0, tzinfo=datetime.timezone.utc)
 # Present is March 16, 2026
@@ -31,6 +29,7 @@ def generate_synthetic_data():
     high_end = datetime.datetime(2026, 3, 5, 23, 59, 59, tzinfo=datetime.timezone.utc)
 
     raw_series = {tid: [] for tid in TICKER_IDS}
+    tone_series = []
     timestamps = []
 
     while current <= END_DATE:
@@ -50,33 +49,19 @@ def generate_synthetic_data():
             val = 800 - (600 * hours_since_high / total_decay_hours) + random.uniform(-40, 40)
         raw_series[TICKER_IRAN].append(max(0, val))
 
-        # 2. GDELT:gulf - Gulf events
+        # 2. GDELT Tone generation (used for high_low_ratio)
         if current <= calm_end:
-            val = 30 + random.uniform(-5, 5)
+            tone = 0.5 + random.uniform(-0.5, 0.5)
         elif current <= spike_end:
             hours_into_spike = (current - spike_start).total_seconds() / 3600
-            val = 30 + (470 * hours_into_spike / 24) + random.uniform(-20, 20)
+            tone = 0.5 - (6.5 * hours_into_spike / 24) + random.uniform(-0.8, 0.8)
         elif current <= high_end:
-            val = 350 + random.uniform(-50, 50)
+            tone = -4.0 + random.uniform(-1.0, 1.0)
         else:
             hours_since_high = (current - high_end).total_seconds() / 3600
             total_decay_hours = (END_DATE - high_end).total_seconds() / 3600
-            val = 350 - (250 * hours_since_high / total_decay_hours) + random.uniform(-30, 30)
-        raw_series[TICKER_GULF].append(max(0, val))
-
-        # 3. GDELT:tone:iran - Average tone
-        if current <= calm_end:
-            val = 0.5 + random.uniform(-0.5, 0.5)
-        elif current <= spike_end:
-            hours_into_spike = (current - spike_start).total_seconds() / 3600
-            val = 0.5 - (6.5 * hours_into_spike / 24) + random.uniform(-0.8, 0.8)
-        elif current <= high_end:
-            val = -4.0 + random.uniform(-1.0, 1.0)
-        else:
-            hours_since_high = (current - high_end).total_seconds() / 3600
-            total_decay_hours = (END_DATE - high_end).total_seconds() / 3600
-            val = -4.0 + (3.0 * hours_since_high / total_decay_hours) + random.uniform(-0.5, 0.5)
-        raw_series[TICKER_TONE_IRAN].append(val)
+            tone = -4.0 + (3.0 * hours_since_high / total_decay_hours) + random.uniform(-0.5, 0.5)
+        tone_series.append(tone)
 
         current += delta
 
@@ -139,7 +124,7 @@ def generate_synthetic_data():
                 "corr_breakdown": 0.0,
                 "term_slope": 0.0,
                 "cross_contagion": 0.0,
-                "high_low_ratio": 0.0,
+                "high_low_ratio": tone_series[i] / 10.0,
                 "expr_residuals": [random.uniform(-0.1, 0.1) for _ in range(60)]
             }
         
