@@ -40,6 +40,8 @@ export interface ShapeAllocation {
   corr_brent_indices?: number[];
   /** Tier 3: β indices for correlation to SPY (equity-likeness) */
   corr_spy_indices?: number[];
+  /** Tier 3: β indices for market cap / notional weight */
+  market_cap_indices?: number[];
   /** Tier 3: β indices for spread from family mean */
   spread_indices?: number[];
   /** Tier 3: β indices for skewness (asymmetric face structure) */
@@ -132,6 +134,19 @@ export interface BindingConfig {
   high_low_ratio_curve?: ResponseCurve;
   /** Intensity scaling per tier: [tier1, tier2, tier3, sarasti] */
   tier_intensities?: [number, number, number, number];
+  // ─── Tier 2/3 shape response curves (binding refinement) ──
+  /** How avg_volume maps to shape perturbation */
+  avg_volume_curve?: ResponseCurve;
+  /** How hist_volatility maps to shape perturbation */
+  hist_vol_curve?: ResponseCurve;
+  /** How corr_to_brent maps to shape perturbation */
+  corr_brent_curve?: ResponseCurve;
+  /** How corr_to_spy maps to shape perturbation */
+  corr_spy_curve?: ResponseCurve;
+  /** How market_cap/spread maps to shape perturbation */
+  spread_curve?: ResponseCurve;
+  /** How skewness maps to shape perturbation */
+  skewness_curve?: ResponseCurve;
 }
 
 // ─── Helpers ────────────────────────────────────────

@@ -8,6 +8,8 @@ import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
 import { DEFAULT_BINDING_CONFIG } from './config';
 
+import { applyCurve } from './curves';
+
 // ─── Shape Resolver ─────────────────────────────────
 
 /**
@@ -57,7 +59,7 @@ export function createShapeResolver(
 function mapStaticsToShape(
   shape: Float32Array,
   statics: TickerStatic,
-  _config: BindingConfig,
+  config: BindingConfig,
 ): void {
   // Sarasti residual: direct injection if present
   if (statics.shape_residuals) {
@@ -66,7 +68,67 @@ function mapStaticsToShape(
       shape[residualStart + i] = statics.shape_residuals[i];
     }
   }
-  // Tier 2/3 named bindings: stub — shape-enrichment dev fills this in
+
+  // Tier 2/3 intensities
+  const [_, t2_intensity, t3_intensity] = config.tier_intensities || [1.0, 0.5, 0.2, 1.0];
+
+  // Tier 2 named bindings: β₁₁₋₂₀
+  // β₁₁₋₁₃ ← avg_volume
+  if (statics.avg_volume !== undefined && config.avg_volume_curve && config.shape.volume_indices) {
+    const val = applyCurve(config.avg_volume_curve, statics.avg_volume) * t2_intensity;
+    for (const idx of config.shape.volume_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
+
+  // β₁₄₋₁₆ ← hist_volatility
+  if (statics.hist_volatility !== undefined && config.hist_vol_curve && config.shape.hist_vol_indices) {
+    const val = applyCurve(config.hist_vol_curve, statics.hist_volatility) * t2_intensity;
+    for (const idx of config.shape.hist_vol_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
+
+  // β₁₇₋₂₀ ← corr_to_brent
+  if (statics.corr_to_brent !== undefined && config.corr_brent_curve && config.shape.corr_brent_indices) {
+    const val = applyCurve(config.corr_brent_curve, statics.corr_to_brent) * t2_intensity;
+    for (const idx of config.shape.corr_brent_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
+
+  // Tier 3 named bindings: β₂₁₋₅₀
+  // β₂₁₋₂₅ ← corr_to_spy
+  if (statics.corr_to_spy !== undefined && config.corr_spy_curve && config.shape.corr_spy_indices) {
+    const val = applyCurve(config.corr_spy_curve, statics.corr_to_spy) * t3_intensity;
+    for (const idx of config.shape.corr_spy_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
+
+  // β₂₆₋₃₀ ← market_cap (proxy: spread_from_family)
+  if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.market_cap_indices) {
+    const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
+    for (const idx of config.shape.market_cap_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
+
+  // β₃₁₋₃₅ ← spread_from_family
+  if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.spread_indices) {
+    const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
+    for (const idx of config.shape.spread_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
+
+  // β₃₆₋₄₀ ← skewness
+  if (statics.skewness !== undefined && config.skewness_curve && config.shape.skewness_indices) {
+    const val = applyCurve(config.skewness_curve, statics.skewness) * t3_intensity;
+    for (const idx of config.shape.skewness_indices) {
+      if (idx < N_SHAPE) shape[idx] += val;
+    }
+  }
 }
 
 // ─── Expression Resolver ────────────────────────────
