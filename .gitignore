@@ -11,3 +11,30 @@
 # Editor swap files
 *.swp
 *.swo
+
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Data (baked locally, not committed except fixtures)
+public/data/*.bin
+public/data/market-history.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+.env.local
