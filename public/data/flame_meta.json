@@ -12,6 +12,7 @@
     "exprdirs": "flame_exprdirs.bin",
     "weights": "flame_weights.bin",
     "posedirs": "flame_posedirs.bin",
-    "J_regressor": "flame_J_regressor.bin"
+    "J_regressor": "flame_J_regressor.bin",
+    "kintree": "flame_kintree.json"
   }
 }
