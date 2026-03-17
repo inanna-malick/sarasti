@@ -1,0 +1,546 @@
+{
+  "shape": [
+    {
+      "index": 0,
+      "description": "face width/size",
+      "tier": "tier1",
+      "effect_magnitude": 0.2704
+    },
+    {
+      "index": 1,
+      "description": "face height (elongated vs compressed)",
+      "tier": "tier1",
+      "effect_magnitude": 0.1493
+    },
+    {
+      "index": 2,
+      "description": "jaw shape (square vs pointed chin)",
+      "tier": "tier1",
+      "effect_magnitude": 0.1406
+    },
+    {
+      "index": 3,
+      "description": "secondary width",
+      "tier": "tier1",
+      "effect_magnitude": 0.1141
+    },
+    {
+      "index": 4,
+      "description": "fine shape detail (β4)",
+      "tier": "tier1",
+      "effect_magnitude": 0.0931
+    },
+    {
+      "index": 5,
+      "description": "fine shape detail (β5)",
+      "tier": "tier2",
+      "effect_magnitude": 0.0749
+    },
+    {
+      "index": 6,
+      "description": "fine shape detail (β6)",
+      "tier": "tier2",
+      "effect_magnitude": 0.072
+    },
+    {
+      "index": 7,
+      "description": "fine shape detail (β7)",
+      "tier": "tier2",
+      "effect_magnitude": 0.0638
+    },
+    {
+      "index": 8,
+      "description": "fine shape detail (β8)",
+      "tier": "tier2",
+      "effect_magnitude": 0.0605
+    },
+    {
+      "index": 9,
+      "description": "fine shape detail (β9)",
+      "tier": "tier2",
+      "effect_magnitude": 0.052
+    },
+    {
+      "index": 10,
+      "description": "shape component β10",
+      "tier": "tier2",
+      "effect_magnitude": 0.0506
+    },
+    {
+      "index": 11,
+      "description": "shape component β11",
+      "tier": "tier2",
+      "effect_magnitude": 0.0479
+    },
+    {
+      "index": 12,
+      "description": "shape component β12",
+      "tier": "tier2",
+      "effect_magnitude": 0.0432
+    },
+    {
+      "index": 13,
+      "description": "shape component β13",
+      "tier": "tier2",
+      "effect_magnitude": 0.0423
+    },
+    {
+      "index": 14,
+      "description": "shape component β14",
+      "tier": "tier2",
+      "effect_magnitude": 0.0397
+    },
+    {
+      "index": 15,
+      "description": "shape component β15",
+      "tier": "tier2",
+      "effect_magnitude": 0.0366
+    },
+    {
+      "index": 16,
+      "description": "shape component β16",
+      "tier": "tier2",
+      "effect_magnitude": 0.0345
+    },
+    {
+      "index": 17,
+      "description": "shape component β17",
+      "tier": "tier2",
+      "effect_magnitude": 0.0318
+    },
+    {
+      "index": 18,
+      "description": "shape component β18",
+      "tier": "tier2",
+      "effect_magnitude": 0.0308
+    },
+    {
+      "index": 19,
+      "description": "shape component β19",
+      "tier": "tier2",
+      "effect_magnitude": 0.0293
+    },
+    {
+      "index": 20,
+      "description": "shape component β20",
+      "tier": "tier3",
+      "effect_magnitude": 0.0287
+    },
+    {
+      "index": 21,
+      "description": "shape component β21",
+      "tier": "tier3",
+      "effect_magnitude": 0.0281
+    },
+    {
+      "index": 22,
+      "description": "shape component β22",
+      "tier": "tier3",
+      "effect_magnitude": 0.0268
+    },
+    {
+      "index": 23,
+      "description": "shape component β23",
+      "tier": "tier3",
+      "effect_magnitude": 0.0251
+    },
+    {
+      "index": 24,
+      "description": "shape component β24",
+      "tier": "tier3",
+      "effect_magnitude": 0.024
+    },
+    {
+      "index": 25,
+      "description": "shape component β25",
+      "tier": "tier3",
+      "effect_magnitude": 0.0232
+    },
+    {
+      "index": 26,
+      "description": "shape component β26",
+      "tier": "tier3",
+      "effect_magnitude": 0.0226
+    },
+    {
+      "index": 27,
+      "description": "shape component β27",
+      "tier": "tier3",
+      "effect_magnitude": 0.0215
+    },
+    {
+      "index": 28,
+      "description": "shape component β28",
+      "tier": "tier3",
+      "effect_magnitude": 0.0212
+    },
+    {
+      "index": 29,
+      "description": "shape component β29",
+      "tier": "tier3",
+      "effect_magnitude": 0.0209
+    },
+    {
+      "index": 30,
+      "description": "shape component β30",
+      "tier": "tier3",
+      "effect_magnitude": 0.0198
+    },
+    {
+      "index": 31,
+      "description": "shape component β31",
+      "tier": "tier3",
+      "effect_magnitude": 0.0194
+    },
+    {
+      "index": 32,
+      "description": "shape component β32",
+      "tier": "tier3",
+      "effect_magnitude": 0.0183
+    },
+    {
+      "index": 33,
+      "description": "shape component β33",
+      "tier": "tier3",
+      "effect_magnitude": 0.0182
+    },
+    {
+      "index": 34,
+      "description": "shape component β34",
+      "tier": "tier3",
+      "effect_magnitude": 0.0175
+    },
+    {
+      "index": 35,
+      "description": "shape component β35",
+      "tier": "tier3",
+      "effect_magnitude": 0.0164
+    },
+    {
+      "index": 36,
+      "description": "shape component β36",
+      "tier": "tier3",
+      "effect_magnitude": 0.016
+    },
+    {
+      "index": 37,
+      "description": "shape component β37",
+      "tier": "tier3",
+      "effect_magnitude": 0.0159
+    },
+    {
+      "index": 38,
+      "description": "shape component β38",
+      "tier": "tier3",
+      "effect_magnitude": 0.0153
+    },
+    {
+      "index": 39,
+      "description": "shape component β39",
+      "tier": "tier3",
+      "effect_magnitude": 0.015
+    },
+    {
+      "index": 40,
+      "description": "shape component β40",
+      "tier": "tier3",
+      "effect_magnitude": 0.0146
+    },
+    {
+      "index": 41,
+      "description": "shape component β41",
+      "tier": "tier3",
+      "effect_magnitude": 0.014
+    },
+    {
+      "index": 42,
+      "description": "shape component β42",
+      "tier": "tier3",
+      "effect_magnitude": 0.0136
+    },
+    {
+      "index": 43,
+      "description": "shape component β43",
+      "tier": "tier3",
+      "effect_magnitude": 0.0134
+    },
+    {
+      "index": 44,
+      "description": "shape component β44",
+      "tier": "tier3",
+      "effect_magnitude": 0.0128
+    },
+    {
+      "index": 45,
+      "description": "shape component β45",
+      "tier": "tier3",
+      "effect_magnitude": 0.0127
+    },
+    {
+      "index": 46,
+      "description": "shape component β46",
+      "tier": "tier3",
+      "effect_magnitude": 0.0124
+    },
+    {
+      "index": 47,
+      "description": "shape component β47",
+      "tier": "tier3",
+      "effect_magnitude": 0.0122
+    },
+    {
+      "index": 48,
+      "description": "shape component β48",
+      "tier": "tier3",
+      "effect_magnitude": 0.0119
+    },
+    {
+      "index": 49,
+      "description": "shape component β49",
+      "tier": "tier3",
+      "effect_magnitude": 0.0118
+    }
+  ],
+  "expression": [
+    {
+      "index": 0,
+      "description": "jaw open + smile",
+      "tier": "tier1",
+      "effect_magnitude": 0.0895
+    },
+    {
+      "index": 1,
+      "description": "smile/frown",
+      "tier": "tier1",
+      "effect_magnitude": 0.0389
+    },
+    {
+      "index": 2,
+      "description": "mouth open shock/scream",
+      "tier": "tier1",
+      "effect_magnitude": 0.0369
+    },
+    {
+      "index": 3,
+      "description": "lip parting / protrusion",
+      "tier": "tier1",
+      "effect_magnitude": 0.0241
+    },
+    {
+      "index": 4,
+      "description": "brow raise/lower",
+      "tier": "tier1",
+      "effect_magnitude": 0.0217
+    },
+    {
+      "index": 5,
+      "description": "lip pursing forward/back",
+      "tier": "tier2",
+      "effect_magnitude": 0.02
+    },
+    {
+      "index": 6,
+      "description": "jaw lateral shift",
+      "tier": "tier2",
+      "effect_magnitude": 0.0169
+    },
+    {
+      "index": 7,
+      "description": "head shape modifier",
+      "tier": "tier2",
+      "effect_magnitude": 0.0167
+    },
+    {
+      "index": 8,
+      "description": "subtle lip/nose",
+      "tier": "tier2",
+      "effect_magnitude": 0.0131
+    },
+    {
+      "index": 9,
+      "description": "eye/cheek region",
+      "tier": "tier2",
+      "effect_magnitude": 0.0105
+    },
+    {
+      "index": 10,
+      "description": "expression component ψ10",
+      "tier": "tier2",
+      "effect_magnitude": 0.0097
+    },
+    {
+      "index": 11,
+      "description": "expression component ψ11",
+      "tier": "tier2",
+      "effect_magnitude": 0.0093
+    },
+    {
+      "index": 12,
+      "description": "expression component ψ12",
+      "tier": "tier2",
+      "effect_magnitude": 0.0088
+    },
+    {
+      "index": 13,
+      "description": "expression component ψ13",
+      "tier": "tier2",
+      "effect_magnitude": 0.0083
+    },
+    {
+      "index": 14,
+      "description": "expression component ψ14",
+      "tier": "tier2",
+      "effect_magnitude": 0.0074
+    },
+    {
+      "index": 15,
+      "description": "expression component ψ15",
+      "tier": "tier2",
+      "effect_magnitude": 0.0071
+    },
+    {
+      "index": 16,
+      "description": "expression component ψ16",
+      "tier": "tier2",
+      "effect_magnitude": 0.0065
+    },
+    {
+      "index": 17,
+      "description": "expression component ψ17",
+      "tier": "tier2",
+      "effect_magnitude": 0.0064
+    },
+    {
+      "index": 18,
+      "description": "expression component ψ18",
+      "tier": "tier2",
+      "effect_magnitude": 0.0062
+    },
+    {
+      "index": 19,
+      "description": "expression component ψ19",
+      "tier": "tier2",
+      "effect_magnitude": 0.0061
+    },
+    {
+      "index": 20,
+      "description": "expression component ψ20",
+      "tier": "tier3",
+      "effect_magnitude": 0.0057
+    },
+    {
+      "index": 21,
+      "description": "expression component ψ21",
+      "tier": "tier3",
+      "effect_magnitude": 0.0055
+    },
+    {
+      "index": 22,
+      "description": "expression component ψ22",
+      "tier": "tier3",
+      "effect_magnitude": 0.0053
+    },
+    {
+      "index": 23,
+      "description": "expression component ψ23",
+      "tier": "tier3",
+      "effect_magnitude": 0.0051
+    },
+    {
+      "index": 24,
+      "description": "expression component ψ24",
+      "tier": "tier3",
+      "effect_magnitude": 0.0049
+    },
+    {
+      "index": 25,
+      "description": "expression component ψ25",
+      "tier": "tier3",
+      "effect_magnitude": 0.0046
+    },
+    {
+      "index": 26,
+      "description": "expression component ψ26",
+      "tier": "tier3",
+      "effect_magnitude": 0.0044
+    },
+    {
+      "index": 27,
+      "description": "expression component ψ27",
+      "tier": "tier3",
+      "effect_magnitude": 0.0043
+    },
+    {
+      "index": 28,
+      "description": "expression component ψ28",
+      "tier": "tier3",
+      "effect_magnitude": 0.0042
+    },
+    {
+      "index": 29,
+      "description": "expression component ψ29",
+      "tier": "tier3",
+      "effect_magnitude": 0.004
+    },
+    {
+      "index": 30,
+      "description": "expression component ψ30",
+      "tier": "tier3",
+      "effect_magnitude": 0.0039
+    },
+    {
+      "index": 31,
+      "description": "expression component ψ31",
+      "tier": "tier3",
+      "effect_magnitude": 0.0038
+    },
+    {
+      "index": 32,
+      "description": "expression component ψ32",
+      "tier": "tier3",
+      "effect_magnitude": 0.0037
+    },
+    {
+      "index": 33,
+      "description": "expression component ψ33",
+      "tier": "tier3",
+      "effect_magnitude": 0.0037
+    },
+    {
+      "index": 34,
+      "description": "expression component ψ34",
+      "tier": "tier3",
+      "effect_magnitude": 0.0034
+    },
+    {
+      "index": 35,
+      "description": "expression component ψ35",
+      "tier": "tier3",
+      "effect_magnitude": 0.0033
+    },
+    {
+      "index": 36,
+      "description": "expression component ψ36",
+      "tier": "tier3",
+      "effect_magnitude": 0.0033
+    },
+    {
+      "index": 37,
+      "description": "expression component ψ37",
+      "tier": "tier3",
+      "effect_magnitude": 0.0031
+    },
+    {
+      "index": 38,
+      "description": "expression component ψ38",
+      "tier": "tier3",
+      "effect_magnitude": 0.003
+    },
+    {
+      "index": 39,
+      "description": "expression component ψ39",
+      "tier": "tier3",
+      "effect_magnitude": 0.0029
+    }
+  ]
+}
