@@ -61,30 +61,31 @@ export async function createFlameSceneRenderer(
       renderer = new THREE.WebGLRenderer({ antialias, alpha: false });
       renderer.setPixelRatio(pixelRatio);
       renderer.setSize(el.clientWidth, el.clientHeight);
-      renderer.setClearColor(0x0a0a0a);
+      renderer.setClearColor(0x1a1a1a);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.0;
+      renderer.toneMappingExposure = 1.4;
       renderer.localClippingEnabled = true;
       el.appendChild(renderer.domElement);
 
       // Scene
       scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1a1a);
 
       // 3-point lighting
-      const keyLight = new THREE.DirectionalLight(0xffddbb, 1.2);
+      const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.8);
       keyLight.position.set(-2, 3, 4);
       scene.add(keyLight);
 
-      const fillLight = new THREE.DirectionalLight(0xe0e8ff, 0.4);
-      fillLight.position.set(3, 1, 2);
+      const fillLight = new THREE.DirectionalLight(0xf0f0ff, 0.7);
+      fillLight.position.set(3, 0, 3);
       scene.add(fillLight);
 
       const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
       backLight.position.set(0, 2, -4);
       scene.add(backLight);
 
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
       scene.add(ambientLight);
 
       // Camera
