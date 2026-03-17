@@ -10,6 +10,7 @@ import { TimelineBar } from './ui/TimelineBar';
 import { Controls } from './ui/Controls';
 import { Landing } from './ui/Landing';
 import { useStore } from './store';
+import { loadDirectionTables } from './binding/directions';
 
 const DATA_URL = '/data/market-data.json';
 
@@ -36,7 +37,13 @@ export function App() {
 
         if (disposed) return;
 
-        // 2. Create renderer
+        // 2. Load semantic direction tables
+        setStatus('Loading semantic directions...');
+        await loadDirectionTables('/data/directions');
+
+        if (disposed) return;
+
+        // 3. Create renderer
         setStatus('Loading FLAME model...');
         const renderer = await createFlameSceneRenderer();
         await renderer.init(containerRef.current!);
@@ -44,7 +51,7 @@ export function App() {
 
         if (disposed) return;
 
-        // 3. Create frame driver (wires engine → data → binding → renderer)
+        // 4. Create frame driver (wires engine → data → binding → renderer)
         // If ?t= query param is set, start at that timestamp
         let initialIndex = 0;
         const params = new URLSearchParams(window.location.search);
@@ -58,7 +65,7 @@ export function App() {
         const driver = new FrameDriver(dataset, renderer, initialIndex);
         driverRef.current = driver;
 
-        // 4. Setup interactions
+        // 5. Setup interactions
         const hover = setupHoverInteraction(containerRef.current!, renderer);
         hoverDispose = hover.dispose;
         const click = setupClickInteraction(containerRef.current!, renderer);

@@ -222,7 +222,7 @@ export function resolveDirections(
 
 // ─── Vector Utils ─────────────────────────────────────
 
-function addVec(target: Float32Array, source: Float32Array): void {
+export function addVec(target: Float32Array, source: Float32Array): void {
   const len = Math.min(target.length, source.length);
   for (let i = 0; i < len; i++) {
     target[i] += source[i];

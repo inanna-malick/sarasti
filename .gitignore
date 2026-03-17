@@ -30,6 +30,10 @@ playwright-report/
 public/data/*.bin
 public/data/market-history.json
 
+# Tool runtime artifacts (renders, npz, logs)
+tools/directions/data/
+tools/directions/.exo/
+
 # Python
 __pycache__/
 *.pyc

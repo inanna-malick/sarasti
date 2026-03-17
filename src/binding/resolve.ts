@@ -8,6 +8,13 @@ import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
 import { DEFAULT_BINDING_CONFIG } from './config';
 import { applyCurve } from './curves';
+import {
+  getTable,
+  getIdentityBasis,
+  interpolateLUT,
+  computeIdentityOffset,
+  addVec,
+} from './directions';
 
 // ─── Shape Resolver ─────────────────────────────────
 
@@ -22,23 +29,29 @@ export function createShapeResolver(
     resolve(ticker: TickerConfig, statics?: TickerStatic): Float32Array {
       const shape = emptyShape();
 
-      // Tier 1: Age mapping (β₀₋₂)
-      const ageResult = mapAgeToShape(ticker.age);
-      for (const [idx, value] of ageResult.entries) {
-        if (idx < N_SHAPE) shape[idx] = value;
+      // Semantify CLIP-trained directions: age + build → shape (β₀₋₉₉)
+      const ageTable = getTable('age');
+      const buildTable = getTable('build');
+      const identityBasis = getIdentityBasis();
+
+      if (ageTable) {
+        // Map ticker.age (20-60) → semantic score (-3, +3)
+        const ageScore = ((ticker.age - 20) / 40) * 6 - 3;
+        addVec(shape, interpolateLUT(ageTable, ageScore));
       }
 
-      // Tier 2: Identity mapping — class (β₃₋₅) + family (β₆₋₉)
-      const identityResult = mapIdentityToShape(ticker.class, ticker.family, config);
-      for (const [idx, value] of identityResult.class_entries) {
-        if (idx < N_SHAPE) shape[idx] = value;
+      if (buildTable) {
+        // Build varies by asset class — energy/commodity = heavy, fear = lean
+        const buildScore = CLASS_BUILD_SCORES[ticker.class] ?? 0;
+        addVec(shape, interpolateLUT(buildTable, buildScore));
       }
-      for (const [idx, value] of identityResult.family_entries) {
-        if (idx < N_SHAPE) shape[idx] += value; // additive perturbation
+
+      if (identityBasis) {
+        // Per-ticker identity offset, orthogonal to age + build by construction
+        addVec(shape, computeIdentityOffset(identityBasis, ticker.id));
       }
 
       // Tier 2/3 + Sarasti: enriched shape from static metadata
-      // Implemented by shape-enrichment dev — see mapStaticsToShape()
       if (statics) {
         mapStaticsToShape(shape, statics, config);
       }
@@ -47,6 +60,16 @@ export function createShapeResolver(
     },
   };
 }
+
+/** Asset class → build semantic score. Positive = heavier/wider, negative = leaner. */
+const CLASS_BUILD_SCORES: Record<string, number> = {
+  energy: 1.5,
+  commodity: 1.0,
+  fear: -1.5,
+  currency: -0.5,
+  equity: 0.5,
+  media: -2.0,
+};
 
 /**
  * Tier 2/3 + Sarasti shape enrichment from static metadata.
@@ -136,31 +159,62 @@ function mapStaticsToShape(
  * Creates an ExpressionResolver that combines crisis + dynamics mapping.
  * Expression is crisis dynamics — recomputed each frame.
  */
+/**
+ * Expression intensity for Semantify directions.
+ * Semantify LUTs are trained on realistic faces (max ~0.4 per component).
+ * Data-viz needs exaggerated, caricature-level deformation, so we scale up.
+ * This is applied ON TOP of the Semantify output, preserving the learned
+ * nonlinear trajectory while amplifying it into data-viz range.
+ */
+const SEMANTIFY_EXPR_INTENSITY = 20.0;
+
 export function createExpressionResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
 ): ExpressionResolver {
   return {
     resolve(frame: TickerFrame): Float32Array {
-      // Tier 1: Base expression from deviation (ψ₁₋₅)
+      // Tier 1: Crisis expressions from hand-tuned registers (ψ₀₋₁₅)
+      // These give us the multi-component richness: brow furrow + jaw + smile/frown + asymmetry
       const crisisResult = mapCrisisToExpression(frame.deviation, config);
-
-      // Tier 2: Modulate with velocity and volatility (ψ₆₋₁₅)
       const dynamicsResult = mapDynamicsToExpression(
         crisisResult.expression,
         frame.velocity,
         frame.volatility,
         config,
       );
-
       const expression = dynamicsResult.expression;
 
+      // Semantify CLIP-trained layer: valence + aperture as additive refinement
+      // These add learned nonlinear expression trajectories on top of the
+      // hand-tuned crisis registers, scaled to data-viz intensity.
+      const valenceTable = getTable('valence');
+      const apertureTable = getTable('aperture');
+
+      if (valenceTable) {
+        const valenceScore = applyCurve(config.deviation_curve, frame.deviation) * 3;
+        const valenceParams = interpolateLUT(valenceTable, valenceScore);
+        addScaledVec(expression, valenceParams, SEMANTIFY_EXPR_INTENSITY);
+      }
+
+      if (apertureTable) {
+        const apertureScore = applyCurve(config.volatility_curve, frame.volatility) * 3;
+        const apertureParams = interpolateLUT(apertureTable, apertureScore);
+        addScaledVec(expression, apertureParams, SEMANTIFY_EXPR_INTENSITY);
+      }
+
       // Tier 2/3 + Sarasti: enriched expression from per-frame fields
-      // Implemented by expression-enrichment dev — see mapEnrichedToExpression()
       mapEnrichedToExpression(expression, frame, config);
 
       return expression;
     },
   };
+}
+
+function addScaledVec(target: Float32Array, source: Float32Array, scale: number): void {
+  const len = Math.min(target.length, source.length);
+  for (let i = 0; i < len; i++) {
+    target[i] += source[i] * scale;
+  }
 }
 
 /**
