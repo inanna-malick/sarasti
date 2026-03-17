@@ -6,7 +6,7 @@
         "--role",
         "tl",
         "--name",
-        "scene"
+        "renderer"
       ],
       "command": "exomonad",
       "type": "stdio"
