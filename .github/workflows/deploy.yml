@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,16 +18,17 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Type check
-        run: npx tsc --noEmit
+      - name: Build check (type-check, test, build)
+        run: npm run build:check
 
-      - name: Run tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
+      - name: Check for FLAME binary assets
+        run: |
+          if [ -z "$(find public/data -name '*.bin')" ]; then
+            echo "::warning::No .bin files found in public/data. Ensure FLAME assets are generated if needed."
+          fi
 
       - name: Upload build artifacts
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -34,20 +36,17 @@ jobs:
         with:
           name: dist
           path: dist/
+          retention-days: 1
 
   deploy:
+    name: Deploy to Cloudflare
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment:
+      name: production
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - run: npm ci
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -60,3 +59,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

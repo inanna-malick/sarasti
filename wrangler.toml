@@ -1,10 +1,11 @@
 name = "sarasti"
 main = "worker/index.ts"
-compatibility_date = "2024-12-01"
+compatibility_date = "2025-03-01"
 
-# Static assets from Vite build
+# Static assets from Vite build (new Assets feature)
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 
 # KV namespace for cached market data
 [[kv_namespaces]]

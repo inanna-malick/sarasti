@@ -2,24 +2,14 @@
  * Cloudflare Worker entry point for The Tidal Scream.
  *
  * Responsibilities:
- * 1. Serve static Vite build (index.html, JS, CSS, assets) from __STATIC_CONTENT
+ * 1. Serve static Vite build (index.html, JS, CSS, assets) from ASSETS
  * 2. GET /api/data → serve market-data.json from KV (falls back to static file)
  * 3. Cron trigger (daily) → fetch latest market data, append to KV dataset
- *
- * The static site is a single-page React app. All routes that don't match
- * /api/* or a static file should serve index.html (SPA fallback).
- *
- * KV namespace: MARKET_DATA — stores the full market-history JSON.
- * When KV has data, /api/data serves it (fresher). When KV is empty,
- * falls back to the static market-data.json baked into the build.
- *
- * Environment bindings (wrangler.toml):
- *   - __STATIC_CONTENT: Sites binding (auto-configured by wrangler for Pages-style)
- *   - MARKET_DATA: KV namespace binding
+ * 4. SPA routing: serve index.html for non-API, non-asset requests
  */
 
 export interface Env {
-  __STATIC_CONTENT: Fetcher;
+  ASSETS: Fetcher;
   MARKET_DATA: KVNamespace;
 }
 
@@ -27,23 +17,54 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    // API route: serve market data from KV (fall back to static)
-    if (url.pathname === '/api/data') {
-      return handleDataRequest(env);
+    // 1. API routes
+    if (url.pathname.startsWith('/api/')) {
+      if (url.pathname === '/api/data' && request.method === 'GET') {
+        return handleDataRequest(env);
+      }
+      
+      // Handle CORS preflight for API
+      if (request.method === 'OPTIONS') {
+        return new Response(null, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Max-Age': '86400',
+          },
+        });
+      }
+
+      return new Response('Not Found', { status: 404 });
     }
 
-    // All other requests: serve static content
-    return env.__STATIC_CONTENT.fetch(request);
+    // 2. Fetch from Assets
+    let response = await env.ASSETS.fetch(request);
+
+    // 3. SPA Fallback: if 404 and doesn't look like a static asset file
+    // (no extension in the last path segment), serve index.html
+    const isAssetFile = url.pathname.split('/').pop()?.includes('.');
+    if (response.status === 404 && !isAssetFile) {
+      const indexRequest = new Request(new URL('/index.html', request.url));
+      response = await env.ASSETS.fetch(indexRequest);
+    }
+
+    return response;
   },
 
   async scheduled(_event: ScheduledEvent, env: Env): Promise<void> {
     // Daily cron: placeholder for future data refresh
-    // Will fetch latest market data and update KV
     console.log('Cron triggered — data refresh not yet implemented');
   },
 };
 
 async function handleDataRequest(env: Env): Promise<Response> {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+  };
+
   // Try KV first (freshest data)
   try {
     const kvData = await env.MARKET_DATA.get('market-data', 'text');
@@ -52,7 +73,7 @@ async function handleDataRequest(env: Env): Promise<Response> {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'public, max-age=300',
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders,
         },
       });
     }
@@ -60,11 +81,12 @@ async function handleDataRequest(env: Env): Promise<Response> {
     console.error('KV read failed:', e);
   }
 
-  // Fall back to static file
-  const staticUrl = new URL('/data/market-data.json', 'https://placeholder');
-  const staticRequest = new Request(staticUrl.toString());
+  // Fall back to redirecting to static file
   return new Response(null, {
     status: 307,
-    headers: { Location: '/data/market-data.json' },
+    headers: { 
+      'Location': '/data/market-data.json',
+      ...corsHeaders
+    },
   });
 }
