@@ -39,3 +39,7 @@ __pycache__/
 .env
 .env.local
 FLAME2023Open.zip
+playwright.config.d.ts
+playwright.config.js
+vite.config.d.ts
+vite.config.js
