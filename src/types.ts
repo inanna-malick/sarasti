@@ -17,6 +17,38 @@ export interface TickerFrame {
   deviation: number;
   velocity: number;
   volatility: number;
+  // ─── Tier 2 per-frame fields (binding refinement) ──
+  /** Current volume / baseline avg volume. >1 = surge, <1 = capitulation. */
+  volume_anomaly?: number;
+  /** |rolling_corr_to_brent - baseline_corr_to_brent|. Spikes when correlations break. */
+  corr_breakdown?: number;
+  /** For futures: slope of term structure (contango/backwardation steepness). */
+  term_slope?: number;
+  /** Rolling correlation to other asset classes. Spikes = contagion. */
+  cross_contagion?: number;
+  /** (high - low) / close. Bid-ask spread proxy. */
+  high_low_ratio?: number;
+  // ─── Sarasti residual (per-frame dynamic) ──────────
+  /** PCA residual components for expression binding (ψ₄₁₋₁₀₀). */
+  expr_residuals?: number[];
+}
+
+/** Pre-computed static metadata per ticker (computed from pre-crisis baseline). */
+export interface TickerStatic {
+  /** Average daily volume during pre-crisis window. */
+  avg_volume: number;
+  /** Historical volatility (pct_change stddev, pre-crisis). */
+  hist_volatility: number;
+  /** Pre-crisis correlation to Brent. */
+  corr_to_brent: number;
+  /** Pre-crisis correlation to SPY. */
+  corr_to_spy: number;
+  /** Skewness of returns (pre-crisis). */
+  skewness: number;
+  /** Deviation from family mean price level (pre-crisis). */
+  spread_from_family: number;
+  /** PCA residual components for shape binding (β₅₁₋₁₀₀). */
+  shape_residuals?: number[];
 }
 
 export interface Frame {
@@ -29,6 +61,8 @@ export interface TimelineDataset {
   frames: Frame[];
   timestamps: string[];
   baseline_timestamp: string;
+  /** Pre-computed static metadata per ticker. Keyed by ticker id. */
+  statics?: Record<string, TickerStatic>;
 }
 
 // ─── Face ───────────────────────────────────────────

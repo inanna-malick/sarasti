@@ -19,6 +19,26 @@ export interface RawTickerValue {
   velocity: number;
   /** Rolling 6hr stddev, normalized to pre-crisis stddev */
   volatility: number;
+  // ─── Tier 2/3 per-frame fields (binding refinement) ──
+  volume_anomaly?: number;
+  corr_breakdown?: number;
+  term_slope?: number;
+  cross_contagion?: number;
+  high_low_ratio?: number;
+  /** Sarasti residual: per-frame dynamic PCA components */
+  expr_residuals?: number[];
+}
+
+/** Pre-computed static metadata per ticker (pre-crisis baseline) */
+export interface RawTickerStatic {
+  avg_volume: number;
+  hist_volatility: number;
+  corr_to_brent: number;
+  corr_to_spy: number;
+  skewness: number;
+  spread_from_family: number;
+  /** Sarasti residual: static PCA components for shape */
+  shape_residuals?: number[];
 }
 
 /** Shape of one hourly snapshot in the JSON file */
@@ -35,6 +55,8 @@ export interface RawMarketHistory {
   baseline_timestamp: string;
   /** Ordered chronologically, 1hr apart */
   frames: RawFrame[];
+  /** Pre-computed static metadata per ticker (binding refinement). Keyed by ticker id. */
+  statics?: Record<string, RawTickerStatic>;
 }
 
 /**

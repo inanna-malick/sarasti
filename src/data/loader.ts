@@ -1,4 +1,4 @@
-import type { TimelineDataset, Frame, TickerFrame } from '../types';
+import type { TimelineDataset, Frame, TickerFrame, TickerStatic } from '../types';
 import type { RawMarketHistory } from './schema';
 import { TICKERS } from '../tickers';
 
@@ -36,11 +36,30 @@ export function parseDataset(raw: RawMarketHistory): TimelineDataset {
     values: rf.values as Record<string, TickerFrame>,
   }));
 
+  // Parse static metadata if present (binding refinement)
+  const statics: Record<string, TickerStatic> | undefined = raw.statics
+    ? Object.fromEntries(
+        Object.entries(raw.statics).map(([id, s]) => [
+          id,
+          {
+            avg_volume: s.avg_volume,
+            hist_volatility: s.hist_volatility,
+            corr_to_brent: s.corr_to_brent,
+            corr_to_spy: s.corr_to_spy,
+            skewness: s.skewness,
+            spread_from_family: s.spread_from_family,
+            shape_residuals: s.shape_residuals,
+          },
+        ]),
+      )
+    : undefined;
+
   return {
     tickers,
     frames,
     timestamps,
     baseline_timestamp: raw.baseline_timestamp,
+    statics,
   };
 }
 
