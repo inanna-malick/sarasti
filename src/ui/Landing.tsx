@@ -18,6 +18,13 @@ interface LandingProps {
   onStart: () => void;
 }
 
+export const LANDING_CONTENT = {
+  title: 'THE TIDAL SCREAM',
+  subtitle: 'Twenty-five financial instruments rendered as faces.\nExpression maps to crisis dynamics. Shape maps to structural identity.\nSeventeen days of data. Press play.',
+  prompt: 'click anywhere to begin',
+  quote: '"What do they represent?"\n"Software customizes output for user."',
+};
+
 export function Landing({ onStart }: LandingProps) {
   const show = useStore((s) => s.showLanding);
 
@@ -29,7 +36,7 @@ export function Landing({ onStart }: LandingProps) {
       style={{
         position: 'absolute',
         inset: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
+        background: 'rgba(10, 10, 10, 0.85)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -37,16 +44,16 @@ export function Landing({ onStart }: LandingProps) {
         cursor: 'pointer',
         zIndex: 200,
         transition: 'opacity 0.8s ease-out',
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: 'monospace',
       }}
     >
       <h1
         style={{
           color: '#e0e0e0',
-          fontSize: 42,
-          fontWeight: 300,
-          letterSpacing: 4,
-          marginBottom: 12,
+          fontSize: 32,
+          fontWeight: 400,
+          letterSpacing: 8,
+          marginBottom: 16,
         }}
       >
         THE TIDAL SCREAM
@@ -55,11 +62,11 @@ export function Landing({ onStart }: LandingProps) {
       <p
         style={{
           color: '#888',
-          fontSize: 14,
-          maxWidth: 500,
+          fontSize: 12,
+          maxWidth: 400,
           textAlign: 'center',
-          lineHeight: 1.6,
-          marginBottom: 40,
+          lineHeight: 1.8,
+          marginBottom: 48,
         }}
       >
         Twenty-five financial instruments rendered as faces.
@@ -71,9 +78,10 @@ export function Landing({ onStart }: LandingProps) {
 
       <div
         style={{
-          color: '#555',
-          fontSize: 13,
-          letterSpacing: 2,
+          color: '#666',
+          fontSize: 11,
+          letterSpacing: 3,
+          textTransform: 'uppercase',
           animation: 'pulse 2s ease-in-out infinite',
         }}
       >

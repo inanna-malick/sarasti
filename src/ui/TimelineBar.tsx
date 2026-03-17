@@ -28,11 +28,17 @@ interface TimelineBarProps {
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
 
 // Key events for tick marks
-const KEY_EVENTS = [
+export const KEY_EVENTS = [
   { label: 'Strikes begin', date: '2026-02-28' },
   { label: 'Khamenei killed', date: '2026-03-01' },
   { label: 'New leader', date: '2026-03-08' },
 ];
+
+export function calculateSeekIndex(clientX: number, rectLeft: number, rectWidth: number, frameCount: number): number {
+  if (frameCount <= 0) return 0;
+  const frac = Math.max(0, Math.min(1, (clientX - rectLeft) / rectWidth));
+  return Math.round(frac * (frameCount - 1));
+}
 
 export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBarProps) {
   const playing = useStore((s) => s.playback.playing);
@@ -44,10 +50,8 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
 
   const handleScrub = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (frameCount <= 0) return;
       const rect = e.currentTarget.getBoundingClientRect();
-      const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      onSeek(Math.round(frac * (frameCount - 1)));
+      onSeek(calculateSeekIndex(e.clientX, rect.left, rect.width, frameCount));
     },
     [frameCount, onSeek],
   );
@@ -56,6 +60,33 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
 
   // Compute day of conflict
   const dayLabel = timestamp ? formatDayLabel(timestamp) : '';
+
+  // Compute aggregate intensity gradient
+  const intensityGradient = React.useMemo(() => {
+    if (!dataset || dataset.frames.length < 2) return 'rgba(255,255,255,0.06)';
+    const n = dataset.frames.length;
+    // Downsample if too many frames for a gradient
+    const step = Math.max(1, Math.floor(n / 100));
+    const stops: string[] = [];
+    for (let i = 0; i < n; i += step) {
+      const frame = dataset.frames[i];
+      let sum = 0;
+      let count = 0;
+      for (const id in frame.values) {
+        sum += Math.abs(frame.values[id].deviation);
+        count++;
+      }
+      const avg = count > 0 ? sum / count : 0;
+      // Map avg deviation (approx 0-2.0 range) to color
+      const t = Math.min(1, avg / 1.5);
+      // calm=cool (40,80,120), crisis=warm (200,80,40)
+      const r = Math.round(40 + t * 160);
+      const b = Math.round(120 - t * 80);
+      const alpha = 0.15 + t * 0.25;
+      stops.push(`rgba(${r}, 80, ${b}, ${alpha}) ${(i / (n - 1)) * 100}%`);
+    }
+    return `linear-gradient(to right, ${stops.join(', ')})`;
+  }, [dataset]);
 
   return (
     <div
@@ -120,11 +151,12 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
         style={{
           flex: 1,
           height: 20,
-          background: 'rgba(255,255,255,0.06)',
+          background: intensityGradient,
           borderRadius: 3,
           cursor: 'pointer',
           position: 'relative',
           overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.04)',
         }}
       >
         {/* Progress fill */}
@@ -182,9 +214,10 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
   );
 }
 
-function formatTimestamp(iso: string): string {
+export function formatTimestamp(iso: string): string {
   try {
     const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
     return d.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -197,9 +230,10 @@ function formatTimestamp(iso: string): string {
   }
 }
 
-function formatDayLabel(iso: string): string {
+export function formatDayLabel(iso: string): string {
   try {
     const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
     const start = new Date('2026-02-25T00:00:00Z');
     const dayNum = Math.floor((d.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
     if (dayNum < 0) return '';
@@ -209,7 +243,7 @@ function formatDayLabel(iso: string): string {
   }
 }
 
-function getEventFraction(timestamps: string[], datePrefix: string): number | null {
+export function getEventFraction(timestamps: string[], datePrefix: string): number | null {
   if (timestamps.length < 2) return null;
   const idx = timestamps.findIndex((t) => t.startsWith(datePrefix));
   if (idx < 0) return null;

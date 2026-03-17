@@ -12,13 +12,14 @@ import type { LayoutStrategy } from '../types';
  *
  * Props:
  * - onLayoutChange: callback to FrameDriver.setLayout()
+ * - onLoopChange: callback to FrameDriver.setLoop()
  */
 interface ControlsProps {
   onLayoutChange: (strategy: LayoutStrategy) => void;
   onLoopChange: (loop: boolean) => void;
 }
 
-const LAYOUTS: { label: string; strategy: LayoutStrategy }[] = [
+export const LAYOUTS: { label: string; strategy: LayoutStrategy }[] = [
   { label: 'Families', strategy: { kind: 'family-rows' } },
   { label: 'Classes', strategy: { kind: 'class-clusters' } },
   { label: 'Reactivity', strategy: { kind: 'reactivity-sweep' } },
@@ -71,25 +72,42 @@ export function Controls({ onLayoutChange, onLoopChange }: ControlsProps) {
         ))}
       </div>
 
-      {/* Loop toggle */}
-      <label
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          cursor: 'pointer',
-          color: '#777',
-          fontSize: 10,
-        }}
-      >
-        <input
-          type="checkbox"
-          checked={loop}
-          onChange={(e) => onLoopChange(e.target.checked)}
-          style={{ accentColor: '#888' }}
-        />
-        loop
-      </label>
+      {/* Loop toggle & About */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            cursor: 'pointer',
+            color: '#777',
+            fontSize: 10,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={loop}
+            onChange={(e) => onLoopChange(e.target.checked)}
+            style={{ accentColor: '#888', margin: 0 }}
+          />
+          loop
+        </label>
+
+        <button
+          onClick={() => useStore.getState().setShowLanding(true)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#555',
+            cursor: 'pointer',
+            fontSize: 10,
+            padding: '2px 4px',
+            textDecoration: 'underline',
+          }}
+        >
+          about
+        </button>
+      </div>
     </div>
   );
 }
