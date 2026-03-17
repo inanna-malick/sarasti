@@ -11,7 +11,7 @@ import { Controls } from './ui/Controls';
 import { Landing } from './ui/Landing';
 import { useStore } from './store';
 
-const DATA_URL = '/data/market-history.json';
+const DATA_URL = '/data/market-data.json';
 
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -95,6 +95,10 @@ export function App() {
     driverRef.current?.setLayout(strategy);
   };
 
+  const handleLoopChange = (loop: boolean) => {
+    driverRef.current?.setLoop(loop);
+  };
+
   const handleLandingStart = () => {
     useStore.getState().setShowLanding(false);
     driverRef.current?.play();
@@ -133,7 +137,10 @@ export function App() {
             onSeek={handleSeek}
             onSpeedChange={handleSpeedChange}
           />
-          <Controls onLayoutChange={handleLayoutChange} />
+          <Controls 
+            onLayoutChange={handleLayoutChange} 
+            onLoopChange={handleLoopChange}
+          />
           <Tooltip />
           <DetailPanel />
         </>
