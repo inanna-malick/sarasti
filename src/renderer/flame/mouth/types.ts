@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { FlameModel } from '../types';
 
 /**
  * Measurements extracted from the FLAME template mesh that define
@@ -27,19 +28,28 @@ export interface MouthMeasurements {
   lowerLipCenter: THREE.Vector3;
 }
 
+/** Face index range within the extended model's faces array */
+export interface MouthFaceGroup {
+  faceStart: number;
+  faceCount: number;
+}
+
+/** Face index ranges per mouth material group */
+export interface MouthGroups {
+  teeth: MouthFaceGroup;
+  gums: MouthFaceGroup;
+  tongue: MouthFaceGroup;
+  cavity: MouthFaceGroup;
+}
+
 /**
- * Assembled mouth interior: upper/lower groups positioned by
- * deformed lip vertex centroids each frame.
+ * FlameModel extended with procedural mouth vertices integrated
+ * into all vertex arrays. Deformation pipeline operates on n_vertices
+ * generically — mouth vertices participate in shape + expression + LBS.
  */
-export interface MouthInterior {
-  /** Upper teeth + upper gums (tracks upper lip centroid) */
-  upperGroup: THREE.Group;
-  /** Lower teeth + lower gums + tongue (tracks lower lip centroid) */
-  lowerGroup: THREE.Group;
-  /** Dark cavity backdrop */
-  cavityMesh: THREE.Mesh;
-  /** Update positions from deformed vertex buffer (pipeline output). */
-  update(deformedVertices: Float32Array): void;
-  /** Dispose all geometry and materials */
-  dispose(): void;
+export interface ExtendedFlameModel extends FlameModel {
+  /** Face index ranges per mouth material, or null if extension failed */
+  mouthGroups: MouthGroups | null;
+  /** Original FLAME vertex count before mouth extension */
+  originalVertexCount: number;
 }

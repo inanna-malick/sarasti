@@ -5,15 +5,22 @@ import { zeroPose } from '../../types';
 import { TEXTURE_CONFIG } from '../../binding/config';
 import { identifyEyeVertices } from './eyes';
 import { createEyeMaterial } from './eyeMaterial';
-import { extractMouthMeasurements } from './mouth/measurements';
-import { createMouthInterior } from './mouth/interior';
-import type { MouthInterior } from './mouth/types';
+import type { MouthGroups } from './mouth/types';
+import {
+  createTeethMaterial,
+  createGumsMaterial,
+  createTongueMaterial,
+  createCavityMaterial,
+} from './mouth/materials';
 import { identifyCheekRegion, identifyLipRegion } from './cheeks';
 import type { CheekVertex } from './cheeks';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
  * Uses MeshStandardMaterial with vertex colors derived from the albedo PCA model.
+ *
+ * Mouth interior (teeth, gums, tongue, cavity) is integrated into the vertex
+ * buffers via AGORA — mouth vertices participate in native FLAME deformation.
  */
 export class FlameFaceMesh {
   public readonly mesh: THREE.Mesh;
@@ -21,8 +28,11 @@ export class FlameFaceMesh {
   private material: THREE.MeshStandardMaterial;
   private leftEyeMaterial: THREE.ShaderMaterial;
   private rightEyeMaterial: THREE.ShaderMaterial;
+  private teethMaterial: THREE.MeshStandardMaterial | null = null;
+  private gumsMaterial: THREE.MeshStandardMaterial | null = null;
+  private tongueMaterial: THREE.MeshStandardMaterial | null = null;
+  private cavityMaterial: THREE.MeshBasicMaterial | null = null;
   private pipeline: FlamePipeline;
-  private mouthInterior: MouthInterior | null;
   private baseColors!: Float32Array;
   private cheekVertices: CheekVertex[];
   private lipVertices: CheekVertex[];
@@ -30,26 +40,29 @@ export class FlameFaceMesh {
   constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
     const { model } = pipeline;
+    const mouthGroups = model.mouthGroups;
 
     // 1. Create BufferGeometry
     this.geometry = new THREE.BufferGeometry();
-    
+
     // Identify eye vertices and faces
     const eyeGroups = identifyEyeVertices(model.weights, model.faces, model.n_vertices, model.n_joints);
-    
-    // Reorder face index buffer
+
+    // Reorder face index buffer: non-eye → left-eye → right-eye → mouth groups
     const eyeFaceIndices = new Set([...eyeGroups.leftEyeFaces, ...eyeGroups.rightEyeFaces]);
+    const originalFaceCount = mouthGroups ? mouthGroups.teeth.faceStart : model.n_faces;
+
     const nonEyeFaces: number[] = [];
-    for (let i = 0; i < model.n_faces; i++) {
+    for (let i = 0; i < originalFaceCount; i++) {
       if (!eyeFaceIndices.has(i)) {
         nonEyeFaces.push(i);
       }
     }
 
-    const newIndices = new Uint32Array(model.faces.length);
+    const newIndices = new Uint32Array(model.n_faces * 3);
     let offset = 0;
-    
-    // Non-eye faces (group 0)
+
+    // Non-eye faces (group 0: face skin)
     for (const f of nonEyeFaces) {
       newIndices[offset++] = model.faces[f * 3];
       newIndices[offset++] = model.faces[f * 3 + 1];
@@ -74,13 +87,37 @@ export class FlameFaceMesh {
     const rightEyeIndexCount = eyeGroups.rightEyeFaces.length * 3;
 
     this.geometry.setIndex(new THREE.BufferAttribute(newIndices, 1));
-    this.geometry.addGroup(0, nonEyeIndexCount, 0);
-    this.geometry.addGroup(nonEyeIndexCount, leftEyeIndexCount, 1);
-    this.geometry.addGroup(nonEyeIndexCount + leftEyeIndexCount, rightEyeIndexCount, 2);
+
+    let groupOffset = 0;
+    this.geometry.addGroup(groupOffset, nonEyeIndexCount, 0);
+    groupOffset += nonEyeIndexCount;
+    this.geometry.addGroup(groupOffset, leftEyeIndexCount, 1);
+    groupOffset += leftEyeIndexCount;
+    this.geometry.addGroup(groupOffset, rightEyeIndexCount, 2);
+    groupOffset += rightEyeIndexCount;
+
+    // Mouth material groups (3–6)
+    if (mouthGroups) {
+      offset = this.appendMouthFaces(newIndices, offset, model.faces, mouthGroups);
+      this.geometry.setIndex(new THREE.BufferAttribute(newIndices, 1));
+
+      const teethCount = mouthGroups.teeth.faceCount * 3;
+      const gumsCount = mouthGroups.gums.faceCount * 3;
+      const tongueCount = mouthGroups.tongue.faceCount * 3;
+      const cavityCount = mouthGroups.cavity.faceCount * 3;
+
+      this.geometry.addGroup(groupOffset, teethCount, 3);
+      groupOffset += teethCount;
+      this.geometry.addGroup(groupOffset, gumsCount, 4);
+      groupOffset += gumsCount;
+      this.geometry.addGroup(groupOffset, tongueCount, 5);
+      groupOffset += tongueCount;
+      this.geometry.addGroup(groupOffset, cavityCount, 6);
+    }
 
     const positions = new Float32Array(model.n_vertices * 3);
     const normals = new Float32Array(model.n_vertices * 3);
-    
+
     // computeAlbedoColors now populates this.baseColors
     const colors = this.computeAlbedoColors(tickerId);
 
@@ -147,23 +184,43 @@ gl_FragColor.a *= fade;`
     this.leftEyeMaterial.uniforms.eyeCenter.value.copy(leftCenter);
     this.rightEyeMaterial.uniforms.eyeCenter.value.copy(rightCenter);
 
-    // 3. Create Mesh with multi-material
-    this.mesh = new THREE.Mesh(this.geometry, [
+    // Build materials array
+    const materials: THREE.Material[] = [
       this.material,
       this.leftEyeMaterial,
       this.rightEyeMaterial,
-    ]);
+    ];
 
-    // 4. Mouth interior — procedural geometry parented to face mesh
-    const mouthMeasurements = extractMouthMeasurements(model);
-    if (mouthMeasurements) {
-      this.mouthInterior = createMouthInterior(mouthMeasurements);
-      this.mesh.add(this.mouthInterior.upperGroup);
-      this.mesh.add(this.mouthInterior.lowerGroup);
-      this.mesh.add(this.mouthInterior.cavityMesh);
-    } else {
-      this.mouthInterior = null;
+    if (mouthGroups) {
+      this.teethMaterial = createTeethMaterial();
+      this.gumsMaterial = createGumsMaterial();
+      this.tongueMaterial = createTongueMaterial();
+      this.cavityMaterial = createCavityMaterial();
+
+      // Mouth materials: double-sided for interior visibility
+      for (const mat of [this.teethMaterial, this.gumsMaterial, this.tongueMaterial, this.cavityMaterial] as THREE.Material[]) {
+        mat.side = THREE.DoubleSide;
+      }
+
+      materials.push(this.teethMaterial, this.gumsMaterial, this.tongueMaterial, this.cavityMaterial);
     }
+
+    // 3. Create Mesh with multi-material
+    this.mesh = new THREE.Mesh(this.geometry, materials);
+  }
+
+  /** Append mouth face groups to the index buffer in material-group order. */
+  private appendMouthFaces(
+    indices: Uint32Array, offset: number, faces: Uint32Array, groups: MouthGroups,
+  ): number {
+    for (const group of [groups.teeth, groups.gums, groups.tongue, groups.cavity]) {
+      for (let f = group.faceStart; f < group.faceStart + group.faceCount; f++) {
+        indices[offset++] = faces[f * 3];
+        indices[offset++] = faces[f * 3 + 1];
+        indices[offset++] = faces[f * 3 + 2];
+      }
+    }
+    return offset;
   }
 
   public updateFromParams(params: FaceParams): void {
@@ -181,9 +238,6 @@ gl_FragColor.a *= fade;`
 
     this.updateTexture(params.flush, params.fatigue);
 
-    // Update mouth interior from deformed vertex positions
-    this.mouthInterior?.update(buffers.vertices);
-
     // Update gaze offsets
     this.leftEyeMaterial.uniforms.gazeOffset.value.set(
       pose.leftEye[0],
@@ -193,7 +247,6 @@ gl_FragColor.a *= fade;`
       pose.rightEye[0],
       pose.rightEye[1]
     );
-
 
     // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();
@@ -339,26 +392,26 @@ gl_FragColor.a *= fade;`
   private computeIrisColor(tickerId: string): THREE.Color {
     // We can use the first few coefficients from the albedo hash for variety
     const coeffs = this.getHashedCoefficients(tickerId, 3);
-    
+
     // Default eye colors: brown, blue, green
     const bases = [
       new THREE.Color(0.2, 0.1, 0.05), // Brown
       new THREE.Color(0.1, 0.2, 0.4),  // Blue
       new THREE.Color(0.1, 0.3, 0.1),  // Green
     ];
-    
+
     // Pick base based on hash
     let hash = 0;
     for (let i = 0; i < tickerId.length; i++) {
       hash = (hash * 31 + tickerId.charCodeAt(i)) | 0;
     }
     const base = bases[Math.abs(hash) % bases.length].clone();
-    
+
     // Perturb color slightly with coefficients
     base.r = Math.max(0, Math.min(1, base.r + coeffs[0] * 0.1));
     base.g = Math.max(0, Math.min(1, base.g + coeffs[1] * 0.1));
     base.b = Math.max(0, Math.min(1, base.b + coeffs[2] * 0.1));
-    
+
     return base;
   }
 
@@ -383,6 +436,9 @@ gl_FragColor.a *= fade;`
     this.material.dispose();
     this.leftEyeMaterial.dispose();
     this.rightEyeMaterial.dispose();
-    this.mouthInterior?.dispose();
+    this.teethMaterial?.dispose();
+    this.gumsMaterial?.dispose();
+    this.tongueMaterial?.dispose();
+    this.cavityMaterial?.dispose();
   }
 }
