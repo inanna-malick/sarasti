@@ -18,6 +18,7 @@ export function ExplorerRenderer() {
     let mesh: FlameFaceMesh | null = null;
     let animationFrameId: number;
     let resizeObserver: ResizeObserver;
+    let unsubscribe: (() => void) | null = null;
 
     async function init() {
       if (!containerRef.current) return;
@@ -86,9 +87,9 @@ export function ExplorerRenderer() {
         });
         resizeObserver.observe(container);
 
-        // Subscribe to store changes — poll currentParams on each state change
+        // Subscribe to store changes
         let lastParams: ReturnType<typeof useExplorerStore.getState>['currentParams'] = null;
-        const unsubscribe = useExplorerStore.subscribe((state) => {
+        unsubscribe = useExplorerStore.subscribe((state) => {
           if (state.currentParams && state.currentParams !== lastParams) {
             lastParams = state.currentParams;
             if (mesh) mesh.updateFromParams(state.currentParams);
@@ -105,9 +106,6 @@ export function ExplorerRenderer() {
           renderer.render(scene, camera);
         }
         renderLoop();
-
-        // Cleanup subscription on dispose
-        (renderer as any).__unsubscribe = unsubscribe;
       } catch (err) {
         console.error(err);
         setError(err instanceof Error ? err.message : String(err));
@@ -119,7 +117,7 @@ export function ExplorerRenderer() {
     return () => {
       disposed = true;
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      if ((renderer as any)?.__unsubscribe) (renderer as any).__unsubscribe();
+      unsubscribe?.();
       if (resizeObserver) resizeObserver.disconnect();
       if (mesh) mesh.dispose();
       if (controls) controls.dispose();

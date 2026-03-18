@@ -1,18 +1,9 @@
 import { create } from 'zustand';
 import type { AssetClass, TickerConfig, TickerFrame, FaceParams } from '@/types';
 import { zeroPose } from '@/types';
-import type { BindingReport } from '@/binding/report';
+import type { BindingReport, BindingEntry } from '@/binding/report';
 import { resolveWithReport } from '@/binding/resolve';
-import {
-  N_SHAPE,
-  N_EXPR,
-  MAX_NECK_PITCH,
-  MAX_NECK_YAW,
-  MAX_NECK_ROLL,
-  MAX_JAW_OPEN,
-  MAX_EYE_HORIZONTAL,
-  MAX_EYE_VERTICAL,
-} from '@/constants';
+import { N_SHAPE, N_EXPR } from '@/constants';
 
 type ExplorerMode = 'highlevel' | 'raw';
 
@@ -74,14 +65,21 @@ interface ExplorerState {
   recompute: () => void;
 }
 
+function manualEntry(param: string, index: number, value: number): BindingEntry {
+  return {
+    param, index, value,
+    contributions: [{ source: 'manual', input: value, mapped: value, weight: 1, contribution: value }],
+  };
+}
+
 function recomputeParams(state: ExplorerState): { currentParams: FaceParams; currentReport: BindingReport | null } {
   if (state.mode === 'raw') {
     const params: FaceParams = {
       shape: new Float32Array(state.rawShape),
       expression: new Float32Array(state.rawExpression),
       pose: zeroPose(),
-      flush: 0,
-      fatigue: 0,
+      flush: state.flush,
+      fatigue: state.fatigue,
     };
     applyOverrides(params, state);
     return { currentParams: params, currentReport: null };
@@ -109,8 +107,29 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams; cur
   // Always override texture from sliders in explorer
   params.flush = state.flush;
   params.fatigue = state.fatigue;
+  report.flush = manualEntry('flush', 0, state.flush);
+  report.fatigue = manualEntry('fatigue', 0, state.fatigue);
 
   applyOverrides(params, state);
+
+  // Patch report to reflect overrides so report stays consistent with rendered params
+  if (state.poseOverride) {
+    report.pose = {
+      pitch: manualEntry('pose', 0, state.pitch),
+      yaw: manualEntry('pose', 1, state.yaw),
+      roll: manualEntry('pose', 2, state.roll),
+      jaw: manualEntry('pose', 3, state.jaw),
+    };
+    report.gaze = {
+      horizontal: manualEntry('gaze', 0, state.gazeHorizontal),
+      vertical: manualEntry('gaze', 1, state.gazeVertical),
+    };
+  } else if (state.gazeOverride) {
+    report.gaze = {
+      horizontal: manualEntry('gaze', 0, state.gazeHorizontal),
+      vertical: manualEntry('gaze', 1, state.gazeVertical),
+    };
+  }
 
   return { currentParams: params, currentReport: report };
 }
@@ -132,13 +151,9 @@ function applyOverrides(params: FaceParams, state: ExplorerState): void {
   }
 }
 
-function setter<K extends keyof ExplorerState>(key: K) {
-  return (set: any, get: any) => (v: ExplorerState[K]) => {
-    set({ [key]: v });
-    const state = get();
-    const computed = recomputeParams(state);
-    set(computed);
-  };
+function update(set: any, get: any, patch: Partial<ExplorerState>) {
+  set(patch);
+  set(recomputeParams({ ...get(), ...patch }));
 }
 
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
@@ -149,7 +164,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   family: 'brent',
   deviation: 0,
   velocity: 0,
-  volatility: 0,
+  volatility: 1,
 
   poseOverride: false,
   pitch: 0,
@@ -170,36 +185,34 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   currentParams: null,
   currentReport: null,
 
-  setMode: (mode) => { set({ mode }); set(recomputeParams({ ...get(), mode })); },
-  setAge: (v) => { set({ age: v }); set(recomputeParams({ ...get(), age: v })); },
-  setAssetClass: (v) => { set({ assetClass: v }); set(recomputeParams({ ...get(), assetClass: v })); },
-  setFamily: (v) => { set({ family: v }); set(recomputeParams({ ...get(), family: v })); },
-  setDeviation: (v) => { set({ deviation: v }); set(recomputeParams({ ...get(), deviation: v })); },
-  setVelocity: (v) => { set({ velocity: v }); set(recomputeParams({ ...get(), velocity: v })); },
-  setVolatility: (v) => { set({ volatility: v }); set(recomputeParams({ ...get(), volatility: v })); },
-  setPoseOverride: (v) => { set({ poseOverride: v }); set(recomputeParams({ ...get(), poseOverride: v })); },
-  setPitch: (v) => { set({ pitch: v }); set(recomputeParams({ ...get(), pitch: v })); },
-  setYaw: (v) => { set({ yaw: v }); set(recomputeParams({ ...get(), yaw: v })); },
-  setRoll: (v) => { set({ roll: v }); set(recomputeParams({ ...get(), roll: v })); },
-  setJaw: (v) => { set({ jaw: v }); set(recomputeParams({ ...get(), jaw: v })); },
-  setGazeOverride: (v) => { set({ gazeOverride: v }); set(recomputeParams({ ...get(), gazeOverride: v })); },
-  setGazeHorizontal: (v) => { set({ gazeHorizontal: v }); set(recomputeParams({ ...get(), gazeHorizontal: v })); },
-  setGazeVertical: (v) => { set({ gazeVertical: v }); set(recomputeParams({ ...get(), gazeVertical: v })); },
-  setFlush: (v) => { set({ flush: v }); set(recomputeParams({ ...get(), flush: v })); },
-  setFatigue: (v) => { set({ fatigue: v }); set(recomputeParams({ ...get(), fatigue: v })); },
+  setMode: (v) => update(set, get, { mode: v }),
+  setAge: (v) => update(set, get, { age: v }),
+  setAssetClass: (v) => update(set, get, { assetClass: v }),
+  setFamily: (v) => update(set, get, { family: v }),
+  setDeviation: (v) => update(set, get, { deviation: v }),
+  setVelocity: (v) => update(set, get, { velocity: v }),
+  setVolatility: (v) => update(set, get, { volatility: v }),
+  setPoseOverride: (v) => update(set, get, { poseOverride: v }),
+  setPitch: (v) => update(set, get, { pitch: v }),
+  setYaw: (v) => update(set, get, { yaw: v }),
+  setRoll: (v) => update(set, get, { roll: v }),
+  setJaw: (v) => update(set, get, { jaw: v }),
+  setGazeOverride: (v) => update(set, get, { gazeOverride: v }),
+  setGazeHorizontal: (v) => update(set, get, { gazeHorizontal: v }),
+  setGazeVertical: (v) => update(set, get, { gazeVertical: v }),
+  setFlush: (v) => update(set, get, { flush: v }),
+  setFatigue: (v) => update(set, get, { fatigue: v }),
 
   setRawShape: (index, value) => {
     const arr = new Float32Array(get().rawShape);
     arr[index] = value;
-    set({ rawShape: arr });
-    set(recomputeParams({ ...get(), rawShape: arr }));
+    update(set, get, { rawShape: arr });
   },
 
   setRawExpression: (index, value) => {
     const arr = new Float32Array(get().rawExpression);
     arr[index] = value;
-    set({ rawExpression: arr });
-    set(recomputeParams({ ...get(), rawExpression: arr }));
+    update(set, get, { rawExpression: arr });
   },
 
   recompute: () => {

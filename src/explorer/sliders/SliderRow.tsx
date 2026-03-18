@@ -15,10 +15,10 @@ const defaultFormat = (v: number) => v.toFixed(3);
 
 export function SliderRow({ label, value, min, max, step, onChange, format = defaultFormat }: SliderRowProps) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-      <label style={{ width: 90, fontSize: 11, color: '#aaa', flexShrink: 0, fontFamily: 'monospace' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, cursor: 'pointer' }}>
+      <span style={{ width: 90, fontSize: 11, color: '#aaa', flexShrink: 0, fontFamily: 'monospace' }}>
         {label}
-      </label>
+      </span>
       <input
         type="range"
         min={min}
@@ -31,6 +31,6 @@ export function SliderRow({ label, value, min, max, step, onChange, format = def
       <span style={{ width: 55, fontSize: 11, color: '#ccc', fontFamily: 'monospace', textAlign: 'right' }}>
         {format(value)}
       </span>
-    </div>
+    </label>
   );
 }

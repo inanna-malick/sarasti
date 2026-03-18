@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useExplorerStore } from './store';
 
-// Reset store between tests
+// Reset store between tests — volatility=1 is neutral (pose/gaze use vol-1.0)
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
@@ -10,7 +10,7 @@ beforeEach(() => {
     family: 'brent',
     deviation: 0,
     velocity: 0,
-    volatility: 0,
+    volatility: 1,
     poseOverride: false,
     pitch: 0,
     yaw: 0,
@@ -48,7 +48,6 @@ describe('ExplorerStore', () => {
     useExplorerStore.getState().setDeviation(0.15);
     const changed = useExplorerStore.getState().currentParams!.expression;
 
-    // At least one expression coefficient should differ
     let differs = false;
     for (let i = 0; i < baseline.length; i++) {
       if (baseline[i] !== changed[i]) { differs = true; break; }
@@ -57,9 +56,6 @@ describe('ExplorerStore', () => {
   });
 
   it('shape resolver produces Float32Array of correct length', () => {
-    // Shape differentiation by age/class requires Semantify direction tables
-    // which aren't available in unit tests. Verify the pipeline still produces
-    // correct-length arrays and that mode switching works.
     useExplorerStore.getState().recompute();
     const params = useExplorerStore.getState().currentParams!;
     expect(params.shape).toBeInstanceOf(Float32Array);
@@ -78,7 +74,6 @@ describe('ExplorerStore', () => {
     const state = useExplorerStore.getState();
     expect(state.currentReport).toBeNull();
     expect(state.currentParams).not.toBeNull();
-    // All zeros in raw mode defaults
     const allZero = state.currentParams!.shape.every(v => v === 0);
     expect(allZero).toBe(true);
   });
@@ -88,6 +83,15 @@ describe('ExplorerStore', () => {
     useExplorerStore.getState().setRawShape(0, 3.5);
     const params = useExplorerStore.getState().currentParams!;
     expect(params.shape[0]).toBe(3.5);
+  });
+
+  it('raw mode uses texture slider values', () => {
+    useExplorerStore.getState().setMode('raw');
+    useExplorerStore.getState().setFlush(0.5);
+    useExplorerStore.getState().setFatigue(-0.3);
+    const params = useExplorerStore.getState().currentParams!;
+    expect(params.flush).toBe(0.5);
+    expect(params.fatigue).toBe(-0.3);
   });
 
   it('pose override replaces pose values', () => {
@@ -129,5 +133,31 @@ describe('ExplorerStore', () => {
     const params = useExplorerStore.getState().currentParams!;
     expect(params.flush).toBe(0.7);
     expect(params.fatigue).toBe(-0.5);
+  });
+
+  it('report reflects manual texture overrides', () => {
+    useExplorerStore.getState().setFlush(0.8);
+    const { currentReport, currentParams } = useExplorerStore.getState();
+    expect(currentReport).not.toBeNull();
+    expect(currentReport!.flush.value).toBe(currentParams!.flush);
+    expect(currentReport!.flush.contributions[0].source).toBe('manual');
+  });
+
+  it('report reflects pose override when enabled', () => {
+    useExplorerStore.getState().setPoseOverride(true);
+    useExplorerStore.getState().setPitch(0.2);
+    const { currentReport, currentParams } = useExplorerStore.getState();
+    expect(currentReport).not.toBeNull();
+    expect(currentReport!.pose.pitch.value).toBe(currentParams!.pose.neck[0]);
+    expect(currentReport!.pose.pitch.contributions[0].source).toBe('manual');
+  });
+
+  it('report reflects gaze override when enabled', () => {
+    useExplorerStore.getState().setGazeOverride(true);
+    useExplorerStore.getState().setGazeHorizontal(0.3);
+    const { currentReport, currentParams } = useExplorerStore.getState();
+    expect(currentReport).not.toBeNull();
+    expect(currentReport!.gaze.horizontal.value).toBe(currentParams!.pose.leftEye[0]);
+    expect(currentReport!.gaze.horizontal.contributions[0].source).toBe('manual');
   });
 });

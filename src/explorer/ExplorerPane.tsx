@@ -95,6 +95,7 @@ export function ExplorerPane() {
             <>
               <PoseSliders />
               <GazeSliders />
+              <TextureSliders />
               <RawSliders />
             </>
           )}
