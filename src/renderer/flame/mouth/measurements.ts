@@ -52,20 +52,23 @@ export function classifyLipVertices(
 
 /**
  * Compute the centroid of a set of vertices from a flat vertex buffer.
+ * Writes into `out` to avoid per-frame allocation. Returns `out`.
  */
 export function computeVertexCentroid(
   vertices: Float32Array,
-  indices: number[],
+  indices: number[] | Uint32Array,
+  out: THREE.Vector3 = new THREE.Vector3(),
 ): THREE.Vector3 {
-  if (indices.length === 0) return new THREE.Vector3();
+  if (indices.length === 0) return out.set(0, 0, 0);
   let sx = 0, sy = 0, sz = 0;
-  for (const v of indices) {
+  for (let i = 0; i < indices.length; i++) {
+    const v = indices[i];
     sx += vertices[v * 3];
     sy += vertices[v * 3 + 1];
     sz += vertices[v * 3 + 2];
   }
   const n = indices.length;
-  return new THREE.Vector3(sx / n, sy / n, sz / n);
+  return out.set(sx / n, sy / n, sz / n);
 }
 
 /**
@@ -83,8 +86,11 @@ export function extractMouthMeasurements(model: FlameModel): MouthMeasurements |
     return null;
   }
 
-  // 2. Classify into upper and lower lip
+  // 2. Classify into upper and lower lip — need both sets for anchoring
   const { upper, lower } = classifyLipVertices(lipVertices, weights, n_joints);
+  if (upper.length === 0 || lower.length === 0) {
+    return null;
+  }
 
   // 3. Compute bounding box of all lip vertices
   let minX = Infinity, maxX = -Infinity;

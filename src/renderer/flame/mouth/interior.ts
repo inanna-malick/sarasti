@@ -89,6 +89,17 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   const restDZ = m.lowerLipCenter.z - m.upperLipCenter.z;
   const restAngle = Math.atan2(restDZ, restDY);
 
+  // Preallocated vectors for per-frame centroid computation (zero GC pressure)
+  const _upperCenter = new THREE.Vector3();
+  const _lowerCenter = new THREE.Vector3();
+
+  // Tight index arrays for iteration
+  const upperIndices = new Uint32Array(m.upperLipVertices);
+  const lowerIndices = new Uint32Array(m.lowerLipVertices);
+
+  // Minimum vector length for stable rotation derivation
+  const ROTATION_EPSILON = 1e-6;
+
   return {
     upperGroup,
     lowerGroup,
@@ -104,35 +115,38 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
         (mat as THREE.MeshStandardMaterial | THREE.MeshBasicMaterial).opacity = 1;
       }
 
-      // Compute deformed lip centroids from vertex buffer
-      const upperCenter = computeVertexCentroid(deformedVertices, m.upperLipVertices);
-      const lowerCenter = computeVertexCentroid(deformedVertices, m.lowerLipVertices);
+      // Compute deformed lip centroids into preallocated vectors
+      computeVertexCentroid(deformedVertices, upperIndices, _upperCenter);
+      computeVertexCentroid(deformedVertices, lowerIndices, _lowerCenter);
 
       // Position upper group at deformed upper lip centroid + recess
-      upperGroup.position.copy(upperCenter);
+      upperGroup.position.copy(_upperCenter);
       upperGroup.position.z += recessZ;
 
       // Position lower group at deformed lower lip centroid + recess
-      lowerGroup.position.copy(lowerCenter);
+      lowerGroup.position.copy(_lowerCenter);
       lowerGroup.position.z += recessZ;
 
       // Derive jaw rotation from deformed upper→lower vector vs rest-pose vector
       // Jaw rotates around X axis, so we measure angle change in YZ plane
-      const defDY = lowerCenter.y - upperCenter.y;
-      const defDZ = lowerCenter.z - upperCenter.z;
-      const defAngle = Math.atan2(defDZ, defDY);
-      const jawRotation = defAngle - restAngle;
+      const defDY = _lowerCenter.y - _upperCenter.y;
+      const defDZ = _lowerCenter.z - _upperCenter.z;
+      const vecLen = Math.sqrt(defDY * defDY + defDZ * defDZ);
 
-      lowerGroup.rotation.x = jawRotation;
-
-      // Tongue tracks at 0.7× jaw rotation (relative to lower group)
-      tongue.rotation.x = -jawRotation * 0.3;
+      if (vecLen > ROTATION_EPSILON) {
+        const defAngle = Math.atan2(defDZ, defDY);
+        const jawRotation = defAngle - restAngle;
+        lowerGroup.rotation.x = jawRotation;
+        // Tongue tracks at 0.7× jaw rotation (relative to lower group)
+        tongue.rotation.x = -jawRotation * 0.3;
+      }
+      // else: keep previous rotation (degenerate vector, skip update)
 
       // Cavity midpoint between upper and lower
       cavityMesh.position.set(
-        (upperCenter.x + lowerCenter.x) / 2,
-        (upperCenter.y + lowerCenter.y) / 2,
-        (upperCenter.z + lowerCenter.z) / 2 + recessZ - m.mouthDepth * 0.3,
+        (_upperCenter.x + _lowerCenter.x) / 2,
+        (_upperCenter.y + _lowerCenter.y) / 2,
+        (_upperCenter.z + _lowerCenter.z) / 2 + recessZ - m.mouthDepth * 0.3,
       );
     },
 

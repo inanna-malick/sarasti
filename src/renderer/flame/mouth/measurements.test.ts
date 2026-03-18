@@ -134,4 +134,18 @@ describe('extractMouthMeasurements', () => {
     const measurements = extractMouthMeasurements(model);
     expect(measurements).toBeNull();
   });
+
+  it('returns null when all lip vertices classify to one side (empty upper or lower)', () => {
+    const model = makeMockFlameModel();
+    const nJoints = model.n_joints;
+
+    // Both lip vertices have jaw weight >= 0.5 → all lower, no upper
+    model.weights[1 * nJoints + 2] = 0.6;
+    model.weights[1 * nJoints + 1] = 0.2;
+    model.weights[3 * nJoints + 2] = 0.55;
+    model.weights[3 * nJoints + 3] = 0.25;
+
+    const measurements = extractMouthMeasurements(model);
+    expect(measurements).toBeNull();
+  });
 });
