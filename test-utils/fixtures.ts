@@ -1,4 +1,4 @@
-import type { TickerConfig, TickerFrame, Frame, TimelineDataset, FaceParams } from '../src/types';
+import type { TickerConfig, TickerFrame, Frame, TimelineDataset, FaceParams, GenericFaceInstance } from '../src/types';
 import { zeroPose } from '../src/types';
 import { N_SHAPE, N_EXPR } from '../src/constants';
 
@@ -75,4 +75,15 @@ export function randomFaceParams(): FaceParams {
   for (let i = 0; i < N_SHAPE; i++) shape[i] = (Math.random() - 0.5) * 2;
   for (let i = 0; i < N_EXPR; i++) expression[i] = (Math.random() - 0.5) * 2;
   return { shape, expression, pose: zeroPose(), flush: 0, fatigue: 0 };
+}
+
+export function makeGenericFaceInstance(overrides: Partial<GenericFaceInstance> = {}): GenericFaceInstance {
+  const id = overrides.id ?? 'test-face';
+  return {
+    id,
+    params: zeroFaceParams(),
+    position: [0, 0, 0],
+    datum: { id },
+    ...overrides,
+  };
 }

@@ -106,3 +106,29 @@ export interface PlaybackState {
   speed: number;
   loop: boolean;
 }
+
+// ─── Library Generic Types ───────────────────────────
+
+/** Consumer's data shape — opaque to library */
+export interface FaceDatum {
+  id: string;
+  label?: string;
+  [key: string]: unknown;
+}
+
+/** Timeline frame for generic data */
+export interface FaceFrame<T extends FaceDatum = FaceDatum> {
+  timestamp: string;  // ISO timestamp
+  data: T[];
+}
+
+/** Accessor: extracts a number from a datum */
+export type Accessor<T = unknown> = (datum: T) => number;
+
+/** Generic face instance (library API) */
+export interface GenericFaceInstance<T extends FaceDatum = FaceDatum> {
+  id: string;
+  params: FaceParams;
+  position: [number, number, number];
+  datum: T;
+}
