@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useExplorerStore, EXPR_MAPPINGS, SHAPE_MAPPINGS } from './store';
+import { useExplorerStore } from './store';
+import { EXPR_AXES as EXPR_MAPPINGS, SHAPE_AXES as SHAPE_MAPPINGS } from '@/binding/axes';
 
 function ArraySection({ title, prefix, data }: { title: string; prefix: string; data: Float32Array | null }) {
   const [open, setOpen] = useState(false);

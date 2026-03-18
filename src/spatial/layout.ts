@@ -17,7 +17,7 @@ const DEFAULT_ASPECT = 16 / 9;
  * in a rectangular grid whose aspect ratio approximates the viewport.
  * Last row centered when it has fewer items.
  */
-export function computeLayout(tickers: TickerConfig[], aspect: number = DEFAULT_ASPECT): LayoutResult {
+export function gridLayout(tickers: TickerConfig[], aspect: number = DEFAULT_ASPECT): LayoutResult {
   const positions = new Map<string, [number, number, number]>();
   const safeAspect = Number.isFinite(aspect) && aspect > 0 ? aspect : DEFAULT_ASPECT;
 

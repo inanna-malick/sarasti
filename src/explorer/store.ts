@@ -2,61 +2,15 @@ import { create } from 'zustand';
 import type { FaceParams } from '@/types';
 import { zeroPose } from '@/types';
 import { N_SHAPE, N_EXPR } from '@/constants';
+import {
+  EXPR_AXES,
+  SHAPE_AXES,
+  type ExprAxis,
+  type ShapeAxis,
+  applyMapping,
+} from '@/binding/axes';
 
 type ExplorerMode = 'highlevel' | 'raw';
-
-/**
- * Direct FLAME parameter mappings for data-viz.
- * Each semantic axis maps to specific ψ/β components with weights.
- * These are hand-tuned for dramatic, legible deformation — not photorealism.
- *
- * Component catalog (FLAME 2023 Open, official PCA ordering):
- *   ψ0: jaw drop            ψ1: smile/frown (ASYMMETRIC)  ψ2: brow raise
- *   ψ3: brow furrow         ψ4: lip pucker                ψ5: upper lip raiser
- *   ψ6: lower lip depressor ψ7: eyelid close              ψ8: nose wrinkler
- *   ψ9: cheek puffer (ASYMMETRIC)
- *
- *   β0: global width         β1: face length         β2: sagittal depth (profile)
- *   β3: mandibular width     β4: brow ridge          β5: nasal bridge
- *   β6: cheekbone prominence β8: mouth size          β10: chin projection
- *   β16+: high-freq/asymmetric, keep ≤±3.5σ
- */
-
-// Expression axes — each entry is [ψ_index, weight]
-// Emotion Quartet: 4 bipolar axes with minimal overlap.
-// Weights target raw ψ values up to ~7 at slider extremes (cartoon-level exaggeration).
-// ψ1 (smile) and ψ9 (cheek puff) are ASYMMETRIC at the mouth — avoided entirely.
-// Safe symmetric set: ψ0 (jaw), ψ2 (brow raise), ψ3 (brow furrow), ψ4 (lip pucker),
-//   ψ5 (upper lip), ψ6 (lower lip), ψ7 (eyelid), ψ8 (nose wrinkle).
-const EXPR_MAPPINGS = {
-  // Joy (+) / Grief (-): jaw-dominant with eye opening. Lower face + eyes.
-  joy: [[0, 2.0], [5, -1.5], [7, -0.7]] as [number, number][],
-  // Anguish (+) / Serenity (-): brow furrow + nose wrinkle + upper lip snarl. Mid-face.
-  anguish: [[3, 2.3], [8, 1.5], [5, 1.2]] as [number, number][],
-  // Surprise (+) / Calm (-): brow rockets + jaw drops + eyes snap open. Classic surprise.
-  surprise: [[2, 2.3], [0, 1.5], [7, -1.5]] as [number, number][],
-  // Tension (+) / Slack (-): lips pucker + lower lip tenses + nose sets. Mouth-region clench.
-  tension: [[4, 2.0], [6, 1.5], [8, 1.0]] as [number, number][],
-} as const;
-
-// Shape axes — each entry is [β_index, weight]
-// Shape Triad: 3 bipolar axes with zero component overlap.
-// Each axis has a root note (dominant silhouette driver) + 1-2 color tones (seasoning).
-// Global components (β0-β3) pushed hard; mid-freq (β4-β10) kept conservative.
-const SHAPE_MAPPINGS = {
-  // Heavy (+) / Gaunt (-): overall mass and presence.
-  // Root: β0 (global width). Color: β3 (jaw width), β2 (profile depth).
-  stature: [[0, 2.5], [3, 1.5], [2, 1.0]] as [number, number][],
-  // Elongated (+) / Compact (-): vertical distribution of mass.
-  // Root: β1 (face length). Color: β4 (brow ridge, inverse), β6 (cheekbone, inverse).
-  proportion: [[1, 2.5], [4, -1.5], [6, -1.0]] as [number, number][],
-  // Chiseled (+) / Soft (-): sharpness of features.
-  // Root: β10 (chin projection). Color: β8 (mouth size, inverse), β5 (nasal bridge, inverse).
-  angularity: [[10, 1.5], [8, -1.2], [5, -1.0]] as [number, number][],
-} as const;
-
-type ExprAxis = keyof typeof EXPR_MAPPINGS;
-type ShapeAxis = keyof typeof SHAPE_MAPPINGS;
 
 interface ExplorerState {
   mode: ExplorerMode;
@@ -119,14 +73,6 @@ interface ExplorerState {
   recompute: () => void;
 }
 
-function applyMapping(target: Float32Array, mapping: readonly [number, number][], value: number): void {
-  for (const [idx, weight] of mapping) {
-    if (idx < target.length) {
-      target[idx] += weight * value;
-    }
-  }
-}
-
 function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   if (state.mode === 'raw') {
     const params: FaceParams = {
@@ -145,15 +91,15 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   const expression = new Float32Array(N_EXPR);
 
   // Apply expression axes
-  applyMapping(expression, EXPR_MAPPINGS.joy, state.joy);
-  applyMapping(expression, EXPR_MAPPINGS.anguish, state.anguish);
-  applyMapping(expression, EXPR_MAPPINGS.surprise, state.surprise);
-  applyMapping(expression, EXPR_MAPPINGS.tension, state.tension);
+  applyMapping(expression, EXPR_AXES.joy, state.joy);
+  applyMapping(expression, EXPR_AXES.anguish, state.anguish);
+  applyMapping(expression, EXPR_AXES.surprise, state.surprise);
+  applyMapping(expression, EXPR_AXES.tension, state.tension);
 
   // Apply shape axes
-  applyMapping(shape, SHAPE_MAPPINGS.stature, state.stature);
-  applyMapping(shape, SHAPE_MAPPINGS.proportion, state.proportion);
-  applyMapping(shape, SHAPE_MAPPINGS.angularity, state.angularity);
+  applyMapping(shape, SHAPE_AXES.stature, state.stature);
+  applyMapping(shape, SHAPE_AXES.proportion, state.proportion);
+  applyMapping(shape, SHAPE_AXES.angularity, state.angularity);
 
   const params: FaceParams = {
     shape,
@@ -256,5 +202,5 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
 }));
 
 // Export mappings for use in report panel
-export { EXPR_MAPPINGS, SHAPE_MAPPINGS };
+export { EXPR_AXES as EXPR_MAPPINGS, SHAPE_AXES as SHAPE_MAPPINGS };
 export type { ExprAxis, ShapeAxis };

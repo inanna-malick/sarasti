@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { TICKERS } from '../tickers';
-import { computeLayout } from './layout';
+import { gridLayout } from './layout';
 
-describe('computeLayout', () => {
-  const landscape = computeLayout(TICKERS, 16 / 9);
-  const portrait = computeLayout(TICKERS, 9 / 16);
+describe('gridLayout', () => {
+  const landscape = gridLayout(TICKERS, 16 / 9);
+  const portrait = gridLayout(TICKERS, 9 / 16);
 
   describe.each([
     ['landscape', landscape, 16 / 9],

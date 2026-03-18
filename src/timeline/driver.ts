@@ -7,7 +7,7 @@ import type {
 import { zeroPose } from '../types';
 import { getFrame } from '../data/loader';
 import { createResolver } from '../binding/resolve';
-import { computeLayout } from '../spatial/layout';
+import { gridLayout } from '../spatial/layout';
 import { TimelineEngine } from './engine';
 import { useStore } from '../store';
 
@@ -51,7 +51,7 @@ export class FrameDriver {
     const aspect = typeof window !== 'undefined'
       ? window.innerWidth / Math.max(window.innerHeight, 1)
       : 16 / 9;
-    const layout = computeLayout(dataset.tickers, aspect);
+    const layout = gridLayout(dataset.tickers, aspect);
     this.positions = layout.positions;
 
     // Create engine

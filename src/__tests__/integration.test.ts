@@ -4,7 +4,7 @@ import { resolve as pathResolve } from 'path';
 import type { TimelineDataset, Frame, FaceInstance } from '../types';
 import { parseDataset, getFrameAtTime } from '../data/loader';
 import { createResolver } from '../binding/resolve';
-import { computeLayout } from '../spatial/layout';
+import { gridLayout } from '../spatial/layout';
 import { N_SHAPE, N_EXPR } from '../constants';
 
 function loadRealDataset(): TimelineDataset {
@@ -49,7 +49,7 @@ function assertNoNaN(arr: Float32Array, label: string) {
 
 describe('root integration: data → binding → spatial → instances', () => {
   const dataset = loadRealDataset();
-  const layout = computeLayout(dataset.tickers);
+  const layout = gridLayout(dataset.tickers);
 
   it('loads dataset with tickers and frames', () => {
     expect(dataset.tickers.length).toBeGreaterThanOrEqual(10);
