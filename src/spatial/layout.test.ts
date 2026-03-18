@@ -1,12 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { TICKERS } from '../tickers';
 import { computeLayout } from './layout';
-import type { AssetClass } from '../types';
 
 describe('computeLayout', () => {
-  // Landscape (default)
   const landscape = computeLayout(TICKERS, 16 / 9);
-  // Portrait (phone)
   const portrait = computeLayout(TICKERS, 9 / 16);
 
   describe.each([
@@ -40,81 +37,67 @@ describe('computeLayout', () => {
       }
     });
 
-    it('sorts younger faces higher (larger Y) within each class', () => {
-      const groups = new Map<AssetClass, typeof TICKERS>();
-      for (const t of TICKERS) {
-        let arr = groups.get(t.class);
-        if (!arr) {
-          arr = [];
-          groups.set(t.class, arr);
-        }
-        arr.push(t);
-      }
+    it('produces a rectangular grid with uniform spacing', () => {
+      const positions = Array.from(result.positions.values());
+      const xs = [...new Set(positions.map(p => Math.round(p[0] * 1000) / 1000))].sort((a, b) => a - b);
+      const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => a - b);
 
-      for (const [cls, arr] of groups) {
-        if (arr.length < 2) continue;
-        const sorted = [...arr].sort((a, b) => a.age - b.age);
-        for (let i = 0; i < sorted.length - 1; i++) {
-          const yA = result.positions.get(sorted[i].id)![1];
-          const yB = result.positions.get(sorted[i + 1].id)![1];
-          expect(yA, `in class '${cls}', age ${sorted[i].age} should be above age ${sorted[i + 1].age}`).toBeGreaterThanOrEqual(yB);
+      if (xs.length > 1) {
+        const xStep = xs[1] - xs[0];
+        for (let i = 2; i < xs.length; i++) {
+          expect(xs[i] - xs[i - 1]).toBeCloseTo(xStep);
         }
+      }
+      if (ys.length > 1) {
+        const yStep = ys[1] - ys[0];
+        for (let i = 2; i < ys.length; i++) {
+          expect(ys[i] - ys[i - 1]).toBeCloseTo(yStep);
+        }
+      }
+    });
+
+    it('all rows have same width except possibly the last', () => {
+      const positions = Array.from(result.positions.values());
+      const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => b - a);
+
+      const rowWidths = ys.map(y => {
+        const rowPositions = positions.filter(p => Math.round(p[1] * 1000) / 1000 === y);
+        const rowXs = rowPositions.map(p => p[0]);
+        return Math.max(...rowXs) - Math.min(...rowXs);
+      });
+
+      for (let i = 1; i < rowWidths.length - 1; i++) {
+        expect(rowWidths[i]).toBeCloseTo(rowWidths[0]);
+      }
+    });
+
+    it('all full rows have same column count', () => {
+      const positions = Array.from(result.positions.values());
+      const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => b - a);
+      if (ys.length <= 1) return;
+
+      const fullRowY = ys[0];
+      const fullRowCount = positions.filter(p => Math.round(p[1] * 1000) / 1000 === fullRowY).length;
+
+      for (let i = 0; i < ys.length - 1; i++) {
+        const rowCount = positions.filter(p => Math.round(p[1] * 1000) / 1000 === ys[i]).length;
+        expect(rowCount).toBe(fullRowCount);
       }
     });
   });
 
-  it('landscape: all classes in one row (same-class faces share X)', () => {
-    const classCols = new Map<AssetClass, Set<number>>();
-    for (const t of TICKERS) {
-      const pos = landscape.positions.get(t.id)!;
-      let cols = classCols.get(t.class);
-      if (!cols) {
-        cols = new Set();
-        classCols.set(t.class, cols);
-      }
-      cols.add(pos[0]);
-    }
-    for (const [cls, cols] of classCols) {
-      expect(cols.size, `class '${cls}' should be in one column`).toBe(1);
-    }
+  it('portrait: more rows than columns', () => {
+    const positions = Array.from(portrait.positions.values());
+    const cols = new Set(positions.map(p => Math.round(p[0] * 1000) / 1000)).size;
+    const rows = new Set(positions.map(p => Math.round(p[1] * 1000) / 1000)).size;
+    expect(rows).toBeGreaterThanOrEqual(cols);
   });
 
-  it('landscape: inter-class gap > intra-class spacing', () => {
-    const classX = new Map<AssetClass, number>();
-    for (const t of TICKERS) {
-      if (!classX.has(t.class)) {
-        classX.set(t.class, landscape.positions.get(t.id)![0]);
-      }
-    }
-
-    const xValues = [...classX.values()].sort((a, b) => a - b);
-    if (xValues.length < 2) return;
-    const interClassGap = xValues[1] - xValues[0];
-
-    const energyTickers = TICKERS.filter(t => t.class === 'energy');
-    const yValues = energyTickers
-      .map(t => landscape.positions.get(t.id)![1])
-      .sort((a, b) => b - a);
-    if (yValues.length < 2) return;
-    const intraClassSpacing = yValues[0] - yValues[1];
-
-    expect(interClassGap).toBeGreaterThan(intraClassSpacing);
-  });
-
-  it('portrait: wraps into fewer columns per row', () => {
-    // In portrait, not all classes should share a single Y band
-    const classY = new Map<AssetClass, number>();
-    for (const t of TICKERS) {
-      // Use the first ticker of each class to find its Y center
-      if (!classY.has(t.class)) {
-        classY.set(t.class, portrait.positions.get(t.id)![1]);
-      }
-    }
-    const uniqueYBands = new Set(
-      [...classY.values()].map(y => Math.round(y))
-    );
-    // With 5 active classes at aspect 9/16, should have > 1 row band
-    expect(uniqueYBands.size).toBeGreaterThan(1);
+  it('landscape: more columns than rows', () => {
+    const positions = Array.from(landscape.positions.values());
+    const cols = new Set(positions.map(p => Math.round(p[0] * 1000) / 1000)).size;
+    const rows = new Set(positions.map(p => Math.round(p[1] * 1000) / 1000)).size;
+    expect(cols).toBeGreaterThanOrEqual(rows);
   });
 
   it('portrait: grid is taller than wide', () => {
@@ -124,5 +107,21 @@ describe('computeLayout', () => {
     const width = Math.max(...xs) - Math.min(...xs);
     const height = Math.max(...ys) - Math.min(...ys);
     expect(height).toBeGreaterThan(width);
+  });
+
+  it('last row is centered', () => {
+    const positions = Array.from(landscape.positions.values());
+    const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => b - a);
+    if (ys.length < 2) return;
+
+    const lastRowY = ys[ys.length - 1];
+    const firstRowY = ys[0];
+    const lastRowPositions = positions.filter(p => Math.round(p[1] * 1000) / 1000 === lastRowY);
+    const firstRowPositions = positions.filter(p => Math.round(p[1] * 1000) / 1000 === firstRowY);
+
+    const lastRowCenterX = lastRowPositions.reduce((s, p) => s + p[0], 0) / lastRowPositions.length;
+    const firstRowCenterX = firstRowPositions.reduce((s, p) => s + p[0], 0) / firstRowPositions.length;
+
+    expect(lastRowCenterX).toBeCloseTo(firstRowCenterX, 1);
   });
 });
