@@ -311,8 +311,10 @@ export const TEXTURE_CONFIG = {
   ema_window: 20,
   ema_alpha: 2 / (20 + 1),
   flush: {
-    components: [0, 2],
-    weights: [2.0, 1.5],
+    red_intensity: 0.15,    // max red channel addition at cheek center
+    green_intensity: 0.03,  // slight warmth
+    blue_intensity: 0.0,    // no blue — red flush, not pink
+    cheek_radius: 0.03,     // Gaussian falloff radius
     sigmoid_center: 0.15,
     sigmoid_steepness: 4,
     sigmoid_range: [0, 0.3] as [number, number],
