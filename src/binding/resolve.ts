@@ -306,6 +306,10 @@ function blendRegister(
   }
 }
 
+// ─── Exported for report tracing ────────────────────
+
+export { CLASS_BUILD_SCORES };
+
 // ─── Unified Resolver ───────────────────────────────
 
 /**
@@ -444,5 +448,29 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       poseResolver.reset();
       gazeResolver.reset();
     },
+
+    /** Get current accumulator state for a ticker (for report generation). */
+    getAccumulator(tickerId: string): TextureAccumulator | undefined {
+      return accumulatorMap.get(tickerId);
+    },
   };
+}
+
+// ─── Report-augmented resolve ───────────────────────
+
+import { generateReport, type BindingReport } from './report';
+
+/**
+ * Resolve FaceParams and generate a BindingReport tracing each output
+ * parameter back to its input sources.
+ */
+export function resolveWithReport(
+  ticker: TickerConfig,
+  frame: TickerFrame,
+  config: BindingConfig = DEFAULT_BINDING_CONFIG,
+  statics?: TickerStatic,
+): { params: FaceParams; report: BindingReport } {
+  const params = resolve(ticker, frame, config);
+  const report = generateReport(ticker, frame, params, config, statics);
+  return { params, report };
 }
