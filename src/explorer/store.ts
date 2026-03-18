@@ -16,8 +16,10 @@ type ExplorerMode = 'highlevel' | 'raw';
  *   ψ6: lower lip depressor ψ7: eyelid close              ψ8: nose wrinkler
  *   ψ9: cheek puffer (ASYMMETRIC)
  *
- *   β0: face width    β1: face height    β2: jaw shape (square/pointed)
- *   β3: secondary width   β4+: finer detail
+ *   β0: global width         β1: face length         β2: sagittal depth (profile)
+ *   β3: mandibular width     β4: brow ridge          β5: nasal bridge
+ *   β6: cheekbone prominence β8: mouth size          β10: chin projection
+ *   β16+: high-freq/asymmetric, keep ≤±3.5σ
  */
 
 // Expression axes — each entry is [ψ_index, weight]
@@ -38,13 +40,19 @@ const EXPR_MAPPINGS = {
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
+// Shape Triad: 3 bipolar axes with zero component overlap.
+// Each axis has a root note (dominant silhouette driver) + 1-2 color tones (seasoning).
+// Global components (β0-β3) pushed hard; mid-freq (β4-β10) kept conservative.
 const SHAPE_MAPPINGS = {
-  // Wider (+) / Narrower (-)
-  width: [[0, 3.0], [3, 1.5]] as [number, number][],
-  // Taller (+) / Shorter (-)
-  height: [[1, 3.0]] as [number, number][],
-  // Square jaw (+) / Pointed chin (-)
-  jaw: [[2, 3.0]] as [number, number][],
+  // Heavy (+) / Gaunt (-): overall mass and presence.
+  // Root: β0 (global width). Color: β3 (jaw width), β2 (profile depth).
+  stature: [[0, 2.5], [3, 1.5], [2, 1.0]] as [number, number][],
+  // Elongated (+) / Compact (-): vertical distribution of mass.
+  // Root: β1 (face length). Color: β4 (brow ridge, inverse), β6 (cheekbone, inverse).
+  proportion: [[1, 2.5], [4, -1.5], [6, -1.0]] as [number, number][],
+  // Chiseled (+) / Soft (-): sharpness of features.
+  // Root: β10 (chin projection). Color: β8 (mouth size, inverse), β5 (nasal bridge, inverse).
+  angularity: [[10, 1.5], [8, -1.2], [5, -1.0]] as [number, number][],
 } as const;
 
 type ExprAxis = keyof typeof EXPR_MAPPINGS;
@@ -59,10 +67,10 @@ interface ExplorerState {
   surprise: number;
   tension: number;
 
-  // High-level: semantic shape axes (per-axis ranges)
-  width: number;
-  height: number;
-  jaw: number;
+  // High-level: semantic shape axes (per-axis ranges, −3..+3)
+  stature: number;
+  proportion: number;
+  angularity: number;
 
   // Pose override
   poseOverride: boolean;
@@ -93,9 +101,9 @@ interface ExplorerState {
   setAnguish: (v: number) => void;
   setSurprise: (v: number) => void;
   setTension: (v: number) => void;
-  setWidth: (v: number) => void;
-  setHeight: (v: number) => void;
-  setJaw: (v: number) => void;
+  setStature: (v: number) => void;
+  setProportion: (v: number) => void;
+  setAngularity: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -143,9 +151,9 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   applyMapping(expression, EXPR_MAPPINGS.tension, state.tension);
 
   // Apply shape axes
-  applyMapping(shape, SHAPE_MAPPINGS.width, state.width);
-  applyMapping(shape, SHAPE_MAPPINGS.height, state.height);
-  applyMapping(shape, SHAPE_MAPPINGS.jaw, state.jaw);
+  applyMapping(shape, SHAPE_MAPPINGS.stature, state.stature);
+  applyMapping(shape, SHAPE_MAPPINGS.proportion, state.proportion);
+  applyMapping(shape, SHAPE_MAPPINGS.angularity, state.angularity);
 
   const params: FaceParams = {
     shape,
@@ -189,9 +197,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   surprise: 0,
   tension: 0,
 
-  width: 0,
-  height: 0,
-  jaw: 0,
+  stature: 0,
+  proportion: 0,
+  angularity: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -216,9 +224,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setAnguish: (v) => update(set, get, { anguish: v }),
   setSurprise: (v) => update(set, get, { surprise: v }),
   setTension: (v) => update(set, get, { tension: v }),
-  setWidth: (v) => update(set, get, { width: v }),
-  setHeight: (v) => update(set, get, { height: v }),
-  setJaw: (v) => update(set, get, { jaw: v }),
+  setStature: (v) => update(set, get, { stature: v }),
+  setProportion: (v) => update(set, get, { proportion: v }),
+  setAngularity: (v) => update(set, get, { angularity: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),
