@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createFlamePipeline } from '@/renderer/flame/pipeline';
 import { FlameFaceMesh } from '@/renderer/flame/mesh';
-import { loadDirectionTables } from '@/binding/directions';
 import { FLAME_DATA_BASE } from '@/renderer/constants';
 import { useExplorerStore } from './store';
 
@@ -21,7 +20,7 @@ export function ExplorerRenderer() {
     let camera: THREE.PerspectiveCamera;
     let controls: OrbitControls;
     let mesh: FlameFaceMesh | null = null;
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
     let resizeObserver: ResizeObserver;
     let unsubscribe: () => void;
 
@@ -29,11 +28,11 @@ export function ExplorerRenderer() {
       if (!containerRef.current) return;
 
       try {
-        // 1. Initialize data and pipeline
-        await loadDirectionTables('/data/directions');
+        // 1. Initialize pipeline (model only, directions loaded lazily by store)
         const pipeline = await createFlamePipeline(FLAME_DATA_BASE);
 
         if (disposed) return;
+
 
         // 2. Setup Three.js Scene
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -100,6 +99,7 @@ export function ExplorerRenderer() {
           resizeObserver = new ResizeObserver((entries) => {
             if (!entries[0]) return;
             const { width, height } = entries[0].contentRect;
+            if (width === 0 || height === 0) return;
             renderer.setSize(width, height);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
@@ -108,9 +108,11 @@ export function ExplorerRenderer() {
           
           // Trigger initial resize
           const { width, height } = containerRef.current.getBoundingClientRect();
-          renderer.setSize(width, height);
-          camera.aspect = width / height;
-          camera.updateProjectionMatrix();
+          if (width > 0 && height > 0) {
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+          }
         }
 
         // 7. Initial Recompute
@@ -133,7 +135,7 @@ export function ExplorerRenderer() {
 
     return () => {
       disposed = true;
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (animationFrameId != null) cancelAnimationFrame(animationFrameId);
       if (resizeObserver) resizeObserver.disconnect();
       if (unsubscribe) unsubscribe();
 
