@@ -18,7 +18,7 @@
     "dev": "vite",
     "dev:hormuz": "vite",
     "type-check": "tsc --noEmit",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "build:lib": "vite build --config vite.lib.config.ts",
     "build:check": "npm run type-check && npm test && npm run build:lib",
     "preview": "vite preview",
