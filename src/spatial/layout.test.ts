@@ -47,22 +47,20 @@ describe('computeLayout', () => {
         }
       });
 
-      it('produces a rectangular grid', () => {
+      it('produces a rectangular grid with uniform spacing', () => {
         const result = computeLayout(TICKERS, strategy);
         const positions = Array.from(result.positions.values());
-        // All positions should snap to a grid — unique X and Y values
-        // should be evenly spaced
         const xs = [...new Set(positions.map(p => Math.round(p[0] * 1000) / 1000))].sort((a, b) => a - b);
         const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => a - b);
 
-        // Check X spacing is uniform
+        // X spacing is uniform
         if (xs.length > 1) {
           const xStep = xs[1] - xs[0];
           for (let i = 2; i < xs.length; i++) {
             expect(xs[i] - xs[i - 1]).toBeCloseTo(xStep);
           }
         }
-        // Check Y spacing is uniform
+        // Y spacing is uniform
         if (ys.length > 1) {
           const yStep = ys[1] - ys[0];
           for (let i = 2; i < ys.length; i++) {
@@ -70,6 +68,88 @@ describe('computeLayout', () => {
           }
         }
       });
+
+      it('all rows have same width except possibly the last', () => {
+        const result = computeLayout(TICKERS, strategy);
+        const positions = Array.from(result.positions.values());
+        const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => b - a);
+
+        const rowWidths = ys.map(y => {
+          const rowPositions = positions.filter(p => Math.round(p[1] * 1000) / 1000 === y);
+          const rowXs = rowPositions.map(p => p[0]);
+          return Math.max(...rowXs) - Math.min(...rowXs);
+        });
+
+        // All non-last rows should have the same width
+        for (let i = 1; i < rowWidths.length - 1; i++) {
+          expect(rowWidths[i]).toBeCloseTo(rowWidths[0]);
+        }
+      });
+
+      it('all columns have same height', () => {
+        const result = computeLayout(TICKERS, strategy);
+        const positions = Array.from(result.positions.values());
+        // Exclude last row (may have fewer items) for column height check
+        const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => b - a);
+        if (ys.length <= 1) return;
+
+        // All full rows share the same set of X positions
+        const fullRowY = ys[0]; // top row is always full
+        const fullRowXs = positions
+          .filter(p => Math.round(p[1] * 1000) / 1000 === fullRowY)
+          .map(p => Math.round(p[0] * 1000) / 1000)
+          .sort((a, b) => a - b);
+
+        // Every non-last row should have the same column count
+        for (let i = 0; i < ys.length - 1; i++) {
+          const rowXs = positions
+            .filter(p => Math.round(p[1] * 1000) / 1000 === ys[i])
+            .map(p => Math.round(p[0] * 1000) / 1000)
+            .sort((a, b) => a - b);
+          expect(rowXs.length).toBe(fullRowXs.length);
+        }
+      });
+    });
+  });
+
+  describe('viewport aspect ratio', () => {
+    it('portrait produces more rows than columns', () => {
+      const result = computeLayout(TICKERS, { kind: 'family-rows' }, 9 / 16);
+      const positions = Array.from(result.positions.values());
+      const cols = new Set(positions.map(p => Math.round(p[0] * 1000) / 1000)).size;
+      const rows = new Set(positions.map(p => Math.round(p[1] * 1000) / 1000)).size;
+      expect(rows).toBeGreaterThanOrEqual(cols);
+    });
+
+    it('landscape produces more columns than rows', () => {
+      const result = computeLayout(TICKERS, { kind: 'family-rows' }, 21 / 9);
+      const positions = Array.from(result.positions.values());
+      const cols = new Set(positions.map(p => Math.round(p[0] * 1000) / 1000)).size;
+      const rows = new Set(positions.map(p => Math.round(p[1] * 1000) / 1000)).size;
+      expect(cols).toBeGreaterThanOrEqual(rows);
+    });
+  });
+
+  describe('last row centering', () => {
+    it('last row is centered when it has fewer items', () => {
+      const result = computeLayout(TICKERS, { kind: 'family-rows' });
+      const positions = Array.from(result.positions.values());
+      const ys = [...new Set(positions.map(p => Math.round(p[1] * 1000) / 1000))].sort((a, b) => b - a);
+
+      if (ys.length < 2) return;
+
+      const lastRowY = ys[ys.length - 1];
+      const firstRowY = ys[0];
+      const lastRow = positions.filter(p => Math.round(p[1] * 1000) / 1000 === lastRowY);
+      const firstRow = positions.filter(p => Math.round(p[0] * 1000) / 1000 === Math.round(positions[0][0] * 1000) / 1000);
+
+      // Last row center-of-mass X should be close to 0 (centered)
+      const lastRowCenterX = lastRow.reduce((s, p) => s + p[0], 0) / lastRow.length;
+      const firstRowCenterX = positions
+        .filter(p => Math.round(p[1] * 1000) / 1000 === firstRowY)
+        .reduce((s, p) => s + p[0], 0) / positions.filter(p => Math.round(p[1] * 1000) / 1000 === firstRowY).length;
+
+      expect(lastRowCenterX).toBeCloseTo(firstRowCenterX, 1);
     });
   });
 });
