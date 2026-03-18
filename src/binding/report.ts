@@ -8,12 +8,11 @@
 
 import type { TickerConfig, TickerFrame, TickerStatic, FaceParams } from '../types';
 import type { BindingConfig } from './types';
-import { emptyShape, emptyExpression } from './types';
-import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG, CLASS_BUILD_SCORES, SEMANTIFY_EXPR_INTENSITY } from './config';
+import { DEFAULT_BINDING_CONFIG, CLASS_BUILD_SCORES, SEMANTIFY_EXPR_INTENSITY } from './config';
 import { N_SHAPE, N_EXPR } from '../constants';
 import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
-import { applyCurve, applySymmetricCurve } from './curves';
+import { applyCurve } from './curves';
 import {
   getTable,
   getIdentityBasis,
@@ -427,13 +426,14 @@ function traceFlush(
   accumulator?: TextureAccumulator,
 ): BindingEntry {
   const acc = accumulator ?? createTextureAccumulator();
+  const { flush: derived } = accumulatorToTexture(acc);
   return {
     param: 'flush', index: 0,
     value: params.flush,
     contributions: [{
       source: 'ema_abs_deviation',
       input: acc.ema_abs_deviation,
-      mapped: params.flush,
+      mapped: derived,
       weight: 1.0,
       contribution: params.flush,
     }],
@@ -445,13 +445,14 @@ function traceFatigue(
   accumulator?: TextureAccumulator,
 ): BindingEntry {
   const acc = accumulator ?? createTextureAccumulator();
+  const { fatigue: derived } = accumulatorToTexture(acc);
   return {
     param: 'fatigue', index: 0,
     value: params.fatigue,
     contributions: [{
       source: 'ema_volatility',
       input: acc.ema_volatility,
-      mapped: params.fatigue,
+      mapped: derived,
       weight: 1.0,
       contribution: params.fatigue,
     }],
