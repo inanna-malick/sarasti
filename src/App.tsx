@@ -12,6 +12,7 @@ import { Landing } from './ui/Landing';
 import { useStore } from './store';
 import { loadDirectionTables } from './binding/directions';
 import { RefineHarness } from './refine/RefineHarness';
+import { ExplorerPane } from './explorer/ExplorerPane';
 
 const DATA_URL = '/data/market-data.json';
 
@@ -23,6 +24,7 @@ export function App() {
   const [ready, setReady] = useState(false);
 
   const params = new URLSearchParams(window.location.search);
+  const isExplorer = params.get('explorer') === 'true';
   const isRefine = params.get('refine') === 'true';
 
   useEffect(() => {
@@ -121,6 +123,10 @@ export function App() {
     useStore.getState().setShowLanding(false);
     driverRef.current?.play();
   };
+
+  if (isExplorer) {
+    return <ExplorerPane />;
+  }
 
   if (isRefine) {
     return <RefineHarness />;
