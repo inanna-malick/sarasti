@@ -1,4 +1,4 @@
-import type { TickerFrame } from '../types';
+import type { TickerFrame, Accessor } from '../types';
 import { N_SHAPE, N_EXPR } from '../constants';
 
 // ─── Resolver Interfaces ────────────────────────────
@@ -17,6 +17,35 @@ export interface ShapeResolver {
  */
 export interface ExpressionResolver {
   resolve(frame: TickerFrame): Float32Array; // length = N_EXPR
+}
+
+/** Accessor-based axes configuration for the library API */
+export interface AxesConfig<T = any> {
+  // Expression axes
+  joy?: Accessor<T>;
+  anguish?: Accessor<T>;
+  surprise?: Accessor<T>;
+  tension?: Accessor<T>;
+  // Shape axes
+  stature?: Accessor<T>;
+  proportion?: Accessor<T>;
+  angularity?: Accessor<T>;
+  // Pose axes
+  pitch?: Accessor<T>;
+  yaw?: Accessor<T>;
+  roll?: Accessor<T>;
+  jaw?: Accessor<T>;
+  // Gaze axes
+  gazeH?: Accessor<T>;
+  gazeV?: Accessor<T>;
+  // Texture axes
+  flush?: Accessor<T>;
+  fatigue?: Accessor<T>;
+}
+
+/** Per-axis curve overrides */
+export interface AxisCurveConfig {
+  [axisName: string]: ResponseCurve;
 }
 
 // ─── Response Curves ────────────────────────────────
