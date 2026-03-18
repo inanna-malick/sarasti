@@ -4,7 +4,7 @@ import { useExplorerStore } from './store';
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
-    valence: 0, aperture: 0, distress: 0, surprise: 0,
+    joy: 0, anguish: 0, surprise: 0, tension: 0,
     width: 0, height: 0, jaw: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
@@ -27,28 +27,70 @@ describe('ExplorerStore', () => {
     expect(currentParams!.pose.neck).toHaveLength(3);
   });
 
-  it('valence drives ψ1 (smile/frown) directly', () => {
-    useExplorerStore.getState().setValence(2.0);
+  it('joy drives ψ0 (jaw+cheeks) and ψ7 (brow)', () => {
+    useExplorerStore.getState().setJoy(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ1 weight is 3.0, so at valence=2: ψ1 = 6.0
-    expect(expr[1]).toBeCloseTo(6.0);
-    // ψ0 weight is 1.5, so ψ0 = 3.0
-    expect(expr[0]).toBeCloseTo(3.0);
+    // ψ0 weight 2.3 × 3.0 = 6.9
+    expect(expr[0]).toBeCloseTo(6.9);
+    // ψ7 weight 1.2 × 3.0 = 3.6
+    expect(expr[7]).toBeCloseTo(3.6);
   });
 
-  it('aperture drives ψ0 (jaw open) directly', () => {
-    useExplorerStore.getState().setAperture(1.0);
+  it('anguish drives ψ6, ψ7, ψ8 (upper face)', () => {
+    useExplorerStore.getState().setAnguish(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[0]).toBeCloseTo(3.0); // weight 3.0
-    expect(expr[2]).toBeCloseTo(2.5); // weight 2.5
+    // ψ6 weight 2.0 × 3.0 = 6.0
+    expect(expr[6]).toBeCloseTo(6.0);
+    // ψ7 weight -2.0 × 3.0 = -6.0
+    expect(expr[7]).toBeCloseTo(-6.0);
+    // ψ8 weight 1.5 × 3.0 = 4.5
+    expect(expr[8]).toBeCloseTo(4.5);
   });
 
-  it('multiple expression axes combine additively', () => {
-    useExplorerStore.getState().setValence(1.0);
-    useExplorerStore.getState().setAperture(1.0);
+  it('surprise drives ψ4, ψ2, ψ0 (brow-dominant)', () => {
+    useExplorerStore.getState().setSurprise(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ0: valence 1.5 + aperture 3.0 = 4.5
-    expect(expr[0]).toBeCloseTo(4.5);
+    // ψ4 weight 2.3 × 3.0 = 6.9
+    expect(expr[4]).toBeCloseTo(6.9);
+    // ψ2 weight 1.5 × 3.0 = 4.5
+    expect(expr[2]).toBeCloseTo(4.5);
+    // ψ0 weight -1.0 × 3.0 = -3.0
+    expect(expr[0]).toBeCloseTo(-3.0);
+  });
+
+  it('tension drives ψ3, ψ5, ψ8 (face-wide clench)', () => {
+    useExplorerStore.getState().setTension(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // ψ3 weight 2.0 × 3.0 = 6.0
+    expect(expr[3]).toBeCloseTo(6.0);
+    // ψ5 weight 1.5 × 3.0 = 4.5
+    expect(expr[5]).toBeCloseTo(4.5);
+    // ψ8 weight 1.0 × 3.0 = 3.0
+    expect(expr[8]).toBeCloseTo(3.0);
+  });
+
+  it('joy + surprise combine additively on ψ0 (opposite directions)', () => {
+    useExplorerStore.getState().setJoy(3.0);
+    useExplorerStore.getState().setSurprise(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // ψ0: joy 2.3×3 + surprise -1.0×3 = 6.9 - 3.0 = 3.9
+    expect(expr[0]).toBeCloseTo(3.9);
+  });
+
+  it('joy + anguish conflict on ψ7 (bittersweet)', () => {
+    useExplorerStore.getState().setJoy(3.0);
+    useExplorerStore.getState().setAnguish(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // ψ7: joy 1.2×3 + anguish -2.0×3 = 3.6 - 6.0 = -2.4
+    expect(expr[7]).toBeCloseTo(-2.4);
+  });
+
+  it('anguish + tension stack on ψ8', () => {
+    useExplorerStore.getState().setAnguish(3.0);
+    useExplorerStore.getState().setTension(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // ψ8: anguish 1.5×3 + tension 1.0×3 = 4.5 + 3.0 = 7.5
+    expect(expr[8]).toBeCloseTo(7.5);
   });
 
   it('shape width drives β0', () => {

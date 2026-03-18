@@ -21,15 +21,19 @@ type ExplorerMode = 'highlevel' | 'raw';
  */
 
 // Expression axes — each entry is [ψ_index, weight]
+// Emotion Quartet: 4 bipolar axes with minimal overlap.
+// Weights target raw ψ values up to ~7 at slider extremes (cartoon-level exaggeration).
+// ψ1 and ψ9 are ASYMMETRIC at the mouth — avoided entirely.
+// Symmetric mouth movers: ψ0 (jaw+smile), ψ2 (wide), ψ3 (lip part), ψ5 (purse).
 const EXPR_MAPPINGS = {
-  // Happy (+) / Sad (-): smile, cheek raise, brow relax
-  valence: [[1, 3.0], [0, 1.5], [4, -1.0], [9, -0.5]] as [number, number][],
-  // Open (+) / Closed (-): jaw open, mouth wide, brow raise
-  aperture: [[0, 3.0], [2, 2.5], [4, -1.5], [3, 1.0]] as [number, number][],
-  // Distress: brow furrow, frown, jaw clench, asymmetry
-  distress: [[4, 2.5], [1, -2.5], [9, 2.0], [6, 1.0], [0, 0.8]] as [number, number][],
-  // Surprise: brow raise, jaw drop, eyes wide
-  surprise: [[4, -2.5], [0, 2.5], [2, 2.0], [9, -1.5]] as [number, number][],
+  // Joy (+) / Grief (-): face lifts (joy) or drops (grief). Lower+upper face.
+  joy: [[0, 2.3], [7, 1.2]] as [number, number][],
+  // Anguish (+) / Serenity (-): upper face knots (anguish) or settles (serenity). No jaw.
+  anguish: [[6, 2.0], [7, -2.0], [8, 1.5]] as [number, number][],
+  // Surprise (+) / Calm (-): brow rockets, mouth widens. Brow-dominant.
+  surprise: [[4, 2.3], [2, 1.5], [0, -1.0]] as [number, number][],
+  // Tension (+) / Slack (-): face tightens (tension) or goes limp (slack). Pervasive clench.
+  tension: [[3, 2.0], [5, 1.5], [8, 1.0]] as [number, number][],
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
@@ -48,13 +52,13 @@ type ShapeAxis = keyof typeof SHAPE_MAPPINGS;
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: semantic expression axes (-3..+3 each)
-  valence: number;
-  aperture: number;
-  distress: number;
+  // High-level: semantic expression axes (per-axis ranges, −3..+3)
+  joy: number;
+  anguish: number;
   surprise: number;
+  tension: number;
 
-  // High-level: semantic shape axes (-3..+3 each)
+  // High-level: semantic shape axes (per-axis ranges)
   width: number;
   height: number;
   jaw: number;
@@ -84,10 +88,10 @@ interface ExplorerState {
 
   // Actions
   setMode: (mode: ExplorerMode) => void;
-  setValence: (v: number) => void;
-  setAperture: (v: number) => void;
-  setDistress: (v: number) => void;
+  setJoy: (v: number) => void;
+  setAnguish: (v: number) => void;
   setSurprise: (v: number) => void;
+  setTension: (v: number) => void;
   setWidth: (v: number) => void;
   setHeight: (v: number) => void;
   setJaw: (v: number) => void;
@@ -132,10 +136,10 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   const expression = new Float32Array(N_EXPR);
 
   // Apply expression axes
-  applyMapping(expression, EXPR_MAPPINGS.valence, state.valence);
-  applyMapping(expression, EXPR_MAPPINGS.aperture, state.aperture);
-  applyMapping(expression, EXPR_MAPPINGS.distress, state.distress);
+  applyMapping(expression, EXPR_MAPPINGS.joy, state.joy);
+  applyMapping(expression, EXPR_MAPPINGS.anguish, state.anguish);
   applyMapping(expression, EXPR_MAPPINGS.surprise, state.surprise);
+  applyMapping(expression, EXPR_MAPPINGS.tension, state.tension);
 
   // Apply shape axes
   applyMapping(shape, SHAPE_MAPPINGS.width, state.width);
@@ -179,10 +183,10 @@ function update(set: any, get: any, patch: Partial<ExplorerState>) {
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
 
-  valence: 0,
-  aperture: 0,
-  distress: 0,
+  joy: 0,
+  anguish: 0,
   surprise: 0,
+  tension: 0,
 
   width: 0,
   height: 0,
@@ -207,10 +211,10 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   currentParams: null,
 
   setMode: (v) => update(set, get, { mode: v }),
-  setValence: (v) => update(set, get, { valence: v }),
-  setAperture: (v) => update(set, get, { aperture: v }),
-  setDistress: (v) => update(set, get, { distress: v }),
+  setJoy: (v) => update(set, get, { joy: v }),
+  setAnguish: (v) => update(set, get, { anguish: v }),
   setSurprise: (v) => update(set, get, { surprise: v }),
+  setTension: (v) => update(set, get, { tension: v }),
   setWidth: (v) => update(set, get, { width: v }),
   setHeight: (v) => update(set, get, { height: v }),
   setJaw: (v) => update(set, get, { jaw: v }),
