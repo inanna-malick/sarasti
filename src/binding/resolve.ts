@@ -431,9 +431,10 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       gazeResolver.reset();
     },
 
-    /** Get current accumulator state for a ticker (for report generation). */
+    /** Get current accumulator state snapshot for a ticker (for report generation). */
     getAccumulator(tickerId: string): TextureAccumulator | undefined {
-      return accumulatorMap.get(tickerId);
+      const acc = accumulatorMap.get(tickerId);
+      return acc ? { ...acc } : undefined;
     },
   };
 }

@@ -52,23 +52,27 @@ describe('BindingReport', () => {
     expect(report.fatigue).toBeDefined();
   });
 
-  it('shape contributions sum to reported values', () => {
+  it('shape contributions sum to reported values and match resolved params', () => {
     const params = resolve(ticker, frame);
     const report = generateReport(ticker, frame, params);
 
     for (const entry of report.shape) {
       const sum = sumContributions(entry);
       expect(sum).toBeCloseTo(entry.value, 5);
+      // Verify report value matches actual resolved output
+      expect(entry.value).toBeCloseTo(params.shape[entry.index], 5);
     }
   });
 
-  it('expression contributions sum to reported values', () => {
+  it('expression contributions sum to reported values and match resolved params', () => {
     const params = resolve(ticker, frame);
     const report = generateReport(ticker, frame, params);
 
     for (const entry of report.expression) {
       const sum = sumContributions(entry);
       expect(sum).toBeCloseTo(entry.value, 5);
+      // Verify report value matches actual resolved output
+      expect(entry.value).toBeCloseTo(params.expression[entry.index], 5);
     }
   });
 
