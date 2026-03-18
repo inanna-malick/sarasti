@@ -8,7 +8,7 @@ import { createEyeMaterial } from './eyeMaterial';
 import { extractMouthMeasurements } from './mouth/measurements';
 import { createMouthInterior } from './mouth/interior';
 import type { MouthInterior } from './mouth/types';
-import { identifyCheekRegion } from './cheeks';
+import { identifyCheekRegion, identifyLipRegion } from './cheeks';
 import type { CheekVertex } from './cheeks';
 
 /**
@@ -25,6 +25,7 @@ export class FlameFaceMesh {
   private mouthInterior: MouthInterior | null;
   private baseColors!: Float32Array;
   private cheekVertices: CheekVertex[];
+  private lipVertices: CheekVertex[];
 
   constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
@@ -83,11 +84,15 @@ export class FlameFaceMesh {
     // computeAlbedoColors now populates this.baseColors
     const colors = this.computeAlbedoColors(tickerId);
 
-    // Compute sparse cheek vertex list for localized flush effect
+    // Compute sparse vertex lists for localized flush effect
     this.cheekVertices = identifyCheekRegion(
       model.template,
       model.n_vertices,
       TEXTURE_CONFIG.flush.cheek_radius,
+    );
+    this.lipVertices = identifyLipRegion(
+      model.template,
+      model.n_vertices,
     );
 
     this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -211,16 +216,24 @@ gl_FragColor.a *= fade;`
     const { albedoBasis, n_vertices } = this.pipeline.model;
     const stride = n_vertices * 3;
 
-    // Flush: localized cheek redness via sparse precomputed vertex list
+    // Flush: localized color on cheeks + lips via sparse precomputed vertex lists
     // arr is in BGR order before the clamp+swap loop below,
     // so arr[i+2] = R channel, arr[i+1] = G channel, arr[i] = B channel
+    // Positive = warm blush, Negative = cold frostbite (asymmetric color profiles)
     if (flush !== 0) {
-      const { red_intensity, green_intensity, blue_intensity } = TEXTURE_CONFIG.flush;
-      for (const { index, weight } of this.cheekVertices) {
-        const i = index * 3;
-        arr[i + 2] += flush * weight * red_intensity;    // R (strongest)
-        arr[i + 1] += flush * weight * green_intensity;   // G (slight warmth)
-        arr[i]     += flush * weight * blue_intensity;     // B
+      const cfg = TEXTURE_CONFIG.flush;
+      const t = Math.abs(flush);
+      const rMod = flush > 0 ? cfg.warm_red : cfg.cold_red;
+      const gMod = flush > 0 ? cfg.warm_green : cfg.cold_green;
+      const bMod = flush > 0 ? cfg.warm_blue : cfg.cold_blue;
+      // Cheeks (primary) + lips (secondary, weight pre-scaled to 0.7 peak)
+      for (const vertices of [this.cheekVertices, this.lipVertices]) {
+        for (const { index, weight } of vertices) {
+          const i = index * 3;
+          arr[i + 2] += t * weight * rMod;    // R
+          arr[i + 1] += t * weight * gMod;    // G
+          arr[i]     += t * weight * bMod;     // B
+        }
       }
     }
 

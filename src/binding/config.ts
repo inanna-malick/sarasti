@@ -311,10 +311,16 @@ export const TEXTURE_CONFIG = {
   ema_window: 20,
   ema_alpha: 2 / (20 + 1),
   flush: {
-    red_intensity: 0.15,    // max red channel addition at cheek center
-    green_intensity: 0.03,  // slight warmth
-    blue_intensity: 0.0,    // no blue — red flush, not pink
-    cheek_radius: 0.03,     // Gaussian falloff radius
+    // Positive flush: warm blush (boost red, aggressively drain green/blue)
+    // Net luminance delta is small — reads as hue shift, not brightness change.
+    warm_red: 0.45,         // strong red at cheek center
+    warm_green: -0.18,      // drain green hard — blood under skin, not spotlight
+    warm_blue: -0.22,       // drain blue hard — saturated red, not pink/white
+    // Negative flush: cold frostbite (add blue+purple, drain red)
+    cold_red: -0.25,        // drain red from cheeks
+    cold_green: -0.10,      // drain green too — pallor
+    cold_blue: 0.20,        // blue/purple tinge
+    cheek_radius: 0.035,    // slightly wider region for visibility
     sigmoid_center: 0.15,
     sigmoid_steepness: 4,
     sigmoid_range: [0, 0.3] as [number, number],
