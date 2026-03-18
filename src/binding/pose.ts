@@ -48,6 +48,16 @@ function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   return result as Partial<T>;
 }
 
+/** Raw input multipliers used before clamping/smoothing (exported for report tracing). */
+export const POSE_MULTIPLIERS = {
+  pitch: 1.5,       // deviation * 1.5
+  yaw: 1.0,         // velocity * 1.0
+  roll_offset: 1.0, // volatility - 1.0
+  roll_scale: 0.3,  // (volatility - 1.0) * 0.3
+  jaw_offset: 1.0,  // volatility - 1.0
+  jaw_scale: 0.15,  // (volatility - 1.0) * 0.15
+} as const;
+
 export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
   const fullConfig: PoseConfig = { ...DEFAULT_POSE_CONFIG, ...(config ? stripUndefined(config) : {}) };
   const states = new Map<string, PoseState>();
@@ -58,20 +68,20 @@ export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
 
       // 1. Calculate Targets
       // Negative deviation (crisis/drawdown) -> head tilts down (negative pitch)
-      const targetPitch = clamp(deviation * 1.5, -fullConfig.maxPitch, fullConfig.maxPitch);
-      
+      const targetPitch = clamp(deviation * POSE_MULTIPLIERS.pitch, -fullConfig.maxPitch, fullConfig.maxPitch);
+
       // Positive velocity -> head turns right
-      const targetYaw = fullConfig.enableYaw 
-        ? clamp(velocity * 1.0, -fullConfig.maxYaw, fullConfig.maxYaw) 
+      const targetYaw = fullConfig.enableYaw
+        ? clamp(velocity * POSE_MULTIPLIERS.yaw, -fullConfig.maxYaw, fullConfig.maxYaw)
         : 0;
 
       // Volatility asymmetry
       const targetRoll = fullConfig.enableRoll
-        ? clamp((volatility - 1.0) * 0.3, -fullConfig.maxRoll, fullConfig.maxRoll)
+        ? clamp((volatility - POSE_MULTIPLIERS.roll_offset) * POSE_MULTIPLIERS.roll_scale, -fullConfig.maxRoll, fullConfig.maxRoll)
         : 0;
 
       // Higher volatility -> mouth opens
-      const targetJaw = clamp((volatility - 1.0) * 0.15, 0, fullConfig.maxJaw);
+      const targetJaw = clamp((volatility - POSE_MULTIPLIERS.jaw_offset) * POSE_MULTIPLIERS.jaw_scale, 0, fullConfig.maxJaw);
 
       // 2. Apply Smoothing
       let state = states.get(tickerId);

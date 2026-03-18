@@ -41,6 +41,13 @@ function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   return result as Partial<T>;
 }
 
+/** Raw input multipliers used before clamping/smoothing (exported for report tracing). */
+export const GAZE_MULTIPLIERS = {
+  horizontal: 2.0,      // velocity * 2.0
+  vertical_offset: 1.0, // volatility - 1.0
+  vertical_scale: 0.5,  // (volatility - 1.0) * 0.5
+} as const;
+
 export function createGazeResolver(config?: Partial<GazeConfig>): GazeResolver {
   const fullConfig: GazeConfig = { ...DEFAULT_GAZE_CONFIG, ...(config ? stripUndefined(config) : {}) };
   const stateMap = new Map<string, GazeState>();
@@ -53,12 +60,12 @@ export function createGazeResolver(config?: Partial<GazeConfig>): GazeResolver {
       // 1. Horizontal gaze = velocity mapped to [-maxHorizontal, +maxHorizontal]
       // Positive velocity (price rising) -> eyes look right
       // Negative velocity (price falling) -> eyes look left
-      const targetH = clamp(velocity * 2.0, -maxHorizontal, maxHorizontal);
+      const targetH = clamp(velocity * GAZE_MULTIPLIERS.horizontal, -maxHorizontal, maxHorizontal);
 
       // 2. Vertical gaze = volatility mapped to [-maxVertical, +maxVertical]
       // High volatility -> eyes look up (alert)
       // Low volatility -> eyes look down (calm)
-      const targetV = clamp((volatility - 1.0) * 0.5, -maxVertical, maxVertical);
+      const targetV = clamp((volatility - GAZE_MULTIPLIERS.vertical_offset) * GAZE_MULTIPLIERS.vertical_scale, -maxVertical, maxVertical);
 
       // 3. Exponential smoothing per ticker
       let state = stateMap.get(tickerId);

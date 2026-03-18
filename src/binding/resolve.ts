@@ -9,8 +9,9 @@ import { mapAgeToShape } from './shape/age';
 import { mapIdentityToShape } from './shape/identity';
 import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
-import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG } from './config';
+import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG, CLASS_BUILD_SCORES, SEMANTIFY_EXPR_INTENSITY } from './config';
 import { applyCurve } from './curves';
+import { generateReport, type BindingReport } from './report';
 import {
   getTable,
   getIdentityBasis,
@@ -70,15 +71,7 @@ export function createShapeResolver(
   };
 }
 
-/** Asset class → build semantic score. Positive = heavier/wider, negative = leaner. */
-const CLASS_BUILD_SCORES: Record<string, number> = {
-  energy: 1.5,
-  commodity: 1.0,
-  fear: -1.5,
-  currency: -0.5,
-  equity: 0.5,
-  media: -2.0,
-};
+// CLASS_BUILD_SCORES imported from ./config
 
 /**
  * Tier 2/3 + Sarasti shape enrichment from static metadata.
@@ -160,14 +153,7 @@ function mapStaticsToShape(
  * Creates an ExpressionResolver that combines crisis + dynamics mapping.
  * Expression is crisis dynamics — recomputed each frame.
  */
-/**
- * Expression intensity for Semantify directions.
- * Semantify LUTs are trained on realistic faces (max ~0.4 per component).
- * Data-viz needs exaggerated, caricature-level deformation, so we scale up.
- * This is applied ON TOP of the Semantify output, preserving the learned
- * nonlinear trajectory while amplifying it into data-viz range.
- */
-const SEMANTIFY_EXPR_INTENSITY = 6.97;
+// SEMANTIFY_EXPR_INTENSITY imported from ./config
 
 export function createExpressionResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
@@ -444,5 +430,28 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       poseResolver.reset();
       gazeResolver.reset();
     },
+
+    /** Get current accumulator state for a ticker (for report generation). */
+    getAccumulator(tickerId: string): TextureAccumulator | undefined {
+      return accumulatorMap.get(tickerId);
+    },
   };
+}
+
+// ─── Report-augmented resolve ───────────────────────
+
+/**
+ * Resolve FaceParams and generate a BindingReport tracing each output
+ * parameter back to its input sources.
+ */
+export function resolveWithReport(
+  ticker: TickerConfig,
+  frame: TickerFrame,
+  config: BindingConfig = DEFAULT_BINDING_CONFIG,
+  statics?: TickerStatic,
+  accumulator?: TextureAccumulator,
+): { params: FaceParams; report: BindingReport } {
+  const params = resolve(ticker, frame, config);
+  const report = generateReport(ticker, frame, params, config, statics, accumulator);
+  return { params, report };
 }
