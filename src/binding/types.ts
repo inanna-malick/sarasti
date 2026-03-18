@@ -1,4 +1,4 @@
-import type { TickerConfig, TickerFrame, TickerStatic, AssetClass } from '../types';
+import type { TickerFrame, Accessor, FaceDatum } from '../types';
 import { N_SHAPE, N_EXPR } from '../constants';
 
 // ─── Resolver Interfaces ────────────────────────────
@@ -9,7 +9,7 @@ import { N_SHAPE, N_EXPR } from '../constants';
  * age, asset class, and family.
  */
 export interface ShapeResolver {
-  resolve(ticker: TickerConfig, statics?: TickerStatic): Float32Array; // length = N_SHAPE
+  resolve(ticker: any, statics?: any): Float32Array; // length = N_SHAPE
 }
 
 /**
@@ -20,6 +20,33 @@ export interface ShapeResolver {
 export interface ExpressionResolver {
   resolve(frame: TickerFrame): Float32Array; // length = N_EXPR
 }
+
+/** Accessor-based axes configuration for the library API */
+export interface AxesConfig<T extends FaceDatum = FaceDatum> {
+  // Expression axes
+  joy?: Accessor<T>;
+  anguish?: Accessor<T>;
+  surprise?: Accessor<T>;
+  tension?: Accessor<T>;
+  // Shape axes
+  stature?: Accessor<T>;
+  proportion?: Accessor<T>;
+  angularity?: Accessor<T>;
+  // Pose axes
+  pitch?: Accessor<T>;
+  yaw?: Accessor<T>;
+  roll?: Accessor<T>;
+  jaw?: Accessor<T>;
+  // Gaze axes
+  gazeH?: Accessor<T>;
+  gazeV?: Accessor<T>;
+  // Texture axes
+  flush?: Accessor<T>;
+  fatigue?: Accessor<T>;
+}
+
+/** Per-axis curve overrides */
+export type AxisCurveConfig = Partial<Record<keyof AxesConfig, ResponseCurve>>;
 
 // ─── Shape Param Allocation ─────────────────────────
 // Which β indices are controlled by which mapper.
@@ -122,7 +149,7 @@ export interface BindingConfig {
   /** Intensity for semantify directions */
   semantify_expr_intensity?: number;
   /** Per-class shape profiles: class → array of [index, value] pairs */
-  class_profiles: Record<AssetClass, [number, number][]>;
+  class_profiles: Record<string, [number, number][]>;
   /** Per-family shape perturbations: family → array of [index, value] pairs */
   family_profiles: Record<string, [number, number][]>;
   // ─── Tier 2/3 response curves (binding refinement) ──
@@ -153,6 +180,15 @@ export interface BindingConfig {
   poseConfig?: Partial<import('./pose').PoseConfig>;
   /** Optional gaze resolver config overrides */
   gazeConfig?: Partial<import('./gaze').GazeConfig>;
+  // ─── Axis-based curves (library API) ────────────────
+  /** How drawdown maps to anguish axis (±3 output) */
+  drawdown_curve?: ResponseCurve;
+  /** How momentum maps to stature axis (±3 output) */
+  momentum_curve?: ResponseCurve;
+  /** How mean_reversion_z maps to proportion axis (±3 output) */
+  mean_reversion_z_curve?: ResponseCurve;
+  /** How beta maps to angularity axis (±3 output) */
+  beta_curve?: ResponseCurve;
 }
 
 // ─── Helpers ────────────────────────────────────────

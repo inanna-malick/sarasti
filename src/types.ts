@@ -31,6 +31,15 @@ export interface TickerFrame {
   // ─── Sarasti residual (per-frame dynamic) ──────────
   /** PCA residual components for expression binding (ψ₄₁₋₁₀₀). */
   expr_residuals?: number[];
+  // ─── Derived signals (computed at data-bake time) ──
+  /** Distance from rolling max. 0 = at peak, negative = in drawdown. */
+  drawdown?: number;
+  /** Rate of change over longer window. Structural trend direction. */
+  momentum?: number;
+  /** deviation / volatility. How abnormal is this abnormality? */
+  mean_reversion_z?: number;
+  /** Rolling beta to market. 1 = with herd, 0 = independent, negative = contrarian. */
+  beta?: number;
 }
 
 /** Pre-computed static metadata per ticker (computed from pre-crisis baseline). */
@@ -147,4 +156,30 @@ export interface PlaybackState {
   playing: boolean;
   speed: number;
   loop: boolean;
+}
+
+// ─── Library Generic Types ───────────────────────────
+
+/** Consumer's data shape — opaque to library */
+export interface FaceDatum {
+  id: string;
+  label?: string;
+  [key: string]: unknown;
+}
+
+/** Timeline frame for generic data */
+export interface FaceFrame<T extends FaceDatum = FaceDatum> {
+  timestamp: string;  // ISO timestamp
+  data: T[];
+}
+
+/** Accessor: extracts a number from a datum */
+export type Accessor<T = any> = (datum: T) => number;
+
+/** Generic face instance (library API) */
+export interface GenericFaceInstance<T extends FaceDatum = FaceDatum> {
+  id: string;
+  params: FaceParams;
+  position: [number, number, number];
+  datum: T;
 }

@@ -1,69 +1,99 @@
-import type { TickerConfig, TickerFrame, TickerStatic, FaceParams } from '../types';
+import type { TickerConfig, TickerFrame, FaceParams } from '../types';
 import { zeroPose } from '../types';
+import {
+  N_SHAPE,
+  N_EXPR,
+  MAX_NECK_PITCH,
+  MAX_NECK_YAW,
+  MAX_NECK_ROLL,
+  MAX_JAW_OPEN,
+  MAX_EYE_HORIZONTAL,
+  MAX_EYE_VERTICAL,
+} from '../constants';
 import { createPoseResolver } from './pose';
 import { createGazeResolver } from './gaze';
 import type { ShapeResolver, ExpressionResolver, BindingConfig } from './types';
 import { emptyShape, emptyExpression } from './types';
-import { N_SHAPE, N_EXPR } from '../constants';
-import { mapAgeToShape } from './shape/age';
-import { mapIdentityToShape } from './shape/identity';
-import { mapCrisisToExpression } from './expression/crisis';
-import { mapDynamicsToExpression } from './expression/dynamics';
-import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG, CLASS_BUILD_SCORES, SEMANTIFY_EXPR_INTENSITY } from './config';
-import { applyCurve } from './curves';
-import { generateReport, type BindingReport } from './report';
-import {
-  getTable,
-  getIdentityBasis,
-  interpolateLUT,
-  computeIdentityOffset,
-  addVec,
-} from './directions';
+import { EXPR_AXES, SHAPE_AXES, applyMapping } from './axes';
+import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG } from './config';
+import { applyCurve, applySymmetricCurve } from './curves';
 import {
   createTextureAccumulator,
   updateAccumulator,
   accumulatorToTexture,
   TextureAccumulator,
 } from './texture/accumulator';
+import { generateReport, type BindingReport } from './report';
+
+// ─── Expression Resolver ────────────────────────────
+
+/**
+ * Creates an ExpressionResolver using the Emotion Quartet axes.
+ * Each market data dimension drives one axis.
+ */
+export function createExpressionResolver(
+  config: BindingConfig = DEFAULT_BINDING_CONFIG,
+): ExpressionResolver {
+  return {
+    resolve(frame: TickerFrame): Float32Array {
+      const expression = emptyExpression();
+
+      // deviation → joy (±): outperforming = joy, underperforming = grief
+      const joyValue = applySymmetricCurve(config.deviation_curve, frame.deviation);
+      applyMapping(expression, EXPR_AXES.joy, joyValue);
+
+      // |velocity| → surprise (+): fast moves = surprise, slow = calm
+      const surpriseValue = applyCurve(config.velocity_curve, Math.abs(frame.velocity));
+      applyMapping(expression, EXPR_AXES.surprise, surpriseValue);
+
+      // volatility → tension (+): high chaos = tense, low = slack
+      const tensionValue = applyCurve(config.volatility_curve, frame.volatility);
+      applyMapping(expression, EXPR_AXES.tension, tensionValue);
+
+      // drawdown → anguish (±): distance from peak = structural damage
+      if (frame.drawdown !== undefined && config.drawdown_curve) {
+        const anguishValue = applyCurve(config.drawdown_curve, frame.drawdown);
+        applyMapping(expression, EXPR_AXES.anguish, anguishValue);
+      }
+
+      return expression;
+    },
+  };
+}
 
 // ─── Shape Resolver ─────────────────────────────────
 
 /**
- * Creates a ShapeResolver that combines age + identity mapping.
- * Shape is structural identity — computed once per face, not per frame.
+ * Creates a ShapeResolver using the Shape Triad axes.
+ * Shape is now fully data-driven — changes each frame.
  */
 export function createShapeResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
 ): ShapeResolver {
   return {
-    resolve(ticker: TickerConfig, statics?: TickerStatic): Float32Array {
+    resolve(frame: TickerFrame): Float32Array {
       const shape = emptyShape();
 
-      // Semantify CLIP-trained directions: age + build → shape (β₀₋₉₉)
-      const ageTable = getTable('age');
-      const buildTable = getTable('build');
-      const identityBasis = getIdentityBasis();
-
-      if (ageTable) {
-        // Map ticker.age (20-60) → semantic score (-3, +3)
-        const ageScore = ((ticker.age - 20) / 40) * 6 - 3;
-        addVec(shape, interpolateLUT(ageTable, ageScore));
+      // momentum → stature: rising trend = heavy, falling = gaunt
+      if (frame.momentum !== undefined && config.momentum_curve) {
+        const statureValue = applySymmetricCurve(config.momentum_curve, frame.momentum);
+        applyMapping(shape, SHAPE_AXES.stature, statureValue);
       }
 
-      if (buildTable) {
-        // Build varies by asset class — energy/commodity = heavy, fear = lean
-        const buildScore = CLASS_BUILD_SCORES[ticker.class] ?? 0;
-        addVec(shape, interpolateLUT(buildTable, buildScore));
+      // |mean_reversion_z| → proportion: stretched = elongated, normal = compact
+      if (frame.mean_reversion_z !== undefined && config.mean_reversion_z_curve) {
+        const proportionValue = applyCurve(
+          config.mean_reversion_z_curve,
+          Math.abs(frame.mean_reversion_z),
+        );
+        applyMapping(shape, SHAPE_AXES.proportion, proportionValue);
       }
 
-      if (identityBasis) {
-        // Per-ticker identity offset, orthogonal to age + build by construction
-        addVec(shape, computeIdentityOffset(identityBasis, ticker.id));
-      }
-
-      // Tier 2/3 + Sarasti: enriched shape from static metadata
-      if (statics) {
-        mapStaticsToShape(shape, statics, config);
+      // |1 - beta| → angularity: herd-breaking = chiseled, conforming = soft
+      if (frame.beta !== undefined && config.beta_curve) {
+        const betaDeviation = Math.abs(1 - frame.beta);
+        const angularityValue = applyCurve(config.beta_curve, betaDeviation);
+        applyMapping(shape, SHAPE_AXES.angularity, angularityValue);
       }
 
       return shape;
@@ -71,232 +101,35 @@ export function createShapeResolver(
   };
 }
 
-// CLASS_BUILD_SCORES imported from ./config
+// ─── Per-ticker identity noise ──────────────────────
+
+const noiseCache = new Map<string, Float32Array>();
 
 /**
- * Tier 2/3 + Sarasti shape enrichment from static metadata.
- * Stub — implemented by shape-enrichment dev.
- * Maps: avg_volume, hist_volatility, corr_to_brent → β₁₁₋₂₀ (tier 2)
- *       corr_to_spy, spread_from_family, skewness → β₂₁₋₄₀ (tier 3)
- *       shape_residuals → β₅₁₋₁₀₀ (Sarasti residual)
+ * Add small deterministic noise on unused β components (β11-β19).
+ * Gives each ticker a unique face fingerprint without affecting axis-controlled components.
  */
-function mapStaticsToShape(
-  shape: Float32Array,
-  statics: TickerStatic,
-  config: BindingConfig,
-): void {
-  // Sarasti residual: direct injection if present
-  if (statics.shape_residuals) {
-    const residualStart = 50; // β₅₁₋₁₀₀
-    for (let i = 0; i < statics.shape_residuals.length && (residualStart + i) < N_SHAPE; i++) {
-      shape[residualStart + i] = statics.shape_residuals[i];
+function addIdentityNoise(shape: Float32Array, tickerId: string): void {
+  let noise = noiseCache.get(tickerId);
+  if (!noise) {
+    // Simple deterministic noise based on string hash
+    const hash = tickerId.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+    noise = new Float32Array(N_SHAPE);
+    for (let i = 0; i < 9; i++) {
+      noise[11 + i] = ((hash >> i) & 1 ? 1 : -1) * 0.2; // small perturbation
     }
+    noiseCache.set(tickerId, noise);
   }
 
-  // Tier 2/3 intensities
-  const [_, t2_intensity, t3_intensity] = config.tier_intensities || [1.0, 0.5, 0.2, 1.0];
-
-  // Tier 2 named bindings: β₁₁₋₂₀
-  // β₁₁₋₁₃ ← avg_volume
-  if (statics.avg_volume !== undefined && config.avg_volume_curve && config.shape.volume_indices) {
-    const val = applyCurve(config.avg_volume_curve, statics.avg_volume) * t2_intensity;
-    for (const idx of config.shape.volume_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
-  // β₁₄₋₁₆ ← hist_volatility
-  if (statics.hist_volatility !== undefined && config.hist_vol_curve && config.shape.hist_vol_indices) {
-    const val = applyCurve(config.hist_vol_curve, statics.hist_volatility) * t2_intensity;
-    for (const idx of config.shape.hist_vol_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
-  // β₁₇₋₂₀ ← corr_to_brent
-  if (statics.corr_to_brent !== undefined && config.corr_brent_curve && config.shape.corr_brent_indices) {
-    const val = applyCurve(config.corr_brent_curve, statics.corr_to_brent) * t2_intensity;
-    for (const idx of config.shape.corr_brent_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
-  // Tier 3 named bindings: β₂₁₋₅₀
-  // β₂₁₋₂₅ ← corr_to_spy
-  if (statics.corr_to_spy !== undefined && config.corr_spy_curve && config.shape.corr_spy_indices) {
-    const val = applyCurve(config.corr_spy_curve, statics.corr_to_spy) * t3_intensity;
-    for (const idx of config.shape.corr_spy_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
-  // β₃₁₋₃₅ ← spread_from_family
-  if (statics.spread_from_family !== undefined && config.spread_curve && config.shape.spread_indices) {
-    const val = applyCurve(config.spread_curve, statics.spread_from_family) * t3_intensity;
-    for (const idx of config.shape.spread_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-
-  // β₃₆₋₄₀ ← skewness
-  if (statics.skewness !== undefined && config.skewness_curve && config.shape.skewness_indices) {
-    const val = applyCurve(config.skewness_curve, statics.skewness) * t3_intensity;
-    for (const idx of config.shape.skewness_indices) {
-      if (idx < N_SHAPE) shape[idx] += val;
-    }
-  }
-}
-
-// ─── Expression Resolver ────────────────────────────
-
-/**
- * Creates an ExpressionResolver that combines crisis + dynamics mapping.
- * Expression is crisis dynamics — recomputed each frame.
- */
-// SEMANTIFY_EXPR_INTENSITY imported from ./config
-
-export function createExpressionResolver(
-  config: BindingConfig = DEFAULT_BINDING_CONFIG,
-): ExpressionResolver {
-  return {
-    resolve(frame: TickerFrame): Float32Array {
-      // Tier 1: Crisis expressions from hand-tuned registers (ψ₀₋₁₅)
-      // These give us the multi-component richness: brow furrow + jaw + smile/frown + asymmetry
-      const crisisResult = mapCrisisToExpression(frame.deviation, config);
-      const dynamicsResult = mapDynamicsToExpression(
-        crisisResult.expression,
-        frame.velocity,
-        frame.volatility,
-        config,
-      );
-      const expression = dynamicsResult.expression;
-
-      // Semantify CLIP-trained layer: valence + aperture as additive refinement
-      // These add learned nonlinear expression trajectories on top of the
-      // hand-tuned crisis registers, scaled to data-viz intensity.
-      const valenceTable = getTable('valence');
-      const apertureTable = getTable('aperture');
-
-      const semantifyIntensity = config.semantify_expr_intensity ?? SEMANTIFY_EXPR_INTENSITY;
-
-      if (valenceTable) {
-        const valenceScore = applyCurve(config.deviation_curve, frame.deviation) * 3;
-        const valenceParams = interpolateLUT(valenceTable, valenceScore);
-        addScaledVec(expression, valenceParams, semantifyIntensity);
-      }
-
-      if (apertureTable) {
-        const apertureScore = applyCurve(config.volatility_curve, frame.volatility) * 3;
-        const apertureParams = interpolateLUT(apertureTable, apertureScore);
-        addScaledVec(expression, apertureParams, semantifyIntensity);
-      }
-
-      // Tier 2/3 + Sarasti: enriched expression from per-frame fields
-      mapEnrichedToExpression(expression, frame, config);
-
-      return expression;
-    },
-  };
-}
-
-function addScaledVec(target: Float32Array, source: Float32Array, scale: number): void {
-  const len = Math.min(target.length, source.length);
-  for (let i = 0; i < len; i++) {
-    target[i] += source[i] * scale;
-  }
-}
-
-/**
- * Tier 2/3 + Sarasti expression enrichment from per-frame fields.
- * Stub — implemented by expression-enrichment dev.
- * Maps: volume_anomaly → ψ₁₆₋₂₀ (tier 2: alertness/exhaustion)
- *       corr_breakdown → ψ₂₁₋₂₅ (tier 3)
- *       term_slope → ψ₂₆₋₃₀ (tier 3)
- *       cross_contagion → ψ₃₁₋₃₅ (tier 3)
- *       high_low_ratio → ψ₃₆₋₄₀ (tier 3)
- *       expr_residuals → ψ₄₁₋₁₀₀ (Sarasti residual)
- */
-function mapEnrichedToExpression(
-  expression: Float32Array,
-  frame: TickerFrame,
-  config: BindingConfig,
-): void {
-  const tiers = config.tier_intensities || [1.0, 0.5, 0.2, 0.1];
-  const t1Intensity = config.expression_intensity;
-
-  // Tier 2: volume_anomaly → ψ₁₆₋₂₀ (alertness/exhaustion)
-  if (frame.volume_anomaly !== undefined && config.volume_anomaly_curve) {
-    const volMapped = applyCurve(config.volume_anomaly_curve, frame.volume_anomaly);
-    const tier2Intensity = t1Intensity * tiers[1];
-
-    if (volMapped > 0 && config.expression.alertness) {
-      // Surge → Alertness
-      blendRegister(expression, config.expression.alertness, volMapped * tier2Intensity);
-    } else if (volMapped < 0 && config.expression.exhaustion) {
-      // Collapse → Exhaustion
-      blendRegister(expression, config.expression.exhaustion, Math.abs(volMapped) * tier2Intensity);
-    }
-  }
-
-  // Tier 3: structural expressions (ψ₂₁₋₄₀)
-  const tier3Intensity = t1Intensity * tiers[2];
-
-  // Correlation breakdown (ψ₂₁₋₂₅)
-  if (frame.corr_breakdown !== undefined && config.corr_breakdown_curve && config.expression.corr_breakdown) {
-    const val = applyCurve(config.corr_breakdown_curve, frame.corr_breakdown);
-    blendRegister(expression, config.expression.corr_breakdown, val * tier3Intensity);
-  }
-
-  // Term structure slope (ψ₂₆₋₃₀)
-  if (frame.term_slope !== undefined && config.term_slope_curve && config.expression.term_structure) {
-    const val = applyCurve(config.term_slope_curve, frame.term_slope);
-    blendRegister(expression, config.expression.term_structure, val * tier3Intensity);
-  }
-
-  // Cross-asset contagion (ψ₃₁₋₃₅)
-  if (frame.cross_contagion !== undefined && config.cross_contagion_curve && config.expression.contagion) {
-    const val = applyCurve(config.cross_contagion_curve, frame.cross_contagion);
-    blendRegister(expression, config.expression.contagion, val * tier3Intensity);
-  }
-
-  // High-low ratio (strain) (ψ₃₆₋₄₀)
-  if (frame.high_low_ratio !== undefined && config.high_low_ratio_curve && config.expression.strain) {
-    const val = applyCurve(config.high_low_ratio_curve, frame.high_low_ratio);
-    blendRegister(expression, config.expression.strain, val * tier3Intensity);
-  }
-
-  // Sarasti residual: direct injection if present
-  if (frame.expr_residuals) {
-    const residualStart = 40; // ψ₄₁₋₁₀₀
-    const residualIntensity = tiers[3]; // residuals are already scaled in pre-computation usually, but we use the tier scale
-    for (let i = 0; i < frame.expr_residuals.length && (residualStart + i) < N_EXPR; i++) {
-      expression[residualStart + i] = frame.expr_residuals[i] * residualIntensity;
-    }
-  }
-}
-
-/**
- * Additively blend a register into an expression vector.
- * Shared logic with mapDynamicsToExpression.
- */
-function blendRegister(
-  expression: Float32Array,
-  register: { indices: number[]; weights: number[] },
-  strength: number,
-): void {
-  for (let i = 0; i < register.indices.length; i++) {
-    const idx = register.indices[i];
-    if (idx < expression.length) {
-      expression[idx] += register.weights[i] * strength;
-    }
+  for (let i = 11; i < 20; i++) {
+    shape[i] += noise[i];
   }
 }
 
 // ─── Unified Resolver ───────────────────────────────
 
 /**
- * Unified binding: TickerConfig + TickerFrame → FaceParams.
- * Wires shape (age + identity) and expression (crisis + dynamics) resolvers.
+ * One-shot resolve: TickerConfig + TickerFrame → FaceParams.
  */
 export function resolve(
   ticker: TickerConfig,
@@ -318,11 +151,14 @@ export function resolve(
   const poseResolver = createPoseResolver(config.poseConfig);
   const gazeResolver = createGazeResolver(config.gazeConfig);
 
+  const shape = shapeResolver.resolve(frame);
+  addIdentityNoise(shape, ticker.id);
+
   const poseResult = poseResolver.resolve(ticker.id, frame);
   const gazeResult = gazeResolver.resolve(ticker.id, frame);
 
   return {
-    shape: shapeResolver.resolve(ticker),
+    shape,
     expression: exprResolver.resolve(frame),
     pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
     flush: 0,
@@ -331,19 +167,17 @@ export function resolve(
 }
 
 /**
- * Create a cached resolver that reuses shape for repeated calls with same ticker.
- * Shape is structural identity — only needs computing once per ticker.
+ * Create a cached resolver with EMA accumulators for flush/fatigue.
  */
 export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
   const shapeResolver = createShapeResolver(config);
   const exprResolver = createExpressionResolver(config);
   const poseResolver = createPoseResolver(config.poseConfig);
   const gazeResolver = createGazeResolver(config.gazeConfig);
-  const shapeCache = new Map<string, Float32Array>();
   const accumulatorMap = new Map<string, TextureAccumulator>();
 
   return {
-    resolve(ticker: TickerConfig, frame: TickerFrame, statics?: TickerStatic): FaceParams {
+    resolve(ticker: TickerConfig, frame: TickerFrame): FaceParams {
       if (!frame) {
         return {
           shape: emptyShape(),
@@ -354,11 +188,8 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
         };
       }
 
-      let shape = shapeCache.get(ticker.id);
-      if (!shape) {
-        shape = shapeResolver.resolve(ticker, statics);
-        shapeCache.set(ticker.id, shape);
-      }
+      const shape = shapeResolver.resolve(frame);
+      addIdentityNoise(shape, ticker.id);
 
       // Texture accumulation: update EMA for flush/fatigue
       let acc = accumulatorMap.get(ticker.id);
@@ -383,11 +214,9 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
     },
 
     /**
-     * Resolve shape + expression for an interpolation target frame WITHOUT
-     * advancing the EMA accumulators. Use this for frame B in sub-frame
-     * interpolation so the accumulator advances only once per displayed frame.
+     * Resolve without advancing EMA accumulators (for interpolation target frames).
      */
-    resolveNoAccumulate(ticker: TickerConfig, frame: TickerFrame, statics?: TickerStatic): FaceParams {
+    resolveNoAccumulate(ticker: TickerConfig, frame: TickerFrame): FaceParams {
       if (!frame) {
         return {
           shape: emptyShape(),
@@ -398,17 +227,12 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
         };
       }
 
-      let shape = shapeCache.get(ticker.id);
-      if (!shape) {
-        shape = shapeResolver.resolve(ticker, statics);
-        shapeCache.set(ticker.id, shape);
-      }
+      const shape = shapeResolver.resolve(frame);
+      addIdentityNoise(shape, ticker.id);
 
-      // Read current accumulator state without updating it
       const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
       const { flush, fatigue } = accumulatorToTexture(acc);
 
-      // Read pose/gaze current smoothed state without advancing
       const poseResult = poseResolver.resolve(ticker.id, frame);
       const gazeResult = gazeResolver.resolve(ticker.id, frame);
 
@@ -421,17 +245,13 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       };
     },
 
-    clearCache(): void {
-      shapeCache.clear();
-    },
-
     resetAccumulators(): void {
       accumulatorMap.clear();
       poseResolver.reset();
       gazeResolver.reset();
     },
 
-    /** Get current accumulator state snapshot for a ticker (for report generation). */
+    /** Get current accumulator state snapshot for a ticker. */
     getAccumulator(tickerId: string): TextureAccumulator | undefined {
       const acc = accumulatorMap.get(tickerId);
       return acc ? { ...acc } : undefined;
@@ -449,10 +269,95 @@ export function resolveWithReport(
   ticker: TickerConfig,
   frame: TickerFrame,
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
-  statics?: TickerStatic,
+  statics?: any,
   accumulator?: TextureAccumulator,
 ): { params: FaceParams; report: BindingReport } {
   const params = resolve(ticker, frame, config);
   const report = generateReport(ticker, frame, params, config, statics, accumulator);
   return { params, report };
+}
+
+// ─── Library API ────────────────────────────────────
+
+/** Pre-extracted axis values — all optional, unset = 0 */
+export interface AxisValues {
+  // Expression
+  joy?: number;
+  anguish?: number;
+  surprise?: number;
+  tension?: number;
+  // Shape
+  stature?: number;
+  proportion?: number;
+  angularity?: number;
+  // Pose
+  pitch?: number;
+  yaw?: number;
+  roll?: number;
+  jaw?: number;
+  // Gaze
+  gazeH?: number;
+  gazeV?: number;
+  // Texture
+  flush?: number;
+  fatigue?: number;
+}
+
+/**
+ * Generic resolver: pre-extracted axis values → FaceParams.
+ * Used by the library builder API. Each axis value has already been
+ * extracted from the datum via an accessor and passed through a response curve.
+ */
+export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams {
+  const expression = emptyExpression();
+  const shape = emptyShape();
+
+  // Expression axes
+  if (values.joy !== undefined) applyMapping(expression, EXPR_AXES.joy, values.joy);
+  if (values.anguish !== undefined) applyMapping(expression, EXPR_AXES.anguish, values.anguish);
+  if (values.surprise !== undefined) applyMapping(expression, EXPR_AXES.surprise, values.surprise);
+  if (values.tension !== undefined) applyMapping(expression, EXPR_AXES.tension, values.tension);
+
+  // Shape axes
+  if (values.stature !== undefined) applyMapping(shape, SHAPE_AXES.stature, values.stature);
+  if (values.proportion !== undefined) applyMapping(shape, SHAPE_AXES.proportion, values.proportion);
+  if (values.angularity !== undefined) applyMapping(shape, SHAPE_AXES.angularity, values.angularity);
+
+  // Identity noise on unused shape components
+  addIdentityNoise(shape, datumId);
+
+  // Pose (clamped to safe ranges)
+  const pose = zeroPose();
+  if (values.pitch !== undefined) {
+    pose.neck[0] = Math.max(-MAX_NECK_PITCH, Math.min(MAX_NECK_PITCH, values.pitch));
+  }
+  if (values.yaw !== undefined) {
+    pose.neck[1] = Math.max(-MAX_NECK_YAW, Math.min(MAX_NECK_YAW, values.yaw));
+  }
+  if (values.roll !== undefined) {
+    pose.neck[2] = Math.max(-MAX_NECK_ROLL, Math.min(MAX_NECK_ROLL, values.roll));
+  }
+  if (values.jaw !== undefined) {
+    pose.jaw = Math.max(0, Math.min(MAX_JAW_OPEN, values.jaw));
+  }
+
+  // Gaze (clamped)
+  if (values.gazeH !== undefined) {
+    const h = Math.max(-MAX_EYE_HORIZONTAL, Math.min(MAX_EYE_HORIZONTAL, values.gazeH));
+    pose.leftEye[0] = h;
+    pose.rightEye[0] = h;
+  }
+  if (values.gazeV !== undefined) {
+    const v = Math.max(-MAX_EYE_VERTICAL, Math.min(MAX_EYE_VERTICAL, values.gazeV));
+    pose.leftEye[1] = v;
+    pose.rightEye[1] = v;
+  }
+
+  return {
+    shape,
+    expression,
+    pose,
+    flush: values.flush ?? 0,
+    fatigue: values.fatigue ?? 0,
+  };
 }
