@@ -8,6 +8,7 @@ import { createEyeMaterial } from './eyeMaterial';
 import { extractMouthMeasurements } from './mouth/measurements';
 import { createMouthInterior } from './mouth/interior';
 import type { MouthInterior } from './mouth/types';
+import { identifyCheekRegion } from './cheeks';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
@@ -22,6 +23,7 @@ export class FlameFaceMesh {
   private pipeline: FlamePipeline;
   private mouthInterior: MouthInterior | null;
   private baseColors!: Float32Array;
+  private cheekWeights: Float32Array;
 
   constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
@@ -79,6 +81,13 @@ export class FlameFaceMesh {
     
     // computeAlbedoColors now populates this.baseColors
     const colors = this.computeAlbedoColors(tickerId);
+
+    // Compute cheek weight map for localized flush effect
+    this.cheekWeights = identifyCheekRegion(
+      model.template,
+      model.n_vertices,
+      TEXTURE_CONFIG.flush.cheek_radius,
+    );
 
     this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     this.geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
@@ -191,7 +200,7 @@ gl_FragColor.a *= fade;`
   public setCrisis(_intensity: number): void {}
 
   /**
-   * Modulates vertex colors based on flush and fatigue scalars using the albedo PCA basis.
+   * Modulates vertex colors: flush via localized cheek weight map, fatigue via albedo PCA basis.
    */
   private updateTexture(flush: number, fatigue: number): void {
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
@@ -201,15 +210,18 @@ gl_FragColor.a *= fade;`
     const { albedoBasis, n_vertices } = this.pipeline.model;
     const stride = n_vertices * 3;
 
-    // Flush: PC components from TEXTURE_CONFIG (global warmth + temple redness)
+    // Flush: localized cheek redness via position-based weight map
+    // arr is in BGR order before the clamp+swap loop below,
+    // so arr[i+2] = R channel, arr[i+1] = G channel, arr[i] = B channel
     if (flush !== 0) {
-      const [fc0, fc1] = TEXTURE_CONFIG.flush.components;
-      const [fw0, fw1] = TEXTURE_CONFIG.flush.weights;
-      const pc0Offset = fc0 * stride;
-      const pc1Offset = fc1 * stride;
-      for (let i = 0; i < stride; i++) {
-        arr[i] += flush * fw0 * albedoBasis[pc0Offset + i];
-        arr[i] += flush * fw1 * albedoBasis[pc1Offset + i];
+      const { red_intensity, green_intensity, blue_intensity } = TEXTURE_CONFIG.flush;
+      for (let v = 0; v < n_vertices; v++) {
+        const w = this.cheekWeights[v];
+        if (w < 0.001) continue;
+        const i = v * 3;
+        arr[i + 2] += flush * w * red_intensity;    // R (strongest)
+        arr[i + 1] += flush * w * green_intensity;   // G (slight warmth)
+        arr[i]     += flush * w * blue_intensity;     // B
       }
     }
 
