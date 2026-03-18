@@ -18,6 +18,10 @@ function mockMeasurements(): MouthMeasurements {
     mouthCenter: new THREE.Vector3(0, -0.035, 0.06),
     jawJointPosition: new THREE.Vector3(0, -0.06, 0),
     lipVertices: [],
+    upperLipVertices: [],
+    lowerLipVertices: [],
+    upperLipCenter: new THREE.Vector3(0, -0.030, 0.06),
+    lowerLipCenter: new THREE.Vector3(0, -0.040, 0.06),
   };
 }
 

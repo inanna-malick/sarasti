@@ -166,8 +166,8 @@ gl_FragColor.a *= fade;`
 
     this.updateTexture(params.flush, params.fatigue);
 
-    // Update mouth interior with jaw angle
-    this.mouthInterior?.update(pose.jaw);
+    // Update mouth interior from deformed vertex positions
+    this.mouthInterior?.update(buffers.vertices);
 
     // Update gaze offsets
     this.leftEyeMaterial.uniforms.gazeOffset.value.set(
