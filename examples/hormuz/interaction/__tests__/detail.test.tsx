@@ -3,11 +3,11 @@ import React, { act } from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DetailPanel } from '../detail';
-import { useStore } from '../../store';
+import { useStore } from '../../../../src/store';
 import { makeFaceInstance } from './test-helpers';
-import * as dataLoader from '../../data/loader';
+import * as dataLoader from '../../../../src/data/loader';
 
-vi.mock('../../data/loader', async (importOriginal) => {
+vi.mock('../../../../src/data/loader', async (importOriginal) => {
   const actual = await importOriginal<any>();
   return {
     ...actual,

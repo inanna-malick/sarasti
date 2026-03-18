@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { resolve, createShapeResolver, createExpressionResolver, createResolver } from '../resolve';
 import { makeTickerFrame, TEST_TICKERS } from '../../../test-utils/fixtures';
 import { N_SHAPE, N_EXPR } from '../../constants';
-import { TICKERS } from '../../tickers';
+import { TICKERS } from '../../../examples/hormuz/tickers';
 
 describe('resolve', () => {
   it('zero data → near-zero expression and shape', () => {

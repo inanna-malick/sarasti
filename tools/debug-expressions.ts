@@ -3,12 +3,12 @@
  * Usage: nix-shell --run "npx tsx tools/debug-expressions.ts"
  */
 import { readFileSync } from 'fs';
-import { TICKERS } from '../src/tickers';
+import { TICKERS } from '../examples/hormuz/tickers';
 import { parseDataset, getFrameAtTime } from '../src/data/loader';
 import { createResolver } from '../src/binding/resolve';
 
 const raw = JSON.parse(readFileSync('public/data/market-history.json', 'utf-8'));
-const dataset = parseDataset(raw);
+const dataset = parseDataset(raw, TICKERS);
 const resolver = createResolver();
 
 for (const ts of ['2026-02-25T12:00:00Z', '2026-02-28T00:00:00Z', '2026-03-05T00:00:00Z']) {

@@ -1,8 +1,8 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { setupHoverInteraction, setupClickInteraction, getTooltipPosition } from '../hover';
-import { useStore } from '../../store';
-import type { FaceRenderer } from '../../types';
+import { useStore } from '../../../../src/store';
+import type { FaceRenderer } from '../../../../src/types';
 
 describe('interaction/hover.ts', () => {
   let container: HTMLElement;

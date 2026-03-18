@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useStore } from '../store';
+import { useStore } from '../../../src/store';
 
 /**
  * Bottom-of-viewport timeline bar.

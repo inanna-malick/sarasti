@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { FaceParams } from '@/types';
-import { zeroPose } from '@/types';
-import { N_SHAPE, N_EXPR } from '@/constants';
-import { EXPR_AXES, SHAPE_AXES, applyMapping } from '@/binding/axes';
-import type { ExprAxis, ShapeAxis } from '@/binding/axes';
+import type { FaceParams } from '../../../src/types';
+import { zeroPose } from '../../../src/types';
+import { N_SHAPE, N_EXPR } from '../../../src/constants';
+import { EXPR_AXES, SHAPE_AXES, applyMapping } from '../../../src/binding/axes';
+import type { ExprAxis, ShapeAxis } from '../../../src/binding/axes';
 
 type ExplorerMode = 'highlevel' | 'raw';
 

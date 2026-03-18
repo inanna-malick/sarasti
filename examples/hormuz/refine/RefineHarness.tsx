@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { createFlamePipeline } from '../renderer/flame/pipeline';
-import { FlameFaceMesh } from '../renderer/flame/mesh';
-import { resolve } from '../binding/resolve';
-import { DEFAULT_BINDING_CONFIG } from '../binding/config';
-import type { TickerConfig, TickerFrame } from '../types';
-import type { BindingConfig } from '../binding/types';
-import { FLAME_DATA_BASE } from '../renderer/constants';
+import { createFlamePipeline } from '../../../src/renderer/flame/pipeline';
+import { FlameFaceMesh } from '../../../src/renderer/flame/mesh';
+import { resolve } from '../../../src/binding/resolve';
+import { DEFAULT_BINDING_CONFIG } from '../../../src/binding/config';
+import type { TickerConfig, TickerFrame } from '../../../src/types';
+import type { BindingConfig } from '../../../src/binding/types';
+import { FLAME_DATA_BASE } from '../../../src/renderer/constants';
 import { TICKERS } from '../tickers';
 
 export interface RefineConfig {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../store';
+import { useStore } from '../../../src/store';
 
 /**
  * Landing overlay: shown before playback starts.

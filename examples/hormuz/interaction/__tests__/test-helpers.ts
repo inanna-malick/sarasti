@@ -1,5 +1,5 @@
-import type { FaceInstance, TickerConfig, TickerFrame } from '../../types';
-import { zeroPose } from '../../types';
+import type { FaceInstance, TickerConfig, TickerFrame } from '../../../../src/types';
+import { zeroPose } from '../../../../src/types';
 
 export function makeFaceInstance(id: string, overrides: Partial<FaceInstance> = {}): FaceInstance {
   const ticker: TickerConfig = {

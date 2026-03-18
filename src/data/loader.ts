@@ -1,21 +1,20 @@
-import type { TimelineDataset, Frame, TickerFrame } from '../types';
+import type { TimelineDataset, Frame, TickerFrame, TickerConfig } from '../types';
 import type { RawMarketHistory } from './schema';
-import { TICKERS } from '../tickers';
 
 /**
  * Fetch and parse market-history.json into TimelineDataset.
  */
-export async function loadDataset(url: string): Promise<TimelineDataset> {
+export async function loadDataset(url: string, expectedTickers: TickerConfig[]): Promise<TimelineDataset> {
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Failed to fetch dataset: ${resp.status} ${resp.statusText}`);
   const raw: RawMarketHistory = await resp.json();
-  return parseDataset(raw);
+  return parseDataset(raw, expectedTickers);
 }
 
 /**
  * Parse raw JSON into TimelineDataset. Exported for testing.
  */
-export function parseDataset(raw: RawMarketHistory): TimelineDataset {
+export function parseDataset(raw: RawMarketHistory, expectedTickers: TickerConfig[]): TimelineDataset {
   const timestamps = raw.frames.map(f => f.timestamp);
 
   const presentIds = new Set<string>();
@@ -24,10 +23,10 @@ export function parseDataset(raw: RawMarketHistory): TimelineDataset {
       presentIds.add(id);
     }
   }
-  const tickers = TICKERS.filter(t => {
+  const tickers = expectedTickers.filter(t => {
     const isPresent = presentIds.has(t.id);
     if (!isPresent) {
-      console.warn(`Ticker data mismatch: ${t.id} in TICKERS list but missing from frame data.`);
+      console.warn(`Ticker data mismatch: ${t.id} in expected list but missing from frame data.`);
     }
     return isPresent;
   });

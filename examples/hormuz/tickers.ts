@@ -1,4 +1,4 @@
-import type { TickerConfig } from './types';
+import type { TickerConfig } from '../../src/types';
 
 export const TICKERS: TickerConfig[] = [
   { id: 'BRENT',      name: 'Brent Crude',          class: 'energy',    family: 'brent',      age: 20 },

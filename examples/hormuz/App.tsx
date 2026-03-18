@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { FaceRenderer } from './types';
-import { createFlameSceneRenderer } from './renderer';
-import { loadDataset, getFrameAtTime } from './data/loader';
-import { FrameDriver } from './timeline/driver';
+import type { FaceRenderer } from '../../src/types';
+import { createFlameSceneRenderer } from '../../src/renderer';
+import { loadDataset, getFrameAtTime } from '../../src/data/loader';
+import { FrameDriver } from '../../src/timeline/driver';
 import { setupHoverInteraction, setupClickInteraction } from './interaction/hover';
 import { Tooltip } from './interaction/Tooltip';
 import { DetailPanel } from './interaction/detail';
 import { TimelineBar } from './ui/TimelineBar';
 import { Controls } from './ui/Controls';
 import { Landing } from './ui/Landing';
-import { useStore } from './store';
+import { useStore } from '../../src/store';
+import { TICKERS } from './tickers';
 import { RefineHarness } from './refine/RefineHarness';
 import { ExplorerPane } from './explorer/ExplorerPane';
 
@@ -38,12 +39,12 @@ export function App() {
       try {
         // 1. Load data
         setStatus('Loading market data...');
-        const dataset = await loadDataset(DATA_URL);
+        const dataset = await loadDataset(DATA_URL, TICKERS);
         useStore.getState().setDataset(dataset);
 
         if (disposed) return;
 
-        // 2. Create renderer
+        // 3. Create renderer
         setStatus('Loading FLAME model...');
         const renderer = await createFlameSceneRenderer();
         await renderer.init(containerRef.current!);

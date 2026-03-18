@@ -1,5 +1,5 @@
-import type { FaceRenderer, FaceInstance } from '../types';
-import { useStore } from '../store';
+import type { FaceRenderer, FaceInstance } from '../../../src/types';
+import { useStore } from '../../../src/store';
 
 /**
  * Mouse hover → face picking → highlight + tooltip positioning.
