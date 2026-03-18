@@ -1,5 +1,9 @@
 // Library entry — barrel exports
 
+// Builder API
+export { sarasti, SarastiBuilder } from './api';
+export type { SarastiOptions } from './api';
+
 // Core types
 export type {
   FaceDatum,
