@@ -1,7 +1,7 @@
 import React from 'react';
 import { SliderRow } from './SliderRow';
 import { useExplorerStore } from '../store';
-import { MAX_NECK_PITCH, MAX_NECK_YAW, MAX_NECK_ROLL, MAX_JAW_OPEN } from '@/constants';
+import { MAX_NECK_PITCH, MAX_NECK_YAW, MAX_NECK_ROLL, MAX_JAW_OPEN } from '../../../../src/constants';
 
 export function PoseSliders() {
   const poseOverride = useExplorerStore(s => s.poseOverride);

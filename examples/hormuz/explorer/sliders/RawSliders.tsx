@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SliderRow } from './SliderRow';
 import { useExplorerStore } from '../store';
-import { N_SHAPE, N_EXPR } from '@/constants';
+import { N_SHAPE, N_EXPR } from '../../../../src/constants';
 
 function CollapsibleGroup({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);

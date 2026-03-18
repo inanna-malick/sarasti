@@ -1,7 +1,7 @@
 import React from 'react';
 import { SliderRow } from './SliderRow';
 import { useExplorerStore } from '../store';
-import { MAX_EYE_HORIZONTAL, MAX_EYE_VERTICAL } from '@/constants';
+import { MAX_EYE_HORIZONTAL, MAX_EYE_VERTICAL } from '../../../../src/constants';
 
 export function GazeSliders() {
   const gazeOverride = useExplorerStore(s => s.gazeOverride);

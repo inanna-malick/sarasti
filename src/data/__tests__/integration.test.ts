@@ -3,12 +3,13 @@ import { parseDataset, getFrame, getFrameAtTime, getTickerTimeseries } from '../
 import { interpolateFrame } from '../interpolator';
 import type { RawMarketHistory } from '../schema';
 import fixture from '../../../test-utils/data-fixture-real.json';
+import { TICKERS } from '../../../examples/hormuz/tickers';
 
 const raw = fixture as unknown as RawMarketHistory;
 
 describe('integration: real merged data (first 5 frames)', () => {
   it('parses the real fixture', () => {
-    const ds = parseDataset(raw);
+    const ds = parseDataset(raw, TICKERS);
     expect(ds.frames.length).toBeGreaterThanOrEqual(5);
     // New TICKERS list has 14 entries, but real fixture might not have them all yet.
     expect(ds.tickers.length).toBeGreaterThanOrEqual(1);
@@ -16,7 +17,7 @@ describe('integration: real merged data (first 5 frames)', () => {
   });
 
   it('every frame has values for every listed ticker', () => {
-    const ds = parseDataset(raw);
+    const ds = parseDataset(raw, TICKERS);
     for (const frame of ds.frames) {
       for (const ticker of ds.tickers) {
         const val = frame.values[ticker.id];
@@ -33,7 +34,7 @@ describe('integration: real merged data (first 5 frames)', () => {
   });
 
   it('includes market tickers (overlap only)', () => {
-    const ds = parseDataset(raw);
+    const ds = parseDataset(raw, TICKERS);
     const ids = new Set(ds.tickers.map(t => t.id));
     // Old IDs like BZ=F are NOT in the new TICKERS list, so they won't be in ds.tickers
     // even if they are in the fixture.
@@ -45,14 +46,14 @@ describe('integration: real merged data (first 5 frames)', () => {
   });
 
   it('timeseries returns continuous data for ALI=F', () => {
-    const ds = parseDataset(raw);
+    const ds = parseDataset(raw, TICKERS);
     const series = getTickerTimeseries(ds, 'ALI=F');
     expect(series.length).toBe(ds.frames.length);
     expect(series.every(v => v !== undefined)).toBe(true);
   });
 
   it('interpolation between real frames produces valid output', () => {
-    const ds = parseDataset(raw);
+    const ds = parseDataset(raw, TICKERS);
     if (ds.frames.length < 2) return;
     const blended = interpolateFrame(ds.frames[0], ds.frames[1], 0.5);
     const ids = Object.keys(blended.values);

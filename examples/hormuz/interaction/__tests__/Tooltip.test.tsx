@@ -3,7 +3,7 @@ import React, { act } from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Tooltip } from '../Tooltip';
-import { useStore } from '../../store';
+import { useStore } from '../../../../src/store';
 import { makeFaceInstance } from './test-helpers';
 import * as hoverModule from '../hover';
 

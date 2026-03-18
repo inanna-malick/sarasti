@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createFlamePipeline } from '@/renderer/flame/pipeline';
-import { FlameFaceMesh } from '@/renderer/flame/mesh';
-import { FLAME_DATA_BASE } from '@/renderer/constants';
+import { createFlamePipeline } from '../../../src/renderer/flame/pipeline';
+import { FlameFaceMesh } from '../../../src/renderer/flame/mesh';
+import { FLAME_DATA_BASE } from '../../../src/renderer/constants';
 import { useExplorerStore } from './store';
 
 export function ExplorerRenderer() {

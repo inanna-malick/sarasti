@@ -1,6 +1,6 @@
 import React from 'react';
-import { useStore } from '../store';
-import { getTickerTimeseries } from '../data/loader';
+import { useStore } from '../../../src/store';
+import { getTickerTimeseries } from '../../../src/data/loader';
 
 /**
  * Detail panel: click face → side panel with full decode.

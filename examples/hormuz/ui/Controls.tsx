@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../store';
+import { useStore } from '../../../src/store';
 
 /**
  * Small floating control panel, top-right corner.

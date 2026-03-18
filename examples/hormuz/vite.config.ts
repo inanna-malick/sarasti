@@ -8,9 +8,10 @@ export default defineConfig({
   resolve: {
     alias: {
       'sarasti': path.resolve(__dirname, '../../src/index.ts'),
-      '@': path.resolve(__dirname),
+      '@': path.resolve(__dirname, '../../src'),
     },
   },
+  publicDir: path.resolve(__dirname, '../../public'),
   server: {
     port: 3001,
   },
@@ -18,4 +19,5 @@ export default defineConfig({
     outDir: path.resolve(__dirname, '../../dist-hormuz'),
     sourcemap: true,
   },
+  assetsInclude: ['**/*.bin'],
 });
