@@ -65,6 +65,8 @@ interface ExplorerState {
   recompute: () => void;
 }
 
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
   age: 30,
@@ -72,7 +74,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   family: 'brent',
   deviation: 0,
   velocity: 0,
-  volatility: 0,
+  volatility: 1.0, // Neutral baseline
   poseOverride: false,
   pitch: 0,
   yaw: 0,
@@ -89,31 +91,31 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   currentReport: null,
 
   setMode: (mode) => { set({ mode }); get().recompute(); },
-  setAge: (age) => { set({ age }); get().recompute(); },
+  setAge: (v) => { set({ age: clamp(v, 20, 60) }); get().recompute(); },
   setAssetClass: (assetClass) => { set({ assetClass }); get().recompute(); },
   setFamily: (family) => { set({ family }); get().recompute(); },
-  setDeviation: (deviation) => { set({ deviation }); get().recompute(); },
-  setVelocity: (velocity) => { set({ velocity }); get().recompute(); },
-  setVolatility: (volatility) => { set({ volatility }); get().recompute(); },
+  setDeviation: (v) => { set({ deviation: clamp(v, -0.2, 0.2) }); get().recompute(); },
+  setVelocity: (v) => { set({ velocity: clamp(v, -3, 3) }); get().recompute(); },
+  setVolatility: (v) => { set({ volatility: clamp(v, 0, 3) }); get().recompute(); },
   setPoseOverride: (poseOverride) => { set({ poseOverride }); get().recompute(); },
-  setPitch: (pitch) => { set({ pitch }); get().recompute(); },
-  setYaw: (yaw) => { set({ yaw }); get().recompute(); },
-  setRoll: (roll) => { set({ roll }); get().recompute(); },
-  setJaw: (jaw) => { set({ jaw }); get().recompute(); },
-  setGazeOverride: (gazeOverride) => { set({ gazeOverride }); get().recompute(); },
-  setGazeHorizontal: (gazeHorizontal) => { set({ gazeHorizontal }); get().recompute(); },
-  setGazeVertical: (gazeVertical) => { set({ gazeVertical }); get().recompute(); },
-  setFlush: (flush) => { set({ flush }); get().recompute(); },
-  setFatigue: (fatigue) => { set({ fatigue }); get().recompute(); },
+  setPitch: (v) => { set({ pitch: clamp(v, -MAX_NECK_PITCH, MAX_NECK_PITCH) }); get().recompute(); },
+  setYaw: (v) => { set({ yaw: clamp(v, -MAX_NECK_YAW, MAX_NECK_YAW) }); get().recompute(); },
+  setRoll: (v) => { set({ roll: clamp(v, -MAX_NECK_ROLL, MAX_NECK_ROLL) }); get().recompute(); },
+  setJaw: (v) => { set({ jaw: clamp(v, 0, MAX_JAW_OPEN) }); get().recompute(); },
+  setGazeOverride: (v) => { set({ gazeOverride: v }); get().recompute(); },
+  setGazeHorizontal: (v) => { set({ gazeHorizontal: clamp(v, -MAX_EYE_HORIZONTAL, MAX_EYE_HORIZONTAL) }); get().recompute(); },
+  setGazeVertical: (v) => { set({ gazeVertical: clamp(v, -MAX_EYE_VERTICAL, MAX_EYE_VERTICAL) }); get().recompute(); },
+  setFlush: (v) => { set({ flush: clamp(v, -1, 1) }); get().recompute(); },
+  setFatigue: (v) => { set({ fatigue: clamp(v, -1, 1) }); get().recompute(); },
   setRawShape: (index, value) => {
     const next = new Float32Array(get().rawShape);
-    next[index] = value;
+    next[index] = clamp(value, -5, 5);
     set({ rawShape: next });
     get().recompute();
   },
   setRawExpression: (index, value) => {
     const next = new Float32Array(get().rawExpression);
-    next[index] = value;
+    next[index] = clamp(value, -5, 5);
     set({ rawExpression: next });
     get().recompute();
   },
@@ -150,6 +152,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
         flush: 0,
         fatigue: 0,
       };
+      report = null;
     }
 
     // Apply Overrides
@@ -160,9 +163,13 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
         leftEye: [state.gazeHorizontal, state.gazeVertical],
         rightEye: [state.gazeHorizontal, state.gazeVertical],
       };
+      // Overrides make the binding report inconsistent
+      report = null;
     } else if (state.gazeOverride) {
       params.pose.leftEye = [state.gazeHorizontal, state.gazeVertical];
       params.pose.rightEye = [state.gazeHorizontal, state.gazeVertical];
+      // Overrides make the binding report inconsistent
+      report = null;
     }
 
     // Texture always overridden in explorer

@@ -34,33 +34,27 @@ describe('Explorer Store', () => {
 
   beforeEach(() => {
     // Reset store to defaults before each test
-    const { setMode, setAge, setAssetClass, setFamily, setDeviation, setVelocity, setVolatility,
-      setPoseOverride, setPitch, setYaw, setRoll, setJaw, setGazeOverride, setGazeHorizontal,
-      setGazeVertical, setFlush, setFatigue, setRawShape, setRawExpression } = useExplorerStore.getState();
-
-    setMode('highlevel');
-    setAge(30);
-    setAssetClass('energy');
-    setFamily('brent');
-    setDeviation(0);
-    setVelocity(0);
-    setVolatility(0);
-    setPoseOverride(false);
-    setPitch(0);
-    setYaw(0);
-    setRoll(0);
-    setJaw(0);
-    setGazeOverride(false);
-    setGazeHorizontal(0);
-    setGazeVertical(0);
-    setFlush(0);
-    setFatigue(0);
-
-    // Manually reset raw arrays
-    const rawShape = useExplorerStore.getState().rawShape;
-    for (let i = 0; i < N_SHAPE; i++) rawShape[i] = 0;
-    const rawExpr = useExplorerStore.getState().rawExpression;
-    for (let i = 0; i < N_EXPR; i++) rawExpr[i] = 0;
+    useExplorerStore.setState({
+      mode: 'highlevel',
+      age: 30,
+      assetClass: 'energy',
+      family: 'brent',
+      deviation: 0,
+      velocity: 0,
+      volatility: 1.0,
+      poseOverride: false,
+      pitch: 0,
+      yaw: 0,
+      roll: 0,
+      jaw: 0,
+      gazeOverride: false,
+      gazeHorizontal: 0,
+      gazeVertical: 0,
+      flush: 0,
+      fatigue: 0,
+      rawShape: new Float32Array(N_SHAPE),
+      rawExpression: new Float32Array(N_EXPR),
+    });
 
     useExplorerStore.getState().recompute();
   });
@@ -76,78 +70,97 @@ describe('Explorer Store', () => {
   });
 
   it('Changing deviation produces different expression coefficients', () => {
-    const { setDeviation, recompute } = useExplorerStore.getState();
+    const { setDeviation } = useExplorerStore.getState();
 
     setDeviation(0);
-    recompute();
-    const params0 = { ...useExplorerStore.getState().currentParams! };
-    const expr0 = new Float32Array(params0.expression);
+    const expr0 = new Float32Array(useExplorerStore.getState().currentParams!.expression);
 
     setDeviation(0.2);
-    recompute();
-    const params1 = { ...useExplorerStore.getState().currentParams! };
-    const expr1 = new Float32Array(params1.expression);
+    const expr1 = new Float32Array(useExplorerStore.getState().currentParams!.expression);
 
     expect(expr1).not.toEqual(expr0);
   });
 
   it('Changing age produces different shape coefficients', () => {
-    const { setAge, recompute } = useExplorerStore.getState();
+    const { setAge } = useExplorerStore.getState();
 
     setAge(30);
-    recompute();
     const shape30 = new Float32Array(useExplorerStore.getState().currentParams!.shape);
 
     setAge(60);
-    recompute();
     const shape60 = new Float32Array(useExplorerStore.getState().currentParams!.shape);
 
     expect(shape60).not.toEqual(shape30);
   });
 
-  it('Raw mode bypasses binding pipeline', () => {
-    const { setMode, setRawShape, setRawExpression, recompute } = useExplorerStore.getState();
+  it('Raw mode bypasses binding pipeline and nullifies report', () => {
+    const { setMode, setRawShape, setRawExpression } = useExplorerStore.getState();
 
     setMode('raw');
     setRawShape(0, 1.5);
     setRawExpression(0, 2.5);
-    recompute();
 
     const { currentParams, currentReport } = useExplorerStore.getState();
 
     expect(currentReport).toBeNull();
     expect(currentParams?.shape[0]).toBe(1.5);
     expect(currentParams?.expression[0]).toBe(2.5);
-    // Other values should be zero (except maybe pose if overridden, but it's default)
     expect(currentParams?.shape[1]).toBe(0);
     expect(currentParams?.expression[1]).toBe(0);
   });
 
-  it('Pose override replaces pose values', () => {
-    const { setPoseOverride, setPitch, setYaw, setRoll, setJaw, recompute } = useExplorerStore.getState();
+  it('Pose override replaces pose values and nullifies report', () => {
+    const { setPoseOverride, setPitch, setYaw, setRoll, setJaw } = useExplorerStore.getState();
 
     setPoseOverride(true);
     setPitch(0.1);
     setYaw(0.2);
-    setRoll(0.3);
+    setRoll(0.1);
     setJaw(0.4);
-    recompute();
 
-    const { currentParams } = useExplorerStore.getState();
-    expect(currentParams?.pose.neck).toEqual([0.1, 0.2, 0.3]);
+    const { currentParams, currentReport } = useExplorerStore.getState();
+    expect(currentParams?.pose.neck).toEqual([0.1, 0.2, 0.1]);
     expect(currentParams?.pose.jaw).toBe(0.4);
+    expect(currentReport).toBeNull();
   });
 
-  it('Gaze override replaces gaze values', () => {
-    const { setGazeOverride, setGazeHorizontal, setGazeVertical, recompute } = useExplorerStore.getState();
+  it('Gaze override replaces gaze values and nullifies report', () => {
+    const { setGazeOverride, setGazeHorizontal, setGazeVertical } = useExplorerStore.getState();
 
     setGazeOverride(true);
     setGazeHorizontal(0.5);
-    setGazeVertical(0.6);
-    recompute();
+    setGazeVertical(0.3);
+
+    const { currentParams, currentReport } = useExplorerStore.getState();
+    expect(currentParams?.pose.leftEye).toEqual([0.5, 0.3]);
+    expect(currentParams?.pose.rightEye).toEqual([0.5, 0.3]);
+    expect(currentReport).toBeNull();
+  });
+
+  it('Flush and fatigue overrides are applied', () => {
+    const { setFlush, setFatigue } = useExplorerStore.getState();
+
+    setFlush(0.8);
+    setFatigue(-0.5);
 
     const { currentParams } = useExplorerStore.getState();
-    expect(currentParams?.pose.leftEye).toEqual([0.5, 0.6]);
-    expect(currentParams?.pose.rightEye).toEqual([0.5, 0.6]);
+    expect(currentParams?.flush).toBe(0.8);
+    expect(currentParams?.fatigue).toBe(-0.5);
+  });
+
+  it('Inputs are clamped to valid ranges', () => {
+    const { setAge, setDeviation, setPitch, setFlush } = useExplorerStore.getState();
+
+    setAge(100); // Max 60
+    expect(useExplorerStore.getState().age).toBe(60);
+
+    setDeviation(-1.0); // Min -0.2
+    expect(useExplorerStore.getState().deviation).toBe(-0.2);
+
+    setPitch(2.0); // Max MAX_NECK_PITCH (0.537)
+    expect(useExplorerStore.getState().pitch).toBeCloseTo(0.537, 3);
+
+    setFlush(-5.0); // Min -1
+    expect(useExplorerStore.getState().flush).toBe(-1);
   });
 });
