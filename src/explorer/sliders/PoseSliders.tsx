@@ -8,12 +8,12 @@ export function PoseSliders() {
   const pitch = useExplorerStore(s => s.pitch);
   const yaw = useExplorerStore(s => s.yaw);
   const roll = useExplorerStore(s => s.roll);
-  const jaw = useExplorerStore(s => s.jaw);
+  const jawOpen = useExplorerStore(s => s.jawOpen);
   const setPoseOverride = useExplorerStore(s => s.setPoseOverride);
   const setPitch = useExplorerStore(s => s.setPitch);
   const setYaw = useExplorerStore(s => s.setYaw);
   const setRoll = useExplorerStore(s => s.setRoll);
-  const setJaw = useExplorerStore(s => s.setJaw);
+  const setJawOpen = useExplorerStore(s => s.setJawOpen);
 
   return (
     <div>
@@ -35,7 +35,7 @@ export function PoseSliders() {
         <SliderRow label="pitch" value={pitch} min={-MAX_NECK_PITCH} max={MAX_NECK_PITCH} step={0.001} onChange={setPitch} />
         <SliderRow label="yaw" value={yaw} min={-MAX_NECK_YAW} max={MAX_NECK_YAW} step={0.001} onChange={setYaw} />
         <SliderRow label="roll" value={roll} min={-MAX_NECK_ROLL} max={MAX_NECK_ROLL} step={0.001} onChange={setRoll} />
-        <SliderRow label="jaw" value={jaw} min={0} max={MAX_JAW_OPEN} step={0.001} onChange={setJaw} />
+        <SliderRow label="jaw open" value={jawOpen} min={0} max={MAX_JAW_OPEN} step={0.001} onChange={setJawOpen} />
       </div>
     </div>
   );

@@ -1,24 +1,26 @@
 import React from 'react';
 import { SliderRow } from './SliderRow';
 import { useExplorerStore } from '../store';
-import { MAX_DEVIATION_SIGMA } from '@/constants';
 
 export function ExpressionSliders() {
-  const deviation = useExplorerStore(s => s.deviation);
-  const velocity = useExplorerStore(s => s.velocity);
-  const volatility = useExplorerStore(s => s.volatility);
-  const setDeviation = useExplorerStore(s => s.setDeviation);
-  const setVelocity = useExplorerStore(s => s.setVelocity);
-  const setVolatility = useExplorerStore(s => s.setVolatility);
+  const valence = useExplorerStore(s => s.valence);
+  const aperture = useExplorerStore(s => s.aperture);
+  const distress = useExplorerStore(s => s.distress);
+  const surprise = useExplorerStore(s => s.surprise);
+  const setValence = useExplorerStore(s => s.setValence);
+  const setAperture = useExplorerStore(s => s.setAperture);
+  const setDistress = useExplorerStore(s => s.setDistress);
+  const setSurprise = useExplorerStore(s => s.setSurprise);
 
   return (
     <div>
       <div style={{ fontSize: 11, color: '#888', marginBottom: 6, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: 1 }}>
-        Expression (Crisis)
+        Expression
       </div>
-      <SliderRow label="deviation" value={deviation} min={-MAX_DEVIATION_SIGMA} max={MAX_DEVIATION_SIGMA} step={0.001} onChange={setDeviation} />
-      <SliderRow label="velocity" value={velocity} min={-3} max={3} step={0.01} onChange={setVelocity} />
-      <SliderRow label="volatility" value={volatility} min={0} max={3} step={0.01} onChange={setVolatility} />
+      <SliderRow label="valence" value={valence} min={-3} max={3} step={0.01} onChange={setValence} />
+      <SliderRow label="aperture" value={aperture} min={-3} max={3} step={0.01} onChange={setAperture} />
+      <SliderRow label="distress" value={distress} min={-3} max={3} step={0.01} onChange={setDistress} />
+      <SliderRow label="surprise" value={surprise} min={-3} max={3} step={0.01} onChange={setSurprise} />
     </div>
   );
 }

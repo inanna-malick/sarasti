@@ -1,29 +1,70 @@
 import { create } from 'zustand';
-import type { AssetClass, TickerConfig, TickerFrame, FaceParams } from '@/types';
+import type { FaceParams } from '@/types';
 import { zeroPose } from '@/types';
-import type { BindingReport, BindingEntry } from '@/binding/report';
-import { resolveWithReport } from '@/binding/resolve';
 import { N_SHAPE, N_EXPR } from '@/constants';
 
 type ExplorerMode = 'highlevel' | 'raw';
 
+/**
+ * Direct FLAME parameter mappings for data-viz.
+ * Each semantic axis maps to specific ψ/β components with weights.
+ * These are hand-tuned for dramatic, legible deformation — not photorealism.
+ *
+ * Component catalog (FLAME 2023 Open, empirical at ±5):
+ *   ψ0: jaw open + smile    ψ1: smile/frown       ψ2: mouth open wide
+ *   ψ3: lip part/protrude   ψ4: brow raise/lower   ψ5: lip purse
+ *   ψ6: jaw lateral         ψ7: head shape mod      ψ8: lip/nose subtle
+ *   ψ9: eye/cheek region
+ *
+ *   β0: face width    β1: face height    β2: jaw shape (square/pointed)
+ *   β3: secondary width   β4+: finer detail
+ */
+
+// Expression axes — each entry is [ψ_index, weight]
+const EXPR_MAPPINGS = {
+  // Happy (+) / Sad (-): smile, cheek raise, brow relax
+  valence: [[1, 3.0], [0, 1.5], [4, -1.0], [9, -0.5]] as [number, number][],
+  // Open (+) / Closed (-): jaw open, mouth wide, brow raise
+  aperture: [[0, 3.0], [2, 2.5], [4, -1.5], [3, 1.0]] as [number, number][],
+  // Distress: brow furrow, frown, jaw clench, asymmetry
+  distress: [[4, 2.5], [1, -2.5], [9, 2.0], [6, 1.0], [0, 0.8]] as [number, number][],
+  // Surprise: brow raise, jaw drop, eyes wide
+  surprise: [[4, -2.5], [0, 2.5], [2, 2.0], [9, -1.5]] as [number, number][],
+} as const;
+
+// Shape axes — each entry is [β_index, weight]
+const SHAPE_MAPPINGS = {
+  // Wider (+) / Narrower (-)
+  width: [[0, 3.0], [3, 1.5]] as [number, number][],
+  // Taller (+) / Shorter (-)
+  height: [[1, 3.0]] as [number, number][],
+  // Square jaw (+) / Pointed chin (-)
+  jaw: [[2, 3.0]] as [number, number][],
+} as const;
+
+type ExprAxis = keyof typeof EXPR_MAPPINGS;
+type ShapeAxis = keyof typeof SHAPE_MAPPINGS;
+
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level inputs
-  age: number;
-  assetClass: AssetClass;
-  family: string;
-  deviation: number;
-  velocity: number;
-  volatility: number;
+  // High-level: semantic expression axes (-3..+3 each)
+  valence: number;
+  aperture: number;
+  distress: number;
+  surprise: number;
+
+  // High-level: semantic shape axes (-3..+3 each)
+  width: number;
+  height: number;
+  jaw: number;
 
   // Pose override
   poseOverride: boolean;
   pitch: number;
   yaw: number;
   roll: number;
-  jaw: number;
+  jawOpen: number;
 
   // Gaze override
   gazeOverride: boolean;
@@ -40,21 +81,21 @@ interface ExplorerState {
 
   // Computed
   currentParams: FaceParams | null;
-  currentReport: BindingReport | null;
 
   // Actions
   setMode: (mode: ExplorerMode) => void;
-  setAge: (v: number) => void;
-  setAssetClass: (v: AssetClass) => void;
-  setFamily: (v: string) => void;
-  setDeviation: (v: number) => void;
-  setVelocity: (v: number) => void;
-  setVolatility: (v: number) => void;
+  setValence: (v: number) => void;
+  setAperture: (v: number) => void;
+  setDistress: (v: number) => void;
+  setSurprise: (v: number) => void;
+  setWidth: (v: number) => void;
+  setHeight: (v: number) => void;
+  setJaw: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
   setRoll: (v: number) => void;
-  setJaw: (v: number) => void;
+  setJawOpen: (v: number) => void;
   setGazeOverride: (v: boolean) => void;
   setGazeHorizontal: (v: number) => void;
   setGazeVertical: (v: number) => void;
@@ -65,14 +106,15 @@ interface ExplorerState {
   recompute: () => void;
 }
 
-function manualEntry(param: string, index: number, value: number): BindingEntry {
-  return {
-    param, index, value,
-    contributions: [{ source: 'manual', input: value, mapped: value, weight: 1, contribution: value }],
-  };
+function applyMapping(target: Float32Array, mapping: readonly [number, number][], value: number): void {
+  for (const [idx, weight] of mapping) {
+    if (idx < target.length) {
+      target[idx] += weight * value;
+    }
+  }
 }
 
-function recomputeParams(state: ExplorerState): { currentParams: FaceParams; currentReport: BindingReport | null } {
+function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   if (state.mode === 'raw') {
     const params: FaceParams = {
       shape: new Float32Array(state.rawShape),
@@ -82,63 +124,41 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams; cur
       fatigue: state.fatigue,
     };
     applyOverrides(params, state);
-    return { currentParams: params, currentReport: null };
+    return { currentParams: params };
   }
 
-  // High-level mode: construct synthetic ticker + frame, run real binding
-  const ticker: TickerConfig = {
-    id: 'explorer',
-    name: 'Explorer',
-    class: state.assetClass,
-    family: state.family,
-    age: state.age,
+  // High-level mode: direct FLAME parameter mappings
+  const shape = new Float32Array(N_SHAPE);
+  const expression = new Float32Array(N_EXPR);
+
+  // Apply expression axes
+  applyMapping(expression, EXPR_MAPPINGS.valence, state.valence);
+  applyMapping(expression, EXPR_MAPPINGS.aperture, state.aperture);
+  applyMapping(expression, EXPR_MAPPINGS.distress, state.distress);
+  applyMapping(expression, EXPR_MAPPINGS.surprise, state.surprise);
+
+  // Apply shape axes
+  applyMapping(shape, SHAPE_MAPPINGS.width, state.width);
+  applyMapping(shape, SHAPE_MAPPINGS.height, state.height);
+  applyMapping(shape, SHAPE_MAPPINGS.jaw, state.jaw);
+
+  const params: FaceParams = {
+    shape,
+    expression,
+    pose: zeroPose(),
+    flush: state.flush,
+    fatigue: state.fatigue,
   };
-
-  const frame: TickerFrame = {
-    close: 100,
-    volume: 1000,
-    deviation: state.deviation,
-    velocity: state.velocity,
-    volatility: state.volatility,
-  };
-
-  const { params, report } = resolveWithReport(ticker, frame);
-
-  // Always override texture from sliders in explorer
-  params.flush = state.flush;
-  params.fatigue = state.fatigue;
-  report.flush = manualEntry('flush', 0, state.flush);
-  report.fatigue = manualEntry('fatigue', 0, state.fatigue);
 
   applyOverrides(params, state);
-
-  // Patch report to reflect overrides so report stays consistent with rendered params
-  if (state.poseOverride) {
-    report.pose = {
-      pitch: manualEntry('pose', 0, state.pitch),
-      yaw: manualEntry('pose', 1, state.yaw),
-      roll: manualEntry('pose', 2, state.roll),
-      jaw: manualEntry('pose', 3, state.jaw),
-    };
-    report.gaze = {
-      horizontal: manualEntry('gaze', 0, state.gazeHorizontal),
-      vertical: manualEntry('gaze', 1, state.gazeVertical),
-    };
-  } else if (state.gazeOverride) {
-    report.gaze = {
-      horizontal: manualEntry('gaze', 0, state.gazeHorizontal),
-      vertical: manualEntry('gaze', 1, state.gazeVertical),
-    };
-  }
-
-  return { currentParams: params, currentReport: report };
+  return { currentParams: params };
 }
 
 function applyOverrides(params: FaceParams, state: ExplorerState): void {
   if (state.poseOverride) {
     params.pose = {
       neck: [state.pitch, state.yaw, state.roll],
-      jaw: state.jaw,
+      jaw: state.jawOpen,
       leftEye: [state.gazeHorizontal, state.gazeVertical],
       rightEye: [state.gazeHorizontal, state.gazeVertical],
     };
@@ -159,18 +179,20 @@ function update(set: any, get: any, patch: Partial<ExplorerState>) {
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
 
-  age: 30,
-  assetClass: 'energy',
-  family: 'brent',
-  deviation: 0,
-  velocity: 0,
-  volatility: 1,
+  valence: 0,
+  aperture: 0,
+  distress: 0,
+  surprise: 0,
+
+  width: 0,
+  height: 0,
+  jaw: 0,
 
   poseOverride: false,
   pitch: 0,
   yaw: 0,
   roll: 0,
-  jaw: 0,
+  jawOpen: 0,
 
   gazeOverride: false,
   gazeHorizontal: 0,
@@ -183,20 +205,20 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   rawExpression: new Float32Array(N_EXPR),
 
   currentParams: null,
-  currentReport: null,
 
   setMode: (v) => update(set, get, { mode: v }),
-  setAge: (v) => update(set, get, { age: v }),
-  setAssetClass: (v) => update(set, get, { assetClass: v }),
-  setFamily: (v) => update(set, get, { family: v }),
-  setDeviation: (v) => update(set, get, { deviation: v }),
-  setVelocity: (v) => update(set, get, { velocity: v }),
-  setVolatility: (v) => update(set, get, { volatility: v }),
+  setValence: (v) => update(set, get, { valence: v }),
+  setAperture: (v) => update(set, get, { aperture: v }),
+  setDistress: (v) => update(set, get, { distress: v }),
+  setSurprise: (v) => update(set, get, { surprise: v }),
+  setWidth: (v) => update(set, get, { width: v }),
+  setHeight: (v) => update(set, get, { height: v }),
+  setJaw: (v) => update(set, get, { jaw: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),
   setRoll: (v) => update(set, get, { roll: v }),
-  setJaw: (v) => update(set, get, { jaw: v }),
+  setJawOpen: (v) => update(set, get, { jawOpen: v }),
   setGazeOverride: (v) => update(set, get, { gazeOverride: v }),
   setGazeHorizontal: (v) => update(set, get, { gazeHorizontal: v }),
   setGazeVertical: (v) => update(set, get, { gazeVertical: v }),
@@ -219,3 +241,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
     set(recomputeParams(get()));
   },
 }));
+
+// Export mappings for use in report panel
+export { EXPR_MAPPINGS, SHAPE_MAPPINGS };
+export type { ExprAxis, ShapeAxis };

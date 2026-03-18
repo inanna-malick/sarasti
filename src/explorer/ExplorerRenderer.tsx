@@ -88,16 +88,18 @@ export function ExplorerRenderer() {
         resizeObserver.observe(container);
 
         // Subscribe to store changes
-        let lastParams: ReturnType<typeof useExplorerStore.getState>['currentParams'] = null;
         unsubscribe = useExplorerStore.subscribe((state) => {
-          if (state.currentParams && state.currentParams !== lastParams) {
-            lastParams = state.currentParams;
-            if (mesh) mesh.updateFromParams(state.currentParams);
+          if (state.currentParams && mesh) {
+            mesh.updateFromParams(state.currentParams);
           }
         });
 
-        // Trigger initial recompute
+        // Trigger initial recompute and apply immediately
         useExplorerStore.getState().recompute();
+        const initialParams = useExplorerStore.getState().currentParams;
+        if (initialParams && mesh) {
+          mesh.updateFromParams(initialParams);
+        }
 
         function renderLoop() {
           if (disposed) return;
