@@ -23,8 +23,15 @@ export function gridLayout(
   options?: GridLayoutOptions,
 ): LayoutResult {
   const positions = new Map<string, [number, number, number]>();
-  const spacing = options?.spacing ?? SPACING;
-  const aspect = options?.aspect ?? DEFAULT_ASPECT;
+
+  // Sanitize inputs: ensure finite + >0 values
+  const spacing = (options?.spacing !== undefined && Number.isFinite(options.spacing) && options.spacing > 0)
+    ? options.spacing
+    : SPACING;
+
+  const aspect = (options?.aspect !== undefined && Number.isFinite(options.aspect) && options.aspect > 0)
+    ? options.aspect
+    : DEFAULT_ASPECT;
 
   // Separate items with explicit positions from those needing auto-layout
   const needsLayout: { id: string }[] = [];
@@ -40,7 +47,15 @@ export function gridLayout(
   // Auto-layout the rest in a grid
   if (needsLayout.length > 0) {
     const n = needsLayout.length;
-    const cols = options?.cols ?? chooseGridCols(n, aspect);
+
+    // Sanitize cols: ensure integer in range [1, n]
+    let cols = options?.cols ?? chooseGridCols(n, aspect);
+    if (!Number.isInteger(cols) || cols < 1) {
+      cols = chooseGridCols(n, aspect);
+    } else if (cols > n) {
+      cols = n;
+    }
+
     const rows = Math.ceil(n / cols);
     const gridH = (rows - 1) * spacing;
 
@@ -88,8 +103,8 @@ function chooseGridCols(n: number, aspect: number): number {
 // ─── Hormuz compat wrapper ──────────────────────────
 
 /** Threat-proximity order (hormuz-specific) */
-type AssetClass = 'energy' | 'commodity' | 'fear' | 'currency' | 'equity' | 'media';
-const CLASS_ORDER: AssetClass[] = ['energy', 'commodity', 'fear', 'currency', 'equity', 'media'];
+const CLASS_ORDER = ['energy', 'commodity', 'fear', 'currency', 'equity', 'media'] as const;
+type AssetClass = (typeof CLASS_ORDER)[number];
 
 interface TickerConfigLike {
   id: string;
@@ -102,11 +117,12 @@ interface TickerConfigLike {
  * @deprecated Use gridLayout() for new code.
  */
 export function computeLayout(tickers: TickerConfigLike[], aspect: number = DEFAULT_ASPECT): LayoutResult {
+  const safeAspect = (Number.isFinite(aspect) && aspect > 0) ? aspect : DEFAULT_ASPECT;
   const sorted = [...tickers].sort((a, b) => {
     const ca = CLASS_ORDER.indexOf(a.class as AssetClass);
     const cb = CLASS_ORDER.indexOf(b.class as AssetClass);
     if (ca !== cb) return (ca === -1 ? Infinity : ca) - (cb === -1 ? Infinity : cb);
     return a.age - b.age;
   });
-  return gridLayout(sorted, { aspect });
+  return gridLayout(sorted, { aspect: safeAspect });
 }

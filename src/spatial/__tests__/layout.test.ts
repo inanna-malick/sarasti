@@ -70,6 +70,23 @@ describe('gridLayout', () => {
     const avgX = xs.reduce((a, b) => a + b, 0) / xs.length;
     expect(Math.abs(avgX)).toBeLessThan(0.1);
   });
+
+  it('sanitizes invalid options (aspect, spacing, cols)', () => {
+    const items = Array.from({ length: 4 }, (_, i) => ({ id: `t${i}` }));
+    
+    // Invalid aspect/spacing should fallback to defaults
+    const resultInvalid = gridLayout(items, { aspect: -1, spacing: 0, cols: 0.5 });
+    expect(resultInvalid.positions.size).toBe(4);
+    for (const pos of resultInvalid.positions.values()) {
+      expect(Number.isFinite(pos[0])).toBe(true);
+      expect(Number.isFinite(pos[1])).toBe(true);
+    }
+
+    // cols > n should be clamped to n
+    const resultManyCols = gridLayout(items, { cols: 100 });
+    const ys = new Set(Array.from(resultManyCols.positions.values()).map(p => p[1]));
+    expect(ys.size).toBe(1); // All on one row
+  });
 });
 
 describe('computeLayout (compat)', () => {
@@ -95,5 +112,13 @@ describe('computeLayout (compat)', () => {
     }));
     const result = computeLayout(tickers);
     expect(result.positions.size).toBe(25);
+  });
+
+  it('sanitizes invalid aspect', () => {
+    const tickers = [{ id: 't1', class: 'energy', age: 1 }];
+    const result = computeLayout(tickers, -1);
+    const pos = result.positions.get('t1')!;
+    expect(Number.isFinite(pos[0])).toBe(true);
+    expect(Number.isFinite(pos[1])).toBe(true);
   });
 });
