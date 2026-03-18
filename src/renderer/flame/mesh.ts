@@ -9,6 +9,7 @@ import { extractMouthMeasurements } from './mouth/measurements';
 import { createMouthInterior } from './mouth/interior';
 import type { MouthInterior } from './mouth/types';
 import { identifyCheekRegion } from './cheeks';
+import type { CheekVertex } from './cheeks';
 
 /**
  * FlameFaceMesh wraps a Three.js Mesh and manages its geometry and material.
@@ -23,7 +24,7 @@ export class FlameFaceMesh {
   private pipeline: FlamePipeline;
   private mouthInterior: MouthInterior | null;
   private baseColors!: Float32Array;
-  private cheekWeights: Float32Array;
+  private cheekVertices: CheekVertex[];
 
   constructor(pipeline: FlamePipeline, tickerId: string, eyeOverrides?: { irisRadius?: number; pupilRadius?: number }) {
     this.pipeline = pipeline;
@@ -82,8 +83,8 @@ export class FlameFaceMesh {
     // computeAlbedoColors now populates this.baseColors
     const colors = this.computeAlbedoColors(tickerId);
 
-    // Compute cheek weight map for localized flush effect
-    this.cheekWeights = identifyCheekRegion(
+    // Compute sparse cheek vertex list for localized flush effect
+    this.cheekVertices = identifyCheekRegion(
       model.template,
       model.n_vertices,
       TEXTURE_CONFIG.flush.cheek_radius,
@@ -210,18 +211,16 @@ gl_FragColor.a *= fade;`
     const { albedoBasis, n_vertices } = this.pipeline.model;
     const stride = n_vertices * 3;
 
-    // Flush: localized cheek redness via position-based weight map
+    // Flush: localized cheek redness via sparse precomputed vertex list
     // arr is in BGR order before the clamp+swap loop below,
     // so arr[i+2] = R channel, arr[i+1] = G channel, arr[i] = B channel
     if (flush !== 0) {
       const { red_intensity, green_intensity, blue_intensity } = TEXTURE_CONFIG.flush;
-      for (let v = 0; v < n_vertices; v++) {
-        const w = this.cheekWeights[v];
-        if (w < 0.001) continue;
-        const i = v * 3;
-        arr[i + 2] += flush * w * red_intensity;    // R (strongest)
-        arr[i + 1] += flush * w * green_intensity;   // G (slight warmth)
-        arr[i]     += flush * w * blue_intensity;     // B
+      for (const { index, weight } of this.cheekVertices) {
+        const i = index * 3;
+        arr[i + 2] += flush * weight * red_intensity;    // R (strongest)
+        arr[i + 1] += flush * weight * green_intensity;   // G (slight warmth)
+        arr[i]     += flush * weight * blue_intensity;     // B
       }
     }
 

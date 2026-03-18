@@ -13,25 +13,35 @@ const RIGHT_CHEEK_CENTER = { x: 0.05, y: -0.01, z: 0.06 };
 /** Default Gaussian falloff radius */
 const DEFAULT_CHEEK_RADIUS = 0.03;
 
+/** Minimum radius to avoid division by zero */
+const MIN_RADIUS = 1e-6;
+
 /** Skip vertices with weight below this threshold */
-const WEIGHT_THRESHOLD = 0.001;
+export const CHEEK_WEIGHT_THRESHOLD = 0.001;
+
+/** Sparse cheek vertex entry: index + precomputed weight */
+export interface CheekVertex {
+  index: number;
+  weight: number;
+}
 
 /**
  * Identifies cheek-region vertices from the FLAME template mesh and returns
- * a per-vertex weight map with Gaussian falloff from cheek centers.
+ * a sparse list of cheek vertices with their Gaussian-falloff weights.
  *
  * @param template - FLAME template vertex positions (Float32Array, n_vertices * 3)
  * @param nVertices - number of vertices
  * @param radius - Gaussian falloff radius (default 0.03)
- * @returns Float32Array(nVertices) where 0.0 = not cheek, 1.0 = cheek center
+ * @returns Sparse array of { index, weight } for vertices above threshold
  */
 export function identifyCheekRegion(
   template: Float32Array,
   nVertices: number,
   radius: number = DEFAULT_CHEEK_RADIUS,
-): Float32Array {
-  const weights = new Float32Array(nVertices);
-  const invTwoSigmaSq = 1 / (2 * radius * radius);
+): CheekVertex[] {
+  const safeRadius = Math.max(Math.abs(radius), MIN_RADIUS);
+  const invTwoSigmaSq = 1 / (2 * safeRadius * safeRadius);
+  const result: CheekVertex[] = [];
 
   for (let v = 0; v < nVertices; v++) {
     const x = template[v * 3];
@@ -56,9 +66,10 @@ export function identifyCheekRegion(
     // Gaussian falloff
     const w = Math.exp(-distSq * invTwoSigmaSq);
 
-    // Clamp negligible weights to zero
-    weights[v] = w < WEIGHT_THRESHOLD ? 0 : w;
+    if (w >= CHEEK_WEIGHT_THRESHOLD) {
+      result.push({ index: v, weight: w });
+    }
   }
 
-  return weights;
+  return result;
 }
