@@ -5,7 +5,7 @@ beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
     joy: 0, anguish: 0, surprise: 0, tension: 0,
-    width: 0, height: 0, jaw: 0,
+    stature: 0, proportion: 0, angularity: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
     flush: 0, fatigue: 0,
@@ -63,7 +63,7 @@ describe('ExplorerStore', () => {
     expect(expr[8]).toBeCloseTo(3.0);   // ψ8: 1.0 × 3.0
   });
 
-  // --- Combination tests ---
+  // --- Expression combination tests ---
 
   it('joy + surprise stack on ψ0 (jaw drops further)', () => {
     useExplorerStore.getState().setJoy(3.0);
@@ -85,8 +85,7 @@ describe('ExplorerStore', () => {
     useExplorerStore.getState().setAnguish(3.0);
     useExplorerStore.getState().setTension(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ8: anguish 1.5×3 + tension 1.0×3 = 4.5 + 3.0 = 7.5
-    expect(expr[8]).toBeCloseTo(7.5);
+    expect(expr[8]).toBeCloseTo(7.5);  // 4.5 + 3.0
   });
 
   it('joy + surprise stack on ψ7 (eyes wide open)', () => {
@@ -97,13 +96,74 @@ describe('ExplorerStore', () => {
     expect(expr[7]).toBeCloseTo(-6.6);
   });
 
-  // --- Shape, raw mode, texture, pose, gaze ---
+  // --- Shape axes ---
 
-  it('shape width drives β0', () => {
-    useExplorerStore.getState().setWidth(2.0);
+  it('stature drives β0 (width), β3 (jaw width), β2 (profile depth)', () => {
+    useExplorerStore.getState().setStature(3.0);
     const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[0]).toBeCloseTo(6.0); // weight 3.0 * 2.0
+    expect(shape[0]).toBeCloseTo(7.5);  // β0: 2.5 × 3.0 (root)
+    expect(shape[3]).toBeCloseTo(4.5);  // β3: 1.5 × 3.0 (color)
+    expect(shape[2]).toBeCloseTo(3.0);  // β2: 1.0 × 3.0 (color)
   });
+
+  it('proportion drives β1 (face length), β4 (brow ridge), β6 (cheekbone)', () => {
+    useExplorerStore.getState().setProportion(3.0);
+    const shape = useExplorerStore.getState().currentParams!.shape;
+    expect(shape[1]).toBeCloseTo(7.5);   // β1: 2.5 × 3.0 (root)
+    expect(shape[4]).toBeCloseTo(-4.5);  // β4: -1.5 × 3.0 (color)
+    expect(shape[6]).toBeCloseTo(-3.0);  // β6: -1.0 × 3.0 (color)
+  });
+
+  it('angularity drives β10 (chin), β8 (mouth size), β5 (nasal bridge)', () => {
+    useExplorerStore.getState().setAngularity(3.0);
+    const shape = useExplorerStore.getState().currentParams!.shape;
+    expect(shape[10]).toBeCloseTo(4.5);  // β10: 1.5 × 3.0 (root)
+    expect(shape[8]).toBeCloseTo(-3.6);  // β8: -1.2 × 3.0 (color)
+    expect(shape[5]).toBeCloseTo(-3.0);  // β5: -1.0 × 3.0 (color)
+  });
+
+  it('shape axes have zero component overlap', () => {
+    // Stature: β0, β3, β2
+    // Proportion: β1, β4, β6
+    // Angularity: β10, β8, β5
+    useExplorerStore.getState().setStature(3.0);
+    useExplorerStore.getState().setProportion(3.0);
+    useExplorerStore.getState().setAngularity(3.0);
+    const shape = useExplorerStore.getState().currentParams!.shape;
+
+    // Stature components
+    expect(shape[0]).toBeCloseTo(7.5);
+    expect(shape[3]).toBeCloseTo(4.5);
+    expect(shape[2]).toBeCloseTo(3.0);
+
+    // Proportion components
+    expect(shape[1]).toBeCloseTo(7.5);
+    expect(shape[4]).toBeCloseTo(-4.5);
+    expect(shape[6]).toBeCloseTo(-3.0);
+
+    // Angularity components
+    expect(shape[10]).toBeCloseTo(4.5);
+    expect(shape[8]).toBeCloseTo(-3.6);
+    expect(shape[5]).toBeCloseTo(-3.0);
+  });
+
+  it('negative stature produces gaunt face', () => {
+    useExplorerStore.getState().setStature(-3.0);
+    const shape = useExplorerStore.getState().currentParams!.shape;
+    expect(shape[0]).toBeCloseTo(-7.5);  // narrow
+    expect(shape[3]).toBeCloseTo(-4.5);  // tapered jaw
+    expect(shape[2]).toBeCloseTo(-3.0);  // flat profile
+  });
+
+  it('negative proportion produces compact/neotenic face', () => {
+    useExplorerStore.getState().setProportion(-3.0);
+    const shape = useExplorerStore.getState().currentParams!.shape;
+    expect(shape[1]).toBeCloseTo(-7.5);  // short face
+    expect(shape[4]).toBeCloseTo(4.5);   // heavy brow
+    expect(shape[6]).toBeCloseTo(3.0);   // prominent cheekbones
+  });
+
+  // --- Raw mode, texture, pose, gaze ---
 
   it('raw mode bypasses mappings', () => {
     useExplorerStore.getState().setMode('raw');
