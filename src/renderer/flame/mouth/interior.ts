@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { MouthMeasurements, MouthInterior } from './types';
+import { computeVertexCentroid } from './measurements';
 import {
   createUpperTeethGeometry,
   createLowerTeethGeometry,
@@ -15,13 +16,10 @@ import {
   createCavityMaterial,
 } from './materials';
 
-/** Jaw angle thresholds for visibility gating (radians) */
-const JAW_HIDDEN_THRESHOLD = 0.01;
-const JAW_VISIBLE_THRESHOLD = 0.03;
-
 /**
  * Create the mouth interior assembly: teeth, gums, tongue, cavity.
- * Upper parts stay fixed relative to head; lower parts track jaw joint.
+ * Upper parts track upper lip centroid; lower parts track lower lip centroid.
+ * Rotation derived from deformed lip vectors, not manual jaw kinematics.
  */
 export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   // --- Materials (shared refs for opacity control) ---
@@ -39,22 +37,19 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   const cavityGeo = createCavityGeometry(m);
 
   // Recess depth: push geometry behind the lip surface
-  // Arch peaks at +Z (forward), so recess must compensate
   const recessZ = -m.mouthDepth * 0.6;
 
-  // --- Upper group (parents to head) ---
+  // --- Upper group (tracks upper lip centroid) ---
   const upperGroup = new THREE.Group();
   const upperTeeth = new THREE.Mesh(upperTeethGeo, teethMat);
   const upperGums = new THREE.Mesh(upperGumsGeo, gumsMat);
-  // Teeth render in front of gums
   upperTeeth.renderOrder = 3;
   upperGums.renderOrder = 2;
   upperGroup.add(upperTeeth, upperGums);
-  upperGroup.position.copy(m.mouthCenter);
-  upperGroup.position.y += m.lipHeight * 0.15;
+  upperGroup.position.copy(m.upperLipCenter);
   upperGroup.position.z += recessZ;
 
-  // --- Lower group (tracks jaw joint) ---
+  // --- Lower group (tracks lower lip centroid) ---
   const lowerGroup = new THREE.Group();
   const lowerTeeth = new THREE.Mesh(lowerTeethGeo, teethMat);
   const lowerGums = new THREE.Mesh(lowerGumsGeo, gumsMat);
@@ -66,8 +61,7 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   tongue.position.set(0, 0, -m.mouthDepth * 0.3);
 
   lowerGroup.add(lowerTeeth, lowerGums, tongue);
-  lowerGroup.position.copy(m.mouthCenter);
-  lowerGroup.position.y -= m.lipHeight * 0.15;
+  lowerGroup.position.copy(m.lowerLipCenter);
   lowerGroup.position.z += recessZ;
 
   // --- Cavity ---
@@ -79,8 +73,6 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   const allMaterials: THREE.Material[] = [teethMat, gumsMat, tongueMat, cavityMat];
 
   // Render mouth interior after face skin so depth test occludes behind lips
-  // but teeth show through the mouth opening. depthWrite=false prevents
-  // teeth from occluding each other incorrectly.
   for (const mat of allMaterials) {
     mat.depthWrite = false;
     mat.side = THREE.DoubleSide;
@@ -92,16 +84,18 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   lowerGroup.visible = false;
   cavityMesh.visible = false;
 
-  // Jaw pivot: lower group rotates around the jaw joint position
-  const jawPivot = m.jawJointPosition.clone();
+  // Rest-pose reference vector: upper→lower lip centroid direction (YZ plane)
+  const restDY = m.lowerLipCenter.y - m.upperLipCenter.y;
+  const restDZ = m.lowerLipCenter.z - m.upperLipCenter.z;
+  const restAngle = Math.atan2(restDZ, restDY);
 
   return {
     upperGroup,
     lowerGroup,
     cavityMesh,
 
-    update(jawAngle: number): void {
-      // Always visible — when mouth is closed, lips occlude naturally
+    update(deformedVertices: Float32Array): void {
+      // Always visible — lips occlude naturally when mouth is closed
       upperGroup.visible = true;
       lowerGroup.visible = true;
       cavityMesh.visible = true;
@@ -110,26 +104,39 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
         (mat as THREE.MeshStandardMaterial | THREE.MeshBasicMaterial).opacity = 1;
       }
 
-      // Rotate lower group around jaw joint (X-axis rotation)
-      // Reset position to jaw pivot, apply rotation, offset back
-      lowerGroup.position.copy(m.mouthCenter);
-      lowerGroup.position.y -= m.lipHeight * 0.25;
+      // Compute deformed lip centroids from vertex buffer
+      const upperCenter = computeVertexCentroid(deformedVertices, m.upperLipVertices);
+      const lowerCenter = computeVertexCentroid(deformedVertices, m.lowerLipVertices);
 
-      // Apply jaw rotation relative to jaw joint
-      const dy = lowerGroup.position.y - jawPivot.y;
-      const dz = lowerGroup.position.z - jawPivot.z;
-      const cos = Math.cos(-jawAngle);
-      const sin = Math.sin(-jawAngle);
-      lowerGroup.position.y = jawPivot.y + dy * cos - dz * sin;
-      lowerGroup.position.z = jawPivot.z + dy * sin + dz * cos;
-      lowerGroup.rotation.x = -jawAngle;
+      // Position upper group at deformed upper lip centroid + recess
+      upperGroup.position.copy(upperCenter);
+      upperGroup.position.z += recessZ;
 
-      // Tongue tracks at 0.7× jaw rotation
-      tongue.rotation.x = -jawAngle * 0.7 + jawAngle; // relative to lower group
+      // Position lower group at deformed lower lip centroid + recess
+      lowerGroup.position.copy(lowerCenter);
+      lowerGroup.position.z += recessZ;
+
+      // Derive jaw rotation from deformed upper→lower vector vs rest-pose vector
+      // Jaw rotates around X axis, so we measure angle change in YZ plane
+      const defDY = lowerCenter.y - upperCenter.y;
+      const defDZ = lowerCenter.z - upperCenter.z;
+      const defAngle = Math.atan2(defDZ, defDY);
+      const jawRotation = defAngle - restAngle;
+
+      lowerGroup.rotation.x = jawRotation;
+
+      // Tongue tracks at 0.7× jaw rotation (relative to lower group)
+      tongue.rotation.x = -jawRotation * 0.3;
+
+      // Cavity midpoint between upper and lower
+      cavityMesh.position.set(
+        (upperCenter.x + lowerCenter.x) / 2,
+        (upperCenter.y + lowerCenter.y) / 2,
+        (upperCenter.z + lowerCenter.z) / 2 + recessZ - m.mouthDepth * 0.3,
+      );
     },
 
     dispose(): void {
-      // Dispose geometries
       upperTeethGeo.dispose();
       lowerTeethGeo.dispose();
       upperGumsGeo.dispose();
@@ -137,7 +144,6 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
       tongueGeo.dispose();
       cavityGeo.dispose();
 
-      // Dispose materials (including cloned ones on lower group)
       for (const mat of allMaterials) {
         mat.dispose();
       }

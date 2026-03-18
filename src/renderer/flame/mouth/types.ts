@@ -17,21 +17,29 @@ export interface MouthMeasurements {
   jawJointPosition: THREE.Vector3;
   /** Indices of vertices on the inner lip boundary */
   lipVertices: number[];
+  /** Upper lip vertices (jaw weight < 0.5 — head-dominant) */
+  upperLipVertices: number[];
+  /** Lower lip vertices (jaw weight >= 0.5 — jaw-dominant) */
+  lowerLipVertices: number[];
+  /** Rest-pose centroid of upper lip vertices */
+  upperLipCenter: THREE.Vector3;
+  /** Rest-pose centroid of lower lip vertices */
+  lowerLipCenter: THREE.Vector3;
 }
 
 /**
- * Assembled mouth interior: upper/lower groups parented to
- * head/jaw joints, with visibility gating on jaw angle.
+ * Assembled mouth interior: upper/lower groups positioned by
+ * deformed lip vertex centroids each frame.
  */
 export interface MouthInterior {
-  /** Upper teeth + upper gums (parents to head/neck joint) */
+  /** Upper teeth + upper gums (tracks upper lip centroid) */
   upperGroup: THREE.Group;
-  /** Lower teeth + lower gums + tongue (parents to jaw joint) */
+  /** Lower teeth + lower gums + tongue (tracks lower lip centroid) */
   lowerGroup: THREE.Group;
   /** Dark cavity backdrop */
   cavityMesh: THREE.Mesh;
-  /** Update visibility and jaw tracking. jawAngle in radians. */
-  update(jawAngle: number): void;
+  /** Update positions from deformed vertex buffer (pipeline output). */
+  update(deformedVertices: Float32Array): void;
   /** Dispose all geometry and materials */
   dispose(): void;
 }
