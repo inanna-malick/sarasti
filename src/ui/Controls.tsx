@@ -1,32 +1,18 @@
 import React from 'react';
 import { useStore } from '../store';
-import type { LayoutStrategy } from '../types';
 
 /**
  * Small floating control panel, top-right corner.
  *
  * Contains:
- * - Layout selector: family-rows / class-clusters / reactivity-sweep
  * - Loop toggle
  * - "Technical summary" info button
- *
- * Props:
- * - onLayoutChange: callback to FrameDriver.setLayout()
- * - onLoopChange: callback to FrameDriver.setLoop()
  */
 interface ControlsProps {
-  onLayoutChange: (strategy: LayoutStrategy) => void;
   onLoopChange: (loop: boolean) => void;
 }
 
-export const LAYOUTS: { label: string; strategy: LayoutStrategy }[] = [
-  { label: 'Families', strategy: { kind: 'family-rows' } },
-  { label: 'Classes', strategy: { kind: 'class-clusters' } },
-  { label: 'Reactivity', strategy: { kind: 'reactivity-sweep' } },
-];
-
-export function Controls({ onLayoutChange, onLoopChange }: ControlsProps) {
-  const currentLayout = useStore((s) => s.layout);
+export function Controls({ onLoopChange }: ControlsProps) {
   const loop = useStore((s) => s.playback.loop);
 
   return (
@@ -48,30 +34,6 @@ export function Controls({ onLayoutChange, onLoopChange }: ControlsProps) {
         zIndex: 50,
       }}
     >
-      {/* Layout selector */}
-      <div style={{ display: 'flex', gap: 4 }}>
-        {LAYOUTS.map(({ label, strategy }) => (
-          <button
-            key={strategy.kind}
-            onClick={() => onLayoutChange(strategy)}
-            style={{
-              background:
-                currentLayout.kind === strategy.kind
-                  ? 'rgba(255,255,255,0.12)'
-                  : 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 3,
-              color: currentLayout.kind === strategy.kind ? '#ddd' : '#666',
-              cursor: 'pointer',
-              padding: '3px 8px',
-              fontSize: 10,
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       {/* Loop toggle & About */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
         <label

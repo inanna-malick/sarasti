@@ -30,18 +30,18 @@ function buildTeethArch(
       const angle = Math.PI * u; // 0 to PI (semicircle)
 
       const baseX = Math.cos(angle) * halfW;
-      const baseZ = -Math.sin(angle) * depth;
+      const baseZ = Math.sin(angle) * depth;
 
       // Sine-wave displacement for tooth divisions
       const toothDisp = Math.sin(u * Math.PI * toothFreq) * toothAmp;
       const x = baseX;
-      const z = baseZ - toothDisp;
+      const z = baseZ + toothDisp;
 
       positions.push(x, y, z);
 
       // Approximate normal: pointing outward from arch center
       const nx = Math.cos(angle);
-      const nz = -Math.sin(angle);
+      const nz = Math.sin(angle);
       const len = Math.sqrt(nx * nx + nz * nz) || 1;
       normals.push(nx / len, 0, nz / len);
     }
@@ -72,7 +72,7 @@ function buildTeethArch(
 export function createUpperTeethGeometry(m: MouthMeasurements): THREE.BufferGeometry {
   const width = m.lipWidth * 0.35;
   const height = m.lipHeight * 0.15;
-  const depth = m.mouthDepth * 0.4;
+  const depth = m.mouthDepth * 0.15;
   return buildTeethArch(width, height, depth, 8, depth * 0.08);
 }
 
@@ -82,7 +82,7 @@ export function createUpperTeethGeometry(m: MouthMeasurements): THREE.BufferGeom
 export function createLowerTeethGeometry(m: MouthMeasurements): THREE.BufferGeometry {
   const width = m.lipWidth * 0.32;
   const height = m.lipHeight * 0.12;
-  const depth = m.mouthDepth * 0.35;
+  const depth = m.mouthDepth * 0.12;
   return buildTeethArch(width, height, depth, 8, depth * 0.06);
 }
 
@@ -110,14 +110,14 @@ function buildGumGeometry(
       const u = col / cols;
       const angle = Math.PI * u;
 
-      // Gums are slightly wider and further back than teeth
+      // Gums sit behind the teeth (negative Z offset)
       const x = Math.cos(angle) * halfW;
-      const z = -Math.sin(angle) * depth - depth * 0.15;
+      const z = Math.sin(angle) * depth - depth * 0.8;
 
       positions.push(x, y, z);
 
       const nx = Math.cos(angle);
-      const nz = -Math.sin(angle);
+      const nz = Math.sin(angle);
       const len = Math.sqrt(nx * nx + nz * nz) || 1;
       normals.push(nx / len, 0, nz / len);
     }
@@ -145,9 +145,9 @@ function buildGumGeometry(
  * Upper gums: wraps around upper teeth arch.
  */
 export function createUpperGumsGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const width = m.lipWidth * 0.4;
-  const height = m.lipHeight * 0.2;
-  const depth = m.mouthDepth * 0.45;
+  const width = m.lipWidth * 0.36;
+  const height = m.lipHeight * 0.12;
+  const depth = m.mouthDepth * 0.15;
   return buildGumGeometry(width, height, depth);
 }
 
@@ -155,9 +155,9 @@ export function createUpperGumsGeometry(m: MouthMeasurements): THREE.BufferGeome
  * Lower gums: wraps around lower teeth.
  */
 export function createLowerGumsGeometry(m: MouthMeasurements): THREE.BufferGeometry {
-  const width = m.lipWidth * 0.38;
-  const height = m.lipHeight * 0.18;
-  const depth = m.mouthDepth * 0.4;
+  const width = m.lipWidth * 0.34;
+  const height = m.lipHeight * 0.10;
+  const depth = m.mouthDepth * 0.12;
   return buildGumGeometry(width, height, depth);
 }
 

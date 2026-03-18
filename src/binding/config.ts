@@ -115,13 +115,14 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   },
 
   // Sigmoid: dev ±0.1 → ~40% intensity, dev ±0.3 → ~85%, dev ±0.5+ → saturates
+  // CMA-ES optimized steepness (CLIP score 0.9319)
   deviation_curve: {
     type: 'sigmoid',
     input_min: -MAX_DEVIATION_SIGMA,
     input_max: MAX_DEVIATION_SIGMA,
     output_min: -1,
     output_max: 1,
-    steepness: 4,
+    steepness: 1.18,
   },
 
   // Velocity: wider range than deviation — velocity can spike harder
@@ -131,7 +132,7 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
     input_max: 3.0,
     output_min: -1,
     output_max: 1,
-    steepness: 3,
+    steepness: 2.49,
   },
 
   // Volatility: linear, range matched to typical market vol (0–3)

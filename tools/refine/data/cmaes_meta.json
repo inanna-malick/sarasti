@@ -1,0 +1,31 @@
+{
+  "best_score": 0.9319018554687499,
+  "eval_count": 1512,
+  "elapsed_seconds": 3424.962005138397,
+  "params": {
+    "irisRadius": 0.04030134251681996,
+    "pupilRadius": 0.043281706970658175,
+    "maxJaw": 0.5477330130009063,
+    "expressionIntensity": 26.276989420213155,
+    "semantifyExprIntensity": 6.972432279129891,
+    "maxNeckPitch": 0.5370473177044188,
+    "maxNeckYaw": 0.2559012383173235,
+    "maxEyeHorizontal": 0.5196751492925664,
+    "maxEyeVertical": 0.34706148426788697,
+    "deviationSteepness": 1.1837623947330926,
+    "velocitySteepness": 2.4905855318132715
+  },
+  "defaults": {
+    "irisRadius": 0.08,
+    "pupilRadius": 0.106,
+    "maxJaw": 0.2,
+    "expressionIntensity": 14.52,
+    "semantifyExprIntensity": 13.41,
+    "maxNeckPitch": 0.25,
+    "maxNeckYaw": 0.3,
+    "maxEyeHorizontal": 0.35,
+    "maxEyeVertical": 0.2625,
+    "deviationSteepness": 4.0,
+    "velocitySteepness": 3.0
+  }
+}

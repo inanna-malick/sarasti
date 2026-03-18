@@ -2,13 +2,13 @@ import * as THREE from 'three';
 
 export interface EyeMaterialOptions {
   irisColor: THREE.Color;    // deterministic from ticker hash
-  irisRadius?: number;       // default 0.26
-  pupilRadius?: number;      // default 0.09
+  irisRadius?: number;       // default 0.04 (CMA-ES optimized)
+  pupilRadius?: number;      // default 0.043 (CMA-ES optimized)
 }
 
 export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMaterial {
-  const irisRadius = options.irisRadius ?? 0.26;
-  const pupilRadius = options.pupilRadius ?? 0.09;
+  const irisRadius = options.irisRadius ?? 0.04;
+  const pupilRadius = options.pupilRadius ?? 0.043;
 
   const vertexShader = `
     varying vec3 vLocalPos;

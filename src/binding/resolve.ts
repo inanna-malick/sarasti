@@ -167,7 +167,7 @@ function mapStaticsToShape(
  * This is applied ON TOP of the Semantify output, preserving the learned
  * nonlinear trajectory while amplifying it into data-viz range.
  */
-const SEMANTIFY_EXPR_INTENSITY = 12.0;
+const SEMANTIFY_EXPR_INTENSITY = 6.97;
 
 export function createExpressionResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,

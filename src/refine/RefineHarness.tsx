@@ -169,6 +169,17 @@ export function RefineHarness() {
 
               const params = resolve(ticker, frameData, customConfig);
               mesh.updateFromParams(params);
+
+              // Debug: override face opacity to see teeth through skin
+              if ((config.overrides as any).faceOpacity != null) {
+                const opacity = (config.overrides as any).faceOpacity;
+                const mats = Array.isArray(mesh.mesh.material) ? mesh.mesh.material : [mesh.mesh.material];
+                for (const mat of mats) {
+                  (mat as any).opacity = opacity;
+                  (mat as any).transparent = true;
+                  (mat as any).depthWrite = false;
+                }
+              }
             }
           }
 

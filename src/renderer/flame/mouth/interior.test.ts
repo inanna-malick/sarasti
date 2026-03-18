@@ -39,11 +39,11 @@ describe('createMouthInterior', () => {
     expect(interior.cavityMesh.visible).toBe(false);
   });
 
-  it('hidden when jaw angle < 0.02', () => {
+  it('always visible after update (lips occlude naturally)', () => {
     const interior = createMouthInterior(mockMeasurements());
     interior.update(0.01);
-    expect(interior.upperGroup.visible).toBe(false);
-    expect(interior.lowerGroup.visible).toBe(false);
+    expect(interior.upperGroup.visible).toBe(true);
+    expect(interior.lowerGroup.visible).toBe(true);
   });
 
   it('visible when jaw angle > 0.08', () => {

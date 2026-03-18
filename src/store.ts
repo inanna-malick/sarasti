@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import type {
   PlaybackState,
-  LayoutStrategy,
   FaceInstance,
   TimelineDataset,
   TickerConfig,
@@ -39,10 +38,6 @@ export interface UISlice {
   /** Currently selected (clicked) face id, or null. */
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
-
-  /** Layout strategy for face positioning. */
-  layout: LayoutStrategy;
-  setLayout: (layout: LayoutStrategy) => void;
 
   /** Whether landing overlay is visible. */
   showLanding: boolean;
@@ -93,8 +88,6 @@ export const useStore = create<AppStore>((set) => ({
   setHoveredId: (id) => set({ hoveredId: id }),
   selectedId: null,
   setSelectedId: (id) => set({ selectedId: id }),
-  layout: { kind: 'family-rows' },
-  setLayout: (layout) => set({ layout }),
   showLanding: true,
   setShowLanding: (show) => set({ showLanding: show }),
   currentTimestamp: '',

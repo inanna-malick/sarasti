@@ -39,8 +39,17 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+/** Strip keys with undefined values so they don't clobber defaults via spread. */
+function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) result[k] = v;
+  }
+  return result as Partial<T>;
+}
+
 export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
-  const fullConfig = { ...DEFAULT_POSE_CONFIG, ...config };
+  const fullConfig: PoseConfig = { ...DEFAULT_POSE_CONFIG, ...(config ? stripUndefined(config) : {}) };
   const states = new Map<string, PoseState>();
 
   return {
@@ -62,7 +71,7 @@ export function createPoseResolver(config?: Partial<PoseConfig>): PoseResolver {
         : 0;
 
       // Higher volatility -> mouth opens
-      const targetJaw = clamp((volatility - 1.5) * 0.1, 0, fullConfig.maxJaw);
+      const targetJaw = clamp((volatility - 1.0) * 0.15, 0, fullConfig.maxJaw);
 
       // 2. Apply Smoothing
       let state = states.get(tickerId);

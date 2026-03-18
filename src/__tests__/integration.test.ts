@@ -49,7 +49,7 @@ function assertNoNaN(arr: Float32Array, label: string) {
 
 describe('root integration: data → binding → spatial → instances', () => {
   const dataset = loadRealDataset();
-  const layout = computeLayout(dataset.tickers, { kind: 'family-rows' });
+  const layout = computeLayout(dataset.tickers);
 
   it('loads dataset with tickers and frames', () => {
     expect(dataset.tickers.length).toBeGreaterThanOrEqual(10);

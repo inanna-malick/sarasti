@@ -16,8 +16,8 @@ import {
 } from './materials';
 
 /** Jaw angle thresholds for visibility gating (radians) */
-const JAW_HIDDEN_THRESHOLD = 0.02;
-const JAW_VISIBLE_THRESHOLD = 0.08;
+const JAW_HIDDEN_THRESHOLD = 0.01;
+const JAW_VISIBLE_THRESHOLD = 0.03;
 
 /**
  * Create the mouth interior assembly: teeth, gums, tongue, cavity.
@@ -39,12 +39,16 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   const cavityGeo = createCavityGeometry(m);
 
   // Recess depth: push geometry behind the lip surface
-  const recessZ = -m.mouthDepth * 0.4;
+  // Arch peaks at +Z (forward), so recess must compensate
+  const recessZ = -m.mouthDepth * 0.6;
 
   // --- Upper group (parents to head) ---
   const upperGroup = new THREE.Group();
   const upperTeeth = new THREE.Mesh(upperTeethGeo, teethMat);
   const upperGums = new THREE.Mesh(upperGumsGeo, gumsMat);
+  // Teeth render in front of gums
+  upperTeeth.renderOrder = 3;
+  upperGums.renderOrder = 2;
   upperGroup.add(upperTeeth, upperGums);
   upperGroup.position.copy(m.mouthCenter);
   upperGroup.position.y += m.lipHeight * 0.15;
@@ -55,6 +59,8 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   const lowerTeeth = new THREE.Mesh(lowerTeethGeo, teethMat);
   const lowerGums = new THREE.Mesh(lowerGumsGeo, gumsMat);
   const tongue = new THREE.Mesh(tongueGeo, tongueMat);
+  lowerTeeth.renderOrder = 3;
+  lowerGums.renderOrder = 2;
 
   // Offset tongue slightly back
   tongue.position.set(0, 0, -m.mouthDepth * 0.3);
@@ -69,13 +75,17 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
   cavityMesh.position.copy(m.mouthCenter);
   cavityMesh.position.z += recessZ - m.mouthDepth * 0.3;
 
-  // Render mouth interior behind face skin to avoid z-fighting
-  upperGroup.renderOrder = -1;
-  lowerGroup.renderOrder = -1;
-  cavityMesh.renderOrder = -2;
-
   // Collect all materials for opacity control
   const allMaterials: THREE.Material[] = [teethMat, gumsMat, tongueMat, cavityMat];
+
+  // Render mouth interior after face skin so depth test occludes behind lips
+  // but teeth show through the mouth opening. depthWrite=false prevents
+  // teeth from occluding each other incorrectly.
+  for (const mat of allMaterials) {
+    mat.depthWrite = false;
+    mat.side = THREE.DoubleSide;
+  }
+  cavityMesh.renderOrder = 1;
 
   // Start hidden
   upperGroup.visible = false;
@@ -91,28 +101,13 @@ export function createMouthInterior(m: MouthMeasurements): MouthInterior {
     cavityMesh,
 
     update(jawAngle: number): void {
-      if (jawAngle < JAW_HIDDEN_THRESHOLD) {
-        // Fully hidden
-        upperGroup.visible = false;
-        lowerGroup.visible = false;
-        cavityMesh.visible = false;
-        return;
-      }
-
+      // Always visible — when mouth is closed, lips occlude naturally
       upperGroup.visible = true;
       lowerGroup.visible = true;
       cavityMesh.visible = true;
 
-      // Opacity fade in the transition zone
-      if (jawAngle < JAW_VISIBLE_THRESHOLD) {
-        const t = (jawAngle - JAW_HIDDEN_THRESHOLD) / (JAW_VISIBLE_THRESHOLD - JAW_HIDDEN_THRESHOLD);
-        for (const mat of allMaterials) {
-          (mat as THREE.MeshStandardMaterial | THREE.MeshBasicMaterial).opacity = t;
-        }
-      } else {
-        for (const mat of allMaterials) {
-          (mat as THREE.MeshStandardMaterial | THREE.MeshBasicMaterial).opacity = 1;
-        }
+      for (const mat of allMaterials) {
+        (mat as THREE.MeshStandardMaterial | THREE.MeshBasicMaterial).opacity = 1;
       }
 
       // Rotate lower group around jaw joint (X-axis rotation)

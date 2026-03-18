@@ -264,6 +264,19 @@ export function applyLBS(
 ): Float32Array {
   const { n_joints, n_vertices, kintreeTable, jRegressor, weights, posedirs } = model;
 
+  // Validate pose inputs
+  const poseValues = [
+    ['neck[0]', pose.neck[0]], ['neck[1]', pose.neck[1]], ['neck[2]', pose.neck[2]],
+    ['jaw', pose.jaw],
+    ['leftEye[0]', pose.leftEye[0]], ['leftEye[1]', pose.leftEye[1]],
+    ['rightEye[0]', pose.rightEye[0]], ['rightEye[1]', pose.rightEye[1]],
+  ] as const;
+  for (const [name, val] of poseValues) {
+    if (!isFinite(val)) {
+      throw new Error(`NaN/Infinity in pose.${name} = ${val}`);
+    }
+  }
+
   // 1. Convert PoseParams to axis-angle and then to rotation matrices
   const localRotations: Float32Array[] = new Array(n_joints);
 
@@ -310,5 +323,17 @@ export function applyLBS(
   applyPoseCorrections(posedVertices, posedirs, poseFeatures, n_vertices);
 
   // 5. Skinning
-  return skinVertices(posedVertices, jointLocations, worldTransforms, worldTranslations, weights, n_vertices, n_joints);
+  const result = skinVertices(posedVertices, jointLocations, worldTransforms, worldTranslations, weights, n_vertices, n_joints);
+
+  // Check output for NaN — if it got this far, the bug is in FK/skinning
+  for (let i = 0; i < result.length; i++) {
+    if (!isFinite(result[i])) {
+      throw new Error(
+        `NaN in LBS output at vertex index ${Math.floor(i / 3)}, component ${i % 3}. ` +
+        `Pose: neck=[${pose.neck}], jaw=${pose.jaw}, leftEye=[${pose.leftEye}], rightEye=[${pose.rightEye}]`
+      );
+    }
+  }
+
+  return result;
 }

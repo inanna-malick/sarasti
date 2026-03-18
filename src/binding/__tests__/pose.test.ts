@@ -44,17 +44,18 @@ describe('PoseResolver', () => {
     expect(pose.jaw).toBeLessThanOrEqual(DEFAULT_POSE_CONFIG.maxJaw);
   });
 
-  it('jaw boundary: remains closed at or below 1.5, opens above 1.5', () => {
+  it('jaw boundary: remains closed at volatility ≤ 1.0, opens above', () => {
     resolver.reset();
-    
-    const poseBelow = resolver.resolve('T1', { ...neutralFrame, volatility: 1.4 });
-    expect(poseBelow.jaw).toBe(0);
 
-    const poseAt = resolver.resolve('T1', { ...neutralFrame, volatility: 1.5 });
-    expect(poseAt.jaw).toBe(0);
+    // jaw = clamp((vol - 1.0) * 0.15, 0, maxJaw)
+    // At vol=1.0, jaw = 0
+    const poseClosed = resolver.resolve('T1', { ...neutralFrame, volatility: 1.0 });
+    expect(poseClosed.jaw).toBe(0);
 
-    const poseAbove = resolver.resolve('T1', { ...neutralFrame, volatility: 1.6 });
-    expect(poseAbove.jaw).toBeGreaterThan(0);
+    // At vol > 1.0, jaw > 0
+    resolver.reset();
+    const poseOpen = resolver.resolve('T1', { ...neutralFrame, volatility: 1.5 });
+    expect(poseOpen.jaw).toBeGreaterThan(0);
   });
 
   it('jaw closes faster than it opens when rested', () => {
@@ -97,9 +98,10 @@ describe('PoseResolver', () => {
     const targetDeviation = 1.0;
     const secondPose = resolver.resolve('T1', { ...neutralFrame, deviation: targetDeviation });
     
-    // targetPitch = clamp(1.0 * 1.5, -0.25, 0.25) = 0.25
-    // smoothed = 0.08 * 0.25 + 0.92 * 0 = 0.02
-    expect(secondPose.neck[0]).toBeCloseTo(0.02, 3);
+    // targetPitch = clamp(1.0 * 1.5, -maxPitch, maxPitch) = maxPitch
+    // smoothed = 0.08 * maxPitch + 0.92 * 0 = 0.08 * maxPitch
+    const expectedSmoothed = 0.08 * DEFAULT_POSE_CONFIG.maxPitch;
+    expect(secondPose.neck[0]).toBeCloseTo(expectedSmoothed, 3);
   });
 
   it('yaw disabled by default', () => {

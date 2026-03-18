@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { FaceRenderer, LayoutStrategy } from './types';
+import type { FaceRenderer } from './types';
 import { createFlameSceneRenderer } from './renderer';
 import { loadDataset, getFrameAtTime } from './data/loader';
 import { FrameDriver } from './timeline/driver';
@@ -113,10 +113,6 @@ export function App() {
     driverRef.current?.setSpeed(speed);
   };
 
-  const handleLayoutChange = (strategy: LayoutStrategy) => {
-    driverRef.current?.setLayout(strategy);
-  };
-
   const handleLoopChange = (loop: boolean) => {
     driverRef.current?.setLoop(loop);
   };
@@ -163,8 +159,7 @@ export function App() {
             onSeek={handleSeek}
             onSpeedChange={handleSpeedChange}
           />
-          <Controls 
-            onLayoutChange={handleLayoutChange} 
+          <Controls
             onLoopChange={handleLoopChange}
           />
           <Tooltip />

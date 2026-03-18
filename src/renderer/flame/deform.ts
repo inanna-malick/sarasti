@@ -1,5 +1,23 @@
 import type { FlameModel, FlameBuffers } from './types';
 
+/** Scan a Float32Array for NaN/Infinity. Returns index of first bad value, or -1. */
+function findBadValue(arr: Float32Array): number {
+  for (let i = 0; i < arr.length; i++) {
+    if (!isFinite(arr[i])) return i;
+  }
+  return -1;
+}
+
+/** Assert no NaN/Infinity in array, throw with context if found. */
+function assertFinite(arr: Float32Array, label: string): void {
+  const idx = findBadValue(arr);
+  if (idx !== -1) {
+    throw new Error(
+      `NaN/Infinity in ${label} at index ${idx} (value=${arr[idx]}, length=${arr.length})`
+    );
+  }
+}
+
 /**
  * Compute per-vertex normals by accumulating face normals.
  */
@@ -52,6 +70,10 @@ export function deform(
   psi: Float32Array,
 ): FlameBuffers {
   const { n_vertices, n_faces, n_shape, n_expr, template, shapedirs, exprdirs, faces } = model;
+
+  assertFinite(beta, 'shape params (beta)');
+  assertFinite(psi, 'expression params (psi)');
+
   const vertices = new Float32Array(template);
 
   // Apply shape deformations
@@ -64,6 +86,26 @@ export function deform(
     }
   }
 
+  const shapeIdx = findBadValue(vertices);
+  if (shapeIdx !== -1) {
+    // Find which shape component introduced the NaN
+    const verts2 = new Float32Array(template);
+    for (let c = 0; c < n_shape; c++) {
+      const b = beta[c];
+      if (b === 0) continue;
+      const offset = c * n_vertices * 3;
+      for (let i = 0; i < n_vertices * 3; i++) {
+        verts2[i] += shapedirs[offset + i] * b;
+      }
+      if (!isFinite(verts2[shapeIdx])) {
+        throw new Error(
+          `NaN after shape component ${c} (beta[${c}]=${b}, shapedirs offset=${offset + shapeIdx}, shapedir val=${shapedirs[offset + shapeIdx]})`
+        );
+      }
+    }
+    throw new Error(`NaN in vertices after shape deform at index ${shapeIdx}`);
+  }
+
   // Apply expression deformations
   for (let c = 0; c < n_expr; c++) {
     const p = psi[c];
@@ -72,6 +114,14 @@ export function deform(
     for (let i = 0; i < n_vertices * 3; i++) {
       vertices[i] += exprdirs[offset + i] * p;
     }
+  }
+
+  const exprIdx = findBadValue(vertices);
+  if (exprIdx !== -1) {
+    throw new Error(
+      `NaN in vertices after expression deform at index ${exprIdx}. ` +
+      `Check expression params: first 10 psi = [${Array.from(psi.slice(0, 10)).map(v => v.toFixed(3))}]`
+    );
   }
 
   const normals = computeNormals(vertices, faces, n_vertices, n_faces);

@@ -39,12 +39,13 @@ describe('mapCrisisToExpression', () => {
     }
   });
 
-  it('large deviation → near-max expression (intensity > 0.8)', () => {
-    // MAX_DEVIATION_SIGMA is 0.5, so ±3.0 is well beyond saturation
+  it('large deviation → strong expression (intensity > 0.6)', () => {
+    // With CMA-ES optimized steepness (1.18), sigmoid is gentler —
+    // ±3.0 still produces strong but not near-max output
     const neg = mapCrisisToExpression(-3.0);
     const pos = mapCrisisToExpression(3.0);
-    expect(neg.intensity).toBeGreaterThan(0.8);
-    expect(pos.intensity).toBeGreaterThan(0.8);
+    expect(neg.intensity).toBeGreaterThan(0.6);
+    expect(pos.intensity).toBeGreaterThan(0.6);
   });
 
   it('expression is symmetric in magnitude for ±deviation', () => {

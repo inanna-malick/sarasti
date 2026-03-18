@@ -1,0 +1,106 @@
+[browser debug] [vite] connecting...
+[browser debug] [vite] connected.
+[browser info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[browser error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[browser warning] [.WebGL-0x3a5c0011b600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[browser warning] [.WebGL-0x3a5c0011b600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[browser warning] [.WebGL-0x3a5c0011b600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[browser warning] [.WebGL-0x3a5c0011b600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/refine/RefineHarness.tsx
+[browser debug] [vite] invalidate /src/ui/Controls.tsx: Could not Fast Refresh (export removed)
+[browser debug] [vite] hot updated: /src/ui/Controls.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/interaction/Tooltip.tsx
+[browser debug] [vite] invalidate /src/ui/Landing.tsx: Could not Fast Refresh ("LANDING_CONTENT" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/ui/Landing.tsx
+[browser debug] [vite] hot updated: /src/ui/Controls.tsx
+[browser debug] [vite] invalidate /src/ui/TimelineBar.tsx: Could not Fast Refresh ("KEY_EVENTS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/ui/TimelineBar.tsx
+[browser debug] [vite] invalidate /src/interaction/detail.tsx: Could not Fast Refresh ("describeExpression" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/interaction/detail.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/interaction/Tooltip.tsx
+[browser debug] [vite] invalidate /src/ui/Landing.tsx: Could not Fast Refresh ("LANDING_CONTENT" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/ui/Landing.tsx
+[browser debug] [vite] hot updated: /src/ui/Controls.tsx
+[browser debug] [vite] invalidate /src/ui/TimelineBar.tsx: Could not Fast Refresh ("KEY_EVENTS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/ui/TimelineBar.tsx
+[browser debug] [vite] invalidate /src/interaction/detail.tsx: Could not Fast Refresh ("describeExpression" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/interaction/detail.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/interaction/Tooltip.tsx
+[browser debug] [vite] invalidate /src/ui/Landing.tsx: Could not Fast Refresh ("LANDING_CONTENT" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/ui/Landing.tsx
+[browser debug] [vite] hot updated: /src/ui/Controls.tsx
+[browser debug] [vite] invalidate /src/ui/TimelineBar.tsx: Could not Fast Refresh ("KEY_EVENTS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/ui/TimelineBar.tsx
+[browser debug] [vite] invalidate /src/interaction/detail.tsx: Could not Fast Refresh ("describeExpression" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[browser debug] [vite] hot updated: /src/interaction/detail.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx
+[browser debug] [vite] hot updated: /src/App.tsx

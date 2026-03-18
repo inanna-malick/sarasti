@@ -32,8 +32,17 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+/** Strip keys with undefined values so they don't clobber defaults via spread. */
+function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) result[k] = v;
+  }
+  return result as Partial<T>;
+}
+
 export function createGazeResolver(config?: Partial<GazeConfig>): GazeResolver {
-  const fullConfig: GazeConfig = { ...DEFAULT_GAZE_CONFIG, ...config };
+  const fullConfig: GazeConfig = { ...DEFAULT_GAZE_CONFIG, ...(config ? stripUndefined(config) : {}) };
   const stateMap = new Map<string, GazeState>();
 
   return {

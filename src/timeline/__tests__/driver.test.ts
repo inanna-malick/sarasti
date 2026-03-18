@@ -60,7 +60,6 @@ describe('FrameDriver', () => {
       dataset: null,
       hoveredId: null,
       selectedId: null,
-      layout: { kind: 'family-rows' },
       showLanding: true,
       currentTimestamp: '',
       instances: [],
@@ -119,18 +118,6 @@ describe('FrameDriver', () => {
     driver.setLoop(false);
     expect(useStore.getState().playback.loop).toBe(false);
     expect(driver.currentEngine.state.loop).toBe(false);
-  });
-
-  it('setLayout() recomputes layout and re-renders', () => {
-    const initialInstances = [...useStore.getState().instances];
-    driver.setLayout({ kind: 'class-clusters' });
-    
-    expect(useStore.getState().layout.kind).toBe('class-clusters');
-    expect(renderer.setInstances).toHaveBeenCalledTimes(2); // init + setLayout
-    
-    const newInstances = useStore.getState().instances;
-    // Positions should be different (though in this small mock they might be same if layout is trivial)
-    // But we know setLayout was called.
   });
 
   it('updates automatically when playing', () => {

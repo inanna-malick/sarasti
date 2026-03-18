@@ -3,8 +3,6 @@ import type {
   FaceInstance,
   FaceRenderer,
   FaceParams,
-  PoseParams,
-  Frame,
 } from '../types';
 import { zeroPose } from '../types';
 import { getFrame } from '../data/loader';
@@ -36,7 +34,6 @@ import { useStore } from '../store';
  *   const driver = new FrameDriver(dataset, renderer);
  *   driver.play();
  *   // later:
- *   driver.setLayout({ kind: 'class-clusters' });
  *   driver.dispose();
  */
 export class FrameDriver {
@@ -50,9 +47,11 @@ export class FrameDriver {
     this.dataset = dataset;
     this.renderer = renderer;
 
-    // Compute initial layout
-    const store = useStore.getState();
-    const layout = computeLayout(dataset.tickers, store.layout);
+    // Compute layout once (unified threat-field layout, aspect-aware)
+    const aspect = typeof window !== 'undefined'
+      ? window.innerWidth / Math.max(window.innerHeight, 1)
+      : 16 / 9;
+    const layout = computeLayout(dataset.tickers, aspect);
     this.positions = layout.positions;
 
     // Create engine
@@ -200,15 +199,6 @@ export class FrameDriver {
   setLoop(loop: boolean): void {
     this.engine.setLoop(loop);
     useStore.getState().setLoop(loop);
-  }
-
-  /** Recompute layout (e.g. when user changes strategy). */
-  setLayout(strategy: import('../types').LayoutStrategy): void {
-    const layout = computeLayout(this.dataset.tickers, strategy);
-    this.positions = layout.positions;
-    useStore.getState().setLayout(strategy);
-    // Re-render current frame with new positions
-    this.renderInterpolated(this.engine.state.current_index);
   }
 
   get currentEngine(): TimelineEngine {

@@ -60,7 +60,7 @@ async function main() {
   const browser = await chromium.launch({
     headless: true,
     ...(execPath ? { executablePath: execPath } : {}),
-    args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
   });
 
   try {
@@ -69,7 +69,8 @@ async function main() {
 
     page.on('console', (msg: any) => console.error(`[browser ${msg.type()}] ${msg.text()}`));
     page.on('pageerror', (err: any) => console.error(`[browser error] ${err}`));
-    page.on('requestfailed', (req: any) => console.error(`[browser 404] ${req.url()} — ${req.failure()?.errorText}`));
+    page.on('requestfailed', (req: any) => console.error(`[browser reqfail] ${req.url()} — ${req.failure()?.errorText}`));
+    page.on('response', (res: any) => { if (res.status() >= 400) console.error(`[browser ${res.status()}] ${res.url()}`); });
 
     const url = `${baseUrl}/?refine=true`;
     await page.goto(url, { waitUntil: 'networkidle' });

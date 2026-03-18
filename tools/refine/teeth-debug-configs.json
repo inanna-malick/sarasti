@@ -1,0 +1,5 @@
+[
+  {"tickerId":"BZ=F","overrides":{"faceOpacity":0.25},"frame":{"deviation":0,"velocity":0,"volatility":1.0}},
+  {"tickerId":"BZ=F","overrides":{"faceOpacity":0.25},"frame":{"deviation":0,"velocity":0,"volatility":2.0}},
+  {"tickerId":"BZ=F","overrides":{"faceOpacity":0.25},"frame":{"deviation":0,"velocity":0,"volatility":3.0}}
+]

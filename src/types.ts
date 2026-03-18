@@ -118,11 +118,6 @@ export interface FaceRenderer {
 
 // ─── Layout ─────────────────────────────────────────
 
-export type LayoutStrategy =
-  | { kind: 'family-rows' }
-  | { kind: 'class-clusters' }
-  | { kind: 'reactivity-sweep' };
-
 export interface LayoutResult {
   positions: Map<string, [number, number, number]>;
 }
