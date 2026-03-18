@@ -9,7 +9,7 @@
 import type { TickerConfig, TickerFrame, TickerStatic, FaceParams } from '../types';
 import type { BindingConfig } from './types';
 import { emptyShape, emptyExpression } from './types';
-import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG } from './config';
+import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG, CLASS_BUILD_SCORES, SEMANTIFY_EXPR_INTENSITY } from './config';
 import { N_SHAPE, N_EXPR } from '../constants';
 import { mapCrisisToExpression } from './expression/crisis';
 import { mapDynamicsToExpression } from './expression/dynamics';
@@ -20,6 +20,8 @@ import {
   interpolateLUT,
   computeIdentityOffset,
 } from './directions';
+import { POSE_MULTIPLIERS } from './pose';
+import { GAZE_MULTIPLIERS } from './gaze';
 import type { TextureAccumulator } from './texture/accumulator';
 import { accumulatorToTexture, createTextureAccumulator } from './texture/accumulator';
 
@@ -67,15 +69,7 @@ export interface BindingReport {
   fatigue: BindingEntry;
 }
 
-// ─── Constants (mirrored from resolve.ts) ───────────
-
-/** @internal Asset class → build semantic score */
-const CLASS_BUILD_SCORES: Record<string, number> = {
-  energy: 1.5, commodity: 1.0, fear: -1.5,
-  currency: -0.5, equity: 0.5, media: -2.0,
-};
-
-const SEMANTIFY_EXPR_INTENSITY = 6.97;
+// CLASS_BUILD_SCORES and SEMANTIFY_EXPR_INTENSITY imported from ./config
 
 // ─── Report Generation ──────────────────────────────
 
@@ -364,7 +358,7 @@ function tracePose(
       value: params.pose.neck[0],
       contributions: [{
         source: 'deviation', input: frame.deviation,
-        mapped: frame.deviation * 1.5, weight: 1.0,
+        mapped: frame.deviation * POSE_MULTIPLIERS.pitch, weight: 1.0,
         contribution: params.pose.neck[0],
       }],
     },
@@ -373,7 +367,7 @@ function tracePose(
       value: params.pose.neck[1],
       contributions: params.pose.neck[1] !== 0 ? [{
         source: 'velocity', input: frame.velocity,
-        mapped: frame.velocity * 1.0, weight: 1.0,
+        mapped: frame.velocity * POSE_MULTIPLIERS.yaw, weight: 1.0,
         contribution: params.pose.neck[1],
       }] : [],
     },
@@ -382,7 +376,7 @@ function tracePose(
       value: params.pose.neck[2],
       contributions: params.pose.neck[2] !== 0 ? [{
         source: 'volatility', input: frame.volatility,
-        mapped: (frame.volatility - 1.0) * 0.3, weight: 1.0,
+        mapped: (frame.volatility - POSE_MULTIPLIERS.roll_offset) * POSE_MULTIPLIERS.roll_scale, weight: 1.0,
         contribution: params.pose.neck[2],
       }] : [],
     },
@@ -391,7 +385,7 @@ function tracePose(
       value: params.pose.jaw,
       contributions: params.pose.jaw !== 0 ? [{
         source: 'volatility', input: frame.volatility,
-        mapped: (frame.volatility - 1.5) * 0.1, weight: 1.0,
+        mapped: (frame.volatility - POSE_MULTIPLIERS.jaw_offset) * POSE_MULTIPLIERS.jaw_scale, weight: 1.0,
         contribution: params.pose.jaw,
       }] : [],
     },
@@ -410,7 +404,7 @@ function traceGaze(
       value: params.pose.leftEye[0],
       contributions: [{
         source: 'velocity', input: frame.velocity,
-        mapped: frame.velocity * 2.0, weight: 1.0,
+        mapped: frame.velocity * GAZE_MULTIPLIERS.horizontal, weight: 1.0,
         contribution: params.pose.leftEye[0],
       }],
     },
@@ -419,7 +413,7 @@ function traceGaze(
       value: params.pose.leftEye[1],
       contributions: [{
         source: 'volatility', input: frame.volatility,
-        mapped: (frame.volatility - 1.0) * 0.5, weight: 1.0,
+        mapped: (frame.volatility - GAZE_MULTIPLIERS.vertical_offset) * GAZE_MULTIPLIERS.vertical_scale, weight: 1.0,
         contribution: params.pose.leftEye[1],
       }],
     },

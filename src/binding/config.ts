@@ -290,6 +290,23 @@ export const DEFAULT_BINDING_CONFIG: BindingConfig = {
   },
 };
 
+/** Asset class → build semantic score. Positive = heavier/wider, negative = leaner. */
+export const CLASS_BUILD_SCORES: Record<string, number> = {
+  energy: 1.5,
+  commodity: 1.0,
+  fear: -1.5,
+  currency: -0.5,
+  equity: 0.5,
+  media: -2.0,
+};
+
+/**
+ * Expression intensity for Semantify directions.
+ * Semantify LUTs are trained on realistic faces (max ~0.4 per component).
+ * Data-viz needs exaggerated, caricature-level deformation, so we scale up.
+ */
+export const SEMANTIFY_EXPR_INTENSITY = 6.97;
+
 export const TEXTURE_CONFIG = {
   ema_window: 20,
   ema_alpha: 2 / (20 + 1),
