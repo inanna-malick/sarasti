@@ -1,5 +1,39 @@
-import type { BindingConfig } from './types';
-import { MAX_DEVIATION_SIGMA } from '../constants';
+import type { BindingConfig, ResponseCurve, AxisCurveConfig } from './types';
+import {
+  MAX_DEVIATION_SIGMA,
+  MAX_NECK_PITCH,
+  MAX_NECK_YAW,
+  MAX_NECK_ROLL,
+  MAX_JAW_OPEN,
+  MAX_EYE_HORIZONTAL,
+  MAX_EYE_VERTICAL,
+} from '../constants';
+
+/** Default curves for generic [-1, 1] input range (library API) */
+export const DEFAULT_AXIS_CURVES: AxisCurveConfig = {
+  // Expression (bipolar ±)
+  joy:        { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  anguish:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  // Expression (unipolar +)
+  surprise:   { type: 'linear',  input_min: 0,  input_max: 1, output_min: 0,  output_max: 3, steepness: 1 },
+  tension:    { type: 'linear',  input_min: 0,  input_max: 1, output_min: 0,  output_max: 3, steepness: 1 },
+  // Shape (bipolar ±)
+  stature:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  proportion: { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  // Shape (unipolar +)
+  angularity: { type: 'linear',  input_min: 0,  input_max: 1, output_min: 0,  output_max: 3, steepness: 1 },
+  // Pose (all bipolar, small output range in radians)
+  pitch:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_PITCH, output_max: MAX_NECK_PITCH, steepness: 1 },
+  yaw:        { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_YAW,   output_max: MAX_NECK_YAW,   steepness: 1 },
+  roll:       { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_ROLL,  output_max: MAX_NECK_ROLL,  steepness: 1 },
+  jaw:        { type: 'linear',  input_min: 0,  input_max: 1, output_min: 0,              output_max: MAX_JAW_OPEN,   steepness: 1 },
+  // Gaze (bipolar, small output range)
+  gazeH:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_EYE_HORIZONTAL, output_max: MAX_EYE_HORIZONTAL, steepness: 1 },
+  gazeV:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_EYE_VERTICAL,   output_max: MAX_EYE_VERTICAL,   steepness: 1 },
+  // Texture (bipolar)
+  flush:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -1, output_max: 1, steepness: 1 },
+  fatigue:    { type: 'linear',  input_min: -1, input_max: 1, output_min: -1, output_max: 1, steepness: 1 },
+};
 
 /**
  * Data → Axis routing configuration.

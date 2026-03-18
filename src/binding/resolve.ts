@@ -1,5 +1,15 @@
 import type { TickerConfig, TickerFrame, FaceParams } from '../types';
 import { zeroPose } from '../types';
+import {
+  N_SHAPE,
+  N_EXPR,
+  MAX_NECK_PITCH,
+  MAX_NECK_YAW,
+  MAX_NECK_ROLL,
+  MAX_JAW_OPEN,
+  MAX_EYE_HORIZONTAL,
+  MAX_EYE_VERTICAL,
+} from '../constants';
 import { createPoseResolver } from './pose';
 import { createGazeResolver } from './gaze';
 import type { ShapeResolver, ExpressionResolver, BindingConfig } from './types';
@@ -87,14 +97,25 @@ export function createShapeResolver(
 
 // ─── Per-ticker identity noise ──────────────────────
 
+const noiseCache = new Map<string, Float32Array>();
+
 /**
  * Add small deterministic noise on unused β components (β11-β19).
  * Gives each ticker a unique face fingerprint without affecting axis-controlled components.
  */
 function addIdentityNoise(shape: Float32Array, tickerId: string): void {
-  const scalars = hashToScalars(tickerId, 9);
-  for (let i = 0; i < 9; i++) {
-    shape[11 + i] += scalars[i] * 0.5; // small perturbation
+  let noise = noiseCache.get(tickerId);
+  if (!noise) {
+    const scalars = hashToScalars(tickerId, 9);
+    noise = new Float32Array(N_SHAPE);
+    for (let i = 0; i < 9; i++) {
+      noise[11 + i] = scalars[i] * 0.5; // small perturbation
+    }
+    noiseCache.set(tickerId, noise);
+  }
+
+  for (let i = 11; i < 20; i++) {
+    shape[i] += noise[i];
   }
 }
 
@@ -229,5 +250,90 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
       const acc = accumulatorMap.get(tickerId);
       return acc ? { ...acc } : undefined;
     },
+  };
+}
+
+// ─── Library API ────────────────────────────────────
+
+/** Pre-extracted axis values — all optional, unset = 0 */
+export interface AxisValues {
+  // Expression
+  joy?: number;
+  anguish?: number;
+  surprise?: number;
+  tension?: number;
+  // Shape
+  stature?: number;
+  proportion?: number;
+  angularity?: number;
+  // Pose
+  pitch?: number;
+  yaw?: number;
+  roll?: number;
+  jaw?: number;
+  // Gaze
+  gazeH?: number;
+  gazeV?: number;
+  // Texture
+  flush?: number;
+  fatigue?: number;
+}
+
+/**
+ * Generic resolver: pre-extracted axis values → FaceParams.
+ * Used by the library builder API. Each axis value has already been
+ * extracted from the datum via an accessor and passed through a response curve.
+ */
+export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams {
+  const expression = emptyExpression();
+  const shape = emptyShape();
+
+  // Expression axes
+  if (values.joy !== undefined) applyMapping(expression, EXPR_AXES.joy, values.joy);
+  if (values.anguish !== undefined) applyMapping(expression, EXPR_AXES.anguish, values.anguish);
+  if (values.surprise !== undefined) applyMapping(expression, EXPR_AXES.surprise, values.surprise);
+  if (values.tension !== undefined) applyMapping(expression, EXPR_AXES.tension, values.tension);
+
+  // Shape axes
+  if (values.stature !== undefined) applyMapping(shape, SHAPE_AXES.stature, values.stature);
+  if (values.proportion !== undefined) applyMapping(shape, SHAPE_AXES.proportion, values.proportion);
+  if (values.angularity !== undefined) applyMapping(shape, SHAPE_AXES.angularity, values.angularity);
+
+  // Identity noise on unused shape components
+  addIdentityNoise(shape, datumId);
+
+  // Pose (clamped to safe ranges)
+  const pose = zeroPose();
+  if (values.pitch !== undefined) {
+    pose.neck[0] = Math.max(-MAX_NECK_PITCH, Math.min(MAX_NECK_PITCH, values.pitch));
+  }
+  if (values.yaw !== undefined) {
+    pose.neck[1] = Math.max(-MAX_NECK_YAW, Math.min(MAX_NECK_YAW, values.yaw));
+  }
+  if (values.roll !== undefined) {
+    pose.neck[2] = Math.max(-MAX_NECK_ROLL, Math.min(MAX_NECK_ROLL, values.roll));
+  }
+  if (values.jaw !== undefined) {
+    pose.jaw = Math.max(0, Math.min(MAX_JAW_OPEN, values.jaw));
+  }
+
+  // Gaze (clamped)
+  if (values.gazeH !== undefined) {
+    const h = Math.max(-MAX_EYE_HORIZONTAL, Math.min(MAX_EYE_HORIZONTAL, values.gazeH));
+    pose.leftEye[0] = h;
+    pose.rightEye[0] = h;
+  }
+  if (values.gazeV !== undefined) {
+    const v = Math.max(-MAX_EYE_VERTICAL, Math.min(MAX_EYE_VERTICAL, values.gazeV));
+    pose.leftEye[1] = v;
+    pose.rightEye[1] = v;
+  }
+
+  return {
+    shape,
+    expression,
+    pose,
+    flush: values.flush ?? 0,
+    fatigue: values.fatigue ?? 0,
   };
 }
