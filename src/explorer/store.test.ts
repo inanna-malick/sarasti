@@ -27,71 +27,77 @@ describe('ExplorerStore', () => {
     expect(currentParams!.pose.neck).toHaveLength(3);
   });
 
-  it('joy drives ψ0 (jaw+cheeks) and ψ7 (brow)', () => {
+  // --- Joy axis: ψ0 (jaw drop) × 2.0, ψ5 (upper lip) × -1.5, ψ7 (eyelid) × -0.7 ---
+  it('joy drives ψ0 (jaw drop), ψ5 (upper lip settles), ψ7 (eyes open)', () => {
     useExplorerStore.getState().setJoy(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ0 weight 2.3 × 3.0 = 6.9
-    expect(expr[0]).toBeCloseTo(6.9);
-    // ψ7 weight 1.2 × 3.0 = 3.6
-    expect(expr[7]).toBeCloseTo(3.6);
+    expect(expr[0]).toBeCloseTo(6.0);   // ψ0: 2.0 × 3.0
+    expect(expr[5]).toBeCloseTo(-4.5);  // ψ5: -1.5 × 3.0
+    expect(expr[7]).toBeCloseTo(-2.1);  // ψ7: -0.7 × 3.0
   });
 
-  it('anguish drives ψ6, ψ7, ψ8 (upper face)', () => {
+  // --- Anguish axis: ψ3 (brow furrow) × 2.3, ψ8 (nose wrinkle) × 1.5, ψ5 (upper lip snarl) × 1.2 ---
+  it('anguish drives ψ3 (brow furrow), ψ8 (nose wrinkle), ψ5 (upper lip snarl)', () => {
     useExplorerStore.getState().setAnguish(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ6 weight 2.0 × 3.0 = 6.0
-    expect(expr[6]).toBeCloseTo(6.0);
-    // ψ7 weight -2.0 × 3.0 = -6.0
-    expect(expr[7]).toBeCloseTo(-6.0);
-    // ψ8 weight 1.5 × 3.0 = 4.5
-    expect(expr[8]).toBeCloseTo(4.5);
+    expect(expr[3]).toBeCloseTo(6.9);   // ψ3: 2.3 × 3.0
+    expect(expr[8]).toBeCloseTo(4.5);   // ψ8: 1.5 × 3.0
+    expect(expr[5]).toBeCloseTo(3.6);   // ψ5: 1.2 × 3.0
   });
 
-  it('surprise drives ψ4, ψ2, ψ0 (brow-dominant)', () => {
+  // --- Surprise axis: ψ2 (brow raise) × 2.3, ψ0 (jaw drop) × 1.5, ψ7 (eyes open) × -1.5 ---
+  it('surprise drives ψ2 (brow raise), ψ0 (jaw drop), ψ7 (eyes snap open)', () => {
     useExplorerStore.getState().setSurprise(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ4 weight 2.3 × 3.0 = 6.9
-    expect(expr[4]).toBeCloseTo(6.9);
-    // ψ2 weight 1.5 × 3.0 = 4.5
-    expect(expr[2]).toBeCloseTo(4.5);
-    // ψ0 weight -1.0 × 3.0 = -3.0
-    expect(expr[0]).toBeCloseTo(-3.0);
+    expect(expr[2]).toBeCloseTo(6.9);   // ψ2: 2.3 × 3.0
+    expect(expr[0]).toBeCloseTo(4.5);   // ψ0: 1.5 × 3.0
+    expect(expr[7]).toBeCloseTo(-4.5);  // ψ7: -1.5 × 3.0
   });
 
-  it('tension drives ψ3, ψ5, ψ8 (face-wide clench)', () => {
+  // --- Tension axis: ψ4 (lip pucker) × 2.0, ψ6 (lower lip) × 1.5, ψ8 (nose set) × 1.0 ---
+  it('tension drives ψ4 (lip pucker), ψ6 (lower lip tense), ψ8 (nose set)', () => {
     useExplorerStore.getState().setTension(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ3 weight 2.0 × 3.0 = 6.0
-    expect(expr[3]).toBeCloseTo(6.0);
-    // ψ5 weight 1.5 × 3.0 = 4.5
-    expect(expr[5]).toBeCloseTo(4.5);
-    // ψ8 weight 1.0 × 3.0 = 3.0
-    expect(expr[8]).toBeCloseTo(3.0);
+    expect(expr[4]).toBeCloseTo(6.0);   // ψ4: 2.0 × 3.0
+    expect(expr[6]).toBeCloseTo(4.5);   // ψ6: 1.5 × 3.0
+    expect(expr[8]).toBeCloseTo(3.0);   // ψ8: 1.0 × 3.0
   });
 
-  it('joy + surprise combine additively on ψ0 (opposite directions)', () => {
+  // --- Combination tests ---
+
+  it('joy + surprise stack on ψ0 (jaw drops further)', () => {
     useExplorerStore.getState().setJoy(3.0);
     useExplorerStore.getState().setSurprise(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ0: joy 2.3×3 + surprise -1.0×3 = 6.9 - 3.0 = 3.9
-    expect(expr[0]).toBeCloseTo(3.9);
+    // ψ0: joy 2.0×3 + surprise 1.5×3 = 6.0 + 4.5 = 10.5
+    expect(expr[0]).toBeCloseTo(10.5);
   });
 
-  it('joy + anguish conflict on ψ7 (bittersweet)', () => {
+  it('joy + anguish conflict on ψ5 (bittersweet upper lip)', () => {
     useExplorerStore.getState().setJoy(3.0);
     useExplorerStore.getState().setAnguish(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ7: joy 1.2×3 + anguish -2.0×3 = 3.6 - 6.0 = -2.4
-    expect(expr[7]).toBeCloseTo(-2.4);
+    // ψ5: joy -1.5×3 + anguish 1.2×3 = -4.5 + 3.6 = -0.9
+    expect(expr[5]).toBeCloseTo(-0.9);
   });
 
-  it('anguish + tension stack on ψ8', () => {
+  it('anguish + tension stack on ψ8 (nose wrinkle intensifies)', () => {
     useExplorerStore.getState().setAnguish(3.0);
     useExplorerStore.getState().setTension(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
     // ψ8: anguish 1.5×3 + tension 1.0×3 = 4.5 + 3.0 = 7.5
     expect(expr[8]).toBeCloseTo(7.5);
   });
+
+  it('joy + surprise stack on ψ7 (eyes wide open)', () => {
+    useExplorerStore.getState().setJoy(3.0);
+    useExplorerStore.getState().setSurprise(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // ψ7: joy -0.7×3 + surprise -1.5×3 = -2.1 + -4.5 = -6.6
+    expect(expr[7]).toBeCloseTo(-6.6);
+  });
+
+  // --- Shape, raw mode, texture, pose, gaze ---
 
   it('shape width drives β0', () => {
     useExplorerStore.getState().setWidth(2.0);
