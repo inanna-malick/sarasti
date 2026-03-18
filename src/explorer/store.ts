@@ -10,11 +10,11 @@ type ExplorerMode = 'highlevel' | 'raw';
  * Each semantic axis maps to specific ψ/β components with weights.
  * These are hand-tuned for dramatic, legible deformation — not photorealism.
  *
- * Component catalog (FLAME 2023 Open, empirical at ±5):
- *   ψ0: jaw open + smile    ψ1: smile/frown       ψ2: mouth open wide
- *   ψ3: lip part/protrude   ψ4: brow raise/lower   ψ5: lip purse
- *   ψ6: jaw lateral         ψ7: head shape mod      ψ8: lip/nose subtle
- *   ψ9: eye/cheek region
+ * Component catalog (FLAME 2023 Open, official PCA ordering):
+ *   ψ0: jaw drop            ψ1: smile/frown (ASYMMETRIC)  ψ2: brow raise
+ *   ψ3: brow furrow         ψ4: lip pucker                ψ5: upper lip raiser
+ *   ψ6: lower lip depressor ψ7: eyelid close              ψ8: nose wrinkler
+ *   ψ9: cheek puffer (ASYMMETRIC)
  *
  *   β0: face width    β1: face height    β2: jaw shape (square/pointed)
  *   β3: secondary width   β4+: finer detail
@@ -23,17 +23,18 @@ type ExplorerMode = 'highlevel' | 'raw';
 // Expression axes — each entry is [ψ_index, weight]
 // Emotion Quartet: 4 bipolar axes with minimal overlap.
 // Weights target raw ψ values up to ~7 at slider extremes (cartoon-level exaggeration).
-// ψ1 and ψ9 are ASYMMETRIC at the mouth — avoided entirely.
-// Symmetric mouth movers: ψ0 (jaw+smile), ψ2 (wide), ψ3 (lip part), ψ5 (purse).
+// ψ1 (smile) and ψ9 (cheek puff) are ASYMMETRIC at the mouth — avoided entirely.
+// Safe symmetric set: ψ0 (jaw), ψ2 (brow raise), ψ3 (brow furrow), ψ4 (lip pucker),
+//   ψ5 (upper lip), ψ6 (lower lip), ψ7 (eyelid), ψ8 (nose wrinkle).
 const EXPR_MAPPINGS = {
-  // Joy (+) / Grief (-): face lifts (joy) or drops (grief). Lower+upper face.
-  joy: [[0, 2.3], [7, 1.2]] as [number, number][],
-  // Anguish (+) / Serenity (-): upper face knots (anguish) or settles (serenity). No jaw.
-  anguish: [[6, 2.0], [7, -2.0], [8, 1.5]] as [number, number][],
-  // Surprise (+) / Calm (-): brow rockets, mouth widens. Brow-dominant.
-  surprise: [[4, 2.3], [2, 1.5], [0, -1.0]] as [number, number][],
-  // Tension (+) / Slack (-): face tightens (tension) or goes limp (slack). Pervasive clench.
-  tension: [[3, 2.0], [5, 1.5], [8, 1.0]] as [number, number][],
+  // Joy (+) / Grief (-): jaw-dominant with eye opening. Lower face + eyes.
+  joy: [[0, 2.0], [5, -1.5], [7, -0.7]] as [number, number][],
+  // Anguish (+) / Serenity (-): brow furrow + nose wrinkle + upper lip snarl. Mid-face.
+  anguish: [[3, 2.3], [8, 1.5], [5, 1.2]] as [number, number][],
+  // Surprise (+) / Calm (-): brow rockets + jaw drops + eyes snap open. Classic surprise.
+  surprise: [[2, 2.3], [0, 1.5], [7, -1.5]] as [number, number][],
+  // Tension (+) / Slack (-): lips pucker + lower lip tenses + nose sets. Mouth-region clench.
+  tension: [[4, 2.0], [6, 1.5], [8, 1.0]] as [number, number][],
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
