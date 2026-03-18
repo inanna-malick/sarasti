@@ -13,15 +13,15 @@ const mockFrames: Frame[] = [
   {
     timestamp: '2026-01-01T00:00:00Z',
     values: {
-      T1: { close: 100, volume: 1000, deviation: 0.1, velocity: 0.5, volatility: 0.2 },
-      T2: { close: 200, volume: 2000, deviation: 0.2, velocity: 0.6, volatility: 0.3 },
+      T1: { close: 100, volume: 1000, deviation: 0.1, velocity: 0.5, volatility: 0.2, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 },
+      T2: { close: 200, volume: 2000, deviation: 0.2, velocity: 0.6, volatility: 0.3, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 },
     },
   },
   {
     timestamp: '2026-01-01T01:00:00Z',
     values: {
-      T1: { close: 101, volume: 1100, deviation: 0.11, velocity: 0.51, volatility: 0.21 },
-      T2: { close: 201, volume: 2100, deviation: 0.21, velocity: 0.61, volatility: 0.31 },
+      T1: { close: 101, volume: 1100, deviation: 0.11, velocity: 0.51, volatility: 0.21, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 },
+      T2: { close: 201, volume: 2100, deviation: 0.21, velocity: 0.61, volatility: 0.31, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 },
     },
   },
 ];

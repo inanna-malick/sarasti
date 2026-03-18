@@ -6,7 +6,6 @@ import { resolve } from '../binding/resolve';
 import { DEFAULT_BINDING_CONFIG } from '../binding/config';
 import type { TickerConfig, TickerFrame } from '../types';
 import type { BindingConfig } from '../binding/types';
-import { loadDirectionTables } from '../binding/directions';
 import { FLAME_DATA_BASE } from '../renderer/constants';
 import { TICKERS } from '../tickers';
 
@@ -18,14 +17,12 @@ export interface RefineConfig {
     maxJaw?: number;
     maxNeckPitch?: number;
     maxNeckYaw?: number;
-    expressionIntensity?: number;
-    semantifyExprIntensity?: number;
     deviationSteepness?: number;
     velocitySteepness?: number;
     maxEyeHorizontal?: number;
     maxEyeVertical?: number;
   };
-  frame: { deviation: number; velocity: number; volatility: number; };
+  frame: { deviation: number; velocity: number; volatility: number; drawdown: number; momentum: number; mean_reversion_z: number; beta: number; };
 }
 
 declare global {
@@ -53,7 +50,6 @@ export function RefineHarness() {
       if (!containerRef.current) return;
 
       try {
-        await loadDirectionTables('/data/directions');
         const pipeline = await createFlamePipeline(FLAME_DATA_BASE);
 
         if (disposed) return;
@@ -129,8 +125,6 @@ export function RefineHarness() {
               // Build custom binding config with pose/gaze threading
               const customConfig: BindingConfig = {
                 ...DEFAULT_BINDING_CONFIG,
-                expression_intensity: config.overrides.expressionIntensity ?? DEFAULT_BINDING_CONFIG.expression_intensity,
-                semantify_expr_intensity: config.overrides.semantifyExprIntensity ?? DEFAULT_BINDING_CONFIG.semantify_expr_intensity,
                 deviation_curve: {
                   ...DEFAULT_BINDING_CONFIG.deviation_curve,
                   steepness: config.overrides.deviationSteepness ?? DEFAULT_BINDING_CONFIG.deviation_curve.steepness,
@@ -165,6 +159,10 @@ export function RefineHarness() {
                 deviation: config.frame.deviation,
                 velocity: config.frame.velocity,
                 volatility: config.frame.volatility,
+                drawdown: config.frame.drawdown ?? 0,
+                momentum: config.frame.momentum ?? 0,
+                mean_reversion_z: config.frame.mean_reversion_z ?? 0,
+                beta: config.frame.beta ?? 1,
               };
 
               const params = resolve(ticker, frameData, customConfig);

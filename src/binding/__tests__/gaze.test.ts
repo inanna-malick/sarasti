@@ -15,6 +15,10 @@ describe('Gaze Binding Module', () => {
     deviation: 0,
     velocity: 0,
     volatility: 1, // Neutral volatility: (1 - 1) * 0.5 = 0
+    drawdown: 0,
+    momentum: 0,
+    mean_reversion_z: 0,
+    beta: 1,
   };
 
   it('Zero velocity + neutral volatility -> eyes centered (0, 0)', () => {

@@ -44,6 +44,14 @@ export function ExplorerPane() {
           gap: 8,
           alignItems: 'center',
         }}>
+          <a
+            href="/"
+            style={{ fontSize: 10, color: '#888', textDecoration: 'none' }}
+            onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#ccc'; }}
+            onMouseLeave={(e) => { (e.target as HTMLElement).style.color = '#888'; }}
+          >
+            Back
+          </a>
           <span style={{ fontSize: 12, color: '#6cf', fontWeight: 'bold' }}>Explorer</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
             <button

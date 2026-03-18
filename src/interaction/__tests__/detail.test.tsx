@@ -98,7 +98,7 @@ describe('interaction/detail.tsx', () => {
 
   it('renders expression description correctly', () => {
     const instance = makeFaceInstance('face-1', {
-      frame: { close: 100, volume: 1000, deviation: 0.15, velocity: -0.2, volatility: 1.5 }
+      frame: { close: 100, volume: 1000, deviation: 0.15, velocity: -0.2, volatility: 1.5, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 }
     });
     
     act(() => {
@@ -122,7 +122,7 @@ describe('interaction/detail.tsx', () => {
     });
     const familyMember = makeFaceInstance('face-2', {
       ticker: { id: 'face-2', name: 'Cousin', class: 'energy', family: 'fam-a', age: 25 },
-      frame: { close: 100, volume: 1000, deviation: -0.06, velocity: 0, volatility: 1 }
+      frame: { close: 100, volume: 1000, deviation: -0.06, velocity: 0, volatility: 1, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 }
     });
     
     act(() => {

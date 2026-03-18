@@ -15,6 +15,10 @@ describe('PoseResolver', () => {
     deviation: 0,
     velocity: 0,
     volatility: 1.0,
+    drawdown: 0,
+    momentum: 0,
+    mean_reversion_z: 0,
+    beta: 1,
   };
 
   it('zero deviation + neutral volatility -> near-zero pose', () => {

@@ -1,101 +1,50 @@
 import { describe, it, expect } from 'vitest';
-import './setup-directions';
 import { resolve, createShapeResolver, createExpressionResolver, createResolver } from '../resolve';
 import { makeTickerFrame, TEST_TICKERS } from '../../../test-utils/fixtures';
 import { N_SHAPE, N_EXPR } from '../../constants';
 import { TICKERS } from '../../tickers';
-import { DEFAULT_BINDING_CONFIG } from '../config';
-import type { TickerStatic } from '../../types';
-import { vi } from 'vitest';
-
-// Mock directions so baseline tests have non-zero results
-vi.mock('../directions', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../directions')>();
-  return {
-    ...actual,
-    getTable: (axis: string) => ({
-      axis,
-      space: axis === 'age' || axis === 'build' ? 'shape' : 'expression',
-      dims: 100,
-      points: [
-        { t: -3, params: new Array(100).fill(0).map((_, i) => (i === 0 && axis === 'age') || (i === 1 && axis === 'build') ? -1 : 0) },
-        { t: 3, params: new Array(100).fill(0).map((_, i) => (i === 0 && axis === 'age') || (i === 1 && axis === 'build') ? 1 : 0) },
-      ],
-    }),
-    getIdentityBasis: () => ({
-      dims: 100,
-      n_basis: 10,
-      vectors: new Array(10).fill(0).map((_, b) => 
-        new Array(100).fill(0).map((_, i) => i === 10 + b ? 1 : 0)
-      ),
-    }),
-  };
-});
 
 describe('resolve', () => {
-  it('zero deviation → near-zero expression', () => {
-    const ticker = TEST_TICKERS[0]; // energy, age 20
-    const frame = makeTickerFrame({ deviation: 0, velocity: 0, volatility: 1 });
+  it('zero data → near-zero expression and shape', () => {
+    const ticker = TEST_TICKERS[0];
+    const frame = makeTickerFrame({ deviation: 0, velocity: 0, volatility: 0, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 });
     const result = resolve(ticker, frame);
 
     expect(result.expression.length).toBe(N_EXPR);
-    // All expression components should be near zero for zero deviation
+    expect(result.shape.length).toBe(N_SHAPE);
+
+    // Expression should be moderate for zero data (drawdown sigmoid has nonzero output at 0)
     const maxExpr = Math.max(...Array.from(result.expression).map(Math.abs));
-    expect(maxExpr).toBeLessThan(5.0);
+    expect(maxExpr).toBeLessThan(1.0);
   });
 
-  it('high negative deviation → nonzero expression', () => {
+  it('high negative deviation → nonzero expression (joy axis)', () => {
     const ticker = TEST_TICKERS[0];
-    const frame = makeTickerFrame({ deviation: -2.5, velocity: -1, volatility: 3 });
+    const frame = makeTickerFrame({ deviation: -0.15 });
     const result = resolve(ticker, frame);
 
+    // ψ0 (jaw) should be affected by joy axis
     const maxExpr = Math.max(...Array.from(result.expression).map(Math.abs));
     expect(maxExpr).toBeGreaterThan(0.1);
   });
 
-  it('shape differs by age', () => {
-    const young = TEST_TICKERS[0]; // age 20
-    const old = TEST_TICKERS[2];   // age 60
-    const frame = makeTickerFrame();
-
-    const resultYoung = resolve(young, frame);
-    const resultOld = resolve(old, frame);
-
-    // Shape should differ
-    let shapeDist = 0;
-    for (let i = 0; i < N_SHAPE; i++) {
-      shapeDist += (resultYoung.shape[i] - resultOld.shape[i]) ** 2;
-    }
-    shapeDist = Math.sqrt(shapeDist);
-    expect(shapeDist).toBeGreaterThan(0.04);
-  });
-
-  it('shape differs by asset class', () => {
-    const energy = TEST_TICKERS[0]; // class: energy
-    const fear = TEST_TICKERS[1];   // class: fear
-
-    const resultA = resolve(energy, makeTickerFrame());
-    const resultB = resolve(fear, makeTickerFrame());
-
-    let shapeDist = 0;
-    for (let i = 0; i < N_SHAPE; i++) {
-      shapeDist += (resultA.shape[i] - resultB.shape[i]) ** 2;
-    }
-    shapeDist = Math.sqrt(shapeDist);
-    expect(shapeDist).toBeGreaterThan(0.1);
-  });
-
-  it('expression changes with deviation', () => {
+  it('shape changes with momentum', () => {
     const ticker = TEST_TICKERS[0];
-    const calm = resolve(ticker, makeTickerFrame({ deviation: 0 }));
-    const crisis = resolve(ticker, makeTickerFrame({ deviation: -2.5 }));
+    const rising = resolve(ticker, makeTickerFrame({ momentum: 2.0 }));
+    const falling = resolve(ticker, makeTickerFrame({ momentum: -2.0 }));
 
-    let exprDist = 0;
-    for (let i = 0; i < N_EXPR; i++) {
-      exprDist += (calm.expression[i] - crisis.expression[i]) ** 2;
-    }
-    exprDist = Math.sqrt(exprDist);
-    expect(exprDist).toBeGreaterThan(0.3);
+    // β0 (stature root) should differ
+    expect(rising.shape[0]).toBeGreaterThan(0);
+    expect(falling.shape[0]).toBeLessThan(0);
+  });
+
+  it('shape changes with beta (angularity)', () => {
+    const ticker = TEST_TICKERS[0];
+    const conformist = resolve(ticker, makeTickerFrame({ beta: 1.0 }));
+    const rebel = resolve(ticker, makeTickerFrame({ beta: 2.5 }));
+
+    // β10 (angularity root) should be higher for rebel
+    expect(Math.abs(rebel.shape[10])).toBeGreaterThan(Math.abs(conformist.shape[10]));
   });
 
   it('returns correct array lengths', () => {
@@ -103,38 +52,28 @@ describe('resolve', () => {
     expect(result.shape.length).toBe(N_SHAPE);
     expect(result.expression.length).toBe(N_EXPR);
   });
-});
 
-describe('createShapeResolver', () => {
-  it('resolves all 14 tickers without error', () => {
-    const resolver = createShapeResolver();
-    for (const ticker of TICKERS) {
-      const shape = resolver.resolve(ticker);
-      expect(shape.length).toBe(N_SHAPE);
-      // No NaN or Infinity
-      for (let i = 0; i < N_SHAPE; i++) {
-        expect(Number.isFinite(shape[i])).toBe(true);
-      }
-    }
-  });
+  it('different tickers get different identity noise', () => {
+    const frame = makeTickerFrame();
+    const a = resolve(TEST_TICKERS[0], frame);
+    const b = resolve(TEST_TICKERS[1], frame);
 
-  it('same ticker → same shape (deterministic)', () => {
-    const resolver = createShapeResolver();
-    const a = resolver.resolve(TICKERS[0]);
-    const b = resolver.resolve(TICKERS[0]);
-    for (let i = 0; i < N_SHAPE; i++) {
-      expect(a[i]).toBe(b[i]);
+    // β11-β19 should differ due to identity noise
+    let identityDiff = 0;
+    for (let i = 11; i < 20; i++) {
+      identityDiff += Math.abs(a.shape[i] - b.shape[i]);
     }
+    expect(identityDiff).toBeGreaterThan(0.01);
   });
 });
 
 describe('createExpressionResolver', () => {
-  it('resolves crisis frames without error', () => {
+  it('resolves various frames without error', () => {
     const resolver = createExpressionResolver();
     const frames = [
-      makeTickerFrame({ deviation: 0, velocity: 0, volatility: 1 }),
-      makeTickerFrame({ deviation: -3, velocity: -2, volatility: 4 }),
-      makeTickerFrame({ deviation: 2, velocity: 1, volatility: 0.5 }),
+      makeTickerFrame({ deviation: 0, velocity: 0, volatility: 0, drawdown: 0 }),
+      makeTickerFrame({ deviation: -0.15, velocity: -2, volatility: 4, drawdown: -0.3 }),
+      makeTickerFrame({ deviation: 0.1, velocity: 1, volatility: 0.5, drawdown: 0 }),
     ];
     for (const frame of frames) {
       const expr = resolver.resolve(frame);
@@ -144,122 +83,115 @@ describe('createExpressionResolver', () => {
       }
     }
   });
+
+  it('deviation drives joy axis (ψ0, ψ5, ψ7)', () => {
+    const resolver = createExpressionResolver();
+    const positive = resolver.resolve(makeTickerFrame({ deviation: 0.15 }));
+    const negative = resolver.resolve(makeTickerFrame({ deviation: -0.15 }));
+
+    // Joy is bipolar: positive dev → positive ψ0, negative dev → negative ψ0
+    expect(positive[0]).toBeGreaterThan(0);
+    expect(negative[0]).toBeLessThan(0);
+  });
+
+  it('|velocity| drives surprise axis (ψ2, ψ0, ψ7)', () => {
+    const resolver = createExpressionResolver();
+    const fast = resolver.resolve(makeTickerFrame({ velocity: 2.0 }));
+    const slow = resolver.resolve(makeTickerFrame({ velocity: 0 }));
+
+    // Surprise uses ψ2 (brow raise) as root
+    expect(fast[2]).toBeGreaterThan(slow[2]);
+  });
+
+  it('volatility drives tension axis (ψ4, ψ6, ψ8)', () => {
+    const resolver = createExpressionResolver();
+    const chaotic = resolver.resolve(makeTickerFrame({ volatility: 3.0 }));
+    const calm = resolver.resolve(makeTickerFrame({ volatility: 0 }));
+
+    // Tension uses ψ4 (lip pucker) as root
+    expect(chaotic[4]).toBeGreaterThan(calm[4]);
+  });
+
+  it('drawdown drives anguish axis (ψ3, ψ8, ψ5)', () => {
+    const resolver = createExpressionResolver();
+    const deep = resolver.resolve(makeTickerFrame({ drawdown: -0.4 }));
+    const atPeak = resolver.resolve(makeTickerFrame({ drawdown: 0 }));
+
+    // Anguish uses ψ3 (brow furrow) as root
+    expect(Math.abs(deep[3])).toBeGreaterThan(Math.abs(atPeak[3]));
+  });
+});
+
+describe('createShapeResolver', () => {
+  it('resolves various frames without error', () => {
+    const resolver = createShapeResolver();
+    const frames = [
+      makeTickerFrame({ momentum: 0, mean_reversion_z: 0, beta: 1 }),
+      makeTickerFrame({ momentum: 2, mean_reversion_z: 3, beta: 0.5 }),
+      makeTickerFrame({ momentum: -2, mean_reversion_z: -1, beta: 1.5 }),
+    ];
+    for (const frame of frames) {
+      const shape = resolver.resolve(frame);
+      expect(shape.length).toBe(N_SHAPE);
+      for (let i = 0; i < N_SHAPE; i++) {
+        expect(Number.isFinite(shape[i])).toBe(true);
+      }
+    }
+  });
+
+  it('momentum drives stature (β0, β3, β2)', () => {
+    const resolver = createShapeResolver();
+    const rising = resolver.resolve(makeTickerFrame({ momentum: 2.0 }));
+    const falling = resolver.resolve(makeTickerFrame({ momentum: -2.0 }));
+
+    expect(rising[0]).toBeGreaterThan(0); // heavy
+    expect(falling[0]).toBeLessThan(0);   // gaunt
+  });
+
+  it('|mean_reversion_z| drives proportion (β1, β4, β6)', () => {
+    const resolver = createShapeResolver();
+    const stretched = resolver.resolve(makeTickerFrame({ mean_reversion_z: 3.0 }));
+    const normal = resolver.resolve(makeTickerFrame({ mean_reversion_z: 0 }));
+
+    expect(stretched[1]).toBeGreaterThan(normal[1]); // elongated
+  });
+
+  it('|1-beta| drives angularity (β10, β8, β5)', () => {
+    const resolver = createShapeResolver();
+    const rebel = resolver.resolve(makeTickerFrame({ beta: 2.5 }));
+    const herd = resolver.resolve(makeTickerFrame({ beta: 1.0 }));
+
+    expect(rebel[10]).toBeGreaterThan(herd[10]); // chiseled
+  });
 });
 
 describe('createResolver (cached)', () => {
-  it('caches shape per ticker', () => {
+  it('different frames → different shape (shape is now data-driven)', () => {
     const resolver = createResolver();
-    const frame = makeTickerFrame();
-    const a = resolver.resolve(TICKERS[0], frame);
-    const b = resolver.resolve(TICKERS[0], frame);
-    // Same shape reference (cached)
-    expect(a.shape).toBe(b.shape);
-  });
-
-  it('different expression for different frames', () => {
-    const resolver = createResolver();
-    const calm = resolver.resolve(TICKERS[0], makeTickerFrame({ deviation: 0 }));
-    const crisis = resolver.resolve(TICKERS[0], makeTickerFrame({ deviation: -2.5 }));
-    // Same shape (cached), different expression
-    expect(calm.shape).toBe(crisis.shape);
-    expect(calm.expression).not.toBe(crisis.expression);
+    const rising = resolver.resolve(TICKERS[0], makeTickerFrame({ momentum: 2.0 }));
+    const falling = resolver.resolve(TICKERS[0], makeTickerFrame({ momentum: -2.0 }));
+    // Shape should differ since shape is now per-frame
+    expect(rising.shape).not.toBe(falling.shape);
+    expect(rising.shape[0]).not.toBe(falling.shape[0]);
   });
 
   it('updates flush/fatigue and can be reset', () => {
     const resolver = createResolver();
     const ticker = TICKERS[0];
-    
-    // Initial resolve
+
     const first = resolver.resolve(ticker, makeTickerFrame({ deviation: 0, volatility: 1.0 }));
-    expect(first.flush).toBeLessThan(0); // Near baseline
-    expect(first.fatigue).toBeLessThan(0.1); // Near baseline
-    
+    expect(first.flush).toBeLessThan(0);
+    expect(first.fatigue).toBeLessThan(0.1);
+
     // High deviation frames
     for (let i = 0; i < 30; i++) {
       resolver.resolve(ticker, makeTickerFrame({ deviation: 0.5, volatility: 1.0 }));
     }
     const afterHighDev = resolver.resolve(ticker, makeTickerFrame({ deviation: 0.5, volatility: 1.0 }));
     expect(afterHighDev.flush).toBeGreaterThan(0.5);
-    
-    // Reset accumulators
+
     resolver.resetAccumulators();
     const afterReset = resolver.resolve(ticker, makeTickerFrame({ deviation: 0, volatility: 1.0 }));
-    expect(afterReset.flush).toBeLessThan(0); // Back to baseline
-  });
-});
-
-describe('Shape Enrichment (Tier 2/3 + Sarasti)', () => {
-  const resolver = createShapeResolver();
-
-  const mockStatics: TickerStatic = {
-    avg_volume: 150000,
-    hist_volatility: 0.03,
-    corr_to_brent: 0.9,
-    corr_to_spy: 0.2,
-    skewness: -0.5,
-    spread_from_family: 0.05,
-    shape_residuals: new Array(50).fill(0.1),
-  };
-
-  it('enriched shapes use more non-zero β dimensions than basic shapes', () => {
-    const ticker = TICKERS[0];
-    const basicShape = resolver.resolve(ticker);
-    const enrichedShape = resolver.resolve(ticker, mockStatics);
-
-    const basicNonZero = Array.from(basicShape).filter(v => Math.abs(v) > 0.0001).length;
-    const enrichedNonZero = Array.from(enrichedShape).filter(v => Math.abs(v) > 0.0001).length;
-
-    expect(enrichedNonZero).toBeGreaterThan(basicNonZero);
-    // Basic shape uses β₀₋₈ (9 components). Enriched should use significantly more.
-    expect(basicNonZero).toBeLessThanOrEqual(20);
-    expect(enrichedNonZero).toBeGreaterThan(25);
-  });
-
-  it('different statics produce different shapes for the same ticker', () => {
-    const ticker = TICKERS[0];
-    const staticsA: TickerStatic = { ...mockStatics, avg_volume: 50000 };
-    const staticsB: TickerStatic = { ...mockStatics, avg_volume: 150000 };
-
-    const shapeA = resolver.resolve(ticker, staticsA);
-    const shapeB = resolver.resolve(ticker, staticsB);
-
-    let diff = 0;
-    for (let i = 0; i < N_SHAPE; i++) {
-      diff += Math.abs(shapeA[i] - shapeB[i]);
-    }
-    expect(diff).toBeGreaterThan(0.01);
-  });
-
-  it('Sarasti residuals are correctly injected into β₅₀₋₉₉', () => {
-    const ticker = TICKERS[0];
-    const residuals = new Array(50).fill(0).map((_, i) => i * 0.01);
-    const statics: TickerStatic = { ...mockStatics, shape_residuals: residuals };
-
-    const shape = resolver.resolve(ticker, statics);
-
-    for (let i = 0; i < 50; i++) {
-      // residual_indices start at 50 (β₅₀)
-      expect(shape[50 + i]).toBeCloseTo(residuals[i]);
-    }
-  });
-
-  it('tier intensities scale the perturbations correctly', () => {
-    const ticker = TICKERS[0];
-    const statics: TickerStatic = { ...mockStatics, shape_residuals: undefined };
-    
-    // Custom tier intensities: zero out tier 2 and 3
-    const resolverZero = createShapeResolver({
-      ...DEFAULT_BINDING_CONFIG,
-      tier_intensities: [1.0, 0, 0, 1.0],
-    });
-
-    const shapeZero = resolverZero.resolve(ticker, statics);
-
-    // Indices for tier 2 and 3 should be zero in the result if they were zero before
-    const shapeNoStatics = resolverZero.resolve(ticker);
-
-    for (let i = 0; i < N_SHAPE; i++) {
-      expect(shapeZero[i]).toBeCloseTo(shapeNoStatics[i], 5);
-    }
+    expect(afterReset.flush).toBeLessThan(0);
   });
 });

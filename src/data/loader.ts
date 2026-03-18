@@ -1,12 +1,9 @@
-import type { TimelineDataset, Frame, TickerFrame, TickerStatic } from '../types';
+import type { TimelineDataset, Frame, TickerFrame } from '../types';
 import type { RawMarketHistory } from './schema';
 import { TICKERS } from '../tickers';
 
 /**
  * Fetch and parse market-history.json into TimelineDataset.
- *
- * @param url - URL or path to market-history.json
- * @returns Parsed and indexed dataset ready for frame access
  */
 export async function loadDataset(url: string): Promise<TimelineDataset> {
   const resp = await fetch(url);
@@ -16,13 +13,11 @@ export async function loadDataset(url: string): Promise<TimelineDataset> {
 }
 
 /**
- * Parse raw JSON into TimelineDataset. Exported for testing
- * (test can pass fixture directly without fetch).
+ * Parse raw JSON into TimelineDataset. Exported for testing.
  */
 export function parseDataset(raw: RawMarketHistory): TimelineDataset {
   const timestamps = raw.frames.map(f => f.timestamp);
 
-  // Check for missing tickers and log warnings
   const presentIds = new Set<string>();
   for (const frame of raw.frames) {
     for (const id of Object.keys(frame.values)) {
@@ -42,30 +37,11 @@ export function parseDataset(raw: RawMarketHistory): TimelineDataset {
     values: rf.values as Record<string, TickerFrame>,
   }));
 
-  // Parse static metadata if present (binding refinement)
-  const statics: Record<string, TickerStatic> | undefined = raw.statics
-    ? Object.fromEntries(
-        Object.entries(raw.statics).map(([id, s]) => [
-          id,
-          {
-            avg_volume: s.avg_volume,
-            hist_volatility: s.hist_volatility,
-            corr_to_brent: s.corr_to_brent,
-            corr_to_spy: s.corr_to_spy,
-            skewness: s.skewness,
-            spread_from_family: s.spread_from_family,
-            shape_residuals: s.shape_residuals,
-          },
-        ]),
-      )
-    : undefined;
-
   return {
     tickers,
     frames,
     timestamps,
     baseline_timestamp: raw.baseline_timestamp,
-    statics,
   };
 }
 
@@ -100,7 +76,6 @@ export function getFrameAtTime(dataset: TimelineDataset, isoString: string): Fra
     }
   }
 
-  // lo is the first timestamp >= target. Pick nearest of lo and lo-1.
   if (lo === 0) return dataset.frames[0];
   const prevDist = Math.abs(target - new Date(timestamps[lo - 1]).getTime());
   const currDist = Math.abs(target - new Date(timestamps[lo]).getTime());
@@ -109,7 +84,6 @@ export function getFrameAtTime(dataset: TimelineDataset, isoString: string): Fra
 
 /**
  * Get full timeseries for a single ticker across all frames.
- * Useful for sparklines in the detail panel.
  */
 export function getTickerTimeseries(
   dataset: TimelineDataset,

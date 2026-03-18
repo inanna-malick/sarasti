@@ -137,7 +137,20 @@ def process_ticker_df(df, baseline_window):
     
     df['velocity'] = (df['Close'].diff() / rolling_std_6h).fillna(0)
     df['volatility'] = (rolling_std_6h / pre_crisis_std).fillna(1.0)
-    
+
+    # Drawdown: distance from rolling max (always ≤ 0)
+    rolling_max = df['Close'].expanding().max()
+    df['drawdown'] = ((df['Close'] - rolling_max) / rolling_max).fillna(0)
+
+    # Momentum: longer-window trend (24h EMA of velocity)
+    df['momentum'] = df['velocity'].ewm(span=24).mean().fillna(0)
+
+    # Mean reversion z: deviation / volatility (how abnormal is this abnormality?)
+    df['mean_reversion_z'] = (df['deviation'] / df['volatility'].replace(0, 1)).fillna(0)
+
+    # Beta: rolling correlation to market (SPY) — placeholder, computed in cross-ticker pass
+    df['beta'] = 1.0
+
     # New Tier 2/3 fields
     df['volume_anomaly'] = (df['Volume'] / baseline_vol).fillna(1.0)
     df['high_low_ratio'] = ((df['High'] - df['Low']) / df['Close']).fillna(0)
@@ -207,13 +220,22 @@ def run_pull_with_libs():
     brent_baseline = processed_tickers['BZ=F'].loc[baseline_start:baseline_end]['Close']
     spy_baseline = processed_tickers['SPY'].loc[baseline_start:baseline_end]['Close']
     
+    spy_returns = processed_tickers['SPY']['Close'].pct_change().fillna(0)
+
     for tid in list(processed_tickers.keys()):
         df = processed_tickers[tid]
         baseline_window = df.loc[baseline_start:baseline_end]['Close']
-        
+
         # Static cross-ticker fields
         ticker_statics[tid]['corr_to_brent'] = float(baseline_window.corr(brent_baseline) or 0.0)
         ticker_statics[tid]['corr_to_spy'] = float(baseline_window.corr(spy_baseline) or 0.0)
+
+        # Rolling beta to market (SPY) via rolling covariance / variance
+        ticker_returns = df['Close'].pct_change().fillna(0)
+        rolling_cov = ticker_returns.rolling(window=24).cov(spy_returns).fillna(0)
+        rolling_var = spy_returns.rolling(window=24).var().fillna(1)
+        rolling_var = rolling_var.replace(0, 1)  # avoid div by zero
+        df['beta'] = (rolling_cov / rolling_var).fillna(1.0)
         
         # spread_from_family
         family_name = TICKER_TO_FAMILY.get(tid)
@@ -318,18 +340,15 @@ def run_pull_with_libs():
                     "deviation": float(row['deviation']),
                     "velocity": float(row['velocity']),
                     "volatility": float(row['volatility']),
-                    "volume_anomaly": float(row['volume_anomaly']),
-                    "corr_breakdown": float(row['corr_breakdown']),
-                    "term_slope": float(row.get('term_slope', 0.0)),
-                    "cross_contagion": float(row['cross_contagion']),
-                    "high_low_ratio": float(row['high_low_ratio']),
-                    "expr_residuals": expr_res
+                    "drawdown": float(row['drawdown']),
+                    "momentum": float(row['momentum']),
+                    "mean_reversion_z": float(row['mean_reversion_z']),
+                    "beta": float(row['beta']),
                 }
             else:
                 values[tid] = {
                     "close": 0.0, "volume": 0.0, "deviation": 0.0, "velocity": 0.0, "volatility": 1.0,
-                    "volume_anomaly": 1.0, "corr_breakdown": 0.0, "term_slope": 0.0, "cross_contagion": 0.0, "high_low_ratio": 0.0,
-                    "expr_residuals": expr_res
+                    "drawdown": 0.0, "momentum": 0.0, "mean_reversion_z": 0.0, "beta": 1.0,
                 }
         frames.append({
             "timestamp": ts.isoformat().replace('+00:00', 'Z'),
@@ -372,22 +391,27 @@ def generate_synthetic_fallback():
         history = []
         curr = start_dt
         price = base_price
+        peak_price = base_price
+        momentum_ema = 0.0
         while curr <= end_dt:
             change = random.normalvariate(0, 0.005) * price
             price += change
+            peak_price = max(peak_price, price)
+            deviation = (price - base_price) / base_price
+            vol = 1.0 + 0.05 * math.sin(curr.timestamp() / 86400.0)
+            velocity = change / (base_price * 0.01)
+            momentum_ema = 0.96 * momentum_ema + 0.04 * velocity  # EMA span=24
             history.append({
                 "ts": curr,
                 "close": price,
                 "volume": random.randint(100, 1000),
-                "deviation": (price - base_price) / base_price,
-                "velocity": change / (base_price * 0.01),
-                "volatility": 1.0 + 0.05 * math.sin(curr.timestamp() / 86400.0),
-                "volume_anomaly": random.uniform(0.8, 1.2),
-                "corr_breakdown": random.uniform(0, 0.1),
-                "term_slope": random.uniform(-0.1, 0.1) if TICKER_TO_FAMILY.get(tid) else 0.0,
-                "cross_contagion": random.uniform(0, 0.5),
-                "high_low_ratio": random.uniform(0.005, 0.02),
-                "expr_residuals": [random.uniform(-0.1, 0.1) for _ in range(60)]
+                "deviation": deviation,
+                "velocity": velocity,
+                "volatility": vol,
+                "drawdown": (price - peak_price) / peak_price if peak_price > 0 else 0.0,
+                "momentum": momentum_ema,
+                "mean_reversion_z": deviation / vol if vol != 0 else 0.0,
+                "beta": 0.8 + random.uniform(-0.3, 0.3),
             })
             curr += timedelta(hours=1)
         ticker_history[tid] = history
@@ -433,12 +457,10 @@ def generate_synthetic_fallback():
                 "deviation": h["deviation"],
                 "velocity": h["velocity"],
                 "volatility": h["volatility"],
-                "volume_anomaly": h["volume_anomaly"],
-                "corr_breakdown": h["corr_breakdown"],
-                "term_slope": h["term_slope"],
-                "cross_contagion": h["cross_contagion"],
-                "high_low_ratio": h["high_low_ratio"],
-                "expr_residuals": h["expr_residuals"]
+                "drawdown": h["drawdown"],
+                "momentum": h["momentum"],
+                "mean_reversion_z": h["mean_reversion_z"],
+                "beta": h["beta"],
             }
         frames.append({
             "timestamp": ts.strftime('%Y-%m-%dT%H:00:00Z'),

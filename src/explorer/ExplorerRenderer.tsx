@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createFlamePipeline } from '@/renderer/flame/pipeline';
 import { FlameFaceMesh } from '@/renderer/flame/mesh';
-import { loadDirectionTables } from '@/binding/directions';
 import { FLAME_DATA_BASE } from '@/renderer/constants';
 import { useExplorerStore } from './store';
 
@@ -24,7 +23,6 @@ export function ExplorerRenderer() {
       if (!containerRef.current) return;
 
       try {
-        await loadDirectionTables('/data/directions');
         const pipeline = await createFlamePipeline(FLAME_DATA_BASE);
 
         if (disposed) return;

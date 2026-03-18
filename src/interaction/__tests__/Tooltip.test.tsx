@@ -69,7 +69,7 @@ describe('interaction/Tooltip.tsx', () => {
 
   it('renders frame values with correct color for negative deviation', () => {
     const instance = makeFaceInstance('face-1', {
-      frame: { close: 123.45, volume: 1000, deviation: -0.1, velocity: 0.01, volatility: 2.0 }
+      frame: { close: 123.45, volume: 1000, deviation: -0.1, velocity: 0.01, volatility: 2.0, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 }
     });
     
     act(() => {
@@ -90,7 +90,7 @@ describe('interaction/Tooltip.tsx', () => {
 
   it('renders frame values with correct color for positive deviation', () => {
     const instance = makeFaceInstance('face-1', {
-      frame: { close: 100, volume: 1000, deviation: 0.1, velocity: 0, volatility: 1 }
+      frame: { close: 100, volume: 1000, deviation: 0.1, velocity: 0, volatility: 1, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 }
     });
     
     act(() => {
@@ -108,7 +108,7 @@ describe('interaction/Tooltip.tsx', () => {
 
   it('renders frame values with correct color for neutral deviation', () => {
     const instance = makeFaceInstance('face-1', {
-      frame: { close: 100, volume: 1000, deviation: 0.01, velocity: 0, volatility: 1 }
+      frame: { close: 100, volume: 1000, deviation: 0.01, velocity: 0, volatility: 1, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1 }
     });
     
     act(() => {

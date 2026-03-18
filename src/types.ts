@@ -17,38 +17,15 @@ export interface TickerFrame {
   deviation: number;
   velocity: number;
   volatility: number;
-  // ─── Tier 2 per-frame fields (binding refinement) ──
-  /** Current volume / baseline avg volume. >1 = surge, <1 = capitulation. */
-  volume_anomaly?: number;
-  /** |rolling_corr_to_brent - baseline_corr_to_brent|. Spikes when correlations break. */
-  corr_breakdown?: number;
-  /** For futures: slope of term structure (contango/backwardation steepness). */
-  term_slope?: number;
-  /** Rolling correlation to other asset classes. Spikes = contagion. */
-  cross_contagion?: number;
-  /** (high - low) / close. Bid-ask spread proxy. */
-  high_low_ratio?: number;
-  // ─── Sarasti residual (per-frame dynamic) ──────────
-  /** PCA residual components for expression binding (ψ₄₁₋₁₀₀). */
-  expr_residuals?: number[];
-}
-
-/** Pre-computed static metadata per ticker (computed from pre-crisis baseline). */
-export interface TickerStatic {
-  /** Average daily volume during pre-crisis window. */
-  avg_volume: number;
-  /** Historical volatility (pct_change stddev, pre-crisis). */
-  hist_volatility: number;
-  /** Pre-crisis correlation to Brent. */
-  corr_to_brent: number;
-  /** Pre-crisis correlation to SPY. */
-  corr_to_spy: number;
-  /** Skewness of returns (pre-crisis). */
-  skewness: number;
-  /** Deviation from family mean price level (pre-crisis). */
-  spread_from_family: number;
-  /** PCA residual components for shape binding (β₅₁₋₁₀₀). */
-  shape_residuals?: number[];
+  // ─── Derived signals (computed at data-bake time) ──
+  /** Distance from rolling max. 0 = at peak, negative = in drawdown. */
+  drawdown: number;
+  /** Rate of change over longer window. Structural trend direction. */
+  momentum: number;
+  /** deviation / volatility. How abnormal is this abnormality? */
+  mean_reversion_z: number;
+  /** Rolling beta to market. 1 = with herd, 0 = independent, negative = contrarian. */
+  beta: number;
 }
 
 export interface Frame {
@@ -61,8 +38,6 @@ export interface TimelineDataset {
   frames: Frame[];
   timestamps: string[];
   baseline_timestamp: string;
-  /** Pre-computed static metadata per ticker. Keyed by ticker id. */
-  statics?: Record<string, TickerStatic>;
 }
 
 // ─── Pose ───────────────────────────────────────────
@@ -122,23 +97,6 @@ export interface LayoutResult {
   positions: Map<string, [number, number, number]>;
 }
 
-// ─── Binding ────────────────────────────────────────
-
-export interface ExpressionMap {
-  indices: number[];
-  weights: number[];
-  curve: 'linear' | 'exponential' | 'sigmoid';
-}
-
-export interface TidalBinding {
-  age_shape_components: number[];
-  class_shape_components: number[];
-  family_shape_components: number[];
-  deviation_expr_map: ExpressionMap;
-  velocity_expr_map: ExpressionMap;
-  volatility_expr_map: ExpressionMap;
-  expression_intensity: number;
-}
 
 // ─── Timeline ───────────────────────────────────────
 

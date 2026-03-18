@@ -10,6 +10,10 @@ describe('TextureAccumulator', () => {
     deviation,
     velocity: 0,
     volatility,
+    drawdown: 0,
+    momentum: 0,
+    mean_reversion_z: 0,
+    beta: 1,
   });
 
   it('30 frames of high deviation (0.5) → flush converges toward +1', () => {

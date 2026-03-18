@@ -128,20 +128,24 @@ describe('root integration: data → binding → spatial → instances', () => {
     });
   });
 
-  describe('shape is consistent across timestamps (structural identity)', () => {
+  describe('shape varies across timestamps (data-driven)', () => {
     const frame0 = getFrameAtTime(dataset, '2026-02-25T12:00:00Z');
     const frame1 = getFrameAtTime(dataset, '2026-03-05T00:00:00Z');
     const inst0 = buildInstances(dataset, frame0, layout.positions);
     const inst1 = buildInstances(dataset, frame1, layout.positions);
 
-    it('same ticker has identical shape at different times', () => {
+    it('at least some faces have different shapes at different times', () => {
+      let diffCount = 0;
       for (const i0 of inst0) {
         const i1 = inst1.find(i => i.id === i0.id);
         if (!i1) continue;
+        let diff = 0;
         for (let j = 0; j < N_SHAPE; j++) {
-          expect(i0.params.shape[j]).toBe(i1.params.shape[j]);
+          diff += Math.abs(i0.params.shape[j] - i1.params.shape[j]);
         }
+        if (diff > 0.01) diffCount++;
       }
+      expect(diffCount).toBeGreaterThan(0);
     });
   });
 });

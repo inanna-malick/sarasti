@@ -70,6 +70,21 @@ export function Controls({ onLoopChange }: ControlsProps) {
           Technical summary
         </button>
       </div>
+
+      <a
+        href="?explorer=true"
+        style={{
+          color: '#6cf',
+          fontSize: 10,
+          textDecoration: 'none',
+          opacity: 0.7,
+          textAlign: 'right',
+        }}
+        onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '1'; }}
+        onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '0.7'; }}
+      >
+        Explorer
+      </a>
     </div>
   );
 }

@@ -10,7 +10,6 @@ import { TimelineBar } from './ui/TimelineBar';
 import { Controls } from './ui/Controls';
 import { Landing } from './ui/Landing';
 import { useStore } from './store';
-import { loadDirectionTables } from './binding/directions';
 import { RefineHarness } from './refine/RefineHarness';
 import { ExplorerPane } from './explorer/ExplorerPane';
 
@@ -44,13 +43,7 @@ export function App() {
 
         if (disposed) return;
 
-        // 2. Load semantic direction tables
-        setStatus('Loading semantic directions...');
-        await loadDirectionTables('/data/directions');
-
-        if (disposed) return;
-
-        // 3. Create renderer
+        // 2. Create renderer
         setStatus('Loading FLAME model...');
         const renderer = await createFlameSceneRenderer();
         await renderer.init(containerRef.current!);

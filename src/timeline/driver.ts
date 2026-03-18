@@ -145,6 +145,10 @@ export class FrameDriver {
           velocity: tickerFrameA.velocity * (1 - t) + tickerFrameB.velocity * t,
           volatility: tickerFrameA.volatility * (1 - t) + tickerFrameB.volatility * t,
           volume: tickerFrameA.volume * (1 - t) + tickerFrameB.volume * t,
+          drawdown: tickerFrameA.drawdown * (1 - t) + tickerFrameB.drawdown * t,
+          momentum: tickerFrameA.momentum * (1 - t) + tickerFrameB.momentum * t,
+          mean_reversion_z: tickerFrameA.mean_reversion_z * (1 - t) + tickerFrameB.mean_reversion_z * t,
+          beta: tickerFrameA.beta * (1 - t) + tickerFrameB.beta * t,
         };
       } else {
         params = paramsA;

@@ -17,6 +17,10 @@ export function makeFaceInstance(id: string, overrides: Partial<FaceInstance> = 
     deviation: 0.1,
     velocity: 0.05,
     volatility: 1.2,
+    drawdown: 0,
+    momentum: 0,
+    mean_reversion_z: 0,
+    beta: 1,
     ...overrides.frame,
   };
 

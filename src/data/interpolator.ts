@@ -37,11 +37,15 @@ export function interpolateFrame(f0: Frame, f1: Frame, alpha: number): Frame {
 
 function lerpTickerFrame(a: TickerFrame, b: TickerFrame, alpha: number): TickerFrame {
   return {
-    close:      lerp(a.close, b.close, alpha),
-    volume:     lerp(a.volume, b.volume, alpha),
-    deviation:  lerp(a.deviation, b.deviation, alpha),
-    velocity:   lerp(a.velocity, b.velocity, alpha),
-    volatility: lerp(a.volatility, b.volatility, alpha),
+    close:            lerp(a.close, b.close, alpha),
+    volume:           lerp(a.volume, b.volume, alpha),
+    deviation:        lerp(a.deviation, b.deviation, alpha),
+    velocity:         lerp(a.velocity, b.velocity, alpha),
+    volatility:       lerp(a.volatility, b.volatility, alpha),
+    drawdown:         lerp(a.drawdown, b.drawdown, alpha),
+    momentum:         lerp(a.momentum, b.momentum, alpha),
+    mean_reversion_z: lerp(a.mean_reversion_z, b.mean_reversion_z, alpha),
+    beta:             lerp(a.beta, b.beta, alpha),
   };
 }
 

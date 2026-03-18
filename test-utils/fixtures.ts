@@ -17,6 +17,10 @@ export function makeTickerFrame(overrides: Partial<TickerFrame> = {}): TickerFra
     deviation: 0,
     velocity: 0,
     volatility: 1,
+    drawdown: 0,
+    momentum: 0,
+    mean_reversion_z: 0,
+    beta: 1,
     ...overrides,
   };
 }
@@ -39,9 +43,9 @@ export function makeTestDataset(): TimelineDataset {
   const frames = timestamps.map((ts, i) => {
     const crisis = i / 9; // 0 → 1 over 10 frames
     return makeFrame(ts, {
-      TEST_A: { deviation: -crisis * 2, velocity: -crisis, volatility: 1 + crisis * 3 },
-      TEST_B: { deviation: crisis * 1.5, velocity: crisis * 0.5, volatility: 1 + crisis * 2 },
-      TEST_C: { deviation: -crisis * 0.5, velocity: -crisis * 0.3, volatility: 1 + crisis },
+      TEST_A: { deviation: -crisis * 2, velocity: -crisis, volatility: 1 + crisis * 3, drawdown: -crisis * 0.3, momentum: -crisis * 1.5, mean_reversion_z: -crisis * 2, beta: 1.2 + crisis * 0.3 },
+      TEST_B: { deviation: crisis * 1.5, velocity: crisis * 0.5, volatility: 1 + crisis * 2, drawdown: 0, momentum: crisis * 1.0, mean_reversion_z: crisis, beta: 0.8 },
+      TEST_C: { deviation: -crisis * 0.5, velocity: -crisis * 0.3, volatility: 1 + crisis, drawdown: -crisis * 0.1, momentum: -crisis * 0.3, mean_reversion_z: -crisis * 0.5, beta: 1.0 },
     });
   });
 

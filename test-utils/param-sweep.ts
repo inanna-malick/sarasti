@@ -42,7 +42,7 @@ export function makeGalleryInstances(
     id: 'TEST', name: 'Test', class: 'energy', family: 'test', age: 30,
   };
   const dummyFrame: TickerFrame = {
-    close: 100, volume: 1000, deviation: 0, velocity: 0, volatility: 1,
+    close: 100, volume: 1000, deviation: 0, velocity: 0, volatility: 1, drawdown: 0, momentum: 0, mean_reversion_z: 0, beta: 1,
   };
 
   return paramsList.map((params, i) => {

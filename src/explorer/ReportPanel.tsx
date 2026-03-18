@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useExplorerStore, EXPR_MAPPINGS, SHAPE_MAPPINGS } from './store';
+import { useExplorerStore } from './store';
+import { EXPR_AXES, SHAPE_AXES } from '@/binding/axes';
 
 function ArraySection({ title, prefix, data }: { title: string; prefix: string; data: Float32Array | null }) {
   const [open, setOpen] = useState(false);
@@ -48,15 +49,15 @@ export function ReportPanel() {
       {mode === 'highlevel' && (
         <div style={{ marginBottom: 8, fontSize: 10, color: '#777', fontFamily: 'monospace' }}>
           <div style={{ color: '#888', marginBottom: 2 }}>Expression mappings:</div>
-          {Object.entries(EXPR_MAPPINGS).map(([axis, mapping]) => (
+          {Object.entries(EXPR_AXES).map(([axis, mapping]) => (
             <div key={axis} style={{ paddingLeft: 8 }}>
-              {axis}: {mapping.map(([i, w]) => `\u03C8${i}\u00D7${w}`).join(', ')}
+              {axis}: {mapping.map(([i, w]: readonly [number, number]) => `\u03C8${i}\u00D7${w}`).join(', ')}
             </div>
           ))}
           <div style={{ color: '#888', marginTop: 4, marginBottom: 2 }}>Shape mappings:</div>
-          {Object.entries(SHAPE_MAPPINGS).map(([axis, mapping]) => (
+          {Object.entries(SHAPE_AXES).map(([axis, mapping]) => (
             <div key={axis} style={{ paddingLeft: 8 }}>
-              {axis}: {mapping.map(([i, w]) => `\u03B2${i}\u00D7${w}`).join(', ')}
+              {axis}: {mapping.map(([i, w]: readonly [number, number]) => `\u03B2${i}\u00D7${w}`).join(', ')}
             </div>
           ))}
         </div>
