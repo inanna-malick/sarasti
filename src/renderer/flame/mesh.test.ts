@@ -2,12 +2,13 @@ import { describe, it, expect, vi } from 'vitest';
 import * as THREE from 'three';
 import { FlameFaceMesh } from './mesh';
 import type { FlamePipeline } from './pipeline';
-import type { FlameModel, FlameBuffers } from './types';
+import type { FlameBuffers } from './types';
+import type { ExtendedFlameModel } from './mouth/types';
 import type { FaceParams } from '../../types';
 import { zeroPose } from '../../types';
 
 describe('FlameFaceMesh', () => {
-  const mockModel: FlameModel = {
+  const mockModel: ExtendedFlameModel = {
     template: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), // 3 vertices
     faces: new Uint32Array([0, 1, 2]),                      // 1 face
     shapedirs: new Float32Array(3 * 3 * 100),
@@ -25,6 +26,8 @@ describe('FlameFaceMesh', () => {
     n_joints: 5,
     n_pose_features: 36,
     n_albedo_components: 10,
+    mouthGroups: null,
+    originalVertexCount: 3,
   };
 
   const mockPipeline: FlamePipeline = {

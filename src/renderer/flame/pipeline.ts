@@ -1,6 +1,8 @@
-import type { FlameModel, FlameBuffers } from './types';
+import type { FlameBuffers } from './types';
+import type { ExtendedFlameModel } from './mouth/types';
 import type { FaceParams } from '../../types';
 import { loadFlameModel } from './loader';
+import { extendModelWithMouth } from './mouth/extend-model';
 import { deform, computeNormals } from './deform';
 import { applyLBS } from './lbs';
 
@@ -12,12 +14,13 @@ import { applyLBS } from './lbs';
  *   const buffers = pipeline.deformFace(faceParams);
  */
 export interface FlamePipeline {
-  readonly model: FlameModel;
+  readonly model: ExtendedFlameModel;
   deformFace(params: FaceParams): FlameBuffers;
 }
 
 export async function createFlamePipeline(basePath: string): Promise<FlamePipeline> {
-  const model = await loadFlameModel(basePath);
+  const rawModel = await loadFlameModel(basePath);
+  const model = extendModelWithMouth(rawModel);
 
   return {
     model,
