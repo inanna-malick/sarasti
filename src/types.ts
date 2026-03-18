@@ -113,23 +113,22 @@ export interface PlaybackState {
 export interface FaceDatum {
   id: string;
   label?: string;
-  position?: [number, number, number];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** Timeline frame for generic data */
 export interface FaceFrame<T extends FaceDatum = FaceDatum> {
-  t: string;  // ISO timestamp
+  timestamp: string;  // ISO timestamp
   data: T[];
 }
 
 /** Accessor: extracts a number from a datum */
-export type Accessor<T = any> = (datum: T) => number;
+export type Accessor<T = unknown> = (datum: T) => number;
 
 /** Generic face instance (library API) */
-export interface GenericFaceInstance {
+export interface GenericFaceInstance<T extends FaceDatum = FaceDatum> {
   id: string;
   params: FaceParams;
   position: [number, number, number];
-  datum: FaceDatum;
+  datum: T;
 }

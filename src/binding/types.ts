@@ -1,4 +1,4 @@
-import type { TickerFrame, Accessor } from '../types';
+import type { TickerFrame, Accessor, FaceDatum } from '../types';
 import { N_SHAPE, N_EXPR } from '../constants';
 
 // ─── Resolver Interfaces ────────────────────────────
@@ -20,7 +20,7 @@ export interface ExpressionResolver {
 }
 
 /** Accessor-based axes configuration for the library API */
-export interface AxesConfig<T = any> {
+export interface AxesConfig<T extends FaceDatum = FaceDatum> {
   // Expression axes
   joy?: Accessor<T>;
   anguish?: Accessor<T>;
@@ -44,9 +44,7 @@ export interface AxesConfig<T = any> {
 }
 
 /** Per-axis curve overrides */
-export interface AxisCurveConfig {
-  [axisName: string]: ResponseCurve;
-}
+export type AxisCurveConfig = Partial<Record<keyof AxesConfig, ResponseCurve>>;
 
 // ─── Response Curves ────────────────────────────────
 
