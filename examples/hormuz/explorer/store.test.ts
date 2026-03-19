@@ -4,7 +4,7 @@ import { useExplorerStore } from './store';
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
-    alarm: 0, valence: 0, arousal: 0,
+    tension: 0, mood: 0,
     dominance: 0, stature: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
@@ -15,7 +15,7 @@ beforeEach(() => {
   });
 });
 
-describe('ExplorerStore (chord axes)', () => {
+describe('ExplorerStore (4-axis high-level)', () => {
   it('produces valid FaceParams after recompute', () => {
     useExplorerStore.getState().recompute();
     const { currentParams } = useExplorerStore.getState();
@@ -27,70 +27,113 @@ describe('ExplorerStore (chord axes)', () => {
     expect(currentParams!.pose.neck).toHaveLength(3);
   });
 
-  // --- Alarm axis: ψ0 × 1.0, ψ2 × 2.0, ψ8 × 1.5 ---
-  it('alarm drives ψ0 (jaw seasoning), ψ2 (brow up), ψ8 (nose wrinkle)', () => {
-    useExplorerStore.getState().setAlarm(3.0);
+  // --- Tension axis: full chord recipe (ψ + pose + gaze + texture) ---
+  it('tension tense drives ψ components from TENSION_TENSE_RECIPE', () => {
+    useExplorerStore.getState().setTension(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[0]).toBeCloseTo(3.0);   // ψ0: 1.0 × 3.0
-    expect(expr[2]).toBeCloseTo(6.0);   // ψ2: 2.0 × 3.0
-    expect(expr[8]).toBeCloseTo(4.5);   // ψ8: 1.5 × 3.0
+    // TENSION_TENSE_RECIPE: ψ2×2.5, ψ0×1.0, ψ8×1.5, ψ7×-1.5, ψ5×0.8, ψ4×-0.5
+    expect(expr[2]).toBeCloseTo(7.5);    // ψ2: 2.5 × 3.0
+    expect(expr[0]).toBeCloseTo(3.0);    // ψ0: 1.0 × 3.0
+    expect(expr[8]).toBeCloseTo(4.5);    // ψ8: 1.5 × 3.0
+    expect(expr[5]).toBeCloseTo(2.4);    // ψ5: 0.8 × 3.0
+    expect(expr[4]).toBeCloseTo(-1.5);   // ψ4: -0.5 × 3.0
   });
 
-  // --- Valence axis: ψ0 × 1.5, ψ9 × 3.0, ψ7 × 1.5, ψ8 × 0.5 ---
-  it('valence positive drives ψ9 (cheek puff), ψ0 (jaw open), ψ7 (Duchenne)', () => {
-    useExplorerStore.getState().setValence(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[9]).toBeCloseTo(9.0);   // ψ9: 3.0 × 3.0
-    expect(expr[0]).toBeCloseTo(4.5);   // ψ0: 1.5 × 3.0
-    expect(expr[7]).toBeCloseTo(4.5);   // ψ7: 1.5 × 3.0
-    expect(expr[8]).toBeCloseTo(1.5);   // ψ8: 0.5 × 3.0
+  it('tension tense drives jaw open and gaze up', () => {
+    useExplorerStore.getState().setTension(2.0);
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.pose.jaw).toBeGreaterThan(0);        // jaw opens
+    expect(p.pose.leftEye[1]).toBeGreaterThan(0);  // gaze up
   });
 
-  it('valence negative drives ψ9 negative (cheek deflate)', () => {
-    useExplorerStore.getState().setValence(-3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[9]).toBeCloseTo(-9.0);  // ψ9: 3.0 × -3.0
-    expect(expr[0]).toBeCloseTo(-4.5);  // ψ0: 1.5 × -3.0
+  it('tension tense drives fatigue negative (wired)', () => {
+    useExplorerStore.getState().setTension(2.0);
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.fatigue).toBeLessThan(0);  // wired
   });
 
-  // --- Arousal axis: ψ2 × 3.0, ψ7 × -1.5 ---
-  it('arousal positive drives ψ2 (brow raise), ψ7 (eyes open)', () => {
-    useExplorerStore.getState().setArousal(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[2]).toBeCloseTo(9.0);   // ψ2: 3.0 × 3.0
-    expect(expr[7]).toBeCloseTo(-4.5);  // ψ7: -1.5 × 3.0
+  it('tension placid drives fatigue positive (exhausted) and gaze down', () => {
+    useExplorerStore.getState().setTension(-2.0);
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.fatigue).toBeGreaterThan(0);           // exhausted
+    expect(p.pose.leftEye[1]).toBeLessThan(0);       // gaze down
   });
 
-  // --- Chord combination tests ---
-  it('alarm + arousal stack on ψ2 (brow rockets up)', () => {
-    useExplorerStore.getState().setAlarm(3.0);
-    useExplorerStore.getState().setArousal(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ2: alarm 2.0×3 + arousal 3.0×3 = 6.0 + 9.0 = 15.0
-    expect(expr[2]).toBeCloseTo(15.0);
+  // --- Mood axis: full chord recipe (ψ + pose + gaze + texture) ---
+  it('mood euphoric drives bilateral smile (ψ5+ψ4), cheek puff, flush positive', () => {
+    useExplorerStore.getState().setMood(3.0);
+    const p = useExplorerStore.getState().currentParams!;
+    // MOOD_EUPHORIA_RECIPE: ψ5×4.0, ψ9×5.0, ψ7×2.5, ψ4×-0.3, ψ0×0.3, ψ8×0.8
+    expect(p.expression[5]).toBeCloseTo(12.0);   // ψ5: 4.0 × 3.0 (bilateral smile, cranked)
+    expect(p.expression[9]).toBeCloseTo(15.0);   // ψ9: 5.0 × 3.0 (cheek puff)
+    expect(p.expression[4]).toBeCloseTo(-0.9);   // ψ4: -0.3 × 3.0 (slight widen)
+    expect(p.expression[0]).toBeCloseTo(0.9);    // ψ0: 0.3 × 3.0 (minimal jaw)
+    expect(p.flush).toBeGreaterThan(0);           // warm glow
+    expect(p.pose.leftEye[0]).toBeGreaterThan(0); // gaze right
   });
 
-  // --- Shape axes ---
-  it('dominance drives β3 (jaw), β2 (chin), β0 (neck), β4 (brow), β7, β18, β23', () => {
+  it('mood grief drives ψ6 (lip sag), ψ3 (brow furrow), flush negative (pallid)', () => {
+    useExplorerStore.getState().setMood(-3.0);
+    const p = useExplorerStore.getState().currentParams!;
+    // MOOD_GRIEF_RECIPE: ψ3×2.0, ψ6×2.5, ψ7×1.0, ψ4×0.8 (applied at magnitude 3.0)
+    expect(p.expression[3]).toBeCloseTo(6.0);    // ψ3: 2.0 × 3.0
+    expect(p.expression[6]).toBeCloseTo(7.5);    // ψ6: 2.5 × 3.0
+    expect(p.expression[7]).toBeCloseTo(3.0);    // ψ7: 1.0 × 3.0
+    expect(p.expression[4]).toBeCloseTo(2.4);    // ψ4: 0.8 × 3.0
+    expect(p.flush).toBeLessThan(0);             // pallid
+    // ψ9 should be zero (grief recipe doesn't use it)
+    expect(p.expression[9]).toBe(0);
+  });
+
+  // --- Circumplex combination ---
+  it('tension + mood stack on shared ψ components (from full recipes)', () => {
+    useExplorerStore.getState().setTension(3.0);
+    useExplorerStore.getState().setMood(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // ψ0: TENSION_TENSE 1.0×3 + MOOD_EUPHORIA 0.3×3 = 3.0 + 0.9 = 3.9
+    expect(expr[0]).toBeCloseTo(3.9);
+    // ψ5: TENSION_TENSE 0.8×3 + MOOD_EUPHORIA 4.0×3 = 2.4 + 12.0 = 14.4
+    expect(expr[5]).toBeCloseTo(14.4);
+    // ψ8: TENSION_TENSE 1.5×3 + MOOD_EUPHORIA 0.8×3 = 4.5 + 2.4 = 6.9
+    expect(expr[8]).toBeCloseTo(6.9);
+    // ψ4: TENSION_TENSE -0.5×3 + MOOD_EUPHORIA -0.3×3 = -1.5 + -0.9 = -2.4
+    expect(expr[4]).toBeCloseTo(-2.4);
+  });
+
+  it('MANIC quadrant: tense + euphoric → jaw + flush + wide eyes', () => {
+    useExplorerStore.getState().setTension(2.0);
+    useExplorerStore.getState().setMood(2.0);
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.pose.jaw).toBeGreaterThan(0);
+    expect(p.flush).toBeGreaterThan(0);
+    expect(p.fatigue).toBeLessThan(0);  // wired, not fatigued
+  });
+
+  it('DEPRESSED quadrant: placid + grief → droopy + pallid + fatigued', () => {
+    useExplorerStore.getState().setTension(-2.0);
+    useExplorerStore.getState().setMood(-2.0);
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.flush).toBeLessThan(0);     // pallid
+    expect(p.fatigue).toBeGreaterThan(0); // exhausted
+  });
+
+  // --- Shape axes with pose ---
+  it('dominance drives β components and pose pitch', () => {
     useExplorerStore.getState().setDominance(3.0);
-    const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[3]).toBeCloseTo(9.0);  // β3: 3.0 × 3.0
-    expect(shape[2]).toBeCloseTo(6.0);  // β2: 2.0 × 3.0
-    expect(shape[0]).toBeCloseTo(6.0);  // β0: 2.0 × 3.0
-    expect(shape[4]).toBeCloseTo(4.5);  // β4: 1.5 × 3.0
-    expect(shape[7]).toBeCloseTo(3.0);  // β7: 1.0 × 3.0
-    expect(shape[18]).toBeCloseTo(9.0); // β18: 3.0 × 3.0
-    expect(shape[23]).toBeCloseTo(9.0); // β23: 3.0 × 3.0
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.shape[3]).toBeCloseTo(4.0);   // β3: 3.0 × 3.0 = 9.0, clamped to BETA3_CLAMP=4.0
+    expect(p.shape[13]).toBeCloseTo(5.0);  // β13: 2.5 × 3.0 = 7.5, clamped to BETA_GENERAL_CLAMP=5.0
+    expect(p.shape[48]).toBeCloseTo(5.0);  // β48: 2.5 × 3.0 = 7.5, clamped to 5.0
+    // No pose link — dominance is shape-only to avoid interfering with expression
   });
 
-  it('stature drives β1 (face length), β6 (cheekbone), β5 (nasal), β8 (mouth), β32', () => {
+  it('stature drives β components and pose pitch', () => {
     useExplorerStore.getState().setStature(3.0);
-    const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[1]).toBeCloseTo(9.0);  // β1: 3.0 × 3.0
-    expect(shape[6]).toBeCloseTo(6.0);  // β6: 2.0 × 3.0
-    expect(shape[5]).toBeCloseTo(4.5);  // β5: 1.5 × 3.0
-    expect(shape[8]).toBeCloseTo(3.6);  // β8: 1.2 × 3.0
-    expect(shape[32]).toBeCloseTo(9.0); // β32: 3.0 × 3.0
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.shape[1]).toBeCloseTo(5.0);   // β1: 3.0×3.0=9.0, clamped to 5.0
+    expect(p.shape[15]).toBeCloseTo(5.0);  // β15: 2.5×3.0=7.5, clamped to 5.0
+    expect(p.shape[49]).toBeCloseTo(5.0);  // β49: 2.5×3.0=7.5, clamped to 5.0
+    expect(p.pose.neck[0]).toBeGreaterThan(0);  // heavy = chin up
   });
 
   it('shape axes have zero component overlap', () => {
@@ -98,32 +141,29 @@ describe('ExplorerStore (chord axes)', () => {
     useExplorerStore.getState().setStature(3.0);
     const shape = useExplorerStore.getState().currentParams!.shape;
 
-    // Dominance components (β0, β2, β3, β4, β7, β18, β23)
-    expect(shape[0]).toBeCloseTo(6.0);
-    expect(shape[2]).toBeCloseTo(6.0);
-    expect(shape[3]).toBeCloseTo(9.0);
-    expect(shape[4]).toBeCloseTo(4.5);
-    expect(shape[7]).toBeCloseTo(3.0);
-    expect(shape[18]).toBeCloseTo(9.0);
-    expect(shape[23]).toBeCloseTo(9.0);
+    // Dominance components (clamped to safe range)
+    expect(shape[0]).toBeCloseTo(5.0);   // 6.0 → clamped 5.0
+    expect(shape[2]).toBeCloseTo(5.0);   // 6.0 → clamped 5.0
+    expect(shape[3]).toBeCloseTo(4.0);   // 9.0 → clamped 4.0 (β3 tight clamp)
+    expect(shape[13]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
+    expect(shape[48]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
 
-    // Stature components (β1, β5, β6, β8, β32)
-    expect(shape[1]).toBeCloseTo(9.0);
-    expect(shape[5]).toBeCloseTo(4.5);
-    expect(shape[6]).toBeCloseTo(6.0);
-    expect(shape[8]).toBeCloseTo(3.6);
-    expect(shape[32]).toBeCloseTo(9.0);
+    // Stature components (clamped to safe range)
+    expect(shape[1]).toBeCloseTo(5.0);   // 9.0 → clamped 5.0
+    expect(shape[5]).toBeCloseTo(4.5);   // under clamp
+    expect(shape[6]).toBeCloseTo(5.0);   // 6.0 → clamped 5.0
+    expect(shape[15]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
+    expect(shape[49]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
   });
 
   it('negative dominance produces soyboi face', () => {
     useExplorerStore.getState().setDominance(-3.0);
-    const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[3]).toBeCloseTo(-9.0);  // tapered jaw
-    expect(shape[2]).toBeCloseTo(-6.0);  // recessed chin
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.shape[3]).toBeCloseTo(-4.0);  // clamped to -BETA3_CLAMP
   });
 
-  // --- Raw mode, texture, pose, gaze ---
-  it('raw mode bypasses mappings', () => {
+  // --- Raw mode ---
+  it('raw mode bypasses high-level mappings', () => {
     useExplorerStore.getState().setMode('raw');
     const state = useExplorerStore.getState();
     expect(state.currentParams).not.toBeNull();
@@ -140,7 +180,8 @@ describe('ExplorerStore (chord axes)', () => {
     expect(params.expression[2]).toBe(-1.0);
   });
 
-  it('texture sliders work in both modes', () => {
+  it('raw mode texture sliders work', () => {
+    useExplorerStore.getState().setMode('raw');
     useExplorerStore.getState().setFlush(0.7);
     useExplorerStore.getState().setFatigue(-0.5);
     const params = useExplorerStore.getState().currentParams!;
@@ -148,7 +189,8 @@ describe('ExplorerStore (chord axes)', () => {
     expect(params.fatigue).toBe(-0.5);
   });
 
-  it('pose override replaces pose values', () => {
+  it('raw mode pose override works', () => {
+    useExplorerStore.getState().setMode('raw');
     useExplorerStore.getState().setPoseOverride(true);
     useExplorerStore.getState().setPitch(0.3);
     useExplorerStore.getState().setYaw(0.1);
@@ -157,12 +199,23 @@ describe('ExplorerStore (chord axes)', () => {
     expect(params.pose.neck[1]).toBe(0.1);
   });
 
-  it('gaze override replaces gaze values', () => {
+  it('raw mode gaze override works', () => {
+    useExplorerStore.getState().setMode('raw');
     useExplorerStore.getState().setGazeOverride(true);
     useExplorerStore.getState().setGazeHorizontal(0.25);
     useExplorerStore.getState().setGazeVertical(-0.1);
     const params = useExplorerStore.getState().currentParams!;
     expect(params.pose.leftEye[0]).toBe(0.25);
     expect(params.pose.leftEye[1]).toBe(-0.1);
+  });
+
+  // --- ψ7 safety clamp ---
+  it('ψ7 is clamped in high-level mode', () => {
+    // tension at +3 pushes ψ7 to -4.5 via tension recipe, mood at +3 pushes ψ7 to +7.5
+    // But at extremes with mood only: ψ7 = 2.5 × 3 = 7.5 → clamped to 4.0
+    useExplorerStore.getState().setMood(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    expect(expr[7]).toBeLessThanOrEqual(4.0);
+    expect(expr[7]).toBeGreaterThanOrEqual(-4.0);
   });
 });

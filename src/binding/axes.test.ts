@@ -3,6 +3,10 @@ import { EXPR_AXES, SHAPE_AXES, applyMapping, EXPR_AXIS_NAMES, SHAPE_AXIS_NAMES 
 import { N_SHAPE, N_EXPR } from '../constants';
 
 describe('EXPR_AXES', () => {
+  it('has tension and mood axes', () => {
+    expect(EXPR_AXIS_NAMES).toEqual(['tension', 'mood']);
+  });
+
   it('all indices are within ψ0-ψ9', () => {
     for (const axis of EXPR_AXIS_NAMES) {
       for (const [idx] of EXPR_AXES[axis]) {
@@ -20,6 +24,20 @@ describe('EXPR_AXES', () => {
         expect(Math.abs(target[i]), `${axis} ψ${i} = ${target[i]}`).toBeLessThanOrEqual(21.5);
       }
     }
+  });
+
+  it('tension uses new ψ4, ψ5 components', () => {
+    const target = new Float32Array(N_EXPR);
+    applyMapping(target, EXPR_AXES.tension, 1.0);
+    expect(target[5]).toBeCloseTo(0.8);   // ψ5: upper lip raiser
+    expect(target[4]).toBeCloseTo(-0.5);  // ψ4: lip unpucker
+  });
+
+  it('mood uses ψ5 (bilateral smile driver) and ψ9 (cheek puff)', () => {
+    const target = new Float32Array(N_EXPR);
+    applyMapping(target, EXPR_AXES.mood, 1.0);
+    expect(target[5]).toBeCloseTo(4.0);   // ψ5: upper lip lift (primary smile, cranked)
+    expect(target[9]).toBeCloseTo(5.0);   // ψ9: cheek puff (ecstatic grin)
   });
 });
 
@@ -42,27 +60,42 @@ describe('SHAPE_AXES', () => {
       }
     }
   });
+
+  it('dominance includes new mid-frequency β13, β48', () => {
+    const target = new Float32Array(N_SHAPE);
+    applyMapping(target, SHAPE_AXES.dominance, 1.0);
+    expect(target[13]).toBeCloseTo(2.5);  // β13: facial structure detail
+    expect(target[48]).toBeCloseTo(2.5);  // β48: skull refinement
+  });
+
+  it('stature includes new mid-frequency β15, β49', () => {
+    const target = new Float32Array(N_SHAPE);
+    applyMapping(target, SHAPE_AXES.stature, 1.0);
+    expect(target[15]).toBeCloseTo(2.5);  // β15: bone structure
+    expect(target[49]).toBeCloseTo(2.5);  // β49: surface detail
+  });
 });
 
 describe('applyMapping', () => {
   it('adds weighted values to target', () => {
     const target = new Float32Array(N_EXPR);
-    applyMapping(target, EXPR_AXES.alarm, 2.0);
-    // Alarm: [[0, 1.0], [2, 2.0], [8, 1.5]]
+    applyMapping(target, EXPR_AXES.tension, 2.0);
+    // Tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]]
+    expect(target[2]).toBeCloseTo(5.0);
     expect(target[0]).toBeCloseTo(2.0);
-    expect(target[2]).toBeCloseTo(4.0);
     expect(target[8]).toBeCloseTo(3.0);
-    // All other indices should be 0
+    expect(target[7]).toBeCloseTo(-3.0);
+    // Unused indices should be 0
     expect(target[1]).toBe(0);
     expect(target[3]).toBe(0);
   });
 
   it('stacks when called multiple times', () => {
     const target = new Float32Array(N_EXPR);
-    applyMapping(target, EXPR_AXES.alarm, 1.0);
-    applyMapping(target, EXPR_AXES.arousal, 1.0);
-    // ψ2: alarm 2.0 + arousal 3.0 = 5.0
-    expect(target[2]).toBeCloseTo(5.0);
+    applyMapping(target, EXPR_AXES.tension, 1.0);
+    applyMapping(target, EXPR_AXES.mood, 1.0);
+    // ψ0: tension 1.0 + mood 0.3 = 1.3
+    expect(target[0]).toBeCloseTo(1.3);
   });
 
   it('handles negative values', () => {

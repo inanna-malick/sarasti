@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   sigmoid,
   symmetricSigmoid,
-  softmax,
   computeChordActivations,
   resolveExpressionChords,
   resolveShapeChords,
@@ -18,7 +17,6 @@ describe('math utilities', () => {
   it('sigmoid is bounded [0, 1]', () => {
     expect(sigmoid(-100, 6)).toBeGreaterThanOrEqual(0);
     expect(sigmoid(100, 6)).toBeLessThanOrEqual(1);
-    // At moderate inputs, strictly between 0 and 1
     expect(sigmoid(-5, 6)).toBeGreaterThan(0);
     expect(sigmoid(5, 6)).toBeLessThan(1);
   });
@@ -30,73 +28,49 @@ describe('math utilities', () => {
   it('symmetricSigmoid is bounded [-1, 1]', () => {
     expect(symmetricSigmoid(-100, 6)).toBeGreaterThanOrEqual(-1);
     expect(symmetricSigmoid(100, 6)).toBeLessThanOrEqual(1);
-    // At moderate inputs, strictly between -1 and 1
     expect(symmetricSigmoid(-5, 6)).toBeGreaterThan(-1);
     expect(symmetricSigmoid(5, 6)).toBeLessThan(1);
   });
-
-  it('softmax sums to 1', () => {
-    const result = softmax([1, 2, 3], 0.5);
-    const sum = result.reduce((a, b) => a + b, 0);
-    expect(sum).toBeCloseTo(1, 10);
-  });
-
-  it('softmax with τ=0.5 produces winner-take-most', () => {
-    const result = softmax([0.9, 0.3, 0.1], 0.5);
-    // Largest input should get dominant weight
-    expect(result[0]).toBeGreaterThan(0.5);
-    expect(result[0]).toBeGreaterThan(result[1]);
-    expect(result[1]).toBeGreaterThan(result[2]);
-  });
 });
 
-describe('computeChordActivations', () => {
-  it('neutral frame → moderate activations', () => {
+describe('computeChordActivations (2-axis circumplex)', () => {
+  it('neutral frame → finite activations', () => {
     const frame = makeTickerFrame();
     const act = computeChordActivations(frame);
 
-    expect(act.wAlarm + act.wValence + act.wArousal).toBeCloseTo(1, 5);
+    expect(Number.isFinite(act.tension)).toBe(true);
+    expect(Number.isFinite(act.mood)).toBe(true);
     expect(Number.isFinite(act.dominance)).toBe(true);
     expect(Number.isFinite(act.stature)).toBe(true);
   });
 
-  it('high volatility × velocity → alarm dominates', () => {
+  it('high volatility × velocity → positive tension (tense)', () => {
     const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.rawAlarm).toBeGreaterThan(0.5);
-    expect(act.wAlarm).toBeGreaterThan(act.wValence);
-    expect(act.wAlarm).toBeGreaterThan(act.wArousal);
+    expect(act.tension).toBeGreaterThan(0);
   });
 
-  it('high positive deviation → valence positive', () => {
+  it('low activity → negative tension (placid)', () => {
+    // Low vol×vel (acute near 0), positive drawdown → -(dd) negative → chronic placid
+    const frame = makeTickerFrame({ volatility: 0, velocity: 0, drawdown: 2.0 });
+    const act = computeChordActivations(frame);
+
+    expect(act.tension).toBeLessThan(0);
+  });
+
+  it('high positive deviation → positive mood (euphoric)', () => {
     const frame = makeTickerFrame({ deviation: 2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.rawValence).toBeGreaterThan(0);
-    expect(act.valenceSign).toBe(1);
+    expect(act.mood).toBeGreaterThan(0);
   });
 
-  it('high negative deviation → valence negative', () => {
+  it('high negative deviation → negative mood (grief)', () => {
     const frame = makeTickerFrame({ deviation: -2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.rawValence).toBeLessThan(0);
-    expect(act.valenceSign).toBe(-1);
-  });
-
-  it('deep drawdown → arousal negative (exhausted)', () => {
-    const frame = makeTickerFrame({ drawdown: -2.0 });
-    const act = computeChordActivations(frame);
-
-    // -(drawdown_z) with negative drawdown → positive arousal input
-    // But drawdown_z = -2.0, so -(-2.0) = +2.0 → positive arousal → alert
-    // Wait: drawdown is already negative. With z-score, the sign depends on stats.
-    // Without stats, drawdown = -2.0, -(dd_z) = -(-2.0) = 2.0 → positive → alert
-    // Actually no: rawArousal = symmetricSigmoid(-(dd_z + exchFatigue), 6)
-    // dd_z = -2.0 (no stats), so -((-2.0) + 0) = 2.0 → positive
-    expect(act.rawArousal).toBeGreaterThan(0);
-    expect(act.arousalSign).toBe(1);
+    expect(act.mood).toBeLessThan(0);
   });
 
   it('positive momentum → positive dominance (chad)', () => {
@@ -112,19 +86,68 @@ describe('computeChordActivations', () => {
 
     expect(act.dominance).toBeLessThan(0);
   });
+
+  it('tension is bounded [-1, 1]', () => {
+    const extreme = makeTickerFrame({ volatility: 10, velocity: 10, drawdown: -10 });
+    const act = computeChordActivations(extreme);
+    expect(act.tension).toBeGreaterThanOrEqual(-1);
+    expect(act.tension).toBeLessThanOrEqual(1);
+  });
+
+  it('mood is bounded [-1, 1]', () => {
+    const extreme = makeTickerFrame({ deviation: 10 });
+    const act = computeChordActivations(extreme);
+    expect(act.mood).toBeGreaterThanOrEqual(-1);
+    expect(act.mood).toBeLessThanOrEqual(1);
+  });
 });
 
-describe('resolveExpressionChords', () => {
-  it('alarm-dominant → ψ2 (brow up) and ψ8 (nose wrinkle)', () => {
+describe('resolveExpressionChords (2-axis)', () => {
+  it('tense → ψ2 (brow up), ψ8 (nose wrinkle), ψ7 negative (eyes open)', () => {
     const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
 
     expect(result.expression[2]).toBeGreaterThan(0); // brow raise
     expect(result.expression[8]).toBeGreaterThan(0); // nose wrinkle
+    expect(result.expression[7]).toBeLessThan(0);    // eyes snap open
   });
 
-  it('valence euphoria → ψ9 positive (cheek puff), ψ7 positive (Duchenne)', () => {
+  it('tense → ψ5 positive (snarl), ψ4 negative (lips part)', () => {
+    const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
+    const act = computeChordActivations(frame);
+    const result = resolveExpressionChords(act);
+
+    expect(result.expression[5]).toBeGreaterThan(0); // upper lip raises
+    expect(result.expression[4]).toBeLessThan(0);    // lips part
+  });
+
+  it('tense → fatigue is negative (wired)', () => {
+    const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
+    const act = computeChordActivations(frame);
+    const result = resolveExpressionChords(act);
+
+    expect(result.fatigue).toBeLessThan(0); // wired, not fatigued
+  });
+
+  it('placid → ψ2 negative (brow sags), ψ7 positive (heavy lids)', () => {
+    const frame = makeTickerFrame({ volatility: 0, velocity: 0, drawdown: 2.0 });
+    const act = computeChordActivations(frame);
+    const result = resolveExpressionChords(act);
+
+    expect(result.expression[2]).toBeLessThan(0); // brow sags
+    expect(result.expression[7]).toBeGreaterThan(0); // eyelid droop
+  });
+
+  it('placid → fatigue is positive (exhausted)', () => {
+    const frame = makeTickerFrame({ volatility: 0, velocity: 0, drawdown: 2.0 });
+    const act = computeChordActivations(frame);
+    const result = resolveExpressionChords(act);
+
+    expect(result.fatigue).toBeGreaterThan(0); // exhausted
+  });
+
+  it('euphoric → ψ9 positive (cheek puff), ψ7 positive (Duchenne)', () => {
     const frame = makeTickerFrame({ deviation: 2.0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
@@ -133,7 +156,15 @@ describe('resolveExpressionChords', () => {
     expect(result.expression[7]).toBeGreaterThan(0); // Duchenne crinkle
   });
 
-  it('valence grief → ψ6 positive (lip sag), ψ3 positive (brow furrow)', () => {
+  it('euphoric → flush is positive (warm glow)', () => {
+    const frame = makeTickerFrame({ deviation: 2.0 });
+    const act = computeChordActivations(frame);
+    const result = resolveExpressionChords(act);
+
+    expect(result.flush).toBeGreaterThan(0); // warm glow
+  });
+
+  it('grief → ψ6 positive (lip sag), ψ3 positive (brow furrow)', () => {
     const frame = makeTickerFrame({ deviation: -2.0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
@@ -142,8 +173,15 @@ describe('resolveExpressionChords', () => {
     expect(result.expression[3]).toBeGreaterThan(0); // brow furrow
   });
 
+  it('grief → flush is negative (pallid)', () => {
+    const frame = makeTickerFrame({ deviation: -2.0 });
+    const act = computeChordActivations(frame);
+    const result = resolveExpressionChords(act);
+
+    expect(result.flush).toBeLessThan(0); // pallid
+  });
+
   it('ψ7 is clamped to safe range', () => {
-    // Create extreme conditions that would push ψ7 beyond limits
     const frame = makeTickerFrame({ drawdown: 3.0, deviation: -3.0, volatility: 0, velocity: 0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
@@ -152,7 +190,7 @@ describe('resolveExpressionChords', () => {
     expect(result.expression[7]).toBeLessThanOrEqual(PSI7_CLAMP);
   });
 
-  it('alarm contributes jaw opening via pose', () => {
+  it('tension contributes jaw opening via pose', () => {
     const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
@@ -160,12 +198,20 @@ describe('resolveExpressionChords', () => {
     expect(result.pose.jaw).toBeGreaterThan(0);
   });
 
-  it('alarm contributes flush via texture', () => {
-    const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
-    const act = computeChordActivations(frame);
-    const result = resolveExpressionChords(act);
+  it('texture ownership: tension→fatigue, mood→flush', () => {
+    // Pure tension (no mood signal)
+    const tensionFrame = makeTickerFrame({ volatility: 3.0, velocity: 2.0, deviation: 0 });
+    const tensionAct = computeChordActivations(tensionFrame);
+    const tensionResult = resolveExpressionChords(tensionAct);
+    expect(tensionResult.fatigue).not.toBe(0); // tension drives fatigue
+    // flush should be near zero from mood (deviation=0 → mood≈0)
+    expect(Math.abs(tensionResult.flush)).toBeLessThan(0.1);
 
-    expect(result.flush).toBeGreaterThan(0);
+    // Pure mood (no tension signal)
+    const moodFrame = makeTickerFrame({ deviation: 2.0, volatility: 0, velocity: 0, drawdown: 0 });
+    const moodAct = computeChordActivations(moodFrame);
+    const moodResult = resolveExpressionChords(moodAct);
+    expect(moodResult.flush).not.toBe(0); // mood drives flush
   });
 });
 
@@ -186,19 +232,38 @@ describe('resolveShapeChords', () => {
     expect(shape[3]).toBeGreaterThanOrEqual(-BETA3_CLAMP);
   });
 
-  it('dominance drives identity pose (chad = chin up)', () => {
+  it('dominance is shape-only (no pose link)', () => {
     const frame = makeTickerFrame({ momentum: 2.0 });
     const act = computeChordActivations(frame);
     const { pose } = resolveShapeChords(act);
 
-    expect(pose.pitch).toBeGreaterThan(0); // head thrown back
+    // Dominance has no pose — only stature contributes
+    expect(Math.abs(pose.pitch)).toBeLessThan(0.1);
+  });
+
+  it('dominance includes mid-frequency enrichment (β13, β48)', () => {
+    const frame = makeTickerFrame({ momentum: 2.0 });
+    const act = computeChordActivations(frame);
+    const { shape } = resolveShapeChords(act);
+
+    expect(shape[13]).toBeGreaterThan(0); // β13: facial structure detail
+    expect(shape[48]).toBeGreaterThan(0); // β48: skull refinement
+  });
+
+  it('stature includes mid-frequency enrichment (β15, β49)', () => {
+    const frame = makeTickerFrame({ beta: 2.5, deviation: 0.5 });
+    const act = computeChordActivations(frame);
+    const { shape } = resolveShapeChords(act);
+
+    expect(shape[15]).not.toBe(0); // β15: bone structure
+    expect(shape[49]).not.toBe(0); // β49: surface detail
   });
 
   it('zero overlap between dominance and stature components', () => {
-    // Dominance uses β0, β2, β3, β4, β7, β18, β23
-    // Stature uses β1, β5, β6, β8, β32
-    const domComponents = new Set([0, 2, 3, 4, 7, 18, 23]);
-    const statComponents = new Set([1, 5, 6, 8, 32]);
+    // Dominance: β0, β2, β3, β4, β7, β13, β18, β23, β48
+    // Stature: β1, β5, β6, β8, β15, β32, β49
+    const domComponents = new Set([0, 2, 3, 4, 7, 13, 18, 23, 48]);
+    const statComponents = new Set([1, 5, 6, 8, 15, 32, 49]);
     for (const d of domComponents) {
       expect(statComponents.has(d)).toBe(false);
     }

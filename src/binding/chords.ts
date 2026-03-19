@@ -1,17 +1,20 @@
 /**
- * Chord Architecture — 5-axis consolidation.
+ * Chord Architecture — 2-axis expression circumplex + 2 shape axes.
  *
- * 3 expression chords (alarm, valence, arousal) compete via temperature-controlled softmax.
- * 2 shape axes (dominance, stature) are additive with EMA smoothing.
+ * Expression: Tension (tense↔placid) × Mood (euphoric↔grief) — Russell circumplex.
+ * Shape: Dominance (soyboi↔chad) × Stature (heavy↔gaunt) — additive with EMA smoothing.
  *
- * Each expression chord orchestrates expression ψ + pose + gaze + texture simultaneously.
+ * No softmax — the two expression axes are orthogonal. Component overlap (ψ0, ψ3, ψ4, ψ5, ψ7, ψ8)
+ * produces natural circumplex blending. Max ψ7 overlap at both axes full: ~3.5, within ±4 clamp.
+ *
+ * Texture ownership: Tension→fatigue (exclusive), Mood→flush (exclusive).
  */
 
 import type { TickerFrame } from '../types';
 import type { DatasetStats, TickerStats, SignalStats } from '../data/stats';
 import { computeExchangeFatigue } from './exchange';
 import type { Exchange } from '../types';
-import { SOFTMAX_TEMPERATURE, PSI7_CLAMP, BETA3_CLAMP, N_EXPR, N_SHAPE } from '../constants';
+import { PSI7_CLAMP, BETA3_CLAMP, BETA_GENERAL_CLAMP, N_EXPR, N_SHAPE } from '../constants';
 
 // ─── Types ───────────────────────────────────────────
 
@@ -49,18 +52,10 @@ export interface ShapeChordRecipe {
 }
 
 export interface ChordActivations {
-  /** Raw chord activations before softmax */
-  rawAlarm: number;
-  rawValence: number;
-  rawArousal: number;
-  /** Softmax weights (sum to 1) */
-  wAlarm: number;
-  wValence: number;
-  wArousal: number;
-  /** Signs for bipolar chords (all three are now bipolar) */
-  alarmSign: number;
-  valenceSign: number;
-  arousalSign: number;
+  /** Tension axis: -1 (placid) to +1 (tense) */
+  tension: number;
+  /** Mood axis: -1 (grief) to +1 (euphoric) */
+  mood: number;
   /** Shape axis values (not softmaxed) */
   dominance: number;
   stature: number;
@@ -68,78 +63,60 @@ export interface ChordActivations {
 
 // ─── Chord Recipes ───────────────────────────────────
 
-/** ALARM ← volatility × |velocity| (bipolar: placid ↔ alarm) */
-export const ALARM_RECIPE: ExpressionChordRecipe = {
+/** TENSION TENSE (+): acute volatility × |velocity| + chronic drawdown */
+export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [0, 1.0],  // ψ0: jaw seasoning (heavy lifting via pose jaw)
-    [2, 2.0],  // ψ2: brow rockets up
-    [8, 1.5],  // ψ8: nose wrinkle
+    [2, 2.5],   // ψ2: brow rockets up
+    [0, 1.0],   // ψ0: jaw seasoning
+    [8, 1.5],   // ψ8: nose wrinkle
+    [7, -1.5],  // ψ7: eyes snap open
+    [5, 0.8],   // ψ5: upper lip raises — slight snarl
+    [4, -0.5],  // ψ4: lips part — unpucker
   ],
-  pose: { jaw: 0.3, pitch: -0.08 },
-  gaze: { gazeV: 0.12 },
-  texture: { flush: 0.3 },
+  pose: { jaw: 0.3, pitch: -0.06 },
+  gaze: { gazeV: 0.10 },
+  texture: { fatigue: -0.3 },  // wired, not fatigued
 };
 
-export const ALARM_PLACID_RECIPE: ExpressionChordRecipe = {
+/** TENSION PLACID (−): low activation, drowsy */
+export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [7, 1.0],   // ψ7: slight eyelid relax (soft eyes)
-    [2, -0.5],  // ψ2: brow settles down
-    [3, -0.3],  // ψ3: glabella smooths
+    [2, -2.0],  // ψ2: brow sags
+    [7, 2.0],   // ψ7: eyelid droop — heavy lids
+    [3, 0.8],   // ψ3: brow furrow — mild
+    [4, 0.5],   // ψ4: lips purse — resting
   ],
-  pose: { pitch: 0.03 },
-  gaze: {},
-  texture: { fatigue: 0.1 },
+  pose: { pitch: -0.10 },
+  gaze: { gazeV: -0.08 },
+  texture: { fatigue: 0.5 },  // exhausted
 };
 
-/** VALENCE ← deviation (bipolar, -1 to +1) */
-// ψ1 is ANTISYMMETRIC (self-reflection = -0.898) — banned.
-// Smile: ψ0 (jaw open) + ψ9 (cheek puff, symmetric at 0.937) + ψ7 (Duchenne crinkle).
-// Grief: ψ3 (brow furrow) + ψ6 (lower lip sag) + ψ7 (droop).
-export const VALENCE_EUPHORIA_RECIPE: ExpressionChordRecipe = {
+/** MOOD EUPHORIC (+): positive deviation → warm glow, big bilateral smile */
+export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [0, 1.5],   // ψ0: jaw opens slightly (smile aperture)
-    [9, 3.0],   // ψ9: cheek puff — lifts cheeks, reads as smile
-    [7, 1.5],   // ψ7: Duchenne crinkle (positive = partial close)
-    [8, 0.5],   // ψ8: light nose wrinkle — genuine smile microexpression
+    [5, 4.0],   // ψ5: upper lip lift — PRIMARY bilateral smile driver, cranked hard
+    [9, 5.0],   // ψ9: cheek puff — lifts cheeks, reads as ecstatic grin
+    [7, 2.5],   // ψ7: Duchenne crinkle — squinting eye smile (the real tell)
+    [4, -0.3],  // ψ4: slight mouth widen — grin, not gape
+    [0, 0.3],   // ψ0: minimal jaw — grin is closed-mouth, jaw comes from tension
+    [8, 0.8],   // ψ8: nose wrinkle — genuine smile
   ],
-  pose: { pitch: 0.06, yaw: 0.04 },
+  pose: { pitch: 0.08, yaw: 0.04 },
   gaze: { gazeH: 0.08 },
-  texture: { flush: 0.15 },
+  texture: { flush: 0.4 },  // strong warm glow
 };
 
-export const VALENCE_GRIEF_RECIPE: ExpressionChordRecipe = {
+/** MOOD GRIEF (−): negative deviation → pallid */
+export const MOOD_GRIEF_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [3, 2.0],  // ψ3: brow furrow — sadness knit
-    [6, 2.5],  // ψ6: lower lip depressor — mouth sags
-    [7, 1.0],  // ψ7: slight eyelid droop — weary sadness
+    [3, 2.0],   // ψ3: brow furrow — sadness knit
+    [6, 2.5],   // ψ6: lower lip sag
+    [7, 1.0],   // ψ7: eyelid droop — weary
+    [4, 0.8],   // ψ4: lip pucker — grief purse
   ],
   pose: { pitch: -0.10, roll: -0.04 },
   gaze: { gazeV: -0.08 },
-  texture: { fatigue: 0.25 },
-};
-
-/** AROUSAL ← -(drawdown + exchangeFatigue) (bipolar, -1 to +1) */
-// Weights scaled so geometry stays clean through full ±3 slider range.
-// Max ψ2 at slider=3: 3.0 × 3.0 = 9.0 (within ±10 artifact threshold).
-export const AROUSAL_ALERT_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [2, 3.0],   // ψ2: brow raise (was 7.0 — broke geometry)
-    [7, -1.5],  // ψ7: eyes snap open (was -3.0)
-  ],
-  pose: { pitch: 0.04 },
-  gaze: { gazeV: 0.06 },
-  texture: { flush: 0.1 },
-};
-
-export const AROUSAL_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [2, -2.5],  // ψ2: brow sags (was -5.0)
-    [7, 2.0],   // ψ7: eyelid droop (was 4.0)
-    [3, 1.0],   // ψ3: brow furrow (was 2.0)
-  ],
-  pose: { pitch: -0.12 },
-  gaze: { gazeV: -0.10 },
-  texture: { fatigue: 0.4 },
+  texture: { flush: -0.2 },  // pallid — negative flush
 };
 
 /** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar) */
@@ -150,11 +127,12 @@ export const DOMINANCE_RECIPE: ShapeChordRecipe = {
     [0, 2.0],   // β0: neck thickness / global width
     [4, 1.5],   // β4: brow ridge prominence
     [7, 1.0],   // β7: mid-face width (SYM 0.94)
-    [18, 3.0],  // β18: localized structure refinement (SYM 0.886, needs higher weight — low displacement)
-    [23, 3.0],  // β23: bone structure detail (SYM 0.856, same)
+    [18, 3.0],  // β18: localized structure refinement (SYM 0.886)
+    [23, 3.0],  // β23: bone structure detail (SYM 0.856)
+    [13, 2.5],  // β13: facial structure detail (mixed 0.671)
+    [48, 2.5],  // β48: high-freq skull refinement (mixed 0.780)
   ],
-  /** Pose identity: chad = head thrown back, soyboi = chin tucked */
-  pose: { pitch: 0.06 },
+  // No pose link — dominance chin tuck interferes with expression (e.g. the scream)
 };
 
 /** STATURE (Heavy↔Gaunt) ← |1-beta| with sign from deviation */
@@ -164,7 +142,9 @@ export const STATURE_RECIPE: ShapeChordRecipe = {
     [6, 2.0],   // β6: cheekbone prominence
     [5, 1.5],   // β5: nasal bridge
     [8, 1.2],   // β8: mouth size (SYM 0.862)
-    [32, 3.0],  // β32: skull surface detail (SYM 0.938, needs higher weight — low displacement)
+    [32, 3.0],  // β32: skull surface detail (SYM 0.938)
+    [15, 2.5],  // β15: mid-freq bone structure (mixed 0.704)
+    [49, 2.5],  // β49: high-freq surface detail (mixed 0.761)
   ],
   /** Pose identity: heavy = chin slightly up (commanding), gaunt = head slightly forward */
   pose: { pitch: 0.03 },
@@ -182,15 +162,6 @@ export function symmetricSigmoid(x: number, steepness: number): number {
   return 2 * sigmoid(x, steepness) - 1;
 }
 
-/** Softmax with temperature parameter. */
-export function softmax(values: number[], temperature: number): number[] {
-  const scaled = values.map(v => v / temperature);
-  const maxVal = Math.max(...scaled);
-  const exps = scaled.map(v => Math.exp(v - maxVal));
-  const sum = exps.reduce((a, b) => a + b, 0);
-  return exps.map(e => e / sum);
-}
-
 /** Z-score normalize a value against its ticker's history, clamped to ±3. */
 function zScore(value: number, stats: SignalStats): number {
   const z = (value - stats.mean) / Math.max(stats.std, 1e-6);
@@ -200,7 +171,7 @@ function zScore(value: number, stats: SignalStats): number {
 // ─── Chord Computation ──────────────────────────────
 
 /**
- * Compute raw chord activations from a TickerFrame.
+ * Compute chord activations from a TickerFrame.
  * When stats/tickerId are provided, inputs are z-score normalized first.
  */
 export function computeChordActivations(
@@ -219,58 +190,33 @@ export function computeChordActivations(
   const mom_z = ts ? zScore(frame.momentum, ts.momentum) : frame.momentum;
   const beta_z = ts ? zScore(1 - frame.beta, ts.beta) : (1 - frame.beta);
 
-  // Exchange fatigue
+  // Exchange fatigue (for tension chronic component)
   let exchFatigue = 0;
-  if (timestamp && (frame as TickerFrame & { exchange?: Exchange }).exchange) {
-    // Exchange is on the ticker config, not the frame — caller may provide it separately
-  }
-  // For now, use drawdown alone; exchange fatigue blended in resolve.ts
+  // Exchange fatigue blended in resolve.ts via texture accumulator
 
-  // ─── Expression chord raw activations ──────────
-  // ALARM ← volatility × |velocity| (bipolar: positive = alarmed, negative = placid)
-  // High vol×|vel| → alarm, low → placid
-  const rawAlarm = symmetricSigmoid(vol_z * Math.abs(vel_z) - 0.5, 6);
+  // ─── Tension: acute + chronic blend ────────────
+  // Acute: volatility × |velocity| (high vol×|vel| → tense)
+  // Chronic: -(drawdown + exchangeFatigue) (deep drawdown → placid/exhausted)
+  const acute = symmetricSigmoid(vol_z * Math.abs(vel_z) - 0.5, 6);
+  const chronic = symmetricSigmoid(-(dd_z + exchFatigue), 6);
+  const tension = 0.6 * acute + 0.4 * chronic;
 
-  // VALENCE ← deviation (bipolar)
-  const rawValence = symmetricSigmoid(dev_z, 6);
+  // ─── Mood: deviation (bipolar) ─────────────────
+  const mood = symmetricSigmoid(dev_z, 6);
 
-  // AROUSAL ← -(drawdown + exchangeFatigue) (bipolar)
-  const rawArousal = symmetricSigmoid(-(dd_z + exchFatigue), 6);
-
-  // ─── Softmax competition ──────────────────────
-  const [wAlarm, wValence, wArousal] = softmax(
-    [rawAlarm, Math.abs(rawValence), Math.abs(rawArousal)],
-    SOFTMAX_TEMPERATURE,
-  );
-
-  // ─── Shape axes (not softmaxed) ───────────────
-  // DOMINANCE ← momentum (bipolar)
+  // ─── Shape axes (independent) ──────────────────
   const dominance = symmetricSigmoid(mom_z, 6);
-
-  // STATURE ← |1-beta| with sign from deviation
   const statureSign = dev_z >= 0 ? 1 : -1;
   const stature = sigmoid(Math.abs(beta_z), 6) * statureSign;
 
-  return {
-    rawAlarm,
-    rawValence,
-    rawArousal,
-    wAlarm,
-    wValence,
-    wArousal,
-    alarmSign: Math.sign(rawAlarm) || 1,
-    valenceSign: Math.sign(rawValence) || 1,
-    arousalSign: Math.sign(rawArousal) || 1,
-    dominance,
-    stature,
-  };
+  return { tension, mood, dominance, stature };
 }
 
 /**
- * Compute exchange fatigue for arousal chord input.
- * Returns fatigue value to add to drawdown_z for arousal computation.
+ * Compute exchange fatigue for tension chord input.
+ * Returns fatigue value to add to drawdown_z for tension computation.
  */
-export function computeExchangeFatigueForArousal(
+export function computeExchangeFatigueForTension(
   exchange: Exchange | undefined,
   timestamp: string | undefined,
 ): number {
@@ -290,8 +236,8 @@ export interface ChordResult {
 }
 
 /**
- * Apply expression chord recipes with softmax weights.
- * Returns accumulated expression + pose + gaze + texture.
+ * Apply expression chord recipes — 2-axis circumplex, no softmax.
+ * Tension and Mood are orthogonal; component overlap produces natural blending.
  */
 export function resolveExpressionChords(activations: ChordActivations): ChordResult {
   const expression = new Float32Array(N_EXPR);
@@ -299,41 +245,33 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
   let gazeH = 0, gazeV = 0;
   let flush = 0, fatigue = 0;
 
-  // Helper: apply a recipe scaled by weight and sign
-  function applyRecipe(recipe: ExpressionChordRecipe, weight: number, sign: number) {
-    const s = weight * sign;
+  // Helper: apply a recipe scaled by magnitude
+  function applyRecipe(recipe: ExpressionChordRecipe, magnitude: number) {
     for (const [idx, w] of recipe.expression) {
-      expression[idx] += w * s;
+      expression[idx] += w * magnitude;
     }
-    if (recipe.pose.pitch) pitch += recipe.pose.pitch * s;
-    if (recipe.pose.yaw) yaw += recipe.pose.yaw * s;
-    if (recipe.pose.roll) roll += recipe.pose.roll * s;
-    if (recipe.pose.jaw) jaw += recipe.pose.jaw * Math.abs(s); // jaw is always positive
-    if (recipe.gaze.gazeH) gazeH += recipe.gaze.gazeH * s;
-    if (recipe.gaze.gazeV) gazeV += recipe.gaze.gazeV * s;
-    if (recipe.texture.flush) flush += recipe.texture.flush * Math.abs(s);
-    if (recipe.texture.fatigue) fatigue += recipe.texture.fatigue * Math.abs(s);
+    if (recipe.pose.pitch) pitch += recipe.pose.pitch * magnitude;
+    if (recipe.pose.yaw) yaw += recipe.pose.yaw * magnitude;
+    if (recipe.pose.roll) roll += recipe.pose.roll * magnitude;
+    if (recipe.pose.jaw) jaw += recipe.pose.jaw * Math.abs(magnitude); // jaw always positive
+    if (recipe.gaze.gazeH) gazeH += recipe.gaze.gazeH * magnitude;
+    if (recipe.gaze.gazeV) gazeV += recipe.gaze.gazeV * magnitude;
+    if (recipe.texture.flush) flush += recipe.texture.flush * magnitude;
+    if (recipe.texture.fatigue) fatigue += recipe.texture.fatigue * magnitude;
   }
 
-  // ALARM (bipolar — positive = alarmed, negative = placid)
-  if (activations.alarmSign >= 0) {
-    applyRecipe(ALARM_RECIPE, activations.wAlarm, Math.abs(activations.rawAlarm));
+  // TENSION (bipolar: positive = tense, negative = placid)
+  if (activations.tension >= 0) {
+    applyRecipe(TENSION_TENSE_RECIPE, activations.tension);
   } else {
-    applyRecipe(ALARM_PLACID_RECIPE, activations.wAlarm, Math.abs(activations.rawAlarm));
+    applyRecipe(TENSION_PLACID_RECIPE, Math.abs(activations.tension));
   }
 
-  // VALENCE (bipolar — pick recipe based on sign)
-  if (activations.valenceSign >= 0) {
-    applyRecipe(VALENCE_EUPHORIA_RECIPE, activations.wValence, Math.abs(activations.rawValence));
+  // MOOD (bipolar: positive = euphoric, negative = grief)
+  if (activations.mood >= 0) {
+    applyRecipe(MOOD_EUPHORIA_RECIPE, activations.mood);
   } else {
-    applyRecipe(VALENCE_GRIEF_RECIPE, activations.wValence, Math.abs(activations.rawValence));
-  }
-
-  // AROUSAL (bipolar — pick recipe based on sign)
-  if (activations.arousalSign >= 0) {
-    applyRecipe(AROUSAL_ALERT_RECIPE, activations.wArousal, Math.abs(activations.rawArousal));
-  } else {
-    applyRecipe(AROUSAL_EXHAUSTED_RECIPE, activations.wArousal, Math.abs(activations.rawArousal));
+    applyRecipe(MOOD_GRIEF_RECIPE, Math.abs(activations.mood));
   }
 
   // ψ7 safety clamp
@@ -374,8 +312,15 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
   // STATURE
   applyShape(STATURE_RECIPE, activations.stature);
 
-  // β3 safety clamp (jaw collapse prevention)
+  // Per-component safety clamps
+  // β3 has tighter clamp (jaw collapse at -4σ)
   shape[3] = Math.max(-BETA3_CLAMP, Math.min(BETA3_CLAMP, shape[3]));
+  // General clamp: artifacts begin ~±5σ, mesh inversion by ~±10σ
+  for (let i = 0; i < N_SHAPE; i++) {
+    if (i !== 3) { // β3 already clamped tighter
+      shape[i] = Math.max(-BETA_GENERAL_CLAMP, Math.min(BETA_GENERAL_CLAMP, shape[i]));
+    }
+  }
 
   return { shape, pose: { pitch, yaw, roll } };
 }

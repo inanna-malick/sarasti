@@ -2,51 +2,48 @@
  * Shared axis definitions for FLAME parameter mapping.
  * Single source of truth — both explorer and binding import from here.
  *
- * Expression chords: alarm, valence, arousal — orchestrate expression + pose + gaze + texture.
+ * Expression axes: tension (tense↔placid), mood (euphoric↔grief) — Russell circumplex.
  * Shape axes: dominance (Soyboi↔Chad), stature (Heavy↔Gaunt) — additive, EMA-smoothed.
  *
  * Component catalog (FLAME 2023 Open PCA ordering):
  *   ψ0: jaw drop            ψ1: smile/frown (ASYMMETRIC) ψ2: brow raise
  *   ψ3: brow furrow         ψ4: lip pucker               ψ5: upper lip raiser
  *   ψ6: lower lip depressor ψ7: eyelid close             ψ8: nose wrinkler
- *   ψ9: cheek puffer (ASYMMETRIC)
+ *   ψ9: cheek puffer
  *
  *   β0: global width/neck   β1: face length    β2: chin projection
  *   β3: mandibular width    β4: brow ridge     β5: nasal bridge
  *   β6: cheekbone prominence β8: mouth size
  *
- * ψ1 and ψ9 are ASYMMETRIC — banned from bilateral expression axes.
- * Safe symmetric set: ψ0, ψ2, ψ3, ψ4, ψ5, ψ6, ψ7, ψ8.
+ * ψ1 is ASYMMETRIC — banned from bilateral expression axes.
+ * Safe symmetric set: ψ0, ψ2, ψ3, ψ4, ψ5, ψ6, ψ7, ψ8, ψ9.
  */
 
-// Expression axes — chord-based recipes reference these directly in chords.ts.
-// These mappings are preserved for the library API (resolveFromAxes).
+// Expression axes — for the library API (resolveFromAxes).
+// Positive value = tense pole / euphoric pole. Negative = placid / grief.
 // Each entry is [ψ_index, weight].
 export const EXPR_AXES = {
-  // Alarm (+): brow up + nose wrinkle + jaw seasoning
-  alarm:   [[0, 1.0], [2, 2.0], [8, 1.5]] as const,
-  // Valence (+): jaw open + cheek puff + Duchenne crinkle + nose wrinkle
-  // ψ1 is ANTISYMMETRIC — using ψ0/ψ9/ψ7/ψ8 for symmetric smile
-  valence: [[0, 1.5], [9, 3.0], [7, 1.5], [8, 0.5]] as const,
-  // Arousal (+): brow raise + eyes open (scaled for ±3 slider safety)
-  arousal: [[2, 3.0], [7, -1.5]] as const,
+  // Tension (+): brow up + jaw + nose wrinkle + eyes open + snarl + lip part
+  tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]] as const,
+  // Mood (+): big bilateral grin (ψ5+ψ9) + Duchenne crinkle + minimal jaw (jaw comes from tension)
+  mood:    [[5, 4.0], [9, 5.0], [7, 2.5], [4, -0.3], [0, 0.3], [8, 0.8]] as const,
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
 // Zero component overlap between axes.
-// Mid-frequency components (β18, β23, β32) have higher weights to compensate for lower displacement.
+// Mid-frequency components have higher weights to compensate for lower displacement.
 export const SHAPE_AXES = {
   // Dominance (Chad+/Soyboi-): jaw, chin, neck, brow + mid-freq refinement
-  dominance:  [[3, 3.0], [2, 2.0], [0, 2.0], [4, 1.5], [7, 1.0], [18, 3.0], [23, 3.0]] as const,
+  dominance:  [[3, 3.0], [2, 2.0], [0, 2.0], [4, 1.5], [7, 1.0], [18, 3.0], [23, 3.0], [13, 2.5], [48, 2.5]] as const,
   // Stature (Heavy+/Gaunt-): face length, cheekbone, nasal, mouth + skull detail
-  stature:    [[1, 3.0], [6, 2.0], [5, 1.5], [8, 1.2], [32, 3.0]] as const,
+  stature:    [[1, 3.0], [6, 2.0], [5, 1.5], [8, 1.2], [32, 3.0], [15, 2.5], [49, 2.5]] as const,
 } as const;
 
 export type ExprAxis = keyof typeof EXPR_AXES;
 export type ShapeAxis = keyof typeof SHAPE_AXES;
 export type AxisMapping = readonly (readonly [number, number])[];
 
-export const EXPR_AXIS_NAMES: ExprAxis[] = ['alarm', 'valence', 'arousal'];
+export const EXPR_AXIS_NAMES: ExprAxis[] = ['tension', 'mood'];
 export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance', 'stature'];
 
 /**
