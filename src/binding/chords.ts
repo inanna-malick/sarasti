@@ -70,13 +70,12 @@ export interface ChordActivations {
 export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   expression: [
     [2, 2.5],   // ψ2: brow rockets up
-    [0, 1.0],   // ψ0: jaw open
     [8, 1.5],   // ψ8: nose wrinkle
     [7, -1.5],  // ψ7: eyes snap WIDE open
     [11, 0.8],  // ψ11+ψ12: slight smile that reads as grin when mood adds more
     [12, 0.8],
   ],
-  pose: { jaw: 0.3, pitch: -0.06 },
+  pose: { jaw: 0.08, pitch: -0.06 },
   gaze: { gazeV: 0.10 },
   texture: { fatigue: -0.3 },  // wired, not fatigued
 };
