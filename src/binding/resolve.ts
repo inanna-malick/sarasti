@@ -240,14 +240,12 @@ export function createResolver(
 
 /** Pre-extracted axis values — all optional, unset = 0 */
 export interface AxisValues {
-  // Expression axes (4-axis channel-separated)
+  // Expression axes (3-axis)
   alarm?: number;
   mood?: number;
   fatigue?: number;
-  vigilance?: number;
   // Shape
   dominance?: number;
-  feastFamine?: number;
   // Pose
   pitch?: number;
   yaw?: number;
@@ -269,15 +267,13 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
   const expression = emptyExpression();
   const shape = emptyShape();
 
-  // Expression axes (4-axis channel-separated)
+  // Expression axes (3-axis)
   if (values.alarm !== undefined) applyMapping(expression, EXPR_AXES.alarm, values.alarm);
   if (values.mood !== undefined) applyMapping(expression, EXPR_AXES.mood, values.mood);
   if (values.fatigue !== undefined) applyMapping(expression, EXPR_AXES.fatigue, values.fatigue);
-  if (values.vigilance !== undefined) applyMapping(expression, EXPR_AXES.vigilance, values.vigilance);
 
   // Shape axes
   if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);
-  if (values.feastFamine !== undefined) applyMapping(shape, SHAPE_AXES.feastFamine, values.feastFamine);
 
   // Identity noise on unused shape components
   addIdentityNoise(shape, datumId);

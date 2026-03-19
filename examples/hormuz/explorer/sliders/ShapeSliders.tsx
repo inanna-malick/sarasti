@@ -4,9 +4,7 @@ import { useExplorerStore } from '../store';
 
 export function ShapeSliders() {
   const dominance = useExplorerStore(s => s.dominance);
-  const feastFamine = useExplorerStore(s => s.feastFamine);
   const setDominance = useExplorerStore(s => s.setDominance);
-  const setFeastFamine = useExplorerStore(s => s.setFeastFamine);
 
   return (
     <div>
@@ -14,7 +12,6 @@ export function ShapeSliders() {
         Shape
       </div>
       <SliderRow label="dominance" value={dominance} min={-3} max={3} step={0.01} onChange={setDominance} />
-      <SliderRow label="feast/famine" value={feastFamine} min={-3} max={3} step={0.01} onChange={setFeastFamine} />
     </div>
   );
 }

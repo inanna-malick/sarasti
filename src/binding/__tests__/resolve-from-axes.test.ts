@@ -19,29 +19,21 @@ describe('resolveFromAxes (4-axis expression + 2 shape)', () => {
     expect(noiseSum).toBeGreaterThan(0);
   });
 
-  it('alarm value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
+  it('alarm value drives ψ8 (shocked), ψ6 (surprise), ψ2 (open mouth)', () => {
     const alarmed = resolveFromAxes({ alarm: 2.0 }, 'a');
-    // alarm: [[2, 2.0], [7, -2.0], [0, 1.0], [8, 1.0]]
-    expect(alarmed.expression[2]).toBeCloseTo(4.0);   // ψ2 × 2.0 × 2.0
-    expect(alarmed.expression[0]).toBeCloseTo(2.0);   // ψ0 × 1.0 × 2.0
-    expect(alarmed.expression[8]).toBeCloseTo(2.0);   // ψ8 × 1.0 × 2.0
-    expect(alarmed.expression[7]).toBeCloseTo(-4.0);  // ψ7 × -2.0 × 2.0
+    // alarm: [[8, 2.0], [6, -1.5], [2, 1.0]]
+    expect(alarmed.expression[8]).toBeCloseTo(4.0);   // ψ8 × 2.0 × 2.0
+    expect(alarmed.expression[6]).toBeCloseTo(-3.0);  // ψ6 × -1.5 × 2.0
+    expect(alarmed.expression[2]).toBeCloseTo(2.0);   // ψ2 × 1.0 × 2.0
   });
 
-  it('fatigue value drives ψ5 (tight lip), ψ3 (furrow)', () => {
+  it('fatigue value drives ψ3 (curiosity), ψ4 (engagement), ψ5 (tightness), ψ8 (alert)', () => {
     const wired = resolveFromAxes({ fatigue: 2.0 }, 'a');
-    // fatigue: [[5, 1.5], [3, 1.0], [4, -0.8]]
-    expect(wired.expression[5]).toBeCloseTo(3.0);   // ψ5 × 1.5 × 2.0
-    expect(wired.expression[3]).toBeCloseTo(2.0);   // ψ3 × 1.0 × 2.0
-    expect(wired.expression[4]).toBeCloseTo(-1.6);  // ψ4 × -0.8 × 2.0
-  });
-
-  it('vigilance value drives ψ3 (furrow), ψ8 (nose wrinkle)', () => {
-    const suspicious = resolveFromAxes({ vigilance: 2.0 }, 'a');
-    // vigilance: [[3, 0.8], [7, -0.5], [8, 0.6]]
-    expect(suspicious.expression[3]).toBeCloseTo(1.6);   // ψ3 × 0.8 × 2.0
-    expect(suspicious.expression[7]).toBeCloseTo(-1.0);  // ψ7 × -0.5 × 2.0
-    expect(suspicious.expression[8]).toBeCloseTo(1.2);   // ψ8 × 0.6 × 2.0
+    // fatigue: [[3, 1.5], [4, 1.2], [5, 1.2], [8, 0.6]]
+    expect(wired.expression[3]).toBeCloseTo(3.0);   // ψ3 × 1.5 × 2.0
+    expect(wired.expression[4]).toBeCloseTo(2.4);   // ψ4 × 1.2 × 2.0
+    expect(wired.expression[5]).toBeCloseTo(2.4);   // ψ5 × 1.2 × 2.0
+    expect(wired.expression[8]).toBeCloseTo(1.2);   // ψ8 × 0.6 × 2.0
   });
 
   it('dominance drives mass + jaw + bone detail', () => {
@@ -55,14 +47,6 @@ describe('resolveFromAxes (4-axis expression + 2 shape)', () => {
     expect(chad.shape[18]).toBeGreaterThan(0);  // β18: bone structure
   });
 
-  it('feastFamine drives body mass components', () => {
-    const heavy = resolveFromAxes({ feastFamine: 2.0 }, 'a');
-    const gaunt = resolveFromAxes({ feastFamine: -2.0 }, 'a');
-    expect(heavy.shape[1]).toBeGreaterThan(0);   // β1: tall
-    expect(gaunt.shape[1]).toBeLessThan(0);
-    expect(heavy.shape[6]).toBeGreaterThan(0);   // β6: thicc
-    expect(heavy.shape[5]).toBeGreaterThan(0);   // β5: portly
-  });
 
   it('pose values map to neck and jaw', () => {
     const result = resolveFromAxes({ pitch: 0.3, yaw: -0.2, roll: 0.1, jaw: 0.4 }, 'a');
@@ -93,11 +77,12 @@ describe('resolveFromAxes (4-axis expression + 2 shape)', () => {
   });
 
   it('multiple axes combine additively on shared components', () => {
-    // alarm uses ψ0 (weight 1.0), mood also uses ψ0 (weight 0.75)
-    const combined = resolveFromAxes({ alarm: 1.0, mood: 1.0 }, 'a');
+    // alarm uses ψ2 (weight 1.0), fatigue doesn't use ψ2 — but both use ψ8
+    // alarm ψ8 weight 2.0, fatigue ψ8 weight 0.6
+    const combined = resolveFromAxes({ alarm: 1.0, fatigue: 1.0 }, 'a');
     const alarmOnly = resolveFromAxes({ alarm: 1.0 }, 'a');
-    const moodOnly = resolveFromAxes({ mood: 1.0 }, 'a');
-    // ψ0 should be sum of both contributions
-    expect(combined.expression[0]).toBeCloseTo(alarmOnly.expression[0] + moodOnly.expression[0]);
+    const fatigueOnly = resolveFromAxes({ fatigue: 1.0 }, 'a');
+    // ψ8 should be sum of both contributions
+    expect(combined.expression[8]).toBeCloseTo(alarmOnly.expression[8] + fatigueOnly.expression[8]);
   });
 });

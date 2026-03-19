@@ -4,7 +4,7 @@ import { N_SHAPE, N_EXPR } from '../constants';
 
 describe('EXPR_AXES', () => {
   it('has 4 expression axes', () => {
-    expect(EXPR_AXIS_NAMES).toEqual(['alarm', 'mood', 'fatigue', 'vigilance']);
+    expect(EXPR_AXIS_NAMES).toEqual(['alarm', 'mood', 'fatigue']);
   });
 
   it('all indices are within ψ0-ψ49', () => {
@@ -18,8 +18,8 @@ describe('EXPR_AXES', () => {
 });
 
 describe('SHAPE_AXES', () => {
-  it('has dominance and feastFamine axes', () => {
-    expect(SHAPE_AXIS_NAMES).toEqual(['dominance', 'feastFamine']);
+  it('has dominance axis', () => {
+    expect(SHAPE_AXIS_NAMES).toEqual(['dominance']);
   });
 
   it('all indices are within β0-β49', () => {
@@ -31,30 +31,23 @@ describe('SHAPE_AXES', () => {
     }
   });
 
-  it('zero β overlap between dominance and feastFamine', () => {
-    const domIndices = new Set(SHAPE_AXES.dominance.map(([idx]) => idx as number));
-    const statIndices = new Set(SHAPE_AXES.feastFamine.map(([idx]) => idx as number));
-    for (const idx of domIndices) {
-      expect(statIndices.has(idx), `β${idx} used by both axes`).toBe(false);
-    }
-  });
 });
 
 describe('applyMapping', () => {
   it('adds weighted values to target', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.alarm, 2.0);
-    expect(target[2]).toBeCloseTo(4.0);  // ψ2: 2.0 × 2.0
-    expect(target[7]).toBeCloseTo(-4.0); // ψ7: -2.0 × 2.0
-    expect(target[0]).toBeCloseTo(2.0);  // ψ0: 1.0 × 2.0
+    expect(target[8]).toBeCloseTo(4.0);  // ψ8: 2.0 × 2.0
+    expect(target[6]).toBeCloseTo(-3.0); // ψ6: -1.5 × 2.0
+    expect(target[2]).toBeCloseTo(2.0);  // ψ2: 1.0 × 2.0
   });
 
   it('stacks when called multiple times', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.alarm, 1.0);
     applyMapping(target, EXPR_AXES.mood, 1.0);
-    // ψ0: alarm 1.0 + mood 0.75 = 1.75
-    expect(target[0]).toBeCloseTo(1.75);
+    // ψ8: alarm 2.0 + mood 0 = 2.0 (only alarm uses ψ8)
+    expect(target[8]).toBeCloseTo(2.0);
   });
 
   it('handles negative values', () => {

@@ -1,5 +1,5 @@
 /**
- * Binding Report — traces 4-axis expression + 2-axis shape activations.
+ * Binding Report — traces 3-axis expression + 1-axis shape activations.
  */
 
 import type { TickerConfig, TickerFrame, FaceParams } from '../types';
@@ -102,11 +102,6 @@ function traceChords(activations: ChordActivations): ChordEntry[] {
       rawActivation: activations.fatigue,
       sign: Math.sign(activations.fatigue) || 1,
     },
-    {
-      name: 'vigilance',
-      rawActivation: activations.vigilance,
-      sign: Math.sign(activations.vigilance) || 1,
-    },
   ];
 }
 
@@ -124,13 +119,6 @@ function traceShape(
     domVec[idx] = weight * activations.dominance;
   }
   sources.push({ name: 'chord:dominance←momentum', vec: domVec, input: activations.dominance });
-
-  // Stature
-  const statVec = new Float32Array(N_SHAPE);
-  for (const [idx, weight] of SHAPE_AXES.feastFamine) {
-    statVec[idx] = weight * activations.feastFamine;
-  }
-  sources.push({ name: 'chord:feastFamine←|beta|×sign(dev)', vec: statVec, input: activations.feastFamine });
 
   // Identity noise
   const identityVec = new Float32Array(N_SHAPE);

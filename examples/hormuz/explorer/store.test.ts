@@ -4,8 +4,8 @@ import { useExplorerStore } from './store';
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
-    alarm: 0, mood: 0, fatigue: 0, vigilance: 0,
-    dominance: 0, feastFamine: 0,
+    alarm: 0, mood: 0, fatigue: 0,
+    dominance: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
     flush: 0, fatigueTex: 0,
@@ -45,8 +45,8 @@ describe('ExplorerStore (6-axis high-level)', () => {
     expect(p.fatigue).toBeLessThan(0);  // wired
   });
 
-  it('vigilance drives gaze lateral', () => {
-    useExplorerStore.getState().setVigilance(2.0);
+  it('wired fatigue drives gaze lateral', () => {
+    useExplorerStore.getState().setFatigue(2.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.pose.leftEye[0]).toBeGreaterThan(0);  // tracking lateral
   });
@@ -55,12 +55,6 @@ describe('ExplorerStore (6-axis high-level)', () => {
     useExplorerStore.getState().setDominance(3.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.shape[3]).toBeGreaterThan(0);  // jaw width
-  });
-
-  it('feastFamine drives β1 (tall/squat)', () => {
-    useExplorerStore.getState().setFeastFamine(3.0);
-    const p = useExplorerStore.getState().currentParams!;
-    expect(p.shape[1]).toBeGreaterThan(0);
   });
 
   it('raw mode bypasses high-level mappings', () => {

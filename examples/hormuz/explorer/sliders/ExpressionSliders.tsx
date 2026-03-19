@@ -6,11 +6,9 @@ export function ExpressionSliders() {
   const alarm = useExplorerStore(s => s.alarm);
   const mood = useExplorerStore(s => s.mood);
   const fatigue = useExplorerStore(s => s.fatigue);
-  const vigilance = useExplorerStore(s => s.vigilance);
   const setAlarm = useExplorerStore(s => s.setAlarm);
   const setMood = useExplorerStore(s => s.setMood);
   const setFatigue = useExplorerStore(s => s.setFatigue);
-  const setVigilance = useExplorerStore(s => s.setVigilance);
 
   return (
     <div>
@@ -20,7 +18,6 @@ export function ExpressionSliders() {
       <SliderRow label="alarm" value={alarm} min={-3} max={3} step={0.01} onChange={setAlarm} />
       <SliderRow label="mood" value={mood} min={-3} max={3} step={0.01} onChange={setMood} />
       <SliderRow label="fatigue" value={fatigue} min={-3} max={3} step={0.01} onChange={setFatigue} />
-      <SliderRow label="vigilance" value={vigilance} min={-3} max={3} step={0.01} onChange={setVigilance} />
     </div>
   );
 }

@@ -1,14 +1,13 @@
 /**
- * Chord Architecture — 4-axis expression + 2-axis shape.
+ * Chord Architecture — 3-axis expression + 2-axis shape.
  *
- * Expression: Alarm × Mood × Fatigue × Vigilance — channel-separated.
- * Shape: Dominance (soyboi↔chad) × Feast/Famine (full↔gaunt).
+ * Expression: Alarm × Mood × Fatigue — channel-separated.
+ * Shape: Dominance (soyboi↔chad).
  *
  * Each expression axis expresses through a different spatial channel:
  *   Alarm    → upper face (ψ8 shocked, ψ6 surprise)
  *   Mood     → lower face (ψ9/ψ11/ψ12 smile, ψ0 frown-smile)
- *   Fatigue  → mid-face tone (ψ5 frown, ψ4 engagement, ψ7 happy/disappointed)
- *   Vigilance→ gaze + head pose + light ψ3 (curiosity/disgust)
+ *   Fatigue  → mid-face tone + assessment (ψ3–ψ5, ψ7, ψ8) + gaze
  *
  * ψ component actual visual reads (from explorer testing):
  *   ψ0: pursed↔frown-smile    ψ1: frown↔lopsided smile (ANTI)
@@ -65,14 +64,10 @@ export interface ChordActivations {
   alarm: number;
   /** Mood axis: -1 (grief) to +1 (euphoric) ← deviation_z */
   mood: number;
-  /** Fatigue axis: -1 (exhausted) to +1 (wired) ← -(dd_z + exchFatigue) */
+  /** Fatigue axis: -1 (exhausted) to +1 (wired) ← -(dd_z + exchFatigue) + mean_reversion_z */
   fatigue: number;
-  /** Vigilance axis: -1 (oblivious) to +1 (suspicious) ← mean_reversion_z */
-  vigilance: number;
   /** Shape: dominance (soyboi↔chad) ← momentum */
   dominance: number;
-  /** Shape: feast/famine (full↔gaunt) ← |1-beta| × sign(dev) */
-  feastFamine: number;
 }
 
 // ─── Chord Recipes ───────────────────────────────────
@@ -134,57 +129,35 @@ export const MOOD_GRIEF_RECIPE: ExpressionChordRecipe = {
   texture: { flush: -0.25 },  // pallid
 };
 
-/** FATIGUE WIRED (+): caffeinated, tight, engaged.
- * Primary channel: mid-face tone.
- * ψ5+ = frown (tightness), ψ4+ = engagement (wired alertness),
- * ψ3+ = open curiosity (scanning, amped). */
+/** FATIGUE WIRED (+): caffeinated + suspicious — tight, engaged, scanning.
+ * Merged fatigue(wired) + vigilance(suspicious) into one pole.
+ * Mid-face tone + assessment gaze. */
 export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
   expression: [
+    [3, 1.5],   // ψ3: open curiosity — assessing, scanning
+    [4, 1.2],   // ψ4: engagement — locked in, wired
     [5, 1.2],   // ψ5: frown — tight, clenched
-    [4, 0.8],   // ψ4: engagement — wired alertness
-    [3, 0.6],   // ψ3: open curiosity — scanning, amped
+    [8, 0.6],   // ψ8: slightly shocked — alert edge
   ],
-  pose: { pitch: 0.04 },  // leaning forward
-  gaze: {},
+  pose: { pitch: 0.04, yaw: 0.08, roll: 0.04 },  // leaning forward + head turned
+  gaze: { gazeH: 0.12 },  // eyes tracking lateral
   texture: { fatigue: -0.4 },  // wired — negative fatigue texture
 };
 
-/** FATIGUE EXHAUSTED (−): 3am face — everything droops.
- * Primary channel: mid-face tone.
- * ψ7- = disappointed (droopy, depleted). ψ4- = boredom (shutdown).
- * ψ5- = uninterested (slack). */
+/** FATIGUE EXHAUSTED (−): depleted + oblivious — everything droops, checked out.
+ * Merged fatigue(exhausted) + vigilance(oblivious) into one pole.
+ * Sagging face + vacant gaze. */
 export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
   expression: [
     [7, -2.0],  // ψ7: disappointed — PRIMARY exhaustion (droopy, depleted)
-    [4, -1.0],  // ψ4: boredom — shutdown, disengaged
+    [4, -1.5],  // ψ4: boredom — shutdown, vacant
     [5, -0.8],  // ψ5: uninterested — slack face
+    [3, -0.6],  // ψ3: disgust — "whatever", checked out
+    [0, 0.4],   // ψ0: slight frown-smile — slack, dopey
   ],
   pose: { pitch: -0.10, roll: -0.04 },  // head drops, listing
   gaze: { gazeV: -0.12 },  // eyes sag down
   texture: { fatigue: 0.5 },  // bags, pallor
-};
-
-/** VIGILANCE SUSPICIOUS (+): mean_reversion_z high → evaluating.
- * Primary channel: gaze + head pose. Light ψ3 for curiosity/assessment. */
-export const VIGILANCE_SUSPICIOUS_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [3, 0.8],   // ψ3: open curiosity — evaluating, assessing
-    [4, 0.5],   // ψ4: engagement — paying attention
-  ],
-  pose: { yaw: 0.08, roll: 0.04 },  // head turned + cock
-  gaze: { gazeH: 0.12 },  // eyes tracking lateral
-  texture: {},
-};
-
-/** VIGILANCE OBLIVIOUS (−): nothing to see here.
- * Primary channel: minimal facial, gaze drifts. */
-export const VIGILANCE_OBLIVIOUS_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [4, -0.4],  // ψ4: boredom — not paying attention
-  ],
-  pose: {},
-  gaze: { gazeV: -0.05 },  // eyes drift down
-  texture: {},
 };
 
 /** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar)
@@ -204,22 +177,6 @@ export const DOMINANCE_RECIPE: ShapeChordRecipe = {
     [19, -1.9], // β19: jutting chin (inverted)
   ],
   pose: { pitch: 0.075 },
-};
-
-/** FEAST/FAMINE (full↔gaunt) ← |1-beta| × sign(deviation)
- * β{1,5,6,8,9,15,32,49} — zero overlap with dominance ✓ */
-export const FEAST_FAMINE_RECIPE: ShapeChordRecipe = {
-  shape: [
-    [5, 2.5],   // β5: elfin↔portly (PRIMARY fullness)
-    [6, 2.0],   // β6: pencilneck↔thicc
-    [1, 2.0],   // β1: squat↔tall
-    [9, 1.5],   // β9: small cranium↔big skull
-    [8, 1.2],   // β8: closely-spaced↔wide
-    [15, 2.0],  // β15: structural mass
-    [32, 2.0],  // β32: body mass detail
-    [49, 2.0],  // β49: high-freq mass
-  ],
-  pose: { pitch: 0.03 },
 };
 
 
@@ -261,7 +218,6 @@ export function computeChordActivations(
   const dev_z = ts ? zScore(frame.deviation, ts.deviation) : frame.deviation;
   const dd_z = ts ? zScore(frame.drawdown, ts.drawdown) : frame.drawdown;
   const mom_z = ts ? zScore(frame.momentum, ts.momentum) : frame.momentum;
-  const beta_z = ts ? zScore(1 - frame.beta, ts.beta) : (1 - frame.beta);
   const mr_z = ts ? zScore(frame.mean_reversion_z, ts.mean_reversion_z) : frame.mean_reversion_z;
 
   // Exchange fatigue (for fatigue chronic component)
@@ -273,17 +229,13 @@ export function computeChordActivations(
   // ─── Mood: deviation (bipolar) ───────────────
   const mood = symmetricSigmoid(dev_z, 6);
 
-  // ─── Fatigue: chronic toll ───────────────────
-  const fatigue = symmetricSigmoid(-(dd_z + exchFatigue), 6);
+  // ─── Fatigue: chronic toll + mean reversion (merged) ───
+  const fatigue = symmetricSigmoid((-(dd_z + exchFatigue) + mr_z) * 0.5, 6);
 
-  // ─── Vigilance: mean reversion ───────────────
-  const vigilance = symmetricSigmoid(mr_z, 6);
-
-  // ─── Shape axes ──────────────────────────────
+  // ─── Shape axis ───────────────────────────────
   const dominance = symmetricSigmoid(mom_z, 6);
-  const feastFamine = sigmoid(Math.abs(beta_z), 6) * (Math.sign(dev_z) || 0);
 
-  return { alarm, mood, fatigue, vigilance, dominance, feastFamine };
+  return { alarm, mood, fatigue, dominance };
 }
 
 /**
@@ -345,18 +297,11 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
     applyRecipe(MOOD_GRIEF_RECIPE, Math.abs(activations.mood));
   }
 
-  // FATIGUE
+  // FATIGUE (merged with vigilance)
   if (activations.fatigue >= 0) {
     applyRecipe(FATIGUE_WIRED_RECIPE, activations.fatigue);
   } else {
     applyRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(activations.fatigue));
-  }
-
-  // VIGILANCE
-  if (activations.vigilance >= 0) {
-    applyRecipe(VIGILANCE_SUSPICIOUS_RECIPE, activations.vigilance);
-  } else {
-    applyRecipe(VIGILANCE_OBLIVIOUS_RECIPE, Math.abs(activations.vigilance));
   }
 
   // ψ7 safety clamp
@@ -389,7 +334,6 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
   }
 
   applyShape(DOMINANCE_RECIPE, activations.dominance);
-  applyShape(FEAST_FAMINE_RECIPE, activations.feastFamine);
 
   // Per-component safety clamps
   shape[3] = Math.max(-BETA3_CLAMP, Math.min(BETA3_CLAMP, shape[3]));

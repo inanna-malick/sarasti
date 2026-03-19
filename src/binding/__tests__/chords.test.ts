@@ -33,7 +33,7 @@ describe('math utilities', () => {
   });
 });
 
-describe('computeChordActivations (4-axis expression + 2 shape)', () => {
+describe('computeChordActivations (3-axis expression + 2 shape)', () => {
   it('neutral frame → finite activations', () => {
     const frame = makeTickerFrame();
     const act = computeChordActivations(frame);
@@ -41,9 +41,7 @@ describe('computeChordActivations (4-axis expression + 2 shape)', () => {
     expect(Number.isFinite(act.alarm)).toBe(true);
     expect(Number.isFinite(act.mood)).toBe(true);
     expect(Number.isFinite(act.fatigue)).toBe(true);
-    expect(Number.isFinite(act.vigilance)).toBe(true);
     expect(Number.isFinite(act.dominance)).toBe(true);
-    expect(Number.isFinite(act.feastFamine)).toBe(true);
   });
 
   it('high volatility × velocity → positive alarm (alarmed)', () => {
@@ -97,18 +95,12 @@ describe('computeChordActivations (4-axis expression + 2 shape)', () => {
     expect(act.fatigue).toBeGreaterThan(0); // negative drawdown → -(negative) = positive → wired
   });
 
-  it('high mean_reversion_z → positive vigilance (suspicious)', () => {
+  it('high mean_reversion_z contributes to positive fatigue (wired)', () => {
     const frame = makeTickerFrame({ mean_reversion_z: 2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.vigilance).toBeGreaterThan(0);
-  });
-
-  it('low mean_reversion_z → negative vigilance (oblivious)', () => {
-    const frame = makeTickerFrame({ mean_reversion_z: -2.0 });
-    const act = computeChordActivations(frame);
-
-    expect(act.vigilance).toBeLessThan(0);
+    // mean_reversion_z is now merged into fatigue signal
+    expect(act.fatigue).toBeGreaterThan(0);
   });
 
   it('positive momentum → positive dominance (chad)', () => {
@@ -134,12 +126,10 @@ describe('computeChordActivations (4-axis expression + 2 shape)', () => {
     expect(act.mood).toBeLessThanOrEqual(1);
     expect(act.fatigue).toBeGreaterThanOrEqual(-1);
     expect(act.fatigue).toBeLessThanOrEqual(1);
-    expect(act.vigilance).toBeGreaterThanOrEqual(-1);
-    expect(act.vigilance).toBeLessThanOrEqual(1);
   });
 });
 
-describe('resolveExpressionChords (4-axis)', () => {
+describe('resolveExpressionChords (3-axis)', () => {
   it('alarmed → ψ2 (brow up), ψ8 (nose wrinkle), ψ7 negative (eyes open)', () => {
     const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
     const act = computeChordActivations(frame);
@@ -177,7 +167,7 @@ describe('resolveExpressionChords (4-axis)', () => {
 
   it('wired fatigue → ψ5 positive (tight lip), fatigue texture negative', () => {
     // Need drawdown to be negative (in drawdown), which makes -(dd_z) positive → wired
-    const act = { alarm: 0, mood: 0, fatigue: 0.8, vigilance: 0, dominance: 0, feastFamine: 0 };
+    const act = { alarm: 0, mood: 0, fatigue: 0.8, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[5]).toBeGreaterThan(0); // tight upper lip
@@ -185,24 +175,27 @@ describe('resolveExpressionChords (4-axis)', () => {
   });
 
   it('exhausted fatigue → ψ7 positive (heavy lids), fatigue texture positive', () => {
-    const act = { alarm: 0, mood: 0, fatigue: -0.8, vigilance: 0, dominance: 0, feastFamine: 0 };
+    const act = { alarm: 0, mood: 0, fatigue: -0.8, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[7]).toBeGreaterThan(0); // heavy lids
     expect(result.fatigue).toBeGreaterThan(0); // bags, pallor
   });
 
-  it('suspicious vigilance → ψ3 positive (furrow), gaze lateral', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0.8, dominance: 0, feastFamine: 0 };
+  it('wired fatigue → ψ3 (curiosity), ψ4 (engagement), ψ5 (tightness), gaze lateral', () => {
+    const act = { alarm: 0, mood: 0, fatigue: 0.8, dominance: 0 };
     const result = resolveExpressionChords(act);
 
-    expect(result.expression[3]).toBeGreaterThan(0); // thinking furrow
+    expect(result.expression[3]).toBeGreaterThan(0); // open curiosity — evaluating
+    expect(result.expression[4]).toBeGreaterThan(0); // engagement — locked in
+    expect(result.expression[5]).toBeGreaterThan(0); // frown — suspicious tightness
+    expect(result.expression[8]).toBeGreaterThan(0); // slightly shocked — "wait what"
     expect(result.gaze.gazeH).toBeGreaterThan(0); // tracking lateral
   });
 
   it('ψ7 is clamped to safe range', () => {
     // All axes that affect ψ7 at maximum
-    const act = { alarm: -1, mood: 1, fatigue: -1, vigilance: -1, dominance: 0, feastFamine: 0 };
+    const act = { alarm: -1, mood: 1, fatigue: -1, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[7]).toBeGreaterThanOrEqual(-PSI7_CLAMP);
@@ -212,45 +205,17 @@ describe('resolveExpressionChords (4-axis)', () => {
 
 describe('resolveShapeChords (2 shape axes)', () => {
   it('positive dominance → positive β0 (thick)', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0, dominance: 0.8, feastFamine: 0 };
+    const act = { alarm: 0, mood: 0, fatigue: 0, dominance: 0.8 };
     const { shape } = resolveShapeChords(act);
 
     expect(shape[0]).toBeGreaterThan(0);
   });
 
   it('negative dominance → negative β0, clamped', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0, dominance: -1, feastFamine: 0 };
+    const act = { alarm: 0, mood: 0, fatigue: 0, dominance: -1 };
     const { shape } = resolveShapeChords(act);
 
     expect(shape[3]).toBeGreaterThanOrEqual(-BETA3_CLAMP);
   });
 
-  it('positive feastFamine → positive β1 (tall)', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0, dominance: 0, feastFamine: 0.8 };
-    const { shape } = resolveShapeChords(act);
-
-    expect(shape[1]).toBeGreaterThan(0);
-    expect(shape[6]).toBeGreaterThan(0); // thicc
-  });
-
-  it('negative feastFamine → negative β1 (gaunt)', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0, dominance: 0, feastFamine: -0.8 };
-    const { shape } = resolveShapeChords(act);
-
-    expect(shape[1]).toBeLessThan(0);
-  });
-
-  it('zero β overlap between dominance and feastFamine', () => {
-    const domOnly = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0, dominance: 1, feastFamine: 0 };
-    const statOnly = { alarm: 0, mood: 0, fatigue: 0, vigilance: 0, dominance: 0, feastFamine: 1 };
-    const domShape = resolveShapeChords(domOnly).shape;
-    const statShape = resolveShapeChords(statOnly).shape;
-
-    // No component should be non-zero in both
-    for (let i = 0; i < domShape.length; i++) {
-      if (Math.abs(domShape[i]) > 0.001 && Math.abs(statShape[i]) > 0.001) {
-        throw new Error(`β${i} used by both dominance (${domShape[i]}) and feastFamine (${statShape[i]})`);
-      }
-    }
-  });
 });

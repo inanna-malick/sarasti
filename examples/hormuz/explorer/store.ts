@@ -11,10 +11,7 @@ import {
   MOOD_GRIEF_RECIPE,
   FATIGUE_WIRED_RECIPE,
   FATIGUE_EXHAUSTED_RECIPE,
-  VIGILANCE_SUSPICIOUS_RECIPE,
-  VIGILANCE_OBLIVIOUS_RECIPE,
   DOMINANCE_RECIPE,
-  FEAST_FAMINE_RECIPE,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
 } from '../../../src/binding/chords';
@@ -24,13 +21,11 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 6 axes (pose/gaze/texture computed from chord recipes)
+  // High-level: 4 axes (pose/gaze/texture computed from chord recipes)
   alarm: number;
   mood: number;
   fatigue: number;
-  vigilance: number;
   dominance: number;
-  feastFamine: number;
 
   // Raw mode: manual overrides
   poseOverride: boolean;
@@ -54,9 +49,7 @@ interface ExplorerState {
   setAlarm: (v: number) => void;
   setMood: (v: number) => void;
   setFatigue: (v: number) => void;
-  setVigilance: (v: number) => void;
   setDominance: (v: number) => void;
-  setFeastFamine: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -150,26 +143,18 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     applyFullExprRecipe(MOOD_GRIEF_RECIPE, Math.abs(state.mood), expression, pgt);
   }
 
-  // Fatigue → full bipolar recipe (ψ + pose + texture)
+  // Fatigue → full bipolar recipe (ψ + pose + gaze + texture)
   if (state.fatigue >= 0) {
     applyFullExprRecipe(FATIGUE_WIRED_RECIPE, state.fatigue, expression, pgt);
   } else {
     applyFullExprRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(state.fatigue), expression, pgt);
   }
 
-  // Vigilance → full bipolar recipe (ψ + pose + gaze)
-  if (state.vigilance >= 0) {
-    applyFullExprRecipe(VIGILANCE_SUSPICIOUS_RECIPE, state.vigilance, expression, pgt);
-  } else {
-    applyFullExprRecipe(VIGILANCE_OBLIVIOUS_RECIPE, Math.abs(state.vigilance), expression, pgt);
-  }
-
   // ψ7 safety clamp
   expression[7] = clamp(expression[7], -PSI7_CLAMP, PSI7_CLAMP);
 
-  // Shape β components — dominance + feastFamine
+  // Shape β components — dominance only
   applyMapping(shape, SHAPE_AXES.dominance, state.dominance);
-  applyMapping(shape, SHAPE_AXES.feastFamine, state.feastFamine);
 
   // Shape safety clamps — prevents mesh breakage at extreme slider values
   shape[3] = clamp(shape[3], -BETA3_CLAMP, BETA3_CLAMP);
@@ -179,7 +164,6 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
 
   // Shape → identity pose
   applyShapeRecipePose(DOMINANCE_RECIPE, state.dominance, pgt);
-  applyShapeRecipePose(FEAST_FAMINE_RECIPE, state.feastFamine, pgt);
 
   const params: FaceParams = {
     shape,
@@ -235,9 +219,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   alarm: 0,
   mood: 0,
   fatigue: 0,
-  vigilance: 0,
   dominance: 0,
-  feastFamine: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -259,9 +241,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setAlarm: (v) => update(set, get, { alarm: v }),
   setMood: (v) => update(set, get, { mood: v }),
   setFatigue: (v) => update(set, get, { fatigue: v }),
-  setVigilance: (v) => update(set, get, { vigilance: v }),
   setDominance: (v) => update(set, get, { dominance: v }),
-  setFeastFamine: (v) => update(set, get, { feastFamine: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),
