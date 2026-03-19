@@ -56,8 +56,6 @@ describe('FlameFaceMesh', () => {
     
     const faceMaterial = materials[0] as THREE.MeshStandardMaterial;
     expect(faceMaterial.vertexColors).toBe(true);
-    expect(faceMaterial.transparent).toBe(true);
-    expect(faceMaterial.alphaTest).toBe(0.01);
 
     const leftEyeMaterial = materials[1] as THREE.ShaderMaterial;
     expect(leftEyeMaterial.uniforms.irisColor).toBeDefined();

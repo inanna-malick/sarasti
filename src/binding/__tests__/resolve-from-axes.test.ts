@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { resolveFromAxes } from '../resolve';
 import { N_SHAPE, N_EXPR } from '../../constants';
 
-describe('resolveFromAxes', () => {
+describe('resolveFromAxes (chord axes)', () => {
   it('empty values → near-zero output with identity noise', () => {
     const result = resolveFromAxes({}, 'test-id');
     expect(result.expression.length).toBe(N_EXPR);
@@ -19,18 +19,36 @@ describe('resolveFromAxes', () => {
     expect(noiseSum).toBeGreaterThan(0);
   });
 
-  it('joy value drives ψ0 (jaw drop)', () => {
-    const joyful = resolveFromAxes({ joy: 2.0 }, 'a');
-    const grieving = resolveFromAxes({ joy: -2.0 }, 'a');
-    expect(joyful.expression[0]).toBeGreaterThan(0);
-    expect(grieving.expression[0]).toBeLessThan(0);
+  it('alarm value drives ψ0 (jaw seasoning) and ψ2 (brow up)', () => {
+    const alarmed = resolveFromAxes({ alarm: 2.0 }, 'a');
+    // alarm: [[0, 1.0], [2, 2.0], [8, 1.5]]
+    expect(alarmed.expression[0]).toBeCloseTo(2.0);  // ψ0 × 1.0 × 2.0
+    expect(alarmed.expression[2]).toBeCloseTo(4.0);  // ψ2 × 2.0 × 2.0
+    expect(alarmed.expression[8]).toBeCloseTo(3.0);  // ψ8 × 1.5 × 2.0
   });
 
-  it('stature drives β0 (global width)', () => {
+  it('valence value drives ψ9 (cheek puff) and ψ0 (jaw open)', () => {
+    const happy = resolveFromAxes({ valence: 2.0 }, 'a');
+    const sad = resolveFromAxes({ valence: -2.0 }, 'a');
+    // valence: [[0, 1.5], [9, 3.0], [7, 1.5], [8, 0.5]]
+    expect(happy.expression[9]).toBeCloseTo(6.0);   // ψ9 × 3.0 × 2.0
+    expect(happy.expression[0]).toBeCloseTo(3.0);   // ψ0 × 1.5 × 2.0
+    expect(sad.expression[9]).toBeCloseTo(-6.0);
+    expect(sad.expression[0]).toBeCloseTo(-3.0);
+  });
+
+  it('dominance drives β3 (jaw width)', () => {
+    const chad = resolveFromAxes({ dominance: 2.0 }, 'a');
+    const soyboi = resolveFromAxes({ dominance: -2.0 }, 'a');
+    expect(chad.shape[3]).toBeGreaterThan(0);
+    expect(soyboi.shape[3]).toBeLessThan(0);
+  });
+
+  it('stature drives β1 (face length)', () => {
     const heavy = resolveFromAxes({ stature: 2.0 }, 'a');
     const gaunt = resolveFromAxes({ stature: -2.0 }, 'a');
-    expect(heavy.shape[0]).toBeGreaterThan(0);
-    expect(gaunt.shape[0]).toBeLessThan(0);
+    expect(heavy.shape[1]).toBeGreaterThan(0);
+    expect(gaunt.shape[1]).toBeLessThan(0);
   });
 
   it('pose values map to neck and jaw', () => {
@@ -63,11 +81,11 @@ describe('resolveFromAxes', () => {
   });
 
   it('multiple axes combine additively on shared components', () => {
-    // joy uses ψ0 (weight 2.0), surprise also uses ψ0 (weight 1.5)
-    const combined = resolveFromAxes({ joy: 1.0, surprise: 1.0 }, 'a');
-    const joyOnly = resolveFromAxes({ joy: 1.0 }, 'a');
-    const surpriseOnly = resolveFromAxes({ surprise: 1.0 }, 'a');
-    // ψ0 should be sum of both contributions
-    expect(combined.expression[0]).toBeCloseTo(joyOnly.expression[0] + surpriseOnly.expression[0]);
+    // alarm uses ψ2 (weight 2.0), arousal also uses ψ2 (weight 3.0)
+    const combined = resolveFromAxes({ alarm: 1.0, arousal: 1.0 }, 'a');
+    const alarmOnly = resolveFromAxes({ alarm: 1.0 }, 'a');
+    const arousalOnly = resolveFromAxes({ arousal: 1.0 }, 'a');
+    // ψ2 should be sum of both contributions
+    expect(combined.expression[2]).toBeCloseTo(alarmOnly.expression[2] + arousalOnly.expression[2]);
   });
 });

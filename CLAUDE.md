@@ -50,22 +50,24 @@ public/data/        — baked data files (.bin, .json)
 - The visual mapping is a deliberate analytical choice. The expressions represent statistical deviations.
 
 ## FLAME Expression Components (ψ0–ψ9)
-Official FLAME 2023 PCA ordering, with empirically verified mouth symmetry:
+Official FLAME 2023 PCA ordering. Bilateral symmetry verified via vertex mirror map (tools/compute_mirror.py):
 
-| Component | Effect | Symmetry | Notes |
-|-----------|--------|----------|-------|
-| ψ0 | jaw drop | symmetric | Primary jaw opener, robust to extrapolation |
-| ψ1 | smile/frown | **ASYMMETRIC** | Avoid for bilateral expressions |
-| ψ2 | brow raise | symmetric | Upper face, good for surprise |
-| ψ3 | brow furrow | symmetric | Glabella bunching at high values |
-| ψ4 | lip pucker | symmetric | Lips pinch at extreme values |
-| ψ5 | upper lip raiser | symmetric | Exposes gum void at high values |
-| ψ6 | lower lip depressor | symmetric | Thins at extreme values |
-| ψ7 | eyelid close | symmetric | Clips through eyeball at ±7 |
-| ψ8 | nose wrinkler | symmetric | Vertex bunching at nasion |
-| ψ9 | cheek puffer | **ASYMMETRIC** | Lip corner asymmetry — avoid for mouth |
+| Component | Effect | Self-reflection | Notes |
+|-----------|--------|-----------------|-------|
+| ψ0 | jaw drop | +0.996 (SYM) | Primary jaw opener, robust to extrapolation |
+| ψ1 | smile/frown | **-0.898 (ANTI)** | Nearly pure antisymmetric — lopsided smirk. Use ψ5+ψ4 for bilateral smile |
+| ψ2 | brow raise | +0.902 (SYM) | Upper face, good for surprise |
+| ψ3 | brow furrow | +0.950 (SYM) | Glabella bunching at high values |
+| ψ4 | lip pucker | +0.986 (SYM) | Lips pinch at extreme values. Negative = mouth widens |
+| ψ5 | upper lip raiser | +0.975 (SYM) | Exposes gum void at high values. Primary symmetric smile driver |
+| ψ6 | lower lip depressor | +0.975 (SYM) | Thins at extreme values. Grief/sadness |
+| ψ7 | eyelid close | +0.969 (SYM) | Clips through eyeball at ±4 (clamped) |
+| ψ8 | nose wrinkler | +0.946 (SYM) | Vertex bunching at nasion |
+| ψ9 | cheek puffer | +0.937 (SYM) | Previously thought asymmetric — actually symmetric per mirror analysis |
 
-**Key rule:** For bilateral expression axes, avoid ψ1 and ψ9. Safe symmetric set: ψ0, ψ2, ψ3, ψ4, ψ5, ψ6, ψ7, ψ8.
+**Key rule:** ψ1 is the ONLY antisymmetric component in ψ0–ψ10. To use asymmetric components (ψ11+) bilaterally, apply them as conjugate pairs (see tools/compute_mirror.py for pair analysis). Safe solo-use set: ψ0, ψ2–ψ10.
+
+**Mid-frequency nuance (ψ11+):** Components ψ11–ψ50 add subtle character. Beyond ψ50, components are overfitted to training subjects. Asymmetric pairs: ψ11↔ψ12, ψ14↔ψ15, ψ17↔ψ18, ψ19↔ψ20.
 
 Artifacts begin ~±5σ, mesh inversion by ~±10σ. Total expression magnitude budget ~20–25 for safe rendering; we deliberately exceed this for cartoon-level grotesque.
 

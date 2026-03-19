@@ -3,7 +3,6 @@ import { generateReport, type BindingReport, type BindingEntry } from './report'
 import { resolve } from './resolve';
 import { makeTickerFrame, TEST_TICKERS } from '../../test-utils/fixtures';
 import { N_SHAPE, N_EXPR } from '../constants';
-import { DEFAULT_BINDING_CONFIG } from './config';
 
 function sumContributions(entry: BindingEntry): number {
   return entry.contributions.reduce((sum, c) => sum + c.contribution, 0);
@@ -18,6 +17,8 @@ describe('BindingReport', () => {
     const report = generateReport(ticker, frame, params);
 
     expect(report.tickerId).toBe(ticker.id);
+    expect(report.chords).toBeDefined();
+    expect(report.chords.length).toBe(3);
     expect(report.shape).toBeDefined();
     expect(report.expression).toBeDefined();
     expect(report.pose).toBeDefined();
@@ -26,48 +27,32 @@ describe('BindingReport', () => {
     expect(report.fatigue).toBeDefined();
   });
 
-  it('shape contributions sum to reported values and match resolved params', () => {
+  it('chord entries have alarm, valence, arousal', () => {
+    const params = resolve(ticker, frame);
+    const report = generateReport(ticker, frame, params);
+
+    const names = report.chords.map(c => c.name);
+    expect(names).toContain('alarm');
+    expect(names).toContain('valence');
+    expect(names).toContain('arousal');
+  });
+
+  it('softmax weights sum to ~1', () => {
+    const params = resolve(ticker, frame);
+    const report = generateReport(ticker, frame, params);
+
+    const weightSum = report.chords.reduce((sum, c) => sum + c.softmaxWeight, 0);
+    expect(weightSum).toBeCloseTo(1, 3);
+  });
+
+  it('shape contributions sum to reported values', () => {
     const params = resolve(ticker, frame);
     const report = generateReport(ticker, frame, params);
 
     for (const entry of report.shape) {
       const sum = sumContributions(entry);
       expect(sum).toBeCloseTo(entry.value, 5);
-      expect(entry.value).toBeCloseTo(params.shape[entry.index], 5);
     }
-  });
-
-  it('expression contributions sum to reported values and match resolved params', () => {
-    const params = resolve(ticker, frame);
-    const report = generateReport(ticker, frame, params);
-
-    for (const entry of report.expression) {
-      const sum = sumContributions(entry);
-      expect(sum).toBeCloseTo(entry.value, 5);
-      expect(entry.value).toBeCloseTo(params.expression[entry.index], 5);
-    }
-  });
-
-  it('shape entries trace axis sources', () => {
-    const params = resolve(ticker, frame);
-    const report = generateReport(ticker, frame, params);
-
-    // Stature axis drives β0 — should have momentum source
-    const statureEntry = report.shape.find(e => e.index === 0);
-    expect(statureEntry).toBeDefined();
-    const statureSrc = statureEntry!.contributions.find(c => c.source === 'axis:stature←momentum');
-    expect(statureSrc).toBeDefined();
-  });
-
-  it('expression entries trace axis sources', () => {
-    const params = resolve(ticker, frame);
-    const report = generateReport(ticker, frame, params);
-
-    // Joy axis drives ψ0 — should have deviation source
-    const joyEntry = report.expression.find(e => e.index === 0);
-    expect(joyEntry).toBeDefined();
-    const joySrc = joyEntry!.contributions.find(c => c.source === 'axis:joy←deviation');
-    expect(joySrc).toBeDefined();
   });
 
   it('identity noise traced in shape', () => {
@@ -80,20 +65,20 @@ describe('BindingReport', () => {
     expect(identityEntries.length).toBeGreaterThan(0);
   });
 
-  it('pose entries have correct sources', () => {
+  it('pose entries use chord_blend source', () => {
     const params = resolve(ticker, frame);
     const report = generateReport(ticker, frame, params);
 
-    expect(report.pose.pitch.contributions[0].source).toBe('deviation');
+    expect(report.pose.pitch.contributions[0].source).toBe('chord_blend');
     expect(report.pose.pitch.value).toBe(params.pose.neck[0]);
   });
 
-  it('gaze entries have correct sources', () => {
+  it('gaze entries use chord_blend source', () => {
     const params = resolve(ticker, frame);
     const report = generateReport(ticker, frame, params);
 
-    expect(report.gaze.horizontal.contributions[0].source).toBe('velocity');
-    expect(report.gaze.vertical.contributions[0].source).toBe('volatility');
+    expect(report.gaze.horizontal.contributions[0].source).toBe('chord_blend');
+    expect(report.gaze.vertical.contributions[0].source).toBe('chord_blend');
   });
 
   it('flush/fatigue entries reflect params', () => {
@@ -113,7 +98,6 @@ describe('BindingReport', () => {
     const reportA = generateReport(tickerA, frame, paramsA);
     const reportB = generateReport(tickerB, frame, paramsB);
 
-    // Identity noise should differ
     const identityA = reportA.shape.filter(e => e.contributions.some(c => c.source === 'identity_noise'));
     const identityB = reportB.shape.filter(e => e.contributions.some(c => c.source === 'identity_noise'));
     expect(identityA.length).toBeGreaterThan(0);

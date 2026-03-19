@@ -21,15 +21,13 @@ export interface ExpressionResolver {
 
 /** Accessor-based axes configuration for the library API */
 export interface AxesConfig<T extends FaceDatum = FaceDatum> {
-  // Expression axes
-  joy?: Accessor<T>;
-  anguish?: Accessor<T>;
-  surprise?: Accessor<T>;
-  tension?: Accessor<T>;
+  // Expression chord axes
+  alarm?: Accessor<T>;
+  valence?: Accessor<T>;
+  arousal?: Accessor<T>;
   // Shape axes
+  dominance?: Accessor<T>;
   stature?: Accessor<T>;
-  proportion?: Accessor<T>;
-  angularity?: Accessor<T>;
   // Pose axes
   pitch?: Accessor<T>;
   yaw?: Accessor<T>;
@@ -65,20 +63,6 @@ export interface ResponseCurve {
 // ─── Binding Config ─────────────────────────────────
 
 export interface BindingConfig {
-  /** How deviation maps to joy axis (±3 output) */
-  deviation_curve: ResponseCurve;
-  /** How |velocity| maps to surprise axis (0..3 output) */
-  velocity_curve: ResponseCurve;
-  /** How volatility maps to tension axis (0..3 output) */
-  volatility_curve: ResponseCurve;
-  /** How drawdown maps to anguish axis (±3 output) */
-  drawdown_curve: ResponseCurve;
-  /** How momentum maps to stature axis (±3 output) */
-  momentum_curve: ResponseCurve;
-  /** How mean_reversion_z maps to proportion axis (±3 output) */
-  mean_reversion_z_curve: ResponseCurve;
-  /** How beta maps to angularity axis (±3 output) */
-  beta_curve: ResponseCurve;
   /** Optional pose resolver config overrides */
   poseConfig?: Partial<import('./pose').PoseConfig>;
   /** Optional gaze resolver config overrides */

@@ -173,7 +173,8 @@ describe('interaction/detail.tsx', () => {
     vi.mocked(dataLoader.getTickerTimeseries).mockReturnValue([]);
 
     const { container } = render(<DetailPanel />);
-    expect(container.querySelector('svg')).toBeNull();
+    // Sparkline SVG should not render (no data), but axis bar SVGs will exist
+    expect(container.querySelector('svg polyline')).toBeNull();
   });
 
   it('sparkline renders polyline and current position marker', () => {

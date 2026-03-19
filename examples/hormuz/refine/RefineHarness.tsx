@@ -125,14 +125,6 @@ export function RefineHarness() {
               // Build custom binding config with pose/gaze threading
               const customConfig: BindingConfig = {
                 ...DEFAULT_BINDING_CONFIG,
-                deviation_curve: {
-                  ...DEFAULT_BINDING_CONFIG.deviation_curve,
-                  steepness: config.overrides.deviationSteepness ?? DEFAULT_BINDING_CONFIG.deviation_curve.steepness,
-                },
-                velocity_curve: {
-                  ...DEFAULT_BINDING_CONFIG.velocity_curve,
-                  steepness: config.overrides.velocitySteepness ?? DEFAULT_BINDING_CONFIG.velocity_curve.steepness,
-                },
                 poseConfig: {
                   maxPitch: config.overrides.maxNeckPitch,
                   maxYaw: config.overrides.maxNeckYaw,

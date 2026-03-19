@@ -15,7 +15,7 @@ const defaultFormat = (v: number) => v.toFixed(3);
 
 export function SliderRow({ label, value, min, max, step, onChange, format = defaultFormat }: SliderRowProps) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, cursor: 'pointer' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
       <span style={{ width: 90, fontSize: 11, color: '#aaa', flexShrink: 0, fontFamily: 'monospace' }}>
         {label}
       </span>

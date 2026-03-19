@@ -1,20 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../../../src/store';
 import { getTickerTimeseries } from '../../../src/data/loader';
+import type { TickerFrame } from '../../../src/types';
+import { computeDatasetStats, type DatasetStats, type TickerStats } from '../../../src/data/stats';
+import { computeChordActivations } from '../../../src/binding/chords';
+import type { ChordActivations } from '../../../src/binding/chords';
 
 /**
  * Detail panel: click face → side panel with full decode.
  *
  * Displays:
  * - Ticker name, id, class, family, age, tenor
- * - Sparkline: ticker's full timeseries (tiny line chart via SVG)
- * - Current frame highlight on sparkline
- * - All binding parameters listed
- * - "What do the expressions represent" decode
- * - Family context: show all family members' current states
- *
- * Reads selectedId + instances + dataset from store.
- * Slides in from right when a face is selected.
+ * - Sparkline: ticker's full timeseries
+ * - 5 chord bars with winner highlighting
+ * - Collapsible raw signals section
  */
 export function DetailPanel(): React.ReactElement | null {
   const selectedId = useStore((s) => s.selectedId);
@@ -98,13 +97,8 @@ export function DetailPanel(): React.ReactElement | null {
         />
       </div>
 
-      {/* Current values */}
-      <Section title="current frame">
-        <KV label="close" value={frame.close.toFixed(2)} />
-        <KV label="deviation" value={`${frame.deviation >= 0 ? '+' : ''}${(frame.deviation * 100).toFixed(1)}%`} />
-        <KV label="velocity" value={frame.velocity.toFixed(4)} />
-        <KV label="volatility" value={frame.volatility.toFixed(4)} />
-      </Section>
+      {/* Chord bars */}
+      <ChordsSection frame={frame} tickerId={ticker.id} />
 
       {/* Expression decode */}
       <Section title="market dynamics">
@@ -112,6 +106,9 @@ export function DetailPanel(): React.ReactElement | null {
           {describeExpression(frame.deviation, frame.velocity, frame.volatility)}
         </div>
       </Section>
+
+      {/* Collapsible raw signals */}
+      <RawSignalsSection frame={frame} />
 
       {/* Family context */}
       {familyMembers.length > 0 && (
@@ -127,6 +124,161 @@ export function DetailPanel(): React.ReactElement | null {
             </div>
           ))}
         </Section>
+      )}
+    </div>
+  );
+}
+
+/** Cache dataset stats (computed once). */
+let cachedStats: DatasetStats | null = null;
+function getStats(): DatasetStats | null {
+  const dataset = useStore.getState().dataset;
+  if (!dataset) return null;
+  if (!cachedStats) {
+    cachedStats = computeDatasetStats(dataset);
+  }
+  return cachedStats;
+}
+
+/** Chord activation bars — the main display. */
+function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: string }) {
+  const stats = getStats();
+  const activations = computeChordActivations(frame, stats ?? undefined, tickerId);
+
+  // Find winner chord
+  const weights = [
+    { name: 'alarm', w: activations.wAlarm, raw: activations.rawAlarm, sign: activations.alarmSign },
+    { name: 'valence', w: activations.wValence, raw: activations.rawValence, sign: activations.valenceSign },
+    { name: 'arousal', w: activations.wArousal, raw: activations.rawArousal, sign: activations.arousalSign },
+  ];
+  const maxW = Math.max(...weights.map(c => c.w));
+
+  return (
+    <>
+      <Section title="expression chords">
+        {weights.map(({ name, w, raw, sign }) => (
+          <ChordBar
+            key={name}
+            name={name}
+            weight={w}
+            rawActivation={raw}
+            sign={sign}
+            isWinner={w === maxW}
+          />
+        ))}
+      </Section>
+      <Section title="shape axes">
+        <ChordBar
+          name="dominance"
+          weight={Math.abs(activations.dominance)}
+          rawActivation={activations.dominance}
+          sign={Math.sign(activations.dominance) || 1}
+          isWinner={false}
+        />
+        <ChordBar
+          name="stature"
+          weight={Math.abs(activations.stature)}
+          rawActivation={activations.stature}
+          sign={Math.sign(activations.stature) || 1}
+          isWinner={false}
+        />
+      </Section>
+    </>
+  );
+}
+
+/** Single chord bar with activation strength. */
+function ChordBar({
+  name,
+  weight,
+  rawActivation,
+  sign,
+  isWinner,
+}: {
+  name: string;
+  weight: number;
+  rawActivation: number;
+  sign: number;
+  isWinner: boolean;
+}) {
+  const barWidth = 120;
+  const barHeight = 8;
+  const fillWidth = Math.min(1, weight) * barWidth;
+
+  const color = isWinner
+    ? 'rgba(255, 200, 80, 0.9)'
+    : sign > 0
+      ? 'rgba(100, 200, 255, 0.6)'
+      : 'rgba(255, 100, 100, 0.6)';
+
+  const signLabel = name === 'valence'
+    ? (sign > 0 ? ' (euphoria)' : ' (grief)')
+    : name === 'arousal'
+      ? (sign > 0 ? ' (alert)' : ' (exhausted)')
+      : name === 'dominance'
+        ? (sign > 0 ? ' (chad)' : ' (soyboi)')
+        : name === 'stature'
+          ? (sign > 0 ? ' (heavy)' : ' (gaunt)')
+          : '';
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+      <span style={{
+        color: isWinner ? '#ffc850' : '#888',
+        width: 72,
+        flexShrink: 0,
+        fontSize: 11,
+        fontWeight: isWinner ? 'bold' : 'normal',
+      }}>
+        {name}
+      </span>
+      <svg width={barWidth} height={barHeight} style={{ flexShrink: 0 }}>
+        <rect width={barWidth} height={barHeight} fill="rgba(255,255,255,0.05)" rx={2} />
+        <rect width={fillWidth} height={barHeight} fill={color} rx={2} />
+      </svg>
+      <span style={{ color: '#ccc', fontSize: 10, flexShrink: 0, width: 32, textAlign: 'right' }}>
+        {(weight * 100).toFixed(0)}%
+      </span>
+      <span style={{ color: '#555', fontSize: 9, flexShrink: 0 }}>
+        {signLabel}
+      </span>
+    </div>
+  );
+}
+
+/** Collapsible raw signals section. */
+function RawSignalsSection({ frame }: { frame: TickerFrame }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#555',
+          cursor: 'pointer',
+          fontSize: 10,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          padding: '4px 0',
+          fontFamily: 'monospace',
+        }}
+      >
+        {open ? '▾' : '▸'} raw signals
+      </button>
+      {open && (
+        <div style={{ paddingLeft: 8 }}>
+          <KV label="close" value={frame.close.toFixed(2)} />
+          <KV label="deviation" value={`${frame.deviation >= 0 ? '+' : ''}${(frame.deviation * 100).toFixed(1)}%`} />
+          <KV label="velocity" value={frame.velocity.toFixed(4)} />
+          <KV label="volatility" value={frame.volatility.toFixed(4)} />
+          <KV label="drawdown" value={`${(frame.drawdown * 100).toFixed(1)}%`} />
+          <KV label="momentum" value={frame.momentum.toFixed(3)} />
+          <KV label="mean_rev_z" value={frame.mean_reversion_z.toFixed(3)} />
+          <KV label="beta" value={frame.beta.toFixed(3)} />
+        </div>
       )}
     </div>
   );

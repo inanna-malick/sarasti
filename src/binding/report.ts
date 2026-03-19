@@ -1,18 +1,20 @@
 /**
- * Binding Report — traces every output parameter back to its input sources.
+ * Binding Report — traces chord activations + softmax weights.
  */
 
 import type { TickerConfig, TickerFrame, FaceParams } from '../types';
-import type { BindingConfig } from './types';
-import { DEFAULT_BINDING_CONFIG } from './config';
 import { N_SHAPE, N_EXPR } from '../constants';
-import { EXPR_AXES, SHAPE_AXES, EXPR_AXIS_NAMES, SHAPE_AXIS_NAMES, applyMapping } from './axes';
-import { applyCurve, applySymmetricCurve } from './curves';
-import { POSE_MULTIPLIERS } from './pose';
-import { GAZE_MULTIPLIERS } from './gaze';
+import { EXPR_AXES, SHAPE_AXES, applyMapping } from './axes';
+import { hashToScalars } from './identity';
 import type { TextureAccumulator } from './texture/accumulator';
 import { accumulatorToTexture, createTextureAccumulator } from './texture/accumulator';
-import { hashToScalars } from './identity';
+import {
+  computeChordActivations,
+  resolveExpressionChords,
+  resolveShapeChords,
+} from './chords';
+import type { ChordActivations } from './chords';
+import type { DatasetStats } from '../data/stats';
 
 // ─── Types ──────────────────────────────────────────
 
@@ -31,8 +33,16 @@ export interface BindingEntry {
   contributions: BindingContribution[];
 }
 
+export interface ChordEntry {
+  name: string;
+  rawActivation: number;
+  softmaxWeight: number;
+  sign: number;
+}
+
 export interface BindingReport {
   tickerId: string;
+  chords: ChordEntry[];
   shape: BindingEntry[];
   expression: BindingEntry[];
   pose: {
@@ -55,47 +65,71 @@ export function generateReport(
   ticker: TickerConfig,
   frame: TickerFrame,
   params: FaceParams,
-  config: BindingConfig = DEFAULT_BINDING_CONFIG,
+  _config?: unknown,
   accumulator?: TextureAccumulator,
+  stats?: DatasetStats,
 ): BindingReport {
+  const activations = computeChordActivations(frame, stats, ticker.id);
+  const chordResult = resolveExpressionChords(activations);
+
   return {
     tickerId: ticker.id,
-    shape: traceShape(ticker, frame, config),
-    expression: traceExpression(frame, config),
-    pose: tracePose(frame, params),
-    gaze: traceGaze(frame, params),
+    chords: traceChords(activations),
+    shape: traceShape(ticker, activations),
+    expression: traceExpression(chordResult.expression),
+    pose: tracePose(chordResult, params),
+    gaze: traceGaze(chordResult, params),
     flush: traceFlush(params, accumulator),
     fatigue: traceFatigue(params, accumulator),
   };
+}
+
+// ─── Chord Tracing ───────────────────────────────────
+
+function traceChords(activations: ChordActivations): ChordEntry[] {
+  return [
+    {
+      name: 'alarm',
+      rawActivation: activations.rawAlarm,
+      softmaxWeight: activations.wAlarm,
+      sign: activations.alarmSign,
+    },
+    {
+      name: 'valence',
+      rawActivation: activations.rawValence,
+      softmaxWeight: activations.wValence,
+      sign: activations.valenceSign,
+    },
+    {
+      name: 'arousal',
+      rawActivation: activations.rawArousal,
+      softmaxWeight: activations.wArousal,
+      sign: activations.arousalSign,
+    },
+  ];
 }
 
 // ─── Shape Tracing ──────────────────────────────────
 
 function traceShape(
   ticker: TickerConfig,
-  frame: TickerFrame,
-  config: BindingConfig,
+  activations: ChordActivations,
 ): BindingEntry[] {
   const sources: { name: string; vec: Float32Array; input: number }[] = [];
 
-  // Stature ← momentum
-  const statureVec = new Float32Array(N_SHAPE);
-  const statureValue = applySymmetricCurve(config.momentum_curve, frame.momentum);
-  applyMapping(statureVec, SHAPE_AXES.stature, statureValue);
-  sources.push({ name: 'axis:stature←momentum', vec: statureVec, input: frame.momentum });
+  // Dominance
+  const domVec = new Float32Array(N_SHAPE);
+  for (const [idx, weight] of SHAPE_AXES.dominance) {
+    domVec[idx] = weight * activations.dominance;
+  }
+  sources.push({ name: 'chord:dominance←momentum', vec: domVec, input: activations.dominance });
 
-  // Proportion ← |mean_reversion_z|
-  const proportionVec = new Float32Array(N_SHAPE);
-  const proportionValue = applyCurve(config.mean_reversion_z_curve, Math.abs(frame.mean_reversion_z));
-  applyMapping(proportionVec, SHAPE_AXES.proportion, proportionValue);
-  sources.push({ name: 'axis:proportion←mean_rev_z', vec: proportionVec, input: frame.mean_reversion_z });
-
-  // Angularity ← |1 - beta|
-  const angularityVec = new Float32Array(N_SHAPE);
-  const betaDev = Math.abs(1 - frame.beta);
-  const angularityValue = applyCurve(config.beta_curve, betaDev);
-  applyMapping(angularityVec, SHAPE_AXES.angularity, angularityValue);
-  sources.push({ name: 'axis:angularity←beta', vec: angularityVec, input: frame.beta });
+  // Stature
+  const statVec = new Float32Array(N_SHAPE);
+  for (const [idx, weight] of SHAPE_AXES.stature) {
+    statVec[idx] = weight * activations.stature;
+  }
+  sources.push({ name: 'chord:stature←|1-beta|', vec: statVec, input: activations.stature });
 
   // Identity noise
   const identityVec = new Float32Array(N_SHAPE);
@@ -110,37 +144,25 @@ function traceShape(
 
 // ─── Expression Tracing ─────────────────────────────
 
-function traceExpression(
-  frame: TickerFrame,
-  config: BindingConfig,
-): BindingEntry[] {
-  const sources: { name: string; vec: Float32Array; input: number }[] = [];
-
-  // Joy ← deviation
-  const joyVec = new Float32Array(N_EXPR);
-  const joyValue = applySymmetricCurve(config.deviation_curve, frame.deviation);
-  applyMapping(joyVec, EXPR_AXES.joy, joyValue);
-  sources.push({ name: 'axis:joy←deviation', vec: joyVec, input: frame.deviation });
-
-  // Surprise ← |velocity|
-  const surpriseVec = new Float32Array(N_EXPR);
-  const surpriseValue = applyCurve(config.velocity_curve, Math.abs(frame.velocity));
-  applyMapping(surpriseVec, EXPR_AXES.surprise, surpriseValue);
-  sources.push({ name: 'axis:surprise←velocity', vec: surpriseVec, input: frame.velocity });
-
-  // Tension ← volatility
-  const tensionVec = new Float32Array(N_EXPR);
-  const tensionValue = applyCurve(config.volatility_curve, frame.volatility);
-  applyMapping(tensionVec, EXPR_AXES.tension, tensionValue);
-  sources.push({ name: 'axis:tension←volatility', vec: tensionVec, input: frame.volatility });
-
-  // Anguish ← drawdown
-  const anguishVec = new Float32Array(N_EXPR);
-  const anguishValue = applyCurve(config.drawdown_curve, frame.drawdown);
-  applyMapping(anguishVec, EXPR_AXES.anguish, anguishValue);
-  sources.push({ name: 'axis:anguish←drawdown', vec: anguishVec, input: frame.drawdown });
-
-  return buildEntries('expression', N_EXPR, sources);
+function traceExpression(expression: Float32Array): BindingEntry[] {
+  const entries: BindingEntry[] = [];
+  for (let i = 0; i < N_EXPR; i++) {
+    if (Math.abs(expression[i]) > 0.001) {
+      entries.push({
+        param: 'expression',
+        index: i,
+        value: expression[i],
+        contributions: [{
+          source: 'chord_blend',
+          input: expression[i],
+          mapped: expression[i],
+          weight: 1.0,
+          contribution: expression[i],
+        }],
+      });
+    }
+  }
+  return entries;
 }
 
 // ─── Helpers ────────────────────────────────────────
@@ -175,7 +197,7 @@ function buildEntries(
 // ─── Pose Tracing ───────────────────────────────────
 
 function tracePose(
-  frame: TickerFrame,
+  chordResult: { pose: { pitch: number; yaw: number; roll: number; jaw: number } },
   params: FaceParams,
 ): BindingReport['pose'] {
   return {
@@ -183,8 +205,8 @@ function tracePose(
       param: 'pose', index: 0,
       value: params.pose.neck[0],
       contributions: [{
-        source: 'deviation', input: frame.deviation,
-        mapped: frame.deviation * POSE_MULTIPLIERS.pitch, weight: 1.0,
+        source: 'chord_blend', input: chordResult.pose.pitch,
+        mapped: chordResult.pose.pitch, weight: 1.0,
         contribution: params.pose.neck[0],
       }],
     },
@@ -192,8 +214,8 @@ function tracePose(
       param: 'pose', index: 1,
       value: params.pose.neck[1],
       contributions: params.pose.neck[1] !== 0 ? [{
-        source: 'velocity', input: frame.velocity,
-        mapped: frame.velocity * POSE_MULTIPLIERS.yaw, weight: 1.0,
+        source: 'chord_blend', input: chordResult.pose.yaw,
+        mapped: chordResult.pose.yaw, weight: 1.0,
         contribution: params.pose.neck[1],
       }] : [],
     },
@@ -201,8 +223,8 @@ function tracePose(
       param: 'pose', index: 2,
       value: params.pose.neck[2],
       contributions: params.pose.neck[2] !== 0 ? [{
-        source: 'volatility', input: frame.volatility,
-        mapped: (frame.volatility - POSE_MULTIPLIERS.roll_offset) * POSE_MULTIPLIERS.roll_scale, weight: 1.0,
+        source: 'chord_blend', input: chordResult.pose.roll,
+        mapped: chordResult.pose.roll, weight: 1.0,
         contribution: params.pose.neck[2],
       }] : [],
     },
@@ -210,8 +232,8 @@ function tracePose(
       param: 'pose', index: 3,
       value: params.pose.jaw,
       contributions: params.pose.jaw !== 0 ? [{
-        source: 'volatility', input: frame.volatility,
-        mapped: (frame.volatility - POSE_MULTIPLIERS.jaw_offset) * POSE_MULTIPLIERS.jaw_scale, weight: 1.0,
+        source: 'chord_blend', input: chordResult.pose.jaw,
+        mapped: chordResult.pose.jaw, weight: 1.0,
         contribution: params.pose.jaw,
       }] : [],
     },
@@ -221,7 +243,7 @@ function tracePose(
 // ─── Gaze Tracing ───────────────────────────────────
 
 function traceGaze(
-  frame: TickerFrame,
+  chordResult: { gaze: { gazeH: number; gazeV: number } },
   params: FaceParams,
 ): BindingReport['gaze'] {
   return {
@@ -229,8 +251,8 @@ function traceGaze(
       param: 'gaze', index: 0,
       value: params.pose.leftEye[0],
       contributions: [{
-        source: 'velocity', input: frame.velocity,
-        mapped: frame.velocity * GAZE_MULTIPLIERS.horizontal, weight: 1.0,
+        source: 'chord_blend', input: chordResult.gaze.gazeH,
+        mapped: chordResult.gaze.gazeH, weight: 1.0,
         contribution: params.pose.leftEye[0],
       }],
     },
@@ -238,8 +260,8 @@ function traceGaze(
       param: 'gaze', index: 1,
       value: params.pose.leftEye[1],
       contributions: [{
-        source: 'volatility', input: frame.volatility,
-        mapped: (frame.volatility - GAZE_MULTIPLIERS.vertical_offset) * GAZE_MULTIPLIERS.vertical_scale, weight: 1.0,
+        source: 'chord_blend', input: chordResult.gaze.gazeV,
+        mapped: chordResult.gaze.gazeV, weight: 1.0,
         contribution: params.pose.leftEye[1],
       }],
     },
@@ -258,7 +280,7 @@ function traceFlush(
     param: 'flush', index: 0,
     value: params.flush,
     contributions: [{
-      source: 'ema_abs_deviation',
+      source: 'ema_abs_deviation+chord',
       input: acc.ema_abs_deviation,
       mapped: derived,
       weight: 1.0,
@@ -277,7 +299,7 @@ function traceFatigue(
     param: 'fatigue', index: 0,
     value: params.fatigue,
     contributions: [{
-      source: 'ema_volatility',
+      source: 'ema_volatility+chord',
       input: acc.ema_volatility,
       mapped: derived,
       weight: 1.0,

@@ -35,7 +35,7 @@ describe('SarastiBuilder', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
     const result = builder
       .data(testData)
-      .axes({ joy: d => d.score })
+      .axes({ valence: d => d.score })
       .layout({ cols: 3 });
     expect(result).toBe(builder);
   });
@@ -43,27 +43,27 @@ describe('SarastiBuilder', () => {
   it('resolveDatum produces valid FaceParams', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
     builder.data(testData).axes({
-      joy: d => d.score,
-      tension: d => d.risk,
+      valence: d => d.score,
+      alarm: d => d.risk,
     });
 
     // Access private method via any for testing
     const params = (builder as any).resolveDatum(testData[0]);
     expect(params.expression.length).toBe(N_EXPR);
     expect(params.shape.length).toBe(N_SHAPE);
-    // joy accessor returns 0.8, should produce nonzero expression
-    expect(params.expression[0]).not.toBe(0); // ψ0 driven by joy
+    // valence accessor returns 0.8, should produce nonzero ψ9 (cheek puff)
+    expect(params.expression[9]).not.toBe(0); // ψ9 driven by valence
   });
 
   it('different data produces different expressions', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
-    builder.data(testData).axes({ joy: d => d.score });
+    builder.data(testData).axes({ valence: d => d.score });
 
     const paramsA = (builder as any).resolveDatum(testData[0]); // score 0.8
     const paramsB = (builder as any).resolveDatum(testData[1]); // score -0.2
 
-    // Different scores should produce different joy values
-    expect(paramsA.expression[0]).not.toBeCloseTo(paramsB.expression[0]);
+    // Different scores should produce different valence values
+    expect(paramsA.expression[9]).not.toBeCloseTo(paramsB.expression[9]);
   });
 
   it('dispose prevents further renders', async () => {

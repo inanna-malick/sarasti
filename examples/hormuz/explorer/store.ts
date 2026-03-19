@@ -10,16 +10,14 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: semantic expression axes (per-axis ranges, −3..+3)
-  joy: number;
-  anguish: number;
-  surprise: number;
-  tension: number;
+  // High-level: expression chord axes (−3..+3)
+  alarm: number;
+  valence: number;
+  arousal: number;
 
-  // High-level: semantic shape axes (per-axis ranges, −3..+3)
+  // High-level: shape axes (−3..+3)
+  dominance: number;
   stature: number;
-  proportion: number;
-  angularity: number;
 
   // Pose override
   poseOverride: boolean;
@@ -46,13 +44,11 @@ interface ExplorerState {
 
   // Actions
   setMode: (mode: ExplorerMode) => void;
-  setJoy: (v: number) => void;
-  setAnguish: (v: number) => void;
-  setSurprise: (v: number) => void;
-  setTension: (v: number) => void;
+  setAlarm: (v: number) => void;
+  setValence: (v: number) => void;
+  setArousal: (v: number) => void;
+  setDominance: (v: number) => void;
   setStature: (v: number) => void;
-  setProportion: (v: number) => void;
-  setAngularity: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -85,16 +81,14 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   const shape = new Float32Array(N_SHAPE);
   const expression = new Float32Array(N_EXPR);
 
-  // Apply expression axes
-  applyMapping(expression, EXPR_AXES.joy, state.joy);
-  applyMapping(expression, EXPR_AXES.anguish, state.anguish);
-  applyMapping(expression, EXPR_AXES.surprise, state.surprise);
-  applyMapping(expression, EXPR_AXES.tension, state.tension);
+  // Apply expression chord axes
+  applyMapping(expression, EXPR_AXES.alarm, state.alarm);
+  applyMapping(expression, EXPR_AXES.valence, state.valence);
+  applyMapping(expression, EXPR_AXES.arousal, state.arousal);
 
   // Apply shape axes
+  applyMapping(shape, SHAPE_AXES.dominance, state.dominance);
   applyMapping(shape, SHAPE_AXES.stature, state.stature);
-  applyMapping(shape, SHAPE_AXES.proportion, state.proportion);
-  applyMapping(shape, SHAPE_AXES.angularity, state.angularity);
 
   const params: FaceParams = {
     shape,
@@ -133,14 +127,12 @@ function update(set: any, get: any, patch: Partial<ExplorerState>) {
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
 
-  joy: 0,
-  anguish: 0,
-  surprise: 0,
-  tension: 0,
+  alarm: 0,
+  valence: 0,
+  arousal: 0,
 
+  dominance: 0,
   stature: 0,
-  proportion: 0,
-  angularity: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -161,13 +153,11 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   currentParams: null,
 
   setMode: (v) => update(set, get, { mode: v }),
-  setJoy: (v) => update(set, get, { joy: v }),
-  setAnguish: (v) => update(set, get, { anguish: v }),
-  setSurprise: (v) => update(set, get, { surprise: v }),
-  setTension: (v) => update(set, get, { tension: v }),
+  setAlarm: (v) => update(set, get, { alarm: v }),
+  setValence: (v) => update(set, get, { valence: v }),
+  setArousal: (v) => update(set, get, { arousal: v }),
+  setDominance: (v) => update(set, get, { dominance: v }),
   setStature: (v) => update(set, get, { stature: v }),
-  setProportion: (v) => update(set, get, { proportion: v }),
-  setAngularity: (v) => update(set, get, { angularity: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),

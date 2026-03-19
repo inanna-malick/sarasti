@@ -9,7 +9,7 @@ export const MAX_NECK_YAW = 0.256;
 export const MAX_NECK_ROLL = 0.15;
 export const MAX_JAW_OPEN = 0.548;
 export const MAX_EYE_HORIZONTAL = 0.52;
-export const MAX_EYE_VERTICAL = 0.347;
+export const MAX_EYE_VERTICAL = 0.15;
 
 // Timeline
 export const TIMELINE_START = '2026-02-25T00:00:00Z';
@@ -28,4 +28,12 @@ export const MAX_DEVIATION_SIGMA = 0.2;
 // Data-viz mode: amplified expressions for visibility.
 // FLAME vertex displacements are millimeter-scale per unit coefficient.
 // CMA-ES optimized — ~2x previous value for dramatic, readable expressions.
-export const EXPRESSION_INTENSITY_DEFAULT = 26.28;
+export const EXPRESSION_INTENSITY_DEFAULT = 35;
+
+// Chord architecture
+/** Softmax temperature for expression chord competition. τ=0.5 → winner-take-most (~70% dominant). */
+export const SOFTMAX_TEMPERATURE = 0.5;
+/** ψ7 (eyelid close) safe range. Beyond ±4.0, eyelids clip through eyeball joint sphere. */
+export const PSI7_CLAMP = 4.0;
+/** β3 (mandibular width) safe range. Past -4.0 SD, jaw vertices collapse into oral cavity. */
+export const BETA3_CLAMP = 4.0;

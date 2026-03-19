@@ -48,7 +48,7 @@ export function ReportPanel() {
 
       {mode === 'highlevel' && (
         <div style={{ marginBottom: 8, fontSize: 10, color: '#777', fontFamily: 'monospace' }}>
-          <div style={{ color: '#888', marginBottom: 2 }}>Expression mappings:</div>
+          <div style={{ color: '#888', marginBottom: 2 }}>Expression chord mappings:</div>
           {Object.entries(EXPR_AXES).map(([axis, mapping]) => (
             <div key={axis} style={{ paddingLeft: 8 }}>
               {axis}: {mapping.map(([i, w]: readonly [number, number]) => `\u03C8${i}\u00D7${w}`).join(', ')}

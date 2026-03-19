@@ -1,6 +1,7 @@
 // ─── Data ───────────────────────────────────────────
 
 export type AssetClass = 'energy' | 'commodity' | 'fear' | 'currency' | 'equity' | 'media';
+export type Exchange = 'NYMEX' | 'NYSE' | 'CBOE' | 'ICE' | 'COMEX' | '24H';
 
 export interface TickerConfig {
   id: string;
@@ -9,6 +10,7 @@ export interface TickerConfig {
   family: string;
   age: number;
   tenor_months?: number;
+  exchange?: Exchange;
 }
 
 export interface TickerFrame {

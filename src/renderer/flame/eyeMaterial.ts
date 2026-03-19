@@ -2,13 +2,13 @@ import * as THREE from 'three';
 
 export interface EyeMaterialOptions {
   irisColor: THREE.Color;    // deterministic from ticker hash
-  irisRadius?: number;       // default 0.04 (CMA-ES optimized)
-  pupilRadius?: number;      // default 0.043 (CMA-ES optimized)
+  irisRadius?: number;       // default 0.14
+  pupilRadius?: number;      // default 0.055
 }
 
 export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMaterial {
-  const irisRadius = options.irisRadius ?? 0.04;
-  const pupilRadius = options.pupilRadius ?? 0.043;
+  const irisRadius = options.irisRadius ?? 0.14;
+  const pupilRadius = options.pupilRadius ?? 0.055;
 
   const vertexShader = `
     varying vec3 vLocalPos;
@@ -58,7 +58,9 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
 
     void main() {
       // Distance from shifted eye center
-      vec2 shiftedUV = vEyeUV - gazeOffset;
+      // gazeOffset is in radians; scale to eye UV space (normalized direction XY)
+      // Factor ~0.08 keeps the iris/pupil within the visible eye mesh at max gaze
+      vec2 shiftedUV = vEyeUV - gazeOffset * 0.08;
       float dist = length(shiftedUV);
       
       // Base color: Sclera (white)
@@ -71,7 +73,7 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       }
 
       // Limbal ring (dark ring at the edge of the iris)
-      float limbal = (1.0 - smoothstep(irisRadius, irisRadius + 0.015, dist)) * smoothstep(irisRadius - 0.03, irisRadius, dist);
+      float limbal = (1.0 - smoothstep(irisRadius, irisRadius + 0.008, dist)) * smoothstep(irisRadius - 0.015, irisRadius, dist);
       float limbalDarkness = limbal * 0.6;
       
       // Iris
@@ -98,7 +100,7 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       color = mix(color, vec3(0.0), limbalDarkness);
 
       // Fake specular highlight (upper-left)
-      vec2 specPos = vec2(-0.04, 0.04) + gazeOffset * 0.5;
+      vec2 specPos = vec2(-0.04, 0.04) + gazeOffset * 0.04;
       float spec = smoothstep(0.02, 0.0, length(vEyeUV - specPos));
       color += spec * 0.4;
 
@@ -106,12 +108,7 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       float l = max(0.3, dot(vNormal, normalize(vec3(0.5, 0.5, 1.0))));
       color *= l;
 
-      // Alpha fade for neck
-      float fadeStart = -0.08;
-      float fadeEnd = -0.15;
-      float alpha = smoothstep(fadeEnd, fadeStart, vY);
-
-      gl_FragColor = vec4(color, alpha);
+      gl_FragColor = vec4(color, 1.0);
     }
   `;
 
@@ -125,6 +122,6 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
     },
     vertexShader,
     fragmentShader,
-    transparent: true,
+    transparent: false,
   });
 }

@@ -4,8 +4,8 @@ import { useExplorerStore } from './store';
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
-    joy: 0, anguish: 0, surprise: 0, tension: 0,
-    stature: 0, proportion: 0, angularity: 0,
+    alarm: 0, valence: 0, arousal: 0,
+    dominance: 0, stature: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
     flush: 0, fatigue: 0,
@@ -15,7 +15,7 @@ beforeEach(() => {
   });
 });
 
-describe('ExplorerStore', () => {
+describe('ExplorerStore (chord axes)', () => {
   it('produces valid FaceParams after recompute', () => {
     useExplorerStore.getState().recompute();
     const { currentParams } = useExplorerStore.getState();
@@ -27,144 +27,102 @@ describe('ExplorerStore', () => {
     expect(currentParams!.pose.neck).toHaveLength(3);
   });
 
-  // --- Joy axis: ψ0 (jaw drop) × 2.0, ψ5 (upper lip) × -1.5, ψ7 (eyelid) × -0.7 ---
-  it('joy drives ψ0 (jaw drop), ψ5 (upper lip settles), ψ7 (eyes open)', () => {
-    useExplorerStore.getState().setJoy(3.0);
+  // --- Alarm axis: ψ0 × 1.0, ψ2 × 2.0, ψ8 × 1.5 ---
+  it('alarm drives ψ0 (jaw seasoning), ψ2 (brow up), ψ8 (nose wrinkle)', () => {
+    useExplorerStore.getState().setAlarm(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[0]).toBeCloseTo(6.0);   // ψ0: 2.0 × 3.0
-    expect(expr[5]).toBeCloseTo(-4.5);  // ψ5: -1.5 × 3.0
-    expect(expr[7]).toBeCloseTo(-2.1);  // ψ7: -0.7 × 3.0
-  });
-
-  // --- Anguish axis: ψ3 (brow furrow) × 2.3, ψ8 (nose wrinkle) × 1.5, ψ5 (upper lip snarl) × 1.2 ---
-  it('anguish drives ψ3 (brow furrow), ψ8 (nose wrinkle), ψ5 (upper lip snarl)', () => {
-    useExplorerStore.getState().setAnguish(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[3]).toBeCloseTo(6.9);   // ψ3: 2.3 × 3.0
+    expect(expr[0]).toBeCloseTo(3.0);   // ψ0: 1.0 × 3.0
+    expect(expr[2]).toBeCloseTo(6.0);   // ψ2: 2.0 × 3.0
     expect(expr[8]).toBeCloseTo(4.5);   // ψ8: 1.5 × 3.0
-    expect(expr[5]).toBeCloseTo(3.6);   // ψ5: 1.2 × 3.0
   });
 
-  // --- Surprise axis: ψ2 (brow raise) × 2.3, ψ0 (jaw drop) × 1.5, ψ7 (eyes open) × -1.5 ---
-  it('surprise drives ψ2 (brow raise), ψ0 (jaw drop), ψ7 (eyes snap open)', () => {
-    useExplorerStore.getState().setSurprise(3.0);
+  // --- Valence axis: ψ0 × 1.5, ψ9 × 3.0, ψ7 × 1.5, ψ8 × 0.5 ---
+  it('valence positive drives ψ9 (cheek puff), ψ0 (jaw open), ψ7 (Duchenne)', () => {
+    useExplorerStore.getState().setValence(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[2]).toBeCloseTo(6.9);   // ψ2: 2.3 × 3.0
+    expect(expr[9]).toBeCloseTo(9.0);   // ψ9: 3.0 × 3.0
     expect(expr[0]).toBeCloseTo(4.5);   // ψ0: 1.5 × 3.0
+    expect(expr[7]).toBeCloseTo(4.5);   // ψ7: 1.5 × 3.0
+    expect(expr[8]).toBeCloseTo(1.5);   // ψ8: 0.5 × 3.0
+  });
+
+  it('valence negative drives ψ9 negative (cheek deflate)', () => {
+    useExplorerStore.getState().setValence(-3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    expect(expr[9]).toBeCloseTo(-9.0);  // ψ9: 3.0 × -3.0
+    expect(expr[0]).toBeCloseTo(-4.5);  // ψ0: 1.5 × -3.0
+  });
+
+  // --- Arousal axis: ψ2 × 3.0, ψ7 × -1.5 ---
+  it('arousal positive drives ψ2 (brow raise), ψ7 (eyes open)', () => {
+    useExplorerStore.getState().setArousal(3.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    expect(expr[2]).toBeCloseTo(9.0);   // ψ2: 3.0 × 3.0
     expect(expr[7]).toBeCloseTo(-4.5);  // ψ7: -1.5 × 3.0
   });
 
-  // --- Tension axis: ψ4 (lip pucker) × 2.0, ψ6 (lower lip) × 1.5, ψ8 (nose set) × 1.0 ---
-  it('tension drives ψ4 (lip pucker), ψ6 (lower lip tense), ψ8 (nose set)', () => {
-    useExplorerStore.getState().setTension(3.0);
+  // --- Chord combination tests ---
+  it('alarm + arousal stack on ψ2 (brow rockets up)', () => {
+    useExplorerStore.getState().setAlarm(3.0);
+    useExplorerStore.getState().setArousal(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[4]).toBeCloseTo(6.0);   // ψ4: 2.0 × 3.0
-    expect(expr[6]).toBeCloseTo(4.5);   // ψ6: 1.5 × 3.0
-    expect(expr[8]).toBeCloseTo(3.0);   // ψ8: 1.0 × 3.0
-  });
-
-  // --- Expression combination tests ---
-
-  it('joy + surprise stack on ψ0 (jaw drops further)', () => {
-    useExplorerStore.getState().setJoy(3.0);
-    useExplorerStore.getState().setSurprise(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ0: joy 2.0×3 + surprise 1.5×3 = 6.0 + 4.5 = 10.5
-    expect(expr[0]).toBeCloseTo(10.5);
-  });
-
-  it('joy + anguish conflict on ψ5 (bittersweet upper lip)', () => {
-    useExplorerStore.getState().setJoy(3.0);
-    useExplorerStore.getState().setAnguish(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ5: joy -1.5×3 + anguish 1.2×3 = -4.5 + 3.6 = -0.9
-    expect(expr[5]).toBeCloseTo(-0.9);
-  });
-
-  it('anguish + tension stack on ψ8 (nose wrinkle intensifies)', () => {
-    useExplorerStore.getState().setAnguish(3.0);
-    useExplorerStore.getState().setTension(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[8]).toBeCloseTo(7.5);  // 4.5 + 3.0
-  });
-
-  it('joy + surprise stack on ψ7 (eyes wide open)', () => {
-    useExplorerStore.getState().setJoy(3.0);
-    useExplorerStore.getState().setSurprise(3.0);
-    const expr = useExplorerStore.getState().currentParams!.expression;
-    // ψ7: joy -0.7×3 + surprise -1.5×3 = -2.1 + -4.5 = -6.6
-    expect(expr[7]).toBeCloseTo(-6.6);
+    // ψ2: alarm 2.0×3 + arousal 3.0×3 = 6.0 + 9.0 = 15.0
+    expect(expr[2]).toBeCloseTo(15.0);
   });
 
   // --- Shape axes ---
+  it('dominance drives β3 (jaw), β2 (chin), β0 (neck), β4 (brow), β7, β18, β23', () => {
+    useExplorerStore.getState().setDominance(3.0);
+    const shape = useExplorerStore.getState().currentParams!.shape;
+    expect(shape[3]).toBeCloseTo(9.0);  // β3: 3.0 × 3.0
+    expect(shape[2]).toBeCloseTo(6.0);  // β2: 2.0 × 3.0
+    expect(shape[0]).toBeCloseTo(6.0);  // β0: 2.0 × 3.0
+    expect(shape[4]).toBeCloseTo(4.5);  // β4: 1.5 × 3.0
+    expect(shape[7]).toBeCloseTo(3.0);  // β7: 1.0 × 3.0
+    expect(shape[18]).toBeCloseTo(9.0); // β18: 3.0 × 3.0
+    expect(shape[23]).toBeCloseTo(9.0); // β23: 3.0 × 3.0
+  });
 
-  it('stature drives β0 (width), β3 (jaw width), β2 (profile depth)', () => {
+  it('stature drives β1 (face length), β6 (cheekbone), β5 (nasal), β8 (mouth), β32', () => {
     useExplorerStore.getState().setStature(3.0);
     const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[0]).toBeCloseTo(7.5);  // β0: 2.5 × 3.0 (root)
-    expect(shape[3]).toBeCloseTo(4.5);  // β3: 1.5 × 3.0 (color)
-    expect(shape[2]).toBeCloseTo(3.0);  // β2: 1.0 × 3.0 (color)
-  });
-
-  it('proportion drives β1 (face length), β4 (brow ridge), β6 (cheekbone)', () => {
-    useExplorerStore.getState().setProportion(3.0);
-    const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[1]).toBeCloseTo(7.5);   // β1: 2.5 × 3.0 (root)
-    expect(shape[4]).toBeCloseTo(-4.5);  // β4: -1.5 × 3.0 (color)
-    expect(shape[6]).toBeCloseTo(-3.0);  // β6: -1.0 × 3.0 (color)
-  });
-
-  it('angularity drives β10 (chin), β8 (mouth size), β5 (nasal bridge)', () => {
-    useExplorerStore.getState().setAngularity(3.0);
-    const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[10]).toBeCloseTo(4.5);  // β10: 1.5 × 3.0 (root)
-    expect(shape[8]).toBeCloseTo(-3.6);  // β8: -1.2 × 3.0 (color)
-    expect(shape[5]).toBeCloseTo(-3.0);  // β5: -1.0 × 3.0 (color)
+    expect(shape[1]).toBeCloseTo(9.0);  // β1: 3.0 × 3.0
+    expect(shape[6]).toBeCloseTo(6.0);  // β6: 2.0 × 3.0
+    expect(shape[5]).toBeCloseTo(4.5);  // β5: 1.5 × 3.0
+    expect(shape[8]).toBeCloseTo(3.6);  // β8: 1.2 × 3.0
+    expect(shape[32]).toBeCloseTo(9.0); // β32: 3.0 × 3.0
   });
 
   it('shape axes have zero component overlap', () => {
-    // Stature: β0, β3, β2
-    // Proportion: β1, β4, β6
-    // Angularity: β10, β8, β5
+    useExplorerStore.getState().setDominance(3.0);
     useExplorerStore.getState().setStature(3.0);
-    useExplorerStore.getState().setProportion(3.0);
-    useExplorerStore.getState().setAngularity(3.0);
     const shape = useExplorerStore.getState().currentParams!.shape;
 
-    // Stature components
-    expect(shape[0]).toBeCloseTo(7.5);
-    expect(shape[3]).toBeCloseTo(4.5);
-    expect(shape[2]).toBeCloseTo(3.0);
+    // Dominance components (β0, β2, β3, β4, β7, β18, β23)
+    expect(shape[0]).toBeCloseTo(6.0);
+    expect(shape[2]).toBeCloseTo(6.0);
+    expect(shape[3]).toBeCloseTo(9.0);
+    expect(shape[4]).toBeCloseTo(4.5);
+    expect(shape[7]).toBeCloseTo(3.0);
+    expect(shape[18]).toBeCloseTo(9.0);
+    expect(shape[23]).toBeCloseTo(9.0);
 
-    // Proportion components
-    expect(shape[1]).toBeCloseTo(7.5);
-    expect(shape[4]).toBeCloseTo(-4.5);
-    expect(shape[6]).toBeCloseTo(-3.0);
-
-    // Angularity components
-    expect(shape[10]).toBeCloseTo(4.5);
-    expect(shape[8]).toBeCloseTo(-3.6);
-    expect(shape[5]).toBeCloseTo(-3.0);
+    // Stature components (β1, β5, β6, β8, β32)
+    expect(shape[1]).toBeCloseTo(9.0);
+    expect(shape[5]).toBeCloseTo(4.5);
+    expect(shape[6]).toBeCloseTo(6.0);
+    expect(shape[8]).toBeCloseTo(3.6);
+    expect(shape[32]).toBeCloseTo(9.0);
   });
 
-  it('negative stature produces gaunt face', () => {
-    useExplorerStore.getState().setStature(-3.0);
+  it('negative dominance produces soyboi face', () => {
+    useExplorerStore.getState().setDominance(-3.0);
     const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[0]).toBeCloseTo(-7.5);  // narrow
-    expect(shape[3]).toBeCloseTo(-4.5);  // tapered jaw
-    expect(shape[2]).toBeCloseTo(-3.0);  // flat profile
-  });
-
-  it('negative proportion produces compact/neotenic face', () => {
-    useExplorerStore.getState().setProportion(-3.0);
-    const shape = useExplorerStore.getState().currentParams!.shape;
-    expect(shape[1]).toBeCloseTo(-7.5);  // short face
-    expect(shape[4]).toBeCloseTo(4.5);   // heavy brow
-    expect(shape[6]).toBeCloseTo(3.0);   // prominent cheekbones
+    expect(shape[3]).toBeCloseTo(-9.0);  // tapered jaw
+    expect(shape[2]).toBeCloseTo(-6.0);  // recessed chin
   });
 
   // --- Raw mode, texture, pose, gaze ---
-
   it('raw mode bypasses mappings', () => {
     useExplorerStore.getState().setMode('raw');
     const state = useExplorerStore.getState();

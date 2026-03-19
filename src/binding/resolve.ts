@@ -12,11 +12,10 @@ import {
 } from '../constants';
 import { createPoseResolver } from './pose';
 import { createGazeResolver } from './gaze';
-import type { ShapeResolver, ExpressionResolver, BindingConfig } from './types';
+import type { BindingConfig } from './types';
 import { emptyShape, emptyExpression } from './types';
 import { EXPR_AXES, SHAPE_AXES, applyMapping } from './axes';
 import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG } from './config';
-import { applyCurve, applySymmetricCurve } from './curves';
 import {
   createTextureAccumulator,
   updateAccumulator,
@@ -24,76 +23,16 @@ import {
   TextureAccumulator,
 } from './texture/accumulator';
 import { hashToScalars } from './identity';
-
-// ─── Expression Resolver ────────────────────────────
-
-/**
- * Creates an ExpressionResolver using the Emotion Quartet axes.
- * Each market data dimension drives one axis.
- */
-export function createExpressionResolver(
-  config: BindingConfig = DEFAULT_BINDING_CONFIG,
-): ExpressionResolver {
-  return {
-    resolve(frame: TickerFrame): Float32Array {
-      const expression = emptyExpression();
-
-      // deviation → joy (±): outperforming = joy, underperforming = grief
-      const joyValue = applySymmetricCurve(config.deviation_curve, frame.deviation);
-      applyMapping(expression, EXPR_AXES.joy, joyValue);
-
-      // |velocity| → surprise (+): fast moves = surprise, slow = calm
-      const surpriseValue = applyCurve(config.velocity_curve, Math.abs(frame.velocity));
-      applyMapping(expression, EXPR_AXES.surprise, surpriseValue);
-
-      // volatility → tension (+): high chaos = tense, low = slack
-      const tensionValue = applyCurve(config.volatility_curve, frame.volatility);
-      applyMapping(expression, EXPR_AXES.tension, tensionValue);
-
-      // drawdown → anguish (±): distance from peak = structural damage
-      const anguishValue = applyCurve(config.drawdown_curve, frame.drawdown);
-      applyMapping(expression, EXPR_AXES.anguish, anguishValue);
-
-      return expression;
-    },
-  };
-}
-
-// ─── Shape Resolver ─────────────────────────────────
-
-/**
- * Creates a ShapeResolver using the Shape Triad axes.
- * Shape is now fully data-driven — changes each frame.
- */
-export function createShapeResolver(
-  config: BindingConfig = DEFAULT_BINDING_CONFIG,
-): ShapeResolver {
-  return {
-    resolve(frame: TickerFrame): Float32Array {
-      const shape = emptyShape();
-
-      // momentum → stature: rising trend = heavy, falling = gaunt
-      const statureValue = applySymmetricCurve(config.momentum_curve, frame.momentum);
-      applyMapping(shape, SHAPE_AXES.stature, statureValue);
-
-      // |mean_reversion_z| → proportion: stretched = elongated, normal = compact
-      const proportionValue = applyCurve(
-        config.mean_reversion_z_curve,
-        Math.abs(frame.mean_reversion_z),
-      );
-      // Preserve sign: positive z = overextended up → elongated, negative = overextended down → also elongated
-      // Actually we want magnitude only — overextension in either direction = elongated
-      applyMapping(shape, SHAPE_AXES.proportion, proportionValue);
-
-      // |1 - beta| → angularity: herd-breaking = chiseled, conforming = soft
-      const betaDeviation = Math.abs(1 - frame.beta);
-      const angularityValue = applyCurve(config.beta_curve, betaDeviation);
-      applyMapping(shape, SHAPE_AXES.angularity, angularityValue);
-
-      return shape;
-    },
-  };
-}
+import type { DatasetStats } from '../data/stats';
+import {
+  computeChordActivations,
+  computeExchangeFatigueForArousal,
+  resolveExpressionChords,
+  resolveShapeChords,
+} from './chords';
+import type { ChordActivations } from './chords';
+import { computeExchangeFatigue } from './exchange';
+import type { Exchange } from '../types';
 
 // ─── Per-ticker identity noise ──────────────────────
 
@@ -123,11 +62,13 @@ function addIdentityNoise(shape: Float32Array, tickerId: string): void {
 
 /**
  * One-shot resolve: TickerConfig + TickerFrame → FaceParams.
+ * Uses chord architecture for all binding.
  */
 export function resolve(
   ticker: TickerConfig,
   frame: TickerFrame,
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
+  stats?: DatasetStats,
 ): FaceParams {
   if (!frame) {
     return {
@@ -139,113 +80,154 @@ export function resolve(
     };
   }
 
-  const shapeResolver = createShapeResolver(config);
-  const exprResolver = createExpressionResolver(config);
+  const activations = computeChordActivations(frame, stats, ticker.id);
+  const chordResult = resolveExpressionChords(activations);
+  const shapeResult = resolveShapeChords(activations);
+  addIdentityNoise(shapeResult.shape, ticker.id);
+
   const poseResolver = createPoseResolver(config.poseConfig);
   const gazeResolver = createGazeResolver(config.gazeConfig);
 
-  const shape = shapeResolver.resolve(frame);
-  addIdentityNoise(shape, ticker.id);
-
-  const poseResult = poseResolver.resolve(ticker.id, frame);
-  const gazeResult = gazeResolver.resolve(ticker.id, frame);
+  // Combine expression chord pose + shape identity pose
+  const combinedPose = {
+    pitch: chordResult.pose.pitch + shapeResult.pose.pitch,
+    yaw: chordResult.pose.yaw + shapeResult.pose.yaw,
+    roll: chordResult.pose.roll + shapeResult.pose.roll,
+    jaw: chordResult.pose.jaw,
+  };
+  const poseResult = poseResolver.resolve(ticker.id, combinedPose);
+  const gazeResult = gazeResolver.resolve(ticker.id, chordResult.gaze);
 
   return {
-    shape,
-    expression: exprResolver.resolve(frame),
+    shape: shapeResult.shape,
+    expression: chordResult.expression,
     pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
-    flush: 0,
-    fatigue: 0,
+    flush: chordResult.flush,
+    fatigue: chordResult.fatigue,
   };
 }
 
 /**
  * Create a cached resolver with EMA accumulators for flush/fatigue.
- * Shape is now per-frame (no shape cache), but accumulators persist.
+ * Shape EMA smoothing preserved (α=0.03).
  */
-export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
-  const shapeResolver = createShapeResolver(config);
-  const exprResolver = createExpressionResolver(config);
+const SHAPE_SMOOTHING_ALPHA = 0.03;
+
+export function createResolver(
+  config: BindingConfig = DEFAULT_BINDING_CONFIG,
+  stats?: DatasetStats,
+) {
   const poseResolver = createPoseResolver(config.poseConfig);
   const gazeResolver = createGazeResolver(config.gazeConfig);
   const accumulatorMap = new Map<string, TextureAccumulator>();
+  const shapeStateMap = new Map<string, Float32Array>();
 
-  return {
-    resolve(ticker: TickerConfig, frame: TickerFrame): FaceParams {
-      if (!frame) {
-        return {
-          shape: emptyShape(),
-          expression: emptyExpression(),
-          pose: zeroPose(),
-          flush: 0,
-          fatigue: 0,
-        };
+  /** Compute blended fatigue: exchange time-of-day + chord texture fatigue. */
+  function blendFatigue(
+    chordFatigue: number,
+    exchange: Exchange | undefined,
+    timestamp: string | undefined,
+  ): number {
+    if (!exchange || !timestamp) return chordFatigue;
+    const utcHour = new Date(timestamp).getUTCHours() + new Date(timestamp).getUTCMinutes() / 60;
+    const exchFatigue = computeExchangeFatigue(exchange, utcHour);
+    return 0.6 * exchFatigue + 0.4 * chordFatigue;
+  }
+
+  function resolveInternal(ticker: TickerConfig, frame: TickerFrame, timestamp?: string, accumulate = true): FaceParams {
+    if (!frame) {
+      return {
+        shape: emptyShape(),
+        expression: emptyExpression(),
+        pose: zeroPose(),
+        flush: 0,
+        fatigue: 0,
+      };
+    }
+
+    // Compute chord activations
+    const activations = computeChordActivations(frame, stats, ticker.id, timestamp);
+    const chordResult = resolveExpressionChords(activations);
+
+    // Shape with EMA smoothing
+    const shapeResult = resolveShapeChords(activations);
+    addIdentityNoise(shapeResult.shape, ticker.id);
+
+    let shape: Float32Array;
+    if (accumulate) {
+      let prevShape = shapeStateMap.get(ticker.id);
+      if (!prevShape) {
+        prevShape = new Float32Array(shapeResult.shape);
+        shapeStateMap.set(ticker.id, prevShape);
+      } else {
+        const a = SHAPE_SMOOTHING_ALPHA;
+        const b = 1 - a;
+        for (let i = 0; i < prevShape.length; i++) {
+          prevShape[i] = a * shapeResult.shape[i] + b * prevShape[i];
+        }
       }
+      shape = new Float32Array(prevShape);
+    } else {
+      shape = shapeStateMap.get(ticker.id) ?? shapeResult.shape;
+      shape = new Float32Array(shape);
+    }
 
-      const shape = shapeResolver.resolve(frame);
-      addIdentityNoise(shape, ticker.id);
-
-      // Texture accumulation: update EMA for flush/fatigue
+    // Texture accumulation
+    let flush: number;
+    let fatigue: number;
+    if (accumulate) {
       let acc = accumulatorMap.get(ticker.id);
       if (!acc) {
         acc = createTextureAccumulator();
       }
       acc = updateAccumulator(acc, frame, TEXTURE_CONFIG.ema_alpha);
       accumulatorMap.set(ticker.id, acc);
+      const tex = accumulatorToTexture(acc);
+      // Blend chord texture with EMA texture
+      flush = tex.flush + chordResult.flush;
+      fatigue = blendFatigue(tex.fatigue + chordResult.fatigue, ticker.exchange, timestamp);
+    } else {
+      const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
+      const tex = accumulatorToTexture(acc);
+      flush = tex.flush + chordResult.flush;
+      fatigue = blendFatigue(tex.fatigue + chordResult.fatigue, ticker.exchange, timestamp);
+    }
 
-      const { flush, fatigue } = accumulatorToTexture(acc);
+    // Combine expression chord pose + shape identity pose
+    const combinedPose = {
+      pitch: chordResult.pose.pitch + shapeResult.pose.pitch,
+      yaw: chordResult.pose.yaw + shapeResult.pose.yaw,
+      roll: chordResult.pose.roll + shapeResult.pose.roll,
+      jaw: chordResult.pose.jaw,
+    };
+    const poseResult = poseResolver.resolve(ticker.id, combinedPose);
+    const gazeResult = gazeResolver.resolve(ticker.id, chordResult.gaze);
 
-      const poseResult = poseResolver.resolve(ticker.id, frame);
-      const gazeResult = gazeResolver.resolve(ticker.id, frame);
+    return {
+      shape,
+      expression: chordResult.expression,
+      pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
+      flush: Math.max(-1, Math.min(1, flush)),
+      fatigue: Math.max(-1, Math.min(1, fatigue)),
+    };
+  }
 
-      return {
-        shape,
-        expression: exprResolver.resolve(frame),
-        pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
-        flush,
-        fatigue,
-      };
+  return {
+    resolve(ticker: TickerConfig, frame: TickerFrame, timestamp?: string): FaceParams {
+      return resolveInternal(ticker, frame, timestamp, true);
     },
 
-    /**
-     * Resolve without advancing EMA accumulators (for interpolation target frames).
-     */
-    resolveNoAccumulate(ticker: TickerConfig, frame: TickerFrame): FaceParams {
-      if (!frame) {
-        return {
-          shape: emptyShape(),
-          expression: emptyExpression(),
-          pose: zeroPose(),
-          flush: 0,
-          fatigue: 0,
-        };
-      }
-
-      const shape = shapeResolver.resolve(frame);
-      addIdentityNoise(shape, ticker.id);
-
-      const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
-      const { flush, fatigue } = accumulatorToTexture(acc);
-
-      const poseResult = poseResolver.resolve(ticker.id, frame);
-      const gazeResult = gazeResolver.resolve(ticker.id, frame);
-
-      return {
-        shape,
-        expression: exprResolver.resolve(frame),
-        pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
-        flush,
-        fatigue,
-      };
+    resolveNoAccumulate(ticker: TickerConfig, frame: TickerFrame, timestamp?: string): FaceParams {
+      return resolveInternal(ticker, frame, timestamp, false);
     },
 
     resetAccumulators(): void {
       accumulatorMap.clear();
+      shapeStateMap.clear();
       poseResolver.reset();
       gazeResolver.reset();
     },
 
-    /** Get current accumulator state snapshot for a ticker. */
     getAccumulator(tickerId: string): TextureAccumulator | undefined {
       const acc = accumulatorMap.get(tickerId);
       return acc ? { ...acc } : undefined;
@@ -257,15 +239,13 @@ export function createResolver(config: BindingConfig = DEFAULT_BINDING_CONFIG) {
 
 /** Pre-extracted axis values — all optional, unset = 0 */
 export interface AxisValues {
-  // Expression
-  joy?: number;
-  anguish?: number;
-  surprise?: number;
-  tension?: number;
+  // Expression chords
+  alarm?: number;
+  valence?: number;
+  arousal?: number;
   // Shape
+  dominance?: number;
   stature?: number;
-  proportion?: number;
-  angularity?: number;
   // Pose
   pitch?: number;
   yaw?: number;
@@ -289,15 +269,13 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
   const shape = emptyShape();
 
   // Expression axes
-  if (values.joy !== undefined) applyMapping(expression, EXPR_AXES.joy, values.joy);
-  if (values.anguish !== undefined) applyMapping(expression, EXPR_AXES.anguish, values.anguish);
-  if (values.surprise !== undefined) applyMapping(expression, EXPR_AXES.surprise, values.surprise);
-  if (values.tension !== undefined) applyMapping(expression, EXPR_AXES.tension, values.tension);
+  if (values.alarm !== undefined) applyMapping(expression, EXPR_AXES.alarm, values.alarm);
+  if (values.valence !== undefined) applyMapping(expression, EXPR_AXES.valence, values.valence);
+  if (values.arousal !== undefined) applyMapping(expression, EXPR_AXES.arousal, values.arousal);
 
   // Shape axes
+  if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);
   if (values.stature !== undefined) applyMapping(shape, SHAPE_AXES.stature, values.stature);
-  if (values.proportion !== undefined) applyMapping(shape, SHAPE_AXES.proportion, values.proportion);
-  if (values.angularity !== undefined) applyMapping(shape, SHAPE_AXES.angularity, values.angularity);
 
   // Identity noise on unused shape components
   addIdentityNoise(shape, datumId);

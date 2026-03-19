@@ -10,6 +10,7 @@ import { createResolver } from '../binding/resolve';
 import { computeLayout } from '../spatial/layout';
 import { TimelineEngine } from './engine';
 import { useStore } from '../store';
+import { computeDatasetStats } from '../data/stats';
 
 /**
  * Bridges timeline engine → data loader → binding → renderer.
@@ -40,12 +41,16 @@ export class FrameDriver {
   private engine: TimelineEngine;
   private dataset: TimelineDataset;
   private renderer: FaceRenderer;
-  private resolver = createResolver();
+  private resolver;
   private positions: Map<string, [number, number, number]>;
 
   constructor(dataset: TimelineDataset, renderer: FaceRenderer, initialIndex: number = 0) {
     this.dataset = dataset;
     this.renderer = renderer;
+
+    // Compute per-ticker stats for z-score normalization
+    const stats = computeDatasetStats(dataset);
+    this.resolver = createResolver(undefined, stats);
 
     // Compute layout once (unified threat-field layout, aspect-aware)
     const aspect = typeof window !== 'undefined'
@@ -127,13 +132,13 @@ export class FrameDriver {
       const pos = this.positions.get(ticker.id);
       if (!pos) continue;
 
-      const paramsA = this.resolver.resolve(ticker, tickerFrameA);
+      const paramsA = this.resolver.resolve(ticker, tickerFrameA, frameA.timestamp);
 
       let params: FaceParams;
       let tickerFrame = tickerFrameA;
       if (t > 0 && tickerFrameB && indexA !== indexB) {
         // resolveNoAccumulate: get expression for frame B without advancing EMA
-        const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB);
+        const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB, frameB.timestamp);
         // Allocate output buffer for interpolation
         params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0 };
         this.lerpParams(paramsA, paramsB, t, params);

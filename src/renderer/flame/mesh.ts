@@ -137,40 +137,11 @@ export class FlameFaceMesh {
     this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     // 2. Create Materials
-    // Face Material: Smooth alpha fade at neck base
     this.material = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.7,
       metalness: 0.0,
-      transparent: true,
-      alphaTest: 0.01,
     });
-
-    this.material.onBeforeCompile = (shader) => {
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <common>',
-        `#include <common>
-varying float vY;`
-      );
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <begin_vertex>',
-        `#include <begin_vertex>
-vY = position.y;`
-      );
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <common>',
-        `#include <common>
-varying float vY;`
-      );
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <dithering_fragment>',
-        `#include <dithering_fragment>
-float fadeStart = -0.08;
-float fadeEnd = -0.15;
-float fade = smoothstep(fadeEnd, fadeStart, vY);
-gl_FragColor.a *= fade;`
-      );
-    };
 
     // Eye Materials — pass through any overrides from RefineHarness
     const irisColor = this.computeIrisColor(tickerId);
@@ -393,11 +364,11 @@ gl_FragColor.a *= fade;`
     // We can use the first few coefficients from the albedo hash for variety
     const coeffs = this.getHashedCoefficients(tickerId, 3);
 
-    // Default eye colors: brown, blue, green
+    // Eye colors: bright enough to distinguish iris from pupil
     const bases = [
-      new THREE.Color(0.2, 0.1, 0.05), // Brown
-      new THREE.Color(0.1, 0.2, 0.4),  // Blue
-      new THREE.Color(0.1, 0.3, 0.1),  // Green
+      new THREE.Color(0.45, 0.25, 0.1),  // Amber-brown
+      new THREE.Color(0.2, 0.4, 0.7),    // Blue
+      new THREE.Color(0.2, 0.5, 0.2),    // Green
     ];
 
     // Pick base based on hash
