@@ -10,7 +10,6 @@ import {
   MOOD_EUPHORIA_RECIPE,
   MOOD_GRIEF_RECIPE,
   DOMINANCE_RECIPE,
-  STATURE_RECIPE,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
 } from '../../../src/binding/chords';
@@ -20,11 +19,10 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 4 axes only (pose/gaze/texture computed from chord recipes)
+  // High-level: 4 axes (pose/gaze/texture computed from chord recipes)
   tension: number;
   mood: number;
   dominance: number;
-  stature: number;
 
   // Raw mode: manual overrides
   poseOverride: boolean;
@@ -48,7 +46,6 @@ interface ExplorerState {
   setTension: (v: number) => void;
   setMood: (v: number) => void;
   setDominance: (v: number) => void;
-  setStature: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -147,7 +144,6 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
 
   // Shape β components
   applyMapping(shape, SHAPE_AXES.dominance, state.dominance);
-  applyMapping(shape, SHAPE_AXES.stature, state.stature);
 
   // Shape safety clamps — prevents mesh breakage at extreme slider values
   shape[3] = clamp(shape[3], -BETA3_CLAMP, BETA3_CLAMP);
@@ -157,7 +153,6 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
 
   // Shape → identity pose
   applyShapeRecipePose(DOMINANCE_RECIPE, state.dominance, pgt);
-  applyShapeRecipePose(STATURE_RECIPE, state.stature, pgt);
 
   const params: FaceParams = {
     shape,
@@ -213,7 +208,6 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   tension: 0,
   mood: 0,
   dominance: 0,
-  stature: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -235,7 +229,6 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setTension: (v) => update(set, get, { tension: v }),
   setMood: (v) => update(set, get, { mood: v }),
   setDominance: (v) => update(set, get, { dominance: v }),
-  setStature: (v) => update(set, get, { stature: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),

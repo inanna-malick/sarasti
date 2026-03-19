@@ -13,9 +13,9 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
       expect(result.expression[i]).toBe(0);
     }
 
-    // Shape has identity noise on β11-β19
+    // Shape has identity noise on β33-β41
     let noiseSum = 0;
-    for (let i = 11; i < 20; i++) noiseSum += Math.abs(result.shape[i]);
+    for (let i = 33; i < 42; i++) noiseSum += Math.abs(result.shape[i]);
     expect(noiseSum).toBeGreaterThan(0);
   });
 
@@ -41,22 +41,16 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(sad.expression[0]).toBeCloseTo(-0.6);
   });
 
-  it('dominance drives β3 (jaw width) + new β13, β48', () => {
-    const chad = resolveFromAxes({ dominance: 2.0 }, 'a');
-    const soyboi = resolveFromAxes({ dominance: -2.0 }, 'a');
-    expect(chad.shape[3]).toBeGreaterThan(0);
-    expect(soyboi.shape[3]).toBeLessThan(0);
-    expect(chad.shape[13]).toBeGreaterThan(0);  // new mid-freq
-    expect(chad.shape[48]).toBeGreaterThan(0);  // new high-freq
-  });
-
-  it('stature drives β1 (face length) + new β15, β49', () => {
-    const heavy = resolveFromAxes({ stature: 2.0 }, 'a');
-    const gaunt = resolveFromAxes({ stature: -2.0 }, 'a');
-    expect(heavy.shape[1]).toBeGreaterThan(0);
-    expect(gaunt.shape[1]).toBeLessThan(0);
-    expect(heavy.shape[15]).toBeGreaterThan(0);  // new mid-freq
-    expect(heavy.shape[49]).toBeGreaterThan(0);  // new high-freq
+  it('chad drives mass + jaw + eyes + bone detail', () => {
+    const chad = resolveFromAxes({ chad: 2.0 }, 'a');
+    const soyboi = resolveFromAxes({ chad: -2.0 }, 'a');
+    expect(chad.shape[0]).toBeGreaterThan(0);   // β0: thick
+    expect(soyboi.shape[0]).toBeLessThan(0);
+    expect(chad.shape[3]).toBeGreaterThan(0);   // β3: jaw width
+    expect(chad.shape[16]).toBeGreaterThan(0);  // β16: defined jaw
+    expect(chad.shape[19]).toBeLessThan(0);     // β19: jutting chin (inverted)
+    expect(chad.shape[7]).toBeGreaterThan(0);   // β7: intent eyes
+    expect(chad.shape[18]).toBeGreaterThan(0);  // β18: bone structure
   });
 
   it('pose values map to neck and jaw', () => {
@@ -84,7 +78,7 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     const a = resolveFromAxes({}, 'ticker-A');
     const b = resolveFromAxes({}, 'ticker-B');
     let diff = 0;
-    for (let i = 11; i < 20; i++) diff += Math.abs(a.shape[i] - b.shape[i]);
+    for (let i = 33; i < 42; i++) diff += Math.abs(a.shape[i] - b.shape[i]);
     expect(diff).toBeGreaterThan(0.01);
   });
 

@@ -15,7 +15,6 @@ export const DEFAULT_AXIS_CURVES: AxisCurveConfig = {
   mood:       { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   // Shape (bipolar ±)
   dominance:  { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
-  stature:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   // Pose (all bipolar, small output range in radians)
   pitch:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_PITCH, output_max: MAX_NECK_PITCH, steepness: 1 },
   yaw:        { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_YAW,   output_max: MAX_NECK_YAW,   steepness: 1 },
@@ -40,12 +39,12 @@ export const TEXTURE_CONFIG = {
   ema_window: 20,
   ema_alpha: 2 / (20 + 1),
   flush: {
-    warm_red: 0.45,
-    warm_green: -0.18,
-    warm_blue: -0.22,
-    cold_red: -0.12,
-    cold_green: -0.05,
-    cold_blue: 0.10,
+    warm_red: 0.20,
+    warm_green: -0.04,
+    warm_blue: -0.06,
+    cold_red: -0.08,
+    cold_green: -0.03,
+    cold_blue: 0.06,
     cheek_radius: 0.035,
     sigmoid_center: 0.15,
     sigmoid_steepness: 4,

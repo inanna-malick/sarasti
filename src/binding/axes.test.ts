@@ -26,32 +26,31 @@ describe('EXPR_AXES', () => {
     }
   });
 
-  it.skip('tension uses new ψ4, ψ5 components', () => {
-    const target = new Float32Array(N_EXPR);
-    applyMapping(target, EXPR_AXES.tension, 1.0);
-    expect(target[5]).toBeCloseTo(0.8);   // ψ5: upper lip raiser
-    expect(target[4]).toBeCloseTo(-0.5);  // ψ4: lip unpucker
-  });
-
-  it('mood uses ψ11+ψ12 conjugate pair for bilateral smile', () => {
+  it('mood uses ψ0 (smile) + ψ9 (smile) + ψ11+ψ12 (knowing smirk) + ψ7 (happy)', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.mood, 1.0);
+    expect(target[0]).toBeCloseTo(1.5);   // ψ0: frown-smile
+    expect(target[9]).toBeCloseTo(2.0);   // ψ9: smile
     expect(target[11]).toBeCloseTo(2.0);  // ψ11: left mouth corner
     expect(target[12]).toBeCloseTo(2.0);  // ψ12: right mouth corner
     expect(target[1]).toBeCloseTo(1.0);   // ψ1: overall smile shape (low weight)
-    expect(target[7]).toBeCloseTo(1.5);   // ψ7: Duchenne crinkle
+    expect(target[7]).toBeCloseTo(1.5);   // ψ7: happy eyes
+  });
+
+  it('tension uses ψ7 (wide eyes) + ψ2 (angry mouth) + ψ3 (brow furrow)', () => {
+    const target = new Float32Array(N_EXPR);
+    applyMapping(target, EXPR_AXES.tension, 1.0);
+    expect(target[7]).toBeCloseTo(-2.0);  // ψ7: wide eyes (negative = disappointed→happy inverted)
+    expect(target[2]).toBeCloseTo(2.0);   // ψ2: open angry mouth
+    expect(target[3]).toBeCloseTo(1.5);   // ψ3: brow furrow
+    expect(target[5]).toBeCloseTo(1.5);   // ψ5: sneer
+    expect(target[8]).toBeCloseTo(1.5);   // ψ8: shocked
   });
 });
 
 describe('SHAPE_AXES', () => {
-  it('has zero component overlap between axes', () => {
-    const used = new Map<number, string>();
-    for (const axis of SHAPE_AXIS_NAMES) {
-      for (const [idx] of SHAPE_AXES[axis]) {
-        expect(used.has(idx), `β${idx} used by both ${used.get(idx)} and ${axis}`).toBe(false);
-        used.set(idx, axis);
-      }
-    }
+  it('has single chad axis', () => {
+    expect(SHAPE_AXIS_NAMES).toEqual(['chad']);
   });
 
   it('all indices are within β0-β49 (safe range per FLAME analysis)', () => {
@@ -63,47 +62,59 @@ describe('SHAPE_AXES', () => {
     }
   });
 
-  it('dominance includes new mid-frequency β13, β48', () => {
+  it('chad drives mass (β0 thick), jaw (β16 defined), chin (β19 jutting inverted)', () => {
     const target = new Float32Array(N_SHAPE);
-    applyMapping(target, SHAPE_AXES.dominance, 1.0);
-    expect(target[13]).toBeCloseTo(2.5);  // β13: facial structure detail
-    expect(target[48]).toBeCloseTo(2.5);  // β48: skull refinement
+    applyMapping(target, SHAPE_AXES.chad, 1.0);
+    expect(target[0]).toBeCloseTo(4.0);    // β0: thick
+    expect(target[16]).toBeCloseTo(3.0);   // β16: defined jaw
+    expect(target[19]).toBeCloseTo(-3.0);  // β19: jutting chin (inverted)
   });
 
-  it('stature includes new mid-frequency β15, β49', () => {
+  it('chad drives predator eyes (β7 intent, β8 closely spaced inverted)', () => {
     const target = new Float32Array(N_SHAPE);
-    applyMapping(target, SHAPE_AXES.stature, 1.0);
-    expect(target[15]).toBeCloseTo(2.5);  // β15: bone structure
-    expect(target[49]).toBeCloseTo(2.5);  // β49: surface detail
+    applyMapping(target, SHAPE_AXES.chad, 1.0);
+    expect(target[7]).toBeCloseTo(2.0);    // β7: intent recessed eyes
+    expect(target[8]).toBeCloseTo(-2.0);   // β8: closely spaced (inverted)
+  });
+
+  it('chad drives stature (β1 tall, β2 elongated, β5 portly, β6 thicc, β9 big skull)', () => {
+    const target = new Float32Array(N_SHAPE);
+    applyMapping(target, SHAPE_AXES.chad, 1.0);
+    expect(target[1]).toBeCloseTo(3.0);    // β1: tall
+    expect(target[2]).toBeCloseTo(3.0);    // β2: elongated
+    expect(target[5]).toBeCloseTo(2.5);    // β5: portly
+    expect(target[6]).toBeCloseTo(3.5);    // β6: thicc
+    expect(target[9]).toBeCloseTo(2.5);    // β9: big skull
   });
 });
 
 describe('applyMapping', () => {
-  it.skip('adds weighted values to target', () => {
+  it('adds weighted values to target', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.tension, 2.0);
-    // Tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]]
-    expect(target[2]).toBeCloseTo(5.0);
-    expect(target[0]).toBeCloseTo(2.0);
-    expect(target[8]).toBeCloseTo(3.0);
-    expect(target[7]).toBeCloseTo(-3.0);
+    // Tension: [[7, -2.0], [2, 2.0], [3, 1.5], [5, 1.5], [8, 1.5], [11, 0.6], [12, 0.6]]
+    expect(target[7]).toBeCloseTo(-4.0);
+    expect(target[2]).toBeCloseTo(4.0);
+    expect(target[3]).toBeCloseTo(3.0);
     // Unused indices should be 0
-    expect(target[1]).toBe(0);
-    expect(target[3]).toBe(0);
+    expect(target[4]).toBe(0);
+    expect(target[6]).toBe(0);
   });
 
-  it.skip('stacks when called multiple times', () => {
+  it('stacks when called multiple times', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.tension, 1.0);
     applyMapping(target, EXPR_AXES.mood, 1.0);
-    // ψ0: tension 1.0 + mood 0.3 = 1.3
-    expect(target[0]).toBeCloseTo(1.3);
+    // ψ7: tension -2.0 + mood 1.5 = -0.5
+    expect(target[7]).toBeCloseTo(-0.5);
+    // ψ11: tension 0.6 + mood 2.0 = 2.6
+    expect(target[11]).toBeCloseTo(2.6);
   });
 
   it('handles negative values', () => {
     const target = new Float32Array(N_SHAPE);
-    applyMapping(target, SHAPE_AXES.dominance, -2.0);
-    // β3: 3.0 × -2.0 = -6.0
-    expect(target[3]).toBeCloseTo(-6.0);
+    applyMapping(target, SHAPE_AXES.chad, -2.0);
+    // β0: 2.5 × -2.0 = -5.0
+    expect(target[0]).toBeCloseTo(-5.0);
   });
 });

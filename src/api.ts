@@ -94,7 +94,7 @@ export class SarastiBuilder<T extends FaceDatum = FaceDatum> {
       const curve = curves[axisName];
       if (curve) {
         // Bipolar axes (joy, anguish, stature, proportion) use symmetric curves
-        const bipolar = ['tension', 'mood', 'dominance', 'stature', 'pitch', 'yaw', 'roll', 'gazeH', 'gazeV', 'flush', 'fatigue'];
+        const bipolar = ['tension', 'mood', 'dominance', 'pitch', 'yaw', 'roll', 'gazeH', 'gazeV', 'flush', 'fatigue'];
         const curvedValue = bipolar.includes(axisName)
           ? applySymmetricCurve(curve, rawValue)
           : applyCurve(curve, rawValue);

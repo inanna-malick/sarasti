@@ -5,7 +5,7 @@ beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
     tension: 0, mood: 0,
-    dominance: 0, stature: 0,
+    chad: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
     flush: 0, fatigue: 0,
@@ -118,17 +118,17 @@ describe('ExplorerStore (4-axis high-level)', () => {
   });
 
   // --- Shape axes with pose ---
-  it('dominance drives β components and pose pitch', () => {
-    useExplorerStore.getState().setDominance(3.0);
+  it('ogre drives β components and pose pitch', () => {
+    useExplorerStore.getState().setChad(3.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.shape[3]).toBeCloseTo(4.0);   // β3: 3.0 × 3.0 = 9.0, clamped to BETA3_CLAMP=4.0
     expect(p.shape[13]).toBeCloseTo(5.0);  // β13: 2.5 × 3.0 = 7.5, clamped to BETA_GENERAL_CLAMP=5.0
     expect(p.shape[48]).toBeCloseTo(5.0);  // β48: 2.5 × 3.0 = 7.5, clamped to 5.0
-    // No pose link — dominance is shape-only to avoid interfering with expression
+    // No pose link — ogre is shape-only to avoid interfering with expression
   });
 
-  it('stature drives β components and pose pitch', () => {
-    useExplorerStore.getState().setStature(3.0);
+  it('predator drives β components and pose pitch', () => {
+    useExplorerStore.getState().setChad(3.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.shape[1]).toBeCloseTo(5.0);   // β1: 3.0×3.0=9.0, clamped to 5.0
     expect(p.shape[15]).toBeCloseTo(5.0);  // β15: 2.5×3.0=7.5, clamped to 5.0
@@ -137,18 +137,18 @@ describe('ExplorerStore (4-axis high-level)', () => {
   });
 
   it('shape axes have zero component overlap', () => {
-    useExplorerStore.getState().setDominance(3.0);
-    useExplorerStore.getState().setStature(3.0);
+    useExplorerStore.getState().setChad(3.0);
+    useExplorerStore.getState().setChad(3.0);
     const shape = useExplorerStore.getState().currentParams!.shape;
 
-    // Dominance components (clamped to safe range)
+    // Ogre components (clamped to safe range)
     expect(shape[0]).toBeCloseTo(5.0);   // 6.0 → clamped 5.0
     expect(shape[2]).toBeCloseTo(5.0);   // 6.0 → clamped 5.0
     expect(shape[3]).toBeCloseTo(4.0);   // 9.0 → clamped 4.0 (β3 tight clamp)
     expect(shape[13]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
     expect(shape[48]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
 
-    // Stature components (clamped to safe range)
+    // Predator components (clamped to safe range)
     expect(shape[1]).toBeCloseTo(5.0);   // 9.0 → clamped 5.0
     expect(shape[5]).toBeCloseTo(4.5);   // under clamp
     expect(shape[6]).toBeCloseTo(5.0);   // 6.0 → clamped 5.0
@@ -156,8 +156,8 @@ describe('ExplorerStore (4-axis high-level)', () => {
     expect(shape[49]).toBeCloseTo(5.0);  // 7.5 → clamped 5.0
   });
 
-  it('negative dominance produces soyboi face', () => {
-    useExplorerStore.getState().setDominance(-3.0);
+  it('negative ogre produces elf face', () => {
+    useExplorerStore.getState().setChad(-3.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.shape[3]).toBeCloseTo(-4.0);  // clamped to -BETA3_CLAMP
   });

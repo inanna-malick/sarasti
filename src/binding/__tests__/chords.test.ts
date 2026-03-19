@@ -40,8 +40,7 @@ describe('computeChordActivations (2-axis circumplex)', () => {
 
     expect(Number.isFinite(act.tension)).toBe(true);
     expect(Number.isFinite(act.mood)).toBe(true);
-    expect(Number.isFinite(act.dominance)).toBe(true);
-    expect(Number.isFinite(act.stature)).toBe(true);
+    expect(Number.isFinite(act.chad)).toBe(true);
   });
 
   it('high volatility × velocity → positive tension (tense)', () => {
@@ -73,18 +72,18 @@ describe('computeChordActivations (2-axis circumplex)', () => {
     expect(act.mood).toBeLessThan(0);
   });
 
-  it('positive momentum → positive dominance (chad)', () => {
+  it('positive momentum → positive chad', () => {
     const frame = makeTickerFrame({ momentum: 2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.dominance).toBeGreaterThan(0);
+    expect(act.chad).toBeGreaterThan(0);
   });
 
-  it('negative momentum → negative dominance (soyboi)', () => {
+  it('negative momentum → negative chad (soyboi)', () => {
     const frame = makeTickerFrame({ momentum: -2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.dominance).toBeLessThan(0);
+    expect(act.chad).toBeLessThan(0);
   });
 
   it('tension is bounded [-1, 1]', () => {
@@ -215,16 +214,16 @@ describe('resolveExpressionChords (2-axis)', () => {
   });
 });
 
-describe('resolveShapeChords', () => {
-  it('positive dominance → positive β3 (jaw width)', () => {
+describe('resolveShapeChords (single chad axis)', () => {
+  it('positive chad → positive β0 (thick)', () => {
     const frame = makeTickerFrame({ momentum: 2.0 });
     const act = computeChordActivations(frame);
     const { shape } = resolveShapeChords(act);
 
-    expect(shape[3]).toBeGreaterThan(0);
+    expect(shape[0]).toBeGreaterThan(0);
   });
 
-  it('negative dominance → negative β3, clamped', () => {
+  it('negative chad → negative β0, clamped', () => {
     const frame = makeTickerFrame({ momentum: -10 });
     const act = computeChordActivations(frame);
     const { shape } = resolveShapeChords(act);
@@ -232,40 +231,42 @@ describe('resolveShapeChords', () => {
     expect(shape[3]).toBeGreaterThanOrEqual(-BETA3_CLAMP);
   });
 
-  it('dominance is shape-only (no pose link)', () => {
+  it('chad is shape-only (no pose link)', () => {
     const frame = makeTickerFrame({ momentum: 2.0 });
     const act = computeChordActivations(frame);
     const { pose } = resolveShapeChords(act);
 
-    // Dominance has no pose — only stature contributes
     expect(Math.abs(pose.pitch)).toBeLessThan(0.1);
   });
 
-  it('dominance includes mid-frequency enrichment (β13, β48)', () => {
+  it('chad drives mass components (β0, β1, β2, β5, β6, β9)', () => {
     const frame = makeTickerFrame({ momentum: 2.0 });
     const act = computeChordActivations(frame);
     const { shape } = resolveShapeChords(act);
 
-    expect(shape[13]).toBeGreaterThan(0); // β13: facial structure detail
-    expect(shape[48]).toBeGreaterThan(0); // β48: skull refinement
+    expect(shape[0]).toBeGreaterThan(0); // β0: thick
+    expect(shape[1]).toBeGreaterThan(0); // β1: tall
+    expect(shape[2]).toBeGreaterThan(0); // β2: elongated
+    expect(shape[5]).toBeGreaterThan(0); // β5: portly
+    expect(shape[6]).toBeGreaterThan(0); // β6: thicc
+    expect(shape[9]).toBeGreaterThan(0); // β9: big skull
   });
 
-  it('stature includes mid-frequency enrichment (β15, β49)', () => {
-    const frame = makeTickerFrame({ beta: 2.5, deviation: 0.5 });
+  it('chad drives jaw/chin (β16, β19 inverted)', () => {
+    const frame = makeTickerFrame({ momentum: 2.0 });
     const act = computeChordActivations(frame);
     const { shape } = resolveShapeChords(act);
 
-    expect(shape[15]).not.toBe(0); // β15: bone structure
-    expect(shape[49]).not.toBe(0); // β49: surface detail
+    expect(shape[16]).toBeGreaterThan(0); // β16: defined jaw
+    expect(shape[19]).toBeLessThan(0);    // β19: jutting chin (inverted)
   });
 
-  it('zero overlap between dominance and stature components', () => {
-    // Dominance: β0, β2, β3, β4, β7, β13, β18, β23, β48
-    // Stature: β1, β5, β6, β8, β15, β32, β49
-    const domComponents = new Set([0, 2, 3, 4, 7, 13, 18, 23, 48]);
-    const statComponents = new Set([1, 5, 6, 8, 15, 32, 49]);
-    for (const d of domComponents) {
-      expect(statComponents.has(d)).toBe(false);
-    }
+  it('chad drives predator eyes (β7 intent, β8 closely spaced)', () => {
+    const frame = makeTickerFrame({ momentum: 2.0 });
+    const act = computeChordActivations(frame);
+    const { shape } = resolveShapeChords(act);
+
+    expect(shape[7]).toBeGreaterThan(0); // β7: intent recessed eyes
+    expect(shape[8]).toBeLessThan(0);    // β8: closely spaced (inverted)
   });
 });

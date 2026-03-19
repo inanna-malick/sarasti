@@ -115,12 +115,6 @@ function traceShape(
   }
   sources.push({ name: 'chord:dominance←momentum', vec: domVec, input: activations.dominance });
 
-  // Stature
-  const statVec = new Float32Array(N_SHAPE);
-  for (const [idx, weight] of SHAPE_AXES.stature) {
-    statVec[idx] = weight * activations.stature;
-  }
-  sources.push({ name: 'chord:stature←|1-beta|', vec: statVec, input: activations.stature });
 
   // Identity noise
   const identityVec = new Float32Array(N_SHAPE);

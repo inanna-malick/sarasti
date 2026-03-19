@@ -41,6 +41,7 @@ const noiseCache = new Map<string, Float32Array>();
 /**
  * Add small deterministic noise on unused β components (β11-β19).
  * Gives each ticker a unique face fingerprint without affecting axis-controlled components.
+ * Dominance uses β0,β2,β3,β4,β7,β18,β23. Stature uses β1,β5,β6,β8,β32.
  */
 function addIdentityNoise(shape: Float32Array, tickerId: string): void {
   let noise = noiseCache.get(tickerId);
@@ -244,7 +245,6 @@ export interface AxisValues {
   mood?: number;
   // Shape
   dominance?: number;
-  stature?: number;
   // Pose
   pitch?: number;
   yaw?: number;
@@ -273,7 +273,6 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
 
   // Shape axes
   if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);
-  if (values.stature !== undefined) applyMapping(shape, SHAPE_AXES.stature, values.stature);
 
   // Identity noise on unused shape components
   addIdentityNoise(shape, datumId);

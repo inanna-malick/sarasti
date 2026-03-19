@@ -56,9 +56,8 @@ export interface ChordActivations {
   tension: number;
   /** Mood axis: -1 (grief) to +1 (euphoric) */
   mood: number;
-  /** Shape axis values (not softmaxed) */
+  /** Shape: dominance (soyboi↔chad) ← momentum */
   dominance: number;
-  stature: number;
 }
 
 // ─── Chord Recipes ───────────────────────────────────
@@ -78,7 +77,7 @@ export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
     [11, 0.6],  // ψ11+ψ12: smile base for adrenaline grin stacking
     [12, 0.6],
   ],
-  pose: { jaw: 0.10, pitch: -0.12 },  // teeth parted + Kubrick head-down
+  pose: { pitch: -0.12 },  // Kubrick head-down (no jaw — stacks badly with mood)
   gaze: { gazeV: 0.15 },  // eyes locked upward through brow ridge
   texture: { fatigue: -0.3 },  // wired, not fatigued. Flush comes from mood only.
 };
@@ -99,23 +98,23 @@ export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   texture: { fatigue: 0.0 },  // clear skin — rested, NOT exhausted
 };
 
-/** MOOD EUPHORIC (+): positive deviation → warm glow, bilateral smile
- * ψ11+ψ12 are the unilateral smile conjugate pair (left + right mouth corner).
- * Combined at equal weight they produce a bilateral smile.
- * ψ1 adds overall smile shape but is asymmetric (-0.898) — used at lower weight.
- * Weights ≤2.5 so slider extreme (3.0) stays ≤7.5σ — no mesh inversion. */
+/** MOOD EUPHORIC (+): positive deviation → warm glow, smile
+ * ψ0+ is the primary smile (from explorer: positive = frown-smile).
+ * ψ9+ adds smile character. ψ11+ψ12 add knowing smirk (mouth corners).
+ * ψ1 adds overall smile shape (asymmetric, so low weight).
+ * ψ7+ = happy eyes. Weights ≤2.5 so slider extreme stays ≤7.5σ. */
 export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [11, 2.0],  // ψ11: left mouth corner raise — half of bilateral smile
-    [12, 2.0],  // ψ12: right mouth corner raise — other half
+    [0, 0.6],   // ψ0: frown-smile — light smile, not jaw drop
+    [9, 2.0],   // ψ9: smile — reinforces smile character
+    [11, 2.0],  // ψ11: left mouth corner raise — knowing smirk
+    [12, 2.0],  // ψ12: right mouth corner raise — knowing smirk
     [1, 1.0],   // ψ1: overall smile shape (asymmetric, so low weight)
-    [7, 1.5],   // ψ7: Duchenne eye crinkle — genuine smile tell
-    [0, 0.3],   // ψ0: minimal jaw
-    [8, 0.5],   // ψ8: nose wrinkle — subtle
+    [7, 1.5],   // ψ7: happy eyes — genuine joy
   ],
   pose: { pitch: 0.08, yaw: 0.04 },
   gaze: { gazeH: 0.08 },
-  texture: { flush: 0.4 },  // strong warm glow
+  texture: { flush: 0.25 },  // subtle warm glow
 };
 
 /** MOOD GRIEF (−): negative deviation → pallid */
@@ -141,26 +140,14 @@ export const DOMINANCE_RECIPE: ShapeChordRecipe = {
     [7, 1.0],   // β7: mid-face width (SYM 0.94)
     [18, 3.0],  // β18: localized structure refinement (SYM 0.886)
     [23, 3.0],  // β23: bone structure detail (SYM 0.856)
-    [13, 2.5],  // β13: facial structure detail (mixed 0.671)
-    [48, 2.5],  // β48: high-freq skull refinement (mixed 0.780)
+    // Explorer-verified seasoning
+    [16, 1.5],  // β16: defined jaw↔soft — explorer verified
+    [19, -1.5], // β19: jutting chin(-) ↔ recessed(+) — inverted, explorer verified
   ],
-  // No pose link — dominance chin tuck interferes with expression (e.g. the scream)
+  /** Pose identity: chad = head thrown back, soyboi = chin tucked */
+  pose: { pitch: 0.06 },
 };
 
-/** STATURE (Heavy↔Gaunt) ← |1-beta| with sign from deviation */
-export const STATURE_RECIPE: ShapeChordRecipe = {
-  shape: [
-    [1, 3.0],   // β1: face length (primary)
-    [6, 2.0],   // β6: cheekbone prominence
-    [5, 1.5],   // β5: nasal bridge
-    [8, 1.2],   // β8: mouth size (SYM 0.862)
-    [32, 3.0],  // β32: skull surface detail (SYM 0.938)
-    [15, 2.5],  // β15: mid-freq bone structure (mixed 0.704)
-    [49, 2.5],  // β49: high-freq surface detail (mixed 0.761)
-  ],
-  /** Pose identity: heavy = chin slightly up (commanding), gaunt = head slightly forward */
-  pose: { pitch: 0.03 },
-};
 
 // ─── Math Utilities ──────────────────────────────────
 
@@ -216,12 +203,10 @@ export function computeChordActivations(
   // ─── Mood: deviation (bipolar) ─────────────────
   const mood = symmetricSigmoid(dev_z, 6);
 
-  // ─── Shape axes (independent) ──────────────────
+  // ─── Shape axis ────────────────────────────────
   const dominance = symmetricSigmoid(mom_z, 6);
-  const statureSign = dev_z >= 0 ? 1 : -1;
-  const stature = sigmoid(Math.abs(beta_z), 6) * statureSign;
 
-  return { tension, mood, dominance, stature };
+  return { tension, mood, dominance };
 }
 
 /**
@@ -320,9 +305,6 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
 
   // DOMINANCE
   applyShape(DOMINANCE_RECIPE, activations.dominance);
-
-  // STATURE
-  applyShape(STATURE_RECIPE, activations.stature);
 
   // Per-component safety clamps
   // β3 has tighter clamp (jaw collapse at -4σ)

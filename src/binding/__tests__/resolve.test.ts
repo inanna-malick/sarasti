@@ -51,7 +51,7 @@ describe('resolve (2-axis circumplex)', () => {
     expect(result.expression[5]).toBeGreaterThan(0); // upper lip raises
   });
 
-  it('shape changes with momentum (dominance axis)', () => {
+  it('shape changes with momentum (ogre axis)', () => {
     const ticker = TEST_TICKERS[0];
     const rising = resolve(ticker, makeTickerFrame({ momentum: 2.0 }));
     const falling = resolve(ticker, makeTickerFrame({ momentum: -2.0 }));
@@ -71,7 +71,7 @@ describe('resolve (2-axis circumplex)', () => {
     const b = resolve(TEST_TICKERS[1], frame);
 
     let identityDiff = 0;
-    for (let i = 11; i < 20; i++) {
+    for (let i = 33; i < 42; i++) {
       identityDiff += Math.abs(a.shape[i] - b.shape[i]);
     }
     expect(identityDiff).toBeGreaterThan(0.01);
