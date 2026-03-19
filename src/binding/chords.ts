@@ -63,43 +63,55 @@ export interface ChordActivations {
 
 // ─── Chord Recipes ───────────────────────────────────
 
-/** TENSION TENSE (+): acute volatility × |velocity| + chronic drawdown */
+/** TENSION TENSE (+): acute volatility × |velocity| + chronic drawdown
+ * Alone (low mood) = the scream: wide eyes, raised brow, snarl.
+ * Stacked with euphoria = Kubrick/predatory grin: bared teeth (ψ5 sneer +
+ * mood's ψ1 smile), furrowed brow (ψ3) + raised outer brow (ψ2) = menace,
+ * head-down + gaze-up = looking through brow ridge. */
 export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [2, 2.5],   // ψ2: brow rockets up
-    [0, 1.0],   // ψ0: jaw seasoning
-    [8, 1.5],   // ψ8: nose wrinkle
-    [7, -1.5],  // ψ7: eyes snap open
-    [5, 0.8],   // ψ5: upper lip raises — slight snarl
-    [4, -0.5],  // ψ4: lips part — unpucker
+    [7, -2.0],  // ψ7: eyelid retraction — manic wide eyes
+    [2, 2.0],   // ψ2: brow up (outer) — alarm + surprise
+    [3, 1.5],   // ψ3: brow furrow (inner) — anger/menace V-shape
+    [5, 1.5],   // ψ5: upper lip sneer — bares teeth when stacked with mood's smile
+    [8, 1.5],   // ψ8: nose wrinkle — aggression
+    [11, 0.6],  // ψ11+ψ12: smile base for adrenaline grin stacking
+    [12, 0.6],
   ],
-  pose: { jaw: 0.3, pitch: -0.06 },
-  gaze: { gazeV: 0.10 },
-  texture: { fatigue: -0.3 },  // wired, not fatigued
+  pose: { jaw: 0.10, pitch: -0.12 },  // teeth parted + Kubrick head-down
+  gaze: { gazeV: 0.15 },  // eyes locked upward through brow ridge
+  texture: { fatigue: -0.3 },  // wired, not fatigued. Flush comes from mood only.
 };
 
-/** TENSION PLACID (−): low activation, drowsy */
+/** TENSION PLACID (−): zen / contemplative / peaceful equilibrium
+ * Heavy lids + Mona Lisa smile + strong downward gaze = meditation posture.
+ * Differentiates from exhaustion via: smile (not furrow), clear skin (not fatigued),
+ * downcast gaze (contemplative, not head-sag). ψ3 strictly 0 — no glabella tension. */
 export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [2, -2.0],  // ψ2: brow sags
-    [7, 2.0],   // ψ7: eyelid droop — heavy lids
-    [3, 0.8],   // ψ3: brow furrow — mild
-    [4, 0.5],   // ψ4: lips purse — resting
+    [7, 2.5],   // ψ7: heavy half-shut lids — low alertness, meditative
+    [11, 0.5],  // ψ11+ψ12: bilateral Mona Lisa — serene, not lopsided
+    [12, 0.5],
+    [2, -1.0],  // ψ2: gentle brow relaxation — smooth, unbothered
   ],
-  pose: { pitch: -0.10 },
-  gaze: { gazeV: -0.08 },
-  texture: { fatigue: 0.5 },  // exhausted
+  pose: { jaw: 0.04, pitch: -0.05 },  // unclenched jaw + slight mindful bow
+  gaze: { gazeV: -0.20 },  // eyes cast down — primary contemplation anchor
+  texture: { fatigue: 0.0 },  // clear skin — rested, NOT exhausted
 };
 
-/** MOOD EUPHORIC (+): positive deviation → warm glow, big bilateral smile */
+/** MOOD EUPHORIC (+): positive deviation → warm glow, bilateral smile
+ * ψ11+ψ12 are the unilateral smile conjugate pair (left + right mouth corner).
+ * Combined at equal weight they produce a bilateral smile.
+ * ψ1 adds overall smile shape but is asymmetric (-0.898) — used at lower weight.
+ * Weights ≤2.5 so slider extreme (3.0) stays ≤7.5σ — no mesh inversion. */
 export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [5, 4.0],   // ψ5: upper lip lift — PRIMARY bilateral smile driver, cranked hard
-    [9, 5.0],   // ψ9: cheek puff — lifts cheeks, reads as ecstatic grin
-    [7, 2.5],   // ψ7: Duchenne crinkle — squinting eye smile (the real tell)
-    [4, -0.3],  // ψ4: slight mouth widen — grin, not gape
-    [0, 0.3],   // ψ0: minimal jaw — grin is closed-mouth, jaw comes from tension
-    [8, 0.8],   // ψ8: nose wrinkle — genuine smile
+    [11, 2.0],  // ψ11: left mouth corner raise — half of bilateral smile
+    [12, 2.0],  // ψ12: right mouth corner raise — other half
+    [1, 1.0],   // ψ1: overall smile shape (asymmetric, so low weight)
+    [7, 1.5],   // ψ7: Duchenne eye crinkle — genuine smile tell
+    [0, 0.3],   // ψ0: minimal jaw
+    [8, 0.5],   // ψ8: nose wrinkle — subtle
   ],
   pose: { pitch: 0.08, yaw: 0.04 },
   gaze: { gazeH: 0.08 },

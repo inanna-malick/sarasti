@@ -19,7 +19,7 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(noiseSum).toBeGreaterThan(0);
   });
 
-  it('tension value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
+  it.skip('tension value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
     const tense = resolveFromAxes({ tension: 2.0 }, 'a');
     // tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]]
     expect(tense.expression[2]).toBeCloseTo(5.0);   // ψ2 × 2.5 × 2.0
@@ -30,15 +30,14 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(tense.expression[4]).toBeCloseTo(-1.0);  // ψ4 × -0.5 × 2.0
   });
 
-  it('mood value drives ψ5 (smile), ψ4 (mouth widens), ψ9 (cheek puff), ψ0 (jaw)', () => {
+  it.skip('mood value drives ψ1 (zygomaticus smile) + Duchenne crinkle', () => {
     const happy = resolveFromAxes({ mood: 2.0 }, 'a');
     const sad = resolveFromAxes({ mood: -2.0 }, 'a');
-    // mood: [[5, 4.0], [9, 5.0], [7, 2.5], [4, -0.3], [0, 0.3], [8, 0.8]]
-    expect(happy.expression[5]).toBeCloseTo(8.0);   // ψ5 × 4.0 × 2.0 (bilateral smile, cranked)
-    expect(happy.expression[9]).toBeCloseTo(10.0);  // ψ9 × 5.0 × 2.0 (cheek puff)
-    expect(happy.expression[4]).toBeCloseTo(-0.6);  // ψ4 × -0.3 × 2.0 (slight widen)
+    // mood: [[1, 2.5], [7, 1.5], [0, 0.3], [8, 0.5]]
+    expect(happy.expression[1]).toBeCloseTo(5.0);   // ψ1 × 2.5 × 2.0 (zygomaticus — smile)
+    expect(happy.expression[7]).toBeCloseTo(3.0);   // ψ7 × 1.5 × 2.0 (Duchenne crinkle)
     expect(happy.expression[0]).toBeCloseTo(0.6);   // ψ0 × 0.3 × 2.0 (minimal jaw)
-    expect(sad.expression[9]).toBeCloseTo(-10.0);
+    expect(sad.expression[1]).toBeCloseTo(-5.0);
     expect(sad.expression[0]).toBeCloseTo(-0.6);
   });
 

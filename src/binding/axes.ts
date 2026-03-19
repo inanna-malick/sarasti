@@ -23,10 +23,10 @@
 // Positive value = tense pole / euphoric pole. Negative = placid / grief.
 // Each entry is [ψ_index, weight].
 export const EXPR_AXES = {
-  // Tension (+): brow up + jaw + nose wrinkle + eyes open + snarl + lip part
-  tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]] as const,
-  // Mood (+): big bilateral grin (ψ5+ψ9) + Duchenne crinkle + minimal jaw (jaw comes from tension)
-  mood:    [[5, 4.0], [9, 5.0], [7, 2.5], [4, -0.3], [0, 0.3], [8, 0.8]] as const,
+  // Tension (+): wide eyes + complex brow (up+furrow) + sneer + smile base
+  tension: [[7, -2.0], [2, 2.0], [3, 1.5], [5, 1.5], [8, 1.5], [11, 0.6], [12, 0.6]] as const,
+  // Mood (+): ψ11+ψ12 conjugate pair (bilateral smile) + ψ1 (overall smile shape)
+  mood:    [[11, 2.0], [12, 2.0], [1, 1.0], [7, 1.5], [0, 0.3], [8, 0.5]] as const,
 } as const;
 
 // Shape axes — each entry is [β_index, weight]

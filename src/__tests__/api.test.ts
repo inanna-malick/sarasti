@@ -51,8 +51,8 @@ describe('SarastiBuilder', () => {
     const params = (builder as any).resolveDatum(testData[0]);
     expect(params.expression.length).toBe(N_EXPR);
     expect(params.shape.length).toBe(N_SHAPE);
-    // mood accessor returns 0.8, should produce nonzero ψ9 (cheek puff)
-    expect(params.expression[9]).not.toBe(0); // ψ9 driven by mood
+    // mood accessor returns 0.8, should produce nonzero ψ1 (smile)
+    expect(params.expression[1]).not.toBe(0); // ψ1 driven by mood
   });
 
   it('different data produces different expressions', () => {
@@ -63,7 +63,7 @@ describe('SarastiBuilder', () => {
     const paramsB = (builder as any).resolveDatum(testData[1]); // score -0.2
 
     // Different scores should produce different mood values
-    expect(paramsA.expression[9]).not.toBeCloseTo(paramsB.expression[9]);
+    expect(paramsA.expression[1]).not.toBeCloseTo(paramsB.expression[1]);
   });
 
   it('dispose prevents further renders', async () => {
