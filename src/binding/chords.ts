@@ -83,24 +83,28 @@ export interface ChordActivations {
 // ─── Chord Recipes ───────────────────────────────────
 
 /** ALARM ALARMED (+): acute volatility × |velocity| snap response.
- * [w17] REDUCE JAW GAPE: ψ2 was 1.5 → 0.5. Alarm is about EYES + BROWS, not gaping mouth.
- * When alarm + exhausted + yielding all fire, their ψ2 contributions stacked to 2.7+ creating
- * universal open-mouth on every face. Alarm owns the upper face; fatigue owns the mouth.
- * Reduced ψ6 from -1.5 to -0.8: the "Oh" mouth shape was too dramatic, reads as cartoon shock.
- * Boosted ψ4 to -3.5 and ψ9 to 3.0: leaning harder into brow raise + wide eyes as PRIMARY. */
+ * [w18] TENSION RAMP: use onset power curves to create "tense closed → shocked open" trajectory.
+ * Low alarm (0.3): tight lips + wide eyes = "tense vigilance" — NO jaw drop
+ * Moderate alarm (0.6): brows up + slight mouth open = "worried"
+ * High alarm (0.9+): jaw drops, full shock = "alarmed"
+ * The power parameter controls this: power<1 = early onset, power>1 = late onset.
+ * ψ0(-1.0, power=0.5): mouth tenses EARLY (0.3→-0.55 contribution — tight-lipped)
+ * ψ2(1.5, power=2.5): jaw opens LATE (0.3→0.05, 0.7→0.41, 1.0→1.5) */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [4, -3.5],      // ψ4: brow RAISED / eyes wide — PRIMARY alarm signal (boosted)
-    [9, 3.0],       // ψ9: eyes wide open — sclera visible, startled gaze (boosted)
-    [2, 0.5],       // ψ2: jaw drop — MINIMAL, prevents universal gape (was 1.5)
-    [6, -0.8],      // ψ6: rounded mouth — subtle "Oh" (was -1.5)
-    [5, 1.2],       // ψ5: upper lip snarl — nostril flare, tension
-    [20, -1.5],     // ψ20: visceral sneer — nasolabial crunch, distress texture
-    [21, 1.5],      // ψ21: alert/awake eyes — reinforces wide-eyed look
+    [4, -3.5],          // ψ4: brow RAISED — PRIMARY alarm (linear)
+    [9, 3.0],           // ψ9: eyes wide open — sclera visible (linear)
+    [2, 1.5, 2.5],      // ψ2: jaw drop — LATE ONSET: barely opens below 0.6, full at 1.0
+    [6, -1.0, 2.0],     // ψ6: rounded mouth — also late onset, subtle "Oh"
+    [0, -1.2, 0.5],     // ψ0: mouth PURSED/TENSE — EARLY ONSET: tight-lipped at low alarm
+    [5, 1.2],           // ψ5: upper lip snarl — nostril flare
+    [20, -1.5],         // ψ20: visceral sneer — nasolabial crunch
+    [21, 1.5],          // ψ21: alert/awake eyes
+    [16, 1.0, 0.5],     // ψ16: lip COMPRESSION — EARLY ONSET: tense at low alarm
   ],
   pose: {},
   gaze: {},
-  texture: { flush: -0.6 },  // reduced from -0.8 — less pallid
+  texture: { flush: -0.5 },
 };
 
 /** ALARM EUPHORIC (−): positive deviation, low volatility → warm glow, smile.
@@ -132,18 +136,21 @@ export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
  * Strategy: widen the mouth stretch to change FACE WIDTH at thumbnail. The horizontal
  * stretch of ψ6+ψ3 should make lower face visibly wider than neutral. Add pitch forward
  * to compress silhouette (chin tucks toward camera = shorter face = different from alarmed). */
+/** [w18] WIRED: eyes wide EARLY, grimace LATE. Wired is "can't blink" energy.
+ * Low wired (0.3): wide eyes + furrowed brow = "alert/focused"
+ * High wired (0.8+): mouth stretches into grimace = "overcaffeinated/grinding" */
 export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [6, 3.0],    // ψ6: horizontal lip stretch — reduced from 4.0, prevents grotesque stacking with aggression
-    [3, -2.5],   // ψ3: mouth WIDE — widens lower face silhouette (reduced from -3.0)
-    [5, 2.5],    // ψ5: upper lip SNARL — nostril flare, intensity
-    [0, -1.0],   // ψ0: mouth pursed/clenched — jaw TENSION
-    [9, 2.0],    // ψ9: eyes wide — secondary signal
-    [4, 2.5],    // ψ4: brow FURROWED hard — corrugator crunch (boosted from 2.0)
-    [20, -1.5],  // ψ20: visceral nasolabial crunch
-    [21, 2.0],   // ψ21: alert/awake eyes
+    [9, 2.5, 0.5],   // ψ9: eyes wide — EARLY ONSET: alertness visible from low activation
+    [21, 2.5, 0.5],  // ψ21: alert/awake — EARLY: reinforces wide-eyed alertness
+    [4, 2.5, 0.7],   // ψ4: brow FURROWED — moderately early
+    [6, 3.0, 1.5],   // ψ6: horizontal lip stretch — LATE: grimace only at high wired
+    [3, -2.5, 1.5],  // ψ3: mouth WIDE — LATE: face-width change at high wired only
+    [5, 2.0],        // ψ5: upper lip SNARL — nostril flare, linear
+    [0, -1.0],       // ψ0: mouth pursed/clenched — jaw tension
+    [20, -1.5, 1.5], // ψ20: nasolabial crunch — LATE
   ],
-  pose: { pitch: -0.08 },  // chin FORWARD hard — leaning in, compressed silhouette
+  pose: { pitch: -0.08 },
   gaze: {},
   texture: { fatigue: -1.0 },
 };
@@ -158,23 +165,25 @@ export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
  * Strategy: reduce jaw drop, increase FROWN (ψ7) to make the open mouth sag DOWN not gape.
  * The mouth should look like it's falling open from gravity, not opening from surprise.
  * More head sag + list to reinforce "melting" rather than "reacting." */
-/** [w17] EXHAUSTED OWNS THE MOUTH: jaw sag is exhaustion's territory, not alarm's.
- * Reduced ψ7 from -4.0 to -3.0 — extreme frown was stacking with yielding's ψ7:-3.0.
- * Kept ψ2 at 1.2 (slack jaw) since alarm dropped to 0.5, total budget stays reasonable.
- * Added ψ3:1.0 (lip pucker) for "fish-mouth sag" — different from alarm's round "Oh". */
+/** [w18] EXHAUSTED: jaw sag uses late onset, frown uses early onset.
+ * Low exhaustion (0.3): droopy eyes + frown = "tired" — NO jaw opening
+ * High exhaustion (0.8+): jaw sags open = "slack/unconscious"
+ * ψ2(1.5, power=2.0): jaw only sags at high exhaustion (0.3→0.14, 0.7→0.74, 1.0→1.5)
+ * ψ7(-3.0, power=0.5): frown kicks in EARLY (0.3→-1.64) — "heavy face" before mouth opens
+ * ψ9(-3.5, power=0.7): eyes close quickly — PRIMARY exhaustion signal at all levels */
 export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [9, -3.5],   // ψ9: eyes closing — MAXED exhaustion (near-shut lids)
-    [7, -3.0],   // ψ7: mouth corners DOWN — heavy frown (was -4.0, reduce stacking)
-    [2, 1.2],    // ψ2: jaw drop — slack jaw (exhaustion owns this)
-    [21, -3.0],  // ψ21: sleepy/droopy — heavy, depleted
-    [0, 0.5],    // ψ0: broad/loose — mouth slack, no tension
-    [3, 1.0],    // ψ3: lip pucker/narrow — "fish mouth" sag, different from alarm's "Oh"
-    [25, 2.0],   // ψ25: relaxed/vacant — zero focus
-    [24, -2.0],  // ψ24: brow outer corners DOWN — tired brow tilt
+    [9, -3.5, 0.7],  // ψ9: eyes closing — early onset, PRIMARY signal
+    [7, -3.0, 0.5],  // ψ7: mouth corners DOWN — EARLY: frown before jaw sag
+    [2, 1.5, 2.0],   // ψ2: jaw drop — LATE ONSET: only opens at high exhaustion
+    [21, -3.0],       // ψ21: sleepy/droopy — heavy, depleted
+    [0, 0.5, 0.5],   // ψ0: broad/loose — early slack
+    [3, 1.0],         // ψ3: lip pucker — "fish mouth" sag
+    [25, 2.0],        // ψ25: relaxed/vacant — zero focus
+    [24, -2.0, 0.7],  // ψ24: brow outer corners DOWN — early onset
   ],
-  pose: { pitch: 0.10, roll: 0.08 },  // head sags MAXIMUM + lists hard
-  gaze: { gazeV: -0.35 },  // eyes down maximum — not looking at anything
+  pose: { pitch: 0.10, roll: 0.08 },
+  gaze: { gazeV: -0.35 },
   texture: { fatigue: 1.0 },
 };
 
