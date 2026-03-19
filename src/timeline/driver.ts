@@ -83,6 +83,7 @@ export class FrameDriver {
     }
     out.flush = a.flush * s + b.flush * t;
     out.fatigue = a.fatigue * s + b.fatigue * t;
+    out.skinAge = (a.skinAge ?? 0) * s + (b.skinAge ?? 0) * t;
 
     // Lerp pose params — defensive guards for missing pose data
     const ap = a.pose || zeroPose();
@@ -140,7 +141,7 @@ export class FrameDriver {
         // resolveNoAccumulate: get expression for frame B without advancing EMA
         const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB, frameB.timestamp);
         // Allocate output buffer for interpolation
-        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0 };
+        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0, skinAge: 0 };
         this.lerpParams(paramsA, paramsB, t, params);
         // Lerp the scalar frame values for crisis intensity etc.
         tickerFrame = {
