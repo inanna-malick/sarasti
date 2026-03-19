@@ -85,7 +85,8 @@ export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
 export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   expression: [
     [7, 2.5],   // ψ7: heavy half-shut lids — low alertness, meditative
-    [1, 1.0],   // ψ1: Mona Lisa smile — shifts valence from depressed to peaceful
+    [11, 0.5],  // ψ11+ψ12: bilateral Mona Lisa — serene, not lopsided
+    [12, 0.5],
     [2, -1.0],  // ψ2: gentle brow relaxation — smooth, unbothered
   ],
   pose: { jaw: 0.04, pitch: -0.05 },  // unclenched jaw + slight mindful bow
