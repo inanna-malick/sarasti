@@ -3,8 +3,8 @@ import { useStore } from '../../../src/store';
 import { getTickerTimeseries } from '../../../src/data/loader';
 import type { TickerFrame } from '../../../src/types';
 import { computeDatasetStats, type DatasetStats, type TickerStats } from '../../../src/data/stats';
-import { computeChordActivations } from '../../../src/binding/chords';
-import type { ChordActivations } from '../../../src/binding/chords';
+import { computeMetaAxes, metaToChordActivations } from '../../../src/binding/chords';
+import type { ChordActivations, MetaAxes } from '../../../src/binding/chords';
 
 /**
  * Detail panel: click face → side panel with full decode.
@@ -140,18 +140,37 @@ function getStats(): DatasetStats | null {
   return cachedStats;
 }
 
-/** Chord activation bars — 4-axis expression + 3-axis shape. */
+/** Chord activation bars — meta-axes + low-level breakdown. */
 function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: string }) {
   const stats = getStats();
   const instances = useStore.getState().instances;
   const ticker = instances.find(i => i.id === tickerId)?.ticker;
-  const activations = computeChordActivations(frame, stats ?? undefined, tickerId, undefined, ticker);
+  const meta = computeMetaAxes(frame, stats ?? undefined, tickerId, undefined, ticker);
+  const activations = metaToChordActivations(meta, ticker);
 
-  const exprAxes: (keyof ChordActivations)[] = ['alarm', 'fatigue', 'aggression', 'smirk'];
+  const metaAxes: { name: string; value: number; labels: [string, string] }[] = [
+    { name: 'distress', value: meta.distress, labels: ['crisis', 'calm'] },
+    { name: 'vitality', value: meta.vitality, labels: ['surging', 'depleted'] },
+    { name: 'aggression', value: meta.aggression, labels: ['attacking', 'yielding'] },
+  ];
+
+  const exprAxes: (keyof ChordActivations)[] = ['alarm', 'fatigue', 'aggression'];
   const shapeAxes: (keyof ChordActivations)[] = ['dominance', 'maturity', 'sharpness'];
 
   return (
     <>
+      <Section title="meta-axes">
+        {metaAxes.map(({ name, value, labels }) => (
+          <ChordBar
+            key={name}
+            name={name}
+            weight={Math.abs(value)}
+            rawActivation={value}
+            sign={Math.sign(value) || 1}
+            isWinner={Math.abs(value) > 0.5}
+          />
+        ))}
+      </Section>
       <Section title="expression axes">
         {exprAxes.map(name => (
           <ChordBar
@@ -208,10 +227,11 @@ function ChordBar({
     alarm: ['alarmed', 'euphoric'],
     fatigue: ['wired', 'exhausted'],
     aggression: ['aggressive', 'yielding'],
-    smirk: ['deceptive', 'honest'],
     dominance: ['chad', 'soyboi'],
     maturity: ['weathered', 'youthful'],
     sharpness: ['sharp', 'puffy'],
+    distress: ['crisis', 'calm'],
+    vitality: ['surging', 'depleted'],
   };
   const pair = signLabels[name];
   const signLabel = pair ? ` (${sign > 0 ? pair[0] : pair[1]})` : '';

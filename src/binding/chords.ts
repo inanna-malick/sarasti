@@ -78,8 +78,6 @@ export interface ChordActivations {
   maturity: number;
   /** Shape: sharpness (angular/lean↔puffy/soft) ← volatility regime */
   sharpness: number;
-  /** Expression: smirk (+1 = deceptive/untrustworthy, -1 = sincere/transparent) */
-  smirk: number;
 }
 
 // ─── Chord Recipes ───────────────────────────────────
@@ -213,28 +211,6 @@ export const AGGRESSION_YIELDING_RECIPE: ExpressionChordRecipe = {
   pose: { yaw: 0.06, pitch: 0.05, roll: -0.12 },  // head cocked sideways — submission
   gaze: { gazeH: -0.20, gazeV: -0.25 },  // eyes averted (visible when partially open at low activation)
   texture: { flush: 0.5 },  // warm/flushed — vulnerable, blood rushing, open
-};
-
-/** SMIRK/DECEPTION (+): the market is lying — asymmetric, untrustworthy.
- * [w16e] MECHANICAL AUDIT: ψ1 CONFIRMED asymmetric lip corner (correct primary).
- * ψ7(+) is mouth corners up — adds slight smile to smirk side. ψ3(-) widens mouth,
- * ψ6(+) stretches lips horizontally. Replaced brow-misattributed components with
- * ψ4(+) brow furrow for calculating look, ψ9(-) slight squint for knowing eyes. */
-/** SMIRK/DECEPTION (+): the market is lying — asymmetric, untrustworthy.
- * [w16g] BOOST: thumbnail 3/5, euphoric↔smirk confusion HIGH.
- * Strategy: 50% more ψ1 asymmetry, stronger head tilt, more squint for "knowing" look.
- * Key differentiator from euphoric: asymmetry + squint vs euphoric's wide eyes + symmetry. */
-export const SMIRK_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [1, 5.0],       // ψ1: asymmetric lip corner — 50% boost for thumbnail visibility
-    [7, 0.8, 0.7],  // ψ7: mouth corners up — knowing half-smile (boosted)
-    [4, 1.2],       // ψ4: brow furrowed — calculating, skeptical (boosted)
-    [9, -1.0],      // ψ9: eyes squinted — "I know something you don't" (boosted)
-    [20, -0.5],     // ψ20: slight nasolabial crunch — adds smug texture
-  ],
-  pose: { roll: 0.05 },  // more head tilt — cocky, jaunty
-  gaze: { gazeH: 0.10 },  // slight sideways glance — shifty
-  texture: {},
 };
 
 /** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar)
@@ -392,15 +368,7 @@ export function computeChordActivations(
   // The 2× scaling ensures moderate stress activates visibly.
   const sharpness = symmetricSigmoid(vol_z * Math.abs(mr_z) * 2 - 0.3, 6);
 
-  // ─── SMIRK: decorrelation × significance ───
-  // Fires when beta deviates from 1 (instrument decorrelating from market herd)
-  // AND the instrument has meaningful deviation (it's actually moving, not just noise).
-  // The face smirks when something non-obvious is happening — the market is lying.
-  // Positive-only: 0 = honest, →1 = deeply deceptive/divergent.
-  const betaDeviation = Math.abs(frame.beta - 1);
-  const smirk = Math.max(0, sigmoid(betaDeviation * Math.abs(dev_z) * 8 - 1.5, 6));
-
-  return { alarm, fatigue, aggression, dominance, maturity, sharpness, smirk };
+  return { alarm, fatigue, aggression, dominance, maturity, sharpness };
 }
 
 /**
@@ -481,13 +449,6 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
     applyRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(aggrMag));
   }
 
-  // SMIRK (deceptive ↔ sincere) — asymmetric, uses ψ1
-  const smirkMag = activationCurve(activations.smirk, EXPR_CURVE);
-  if (smirkMag >= 0) {
-    applyRecipe(SMIRK_RECIPE, smirkMag);
-  }
-  // Negative smirk = "sincere" = just absence of smirk, no counter-recipe needed
-
   // ψ7 safety clamp
   expression[7] = Math.max(-PSI7_CLAMP, Math.min(PSI7_CLAMP, expression[7]));
 
@@ -535,4 +496,98 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
   skinAge = Math.max(-1, Math.min(1, skinAge));
 
   return { shape, pose: { pitch, yaw, roll }, skinAge };
+}
+
+// ─── Meta-Axis Layer ─────────────────────────────────
+
+export interface MetaAxes {
+  distress: number;    // [-1, +1] calm ↔ crisis
+  vitality: number;    // [-1, +1] depleted ↔ surging
+  aggression: number;  // [-1, +1] yielding ↔ attacking
+}
+
+/**
+ * Mixing matrix: meta-axis → low-level chord activation weights.
+ * Each row: how much one meta-axis drives each low-level axis.
+ * Will be refined via Gemini critique loops.
+ */
+export const META_MIXING: Record<keyof MetaAxes, Record<string, number>> = {
+  distress:   { alarm: 0.8, fatigue: 0.2, aggression: 0.2, sharpness: 0.7 },
+  vitality:   { alarm: -0.5, fatigue: 0.7, dominance: 0.7, sharpness: -0.3 },
+  aggression: { alarm: 0.1, fatigue: 0.2, aggression: 0.9, dominance: 0.2, sharpness: 0.2 },
+};
+
+/**
+ * Compute meta-axes from market data signals.
+ * Each meta-axis combines multiple z-scored signals into a single creature-readable dimension.
+ */
+export function computeMetaAxes(
+  frame: TickerFrame,
+  stats?: DatasetStats,
+  tickerId?: string,
+  _timestamp?: string,
+  _ticker?: TickerConfig,
+): MetaAxes {
+  const ts = stats && tickerId ? stats.get(tickerId) : undefined;
+
+  const vol_z = ts ? zScore(frame.volatility, ts.volatility) : frame.volatility;
+  const vel_z = ts ? zScore(frame.velocity, ts.velocity) : frame.velocity;
+  const dev_z = ts ? zScore(frame.deviation, ts.deviation) : frame.deviation;
+  const dd_z = ts ? zScore(frame.drawdown, ts.drawdown) : frame.drawdown;
+  const mom_z = ts ? zScore(frame.momentum, ts.momentum) : frame.momentum;
+  const mr_z = ts ? zScore(frame.mean_reversion_z, ts.mean_reversion_z) : frame.mean_reversion_z;
+
+  // DISTRESS: vol×max(|vel|, |mr|) + drawdown contribution
+  const distress = symmetricSigmoid(
+    vol_z * Math.max(Math.abs(vel_z), Math.abs(mr_z)) + 0.3 * dd_z,
+    6,
+  );
+
+  // VITALITY: deviation + momentum → life force
+  const vitality = symmetricSigmoid(dev_z + 0.5 * mom_z, 6);
+
+  // AGGRESSION: negative momentum × velocity direction = fighting
+  const vel_sign = vel_z >= 0 ? 1 : -1;
+  const aggression = symmetricSigmoid(-mom_z * vel_sign, 6);
+
+  return { distress, vitality, aggression };
+}
+
+/**
+ * Convert meta-axes → low-level ChordActivations via mixing matrix.
+ * Maturity stays static from ticker age.
+ */
+export function metaToChordActivations(
+  meta: MetaAxes,
+  ticker?: TickerConfig,
+): ChordActivations {
+  const low: Record<string, number> = {
+    alarm: 0, fatigue: 0, aggression: 0, dominance: 0, sharpness: 0,
+  };
+
+  // Apply mixing matrix: each meta-axis contributes to multiple low-level axes
+  for (const [metaKey, weights] of Object.entries(META_MIXING)) {
+    const metaVal = meta[metaKey as keyof MetaAxes];
+    for (const [lowKey, weight] of Object.entries(weights)) {
+      low[lowKey] += metaVal * weight;
+    }
+  }
+
+  // Clamp all low-level activations to [-1, 1]
+  for (const key of Object.keys(low)) {
+    low[key] = Math.max(-1, Math.min(1, low[key]));
+  }
+
+  // Maturity: static identity from ticker age (not driven by meta-axes)
+  const ageNorm = ticker ? (ticker.age - 37) / 10 : 0;
+  const maturity = symmetricSigmoid(ageNorm, 3);
+
+  return {
+    alarm: low.alarm,
+    fatigue: low.fatigue,
+    aggression: low.aggression,
+    dominance: low.dominance,
+    maturity,
+    sharpness: low.sharpness,
+  };
 }

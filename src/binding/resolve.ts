@@ -26,6 +26,8 @@ import { hashToScalars } from './identity';
 import type { DatasetStats } from '../data/stats';
 import {
   computeChordActivations,
+  computeMetaAxes,
+  metaToChordActivations,
   computeExchangeFatigueForTension,
   resolveExpressionChords,
   resolveShapeChords,
@@ -82,7 +84,8 @@ export function resolve(
     };
   }
 
-  const activations = computeChordActivations(frame, stats, ticker.id, undefined, ticker);
+  const meta = computeMetaAxes(frame, stats, ticker.id, undefined, ticker);
+  const activations = metaToChordActivations(meta, ticker);
   const chordResult = resolveExpressionChords(activations);
   const shapeResult = resolveShapeChords(activations);
   addIdentityNoise(shapeResult.shape, ticker.id);
@@ -149,8 +152,9 @@ export function createResolver(
       };
     }
 
-    // Compute chord activations
-    const activations = computeChordActivations(frame, stats, ticker.id, timestamp, ticker);
+    // Compute meta-axes → mixing matrix → chord activations
+    const meta = computeMetaAxes(frame, stats, ticker.id, timestamp, ticker);
+    const activations = metaToChordActivations(meta, ticker);
     const chordResult = resolveExpressionChords(activations);
 
     // Shape with EMA smoothing

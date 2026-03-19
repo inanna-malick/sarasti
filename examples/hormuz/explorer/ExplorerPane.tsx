@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ExplorerRenderer } from './ExplorerRenderer';
 import { ExpressionSliders } from './sliders/ExpressionSliders';
+import { SemanticSliders } from './sliders/SemanticSliders';
 import { ShapeSliders } from './sliders/ShapeSliders';
 import { PoseSliders } from './sliders/PoseSliders';
 import { GazeSliders } from './sliders/GazeSliders';
@@ -63,8 +64,17 @@ function parseUrlParams() {
     if (maturity) store.setMaturity(parseFloat(maturity));
     const sharpness = params.get('sharpness');
     if (sharpness) store.setSharpness(parseFloat(sharpness));
-    const smirk = params.get('smirk');
-    if (smirk) store.setSmirk(parseFloat(smirk));
+
+    // Semantic mode params
+    if (params.get('mode') === 'semantic') {
+      store.setMode('semantic');
+      const distress = params.get('distress');
+      const vitality = params.get('vitality');
+      const metaAggression = params.get('metaAggression');
+      if (distress) store.setDistress(parseFloat(distress));
+      if (vitality) store.setVitality(parseFloat(vitality));
+      if (metaAggression) store.setMetaAggression(parseFloat(metaAggression));
+    }
   }
 }
 
@@ -148,6 +158,18 @@ function ExplorerPaneUI() {
               High-Level
             </button>
             <button
+              onClick={() => setMode('semantic')}
+              style={{
+                background: mode === 'semantic' ? '#334' : 'transparent',
+                border: `1px solid ${mode === 'semantic' ? '#6cf' : '#444'}`,
+                color: mode === 'semantic' ? '#6cf' : '#888',
+                borderRadius: 3, padding: '2px 8px', fontSize: 10,
+                fontFamily: 'monospace', cursor: 'pointer',
+              }}
+            >
+              Semantic
+            </button>
+            <button
               onClick={() => setMode('raw')}
               style={{
                 background: mode === 'raw' ? '#334' : 'transparent',
@@ -174,6 +196,12 @@ function ExplorerPaneUI() {
           {mode === 'highlevel' ? (
             <>
               <ExpressionSliders />
+              <ShapeSliders />
+              <ReportPanel />
+            </>
+          ) : mode === 'semantic' ? (
+            <>
+              <SemanticSliders />
               <ShapeSliders />
               <ReportPanel />
             </>

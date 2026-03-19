@@ -205,11 +205,12 @@ export class FlameFaceMesh {
       const t = Math.abs(skinAge);
       // arr is BGR order here
       if (skinAge > 0) {
-        // Aged: sallow yellow — drain blue, add slight yellow (more red+green, less blue)
+        // Aged: grey-warm desaturation — drain blue+green, slight warm undertone
+        // Key: green DRAIN (not boost) avoids jaundiced yellow cast
         for (let i = 0; i < stride; i += 3) {
-          arr[i]     -= t * 0.06;   // B: drain blue → yellower
-          arr[i + 1] += t * 0.02;   // G: slight green boost → sallow
-          arr[i + 2] -= t * 0.01;   // R: tiny red drain → less vibrant
+          arr[i]     -= t * 0.04;   // B: drain blue → desaturate
+          arr[i + 1] -= t * 0.02;   // G: drain green → grey, NOT sallow
+          arr[i + 2] += t * 0.01;   // R: tiny red boost → warm undertone
         }
       } else {
         // Young: pink/dewy — boost pink, increase saturation

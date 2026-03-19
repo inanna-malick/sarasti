@@ -11,27 +11,32 @@ import {
   FATIGUE_EXHAUSTED_RECIPE,
   AGGRESSION_AGGRESSIVE_RECIPE,
   AGGRESSION_YIELDING_RECIPE,
-  SMIRK_RECIPE,
   DOMINANCE_RECIPE,
   MATURITY_RECIPE,
   SHARPNESS_RECIPE,
+  META_MIXING,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
+  type MetaAxes,
 } from '../../../src/binding/chords';
 
-type ExplorerMode = 'highlevel' | 'raw';
+type ExplorerMode = 'highlevel' | 'semantic' | 'raw';
 
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 5 axes (pose/gaze/texture computed from chord recipes)
+  // High-level: 6 axes (pose/gaze/texture computed from chord recipes)
   alarm: number;
   fatigue: number;
   aggression: number;
   dominance: number;
   maturity: number;
   sharpness: number;
-  smirk: number;
+
+  // Semantic: 3 meta-axes
+  distress: number;
+  vitality: number;
+  metaAggression: number;
 
   // Raw mode: manual overrides
   poseOverride: boolean;
@@ -58,7 +63,9 @@ interface ExplorerState {
   setDominance: (v: number) => void;
   setMaturity: (v: number) => void;
   setSharpness: (v: number) => void;
-  setSmirk: (v: number) => void;
+  setDistress: (v: number) => void;
+  setVitality: (v: number) => void;
+  setMetaAggression: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -126,6 +133,42 @@ function applyFullExprRecipe(
 }
 
 function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
+  if (state.mode === 'semantic') {
+    // Semantic mode: 3 meta-axes → mixing matrix → 6 low-level activations → recipes
+    const meta: MetaAxes = {
+      distress: state.distress,
+      vitality: state.vitality,
+      aggression: state.metaAggression,
+    };
+
+    // Apply mixing matrix
+    const low: Record<string, number> = {
+      alarm: 0, fatigue: 0, aggression: 0, dominance: 0, sharpness: 0,
+    };
+    for (const [metaKey, weights] of Object.entries(META_MIXING)) {
+      const metaVal = meta[metaKey as keyof MetaAxes];
+      for (const [lowKey, weight] of Object.entries(weights)) {
+        low[lowKey] += metaVal * weight;
+      }
+    }
+    for (const key of Object.keys(low)) {
+      low[key] = clamp(low[key], -1, 1);
+    }
+
+    // Now use the same recipe-application path as highlevel mode
+    const semanticState: ExplorerState = {
+      ...state,
+      mode: 'highlevel',
+      alarm: low.alarm,
+      fatigue: low.fatigue,
+      aggression: low.aggression,
+      dominance: low.dominance,
+      sharpness: low.sharpness,
+      maturity: state.maturity,
+    };
+    return recomputeParams(semanticState);
+  }
+
   if (state.mode === 'raw') {
     const params: FaceParams = {
       shape: new Float32Array(state.rawShape),
@@ -163,11 +206,6 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     applyFullExprRecipe(AGGRESSION_AGGRESSIVE_RECIPE, state.aggression, expression, pgt);
   } else {
     applyFullExprRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(state.aggression), expression, pgt);
-  }
-
-  // Smirk → deceptive (positive only)
-  if (state.smirk > 0) {
-    applyFullExprRecipe(SMIRK_RECIPE, state.smirk, expression, pgt);
   }
 
   // ψ7 safety clamp
@@ -248,7 +286,10 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   dominance: 0,
   maturity: 0,
   sharpness: 0,
-  smirk: 0,
+
+  distress: 0,
+  vitality: 0,
+  metaAggression: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -273,7 +314,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setDominance: (v) => update(set, get, { dominance: v }),
   setMaturity: (v) => update(set, get, { maturity: v }),
   setSharpness: (v) => update(set, get, { sharpness: v }),
-  setSmirk: (v) => update(set, get, { smirk: v }),
+  setDistress: (v) => update(set, get, { distress: v }),
+  setVitality: (v) => update(set, get, { vitality: v }),
+  setMetaAggression: (v) => update(set, get, { metaAggression: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),
