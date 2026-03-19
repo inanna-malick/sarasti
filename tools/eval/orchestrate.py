@@ -10,17 +10,29 @@ from typing import Dict, Any, List
 # Imports from tools/eval/gemini.py and tools/eval/bestiary.py
 # These are being created in parallel and will exist at runtime.
 try:
-    from tools.eval.gemini import describe, compare_ab
-    from tools.eval.bestiary import Bestiary
+    from tools.eval.gemini import describe, evaluate, compare, rank
+    from tools.eval.bestiary import (
+        load_entry, save_entry, update_entry, update_from_description,
+        query, add_recipe_note, add_dose_note, add_interaction,
+        get_summary, rebuild_index
+    )
 except ImportError:
     # Placeholder for static analysis if they don't exist yet
     def describe(*args, **kwargs): return "Description placeholder"
-    def compare_ab(*args, **kwargs): return "Comparison placeholder"
-    class Bestiary:
-        def __init__(self, path): self.path = path
-        def add_entry(self, *args, **kwargs): pass
-        def get_candidates(self, *args, **kwargs): return []
-        def update_observation(self, *args, **kwargs): pass
+    def evaluate(*args, **kwargs): return "Evaluation placeholder"
+    def compare(*args, **kwargs): return "Comparison placeholder"
+    def rank(*args, **kwargs): return "Ranking placeholder"
+    
+    def load_entry(*args, **kwargs): return None
+    def save_entry(*args, **kwargs): pass
+    def update_entry(*args, **kwargs): pass
+    def update_from_description(*args, **kwargs): pass
+    def query(*args, **kwargs): return []
+    def add_recipe_note(*args, **kwargs): pass
+    def add_dose_note(*args, **kwargs): pass
+    def add_interaction(*args, **kwargs): pass
+    def get_summary(*args, **kwargs): return "Summary placeholder"
+    def rebuild_index(*args, **kwargs): pass
 
 class EvalRenderBridge:
     """Spawns tools/eval/render.ts as subprocess, communicates via JSON stdin/stdout."""
@@ -108,7 +120,7 @@ def log_finding(cycle: int, entry_type: str, data: Any):
     with open(findings_path, "a") as f:
         f.write(json.dumps({"cycle": cycle, "type": entry_type, "data": data}) + "\n")
 
-def run_census(bridge, bestiary):
+def run_census(bridge):
     """Cycle 0: Render each psi0-psi29 at [-3,-1.5,0,+1.5,+3] x front view,
     plus +2.0 x [left34, right34] for symmetry. Same for beta0-beta29.
     ~420 renders total. Gemini describe() each, populate bestiary."""
@@ -123,21 +135,21 @@ def run_census(bridge, bestiary):
         for val in values:
             for view in views:
                 output = f"tools/eval/data/renders/census_{comp}_{val}_{view}.png"
-                path = bridge.render({comp: str(val), "view": view}, output)
+                path = bridge.render({"mode": "raw", comp: str(val), "camera": view}, output)
                 description = describe(path, brief=f"Describe {comp} at {val}")
-                bestiary.add_entry(comp, val, view, description)
-                log_finding(0, "census", {"comp": comp, "val": val, "view": view, "path": path, "desc": description})
+                update_from_description(comp, description, val)
+                log_finding(0, "census", {"comp": comp, "val": val, "camera": view, "path": path, "desc": description})
         
         # Symmetry check at +2.0
         for view in extra_views:
             val = 2.0
             output = f"tools/eval/data/renders/census_{comp}_{val}_{view}.png"
-            path = bridge.render({comp: str(val), "view": view}, output)
+            path = bridge.render({"mode": "raw", comp: str(val), "camera": view}, output)
             description = describe(path, brief=f"Describe {comp} symmetry at {val} {view}")
-            bestiary.add_entry(comp, val, view, description)
-            log_finding(0, "symmetry", {"comp": comp, "val": val, "view": view, "path": path, "desc": description})
+            update_from_description(comp, description, val)
+            log_finding(0, "symmetry", {"comp": comp, "val": val, "camera": view, "path": path, "desc": description})
 
-def run_axis_sweeps(bridge, bestiary):
+def run_axis_sweeps(bridge):
     """Cycle 1: Coarse sweep each axis (alarm/fatigue/dominance) at 11 steps,
     optional fine sweep, cross-axis 3x3 grids for interaction."""
     print("Running Cycle 1: Axis Sweeps...")
@@ -150,7 +162,7 @@ def run_axis_sweeps(bridge, bestiary):
             output = f"tools/eval/data/renders/sweep_{axis}_{val:.2f}.png"
             path = bridge.render({axis: f"{val:.2f}"}, output)
             description = describe(path, brief=f"Describe {axis} at {val:.2f}")
-            bestiary.update_observation(axis, val, description)
+            update_from_description(axis, description, val)
             log_finding(1, "sweep", {"axis": axis, "val": val, "path": path, "desc": description})
             
     # Cross-axis 3x3 grids (simplified for placeholder)
@@ -162,7 +174,7 @@ def run_axis_sweeps(bridge, bestiary):
                 description = describe(path, brief=f"Describe interaction {a1}={v1}, {a2}={v2}")
                 log_finding(1, "interaction", {"a1": a1, "v1": v1, "a2": a2, "v2": v2, "path": path, "desc": description})
 
-def run_composites(bridge, bestiary):
+def run_composites(bridge):
     """Cycle 2: Render 8 corners (all combinations of ±axis) x 3 angles,
     repair loop for failing corners (max 3 repair rounds)."""
     print("Running Cycle 2: Composites...")
@@ -177,44 +189,45 @@ def run_composites(bridge, bestiary):
     for i, params in enumerate(corners):
         for view in views:
             p = params.copy()
-            p["view"] = view
+            p["camera"] = view
             
             # Repair loop (up to 3 rounds)
             for round in range(3):
                 output = f"tools/eval/data/renders/corner_{i}_{view}_r{round}.png"
                 path = bridge.render(p, output)
                 score_desc = describe(path, brief="Rate this composite from 1-10 for facial integrity and semantics.")
-                log_finding(2, "composite", {"params": p, "view": view, "round": round, "path": path, "desc": score_desc})
+                log_finding(2, "composite", {"params": p, "camera": view, "round": round, "path": path, "desc": score_desc})
                 
                 # Heuristic: if description suggests failure, could try to "repair" (adjust params)
                 # For this orchestrator, we'll just log and continue
                 if "10/10" in score_desc or "9/10" in score_desc or "8/10" in score_desc:
                     break
                 # Mock repair: reduce magnitude
-                p = {k: str(float(v)*0.8) if k != "view" else v for k, v in p.items()}
+                p = {k: str(float(v)*0.8) if k != "camera" else v for k, v in p.items()}
 
-def run_probing(bridge, bestiary):
+
+def run_probing(bridge):
     """Cycle 3: Read bestiary to find candidate components, A/B screen,
     dose-finding for winners, multi-ingredient composites, re-sweep."""
     print("Running Cycle 3: Probing...")
-    candidates = bestiary.get_candidates()
+    candidates = [e.component for e in query(limit=10)]
     if not candidates:
         candidates = ["psi0", "psi2", "beta0", "beta2"] # fallback
         
     for comp in candidates:
         # A/B screen
-        p_a = {comp: "1.0"}
-        p_b = {comp: "2.0"}
+        p_a = {"mode": "raw", comp: "1.0"}
+        p_b = {"mode": "raw", comp: "2.0"}
         path_a = bridge.render(p_a, f"tools/eval/data/renders/probe_{comp}_A.png")
         path_b = bridge.render(p_b, f"tools/eval/data/renders/probe_{comp}_B.png")
-        diff = compare_ab(path_a, path_b, question=f"Does increasing {comp} enhance the target expression?")
+        diff = compare(path_a, path_b, brief=f"Does increasing {comp} enhance the target expression?")
         log_finding(3, "ab_screen", {"comp": comp, "diff": diff})
 
-def run_validation(bridge, bestiary):
+def run_validation(bridge):
     """Cycle 4: Full validation with repair loop. All corners > 7 score."""
     print("Running Cycle 4: Validation...")
     # Similar to Cycle 2 but with final targets
-    run_composites(bridge, bestiary)
+    run_composites(bridge)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -224,21 +237,20 @@ def main():
     
     bestiary_dir = "tools/eval/data/bestiary"
     os.makedirs(bestiary_dir, exist_ok=True)
-    bestiary = Bestiary(bestiary_dir)
     
     with EvalRenderBridge() as bridge:
         if args.all:
-            run_census(bridge, bestiary)
-            run_axis_sweeps(bridge, bestiary)
-            run_composites(bridge, bestiary)
-            run_probing(bridge, bestiary)
-            run_validation(bridge, bestiary)
+            run_census(bridge)
+            run_axis_sweeps(bridge)
+            run_composites(bridge)
+            run_probing(bridge)
+            run_validation(bridge)
         elif args.cycle is not None:
-            if args.cycle == 0: run_census(bridge, bestiary)
-            elif args.cycle == 1: run_axis_sweeps(bridge, bestiary)
-            elif args.cycle == 2: run_composites(bridge, bestiary)
-            elif args.cycle == 3: run_probing(bridge, bestiary)
-            elif args.cycle == 4: run_validation(bridge, bestiary)
+            if args.cycle == 0: run_census(bridge)
+            elif args.cycle == 1: run_axis_sweeps(bridge)
+            elif args.cycle == 2: run_composites(bridge)
+            elif args.cycle == 3: run_probing(bridge)
+            elif args.cycle == 4: run_validation(bridge)
         else:
             parser.print_help()
 

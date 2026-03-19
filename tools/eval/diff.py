@@ -8,14 +8,12 @@ from urllib.parse import parse_qs
 # Imports from tools/eval/gemini.py and tools/eval/bestiary.py
 # These are being created in parallel and will exist at runtime.
 try:
-    from tools.eval.gemini import compare_ab
-    from tools.eval.bestiary import Bestiary
+    from tools.eval.gemini import compare
+    from tools.eval.bestiary import update_entry
 except ImportError:
     # Fallback/placeholder logic for local development
-    def compare_ab(*args, **kwargs): return "Comparison result placeholder."
-    class Bestiary:
-        def __init__(self, path): self.path = path
-        def update_observation(self, *args, **kwargs): pass
+    def compare(*args, **kwargs): return "Comparison result placeholder."
+    def update_entry(*args, **kwargs): pass
 
 # Try to import EvalRenderBridge from orchestrate.py
 try:
@@ -49,7 +47,6 @@ def main():
 
     bestiary_dir = "tools/eval/data/bestiary"
     os.makedirs(bestiary_dir, exist_ok=True)
-    bestiary = Bestiary(bestiary_dir)
 
     with EvalRenderBridge() as bridge:
         path_a, path_b = None, None
@@ -88,13 +85,13 @@ def main():
         print(f"Variant A: {params_a} -> {path_a}")
         print(f"Variant B: {params_b} -> {path_b}")
         
-        # 2. Sends to Gemini compare_ab() with appropriate brief
-        result = compare_ab(path_a, path_b, question=question)
+        # 2. Sends to Gemini compare() with appropriate brief
+        result = compare(path_a, path_b, brief=question)
         print("\n--- GEMINI COMPARISON ---\n")
         print(result)
         
         # 3. Updates bestiary with observations
-        bestiary.update_observation("diff", f"{params_a} vs {params_b}", result)
+        update_entry("diff", prose=f"{params_a} vs {params_b}: {result}")
 
 if __name__ == "__main__":
     main()
