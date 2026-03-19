@@ -15,7 +15,7 @@
  *   ψ25: squint+wide mouth ↔ relaxed  ψ26: chin retracted ↔ protruded
  */
 
-import type { TickerFrame } from '../types';
+import type { TickerFrame, TickerConfig } from '../types';
 import type { DatasetStats, TickerStats, SignalStats } from '../data/stats';
 import { computeExchangeFatigue } from './exchange';
 import type { Exchange } from '../types';
@@ -341,12 +341,14 @@ function zScore(value: number, stats: SignalStats): number {
 /**
  * Compute chord activations from a TickerFrame.
  * When stats/tickerId are provided, inputs are z-score normalized first.
+ * TickerConfig provides static identity fields (age → maturity).
  */
 export function computeChordActivations(
   frame: TickerFrame,
   stats?: DatasetStats,
   tickerId?: string,
   timestamp?: string,
+  ticker?: TickerConfig,
 ): ChordActivations {
   const ts: TickerStats | undefined = stats && tickerId ? stats.get(tickerId) : undefined;
 
@@ -372,18 +374,31 @@ export function computeChordActivations(
   const aggression = symmetricSigmoid(-mom_z * vel_sign, 6);
 
   // ─── Shape axes ──────────────────────────────
+
+  // Dominance: momentum direction → jaw width (chad=strong trend, soyboi=no direction)
   const dominance = symmetricSigmoid(mom_z, 6);
 
-  // Maturity: static per-ticker, not derived from frame data.
-  // Set to 0 here; overridden by TickerConfig.age mapping in resolve.ts
-  const maturity = 0;
+  // ─── MATURITY: static identity from ticker age ───
+  // Encodes WHO this instrument is: ^TNX (55) = weathered patriarch, VIX (20) = volatile youth.
+  // Normalized: age 20 → −1 (youngest), age 55 → +1 (oldest), midpoint ~37.
+  // Uses gentle sigmoid so the range spreads across all tickers rather than bunching at extremes.
+  const ageNorm = ticker ? (ticker.age - 37) / 10 : 0;
+  const maturity = symmetricSigmoid(ageNorm, 3);
 
-  // Sharpness: static per-ticker, not derived from frame data.
-  // Set to 0 here; could be overridden by volatility regime mapping
-  const sharpness = 0;
+  // ─── SHARPNESS: vol × displacement = regime stress ───
+  // Orthogonal to alarm (vol × speed): sharpness is vol × DISTANCE from equilibrium.
+  // High vol + far from mean = gaunt/sharp (stressed regime, market eating this instrument).
+  // Low vol + near mean = puffy (complacent, range-bound, boring).
+  // The 2× scaling ensures moderate stress activates visibly.
+  const sharpness = symmetricSigmoid(vol_z * Math.abs(mr_z) * 2 - 0.3, 6);
 
-  // Smirk: could be derived from bid-ask spread asymmetry, order flow imbalance
-  const smirk = 0;
+  // ─── SMIRK: decorrelation × significance ───
+  // Fires when beta deviates from 1 (instrument decorrelating from market herd)
+  // AND the instrument has meaningful deviation (it's actually moving, not just noise).
+  // The face smirks when something non-obvious is happening — the market is lying.
+  // Positive-only: 0 = honest, →1 = deeply deceptive/divergent.
+  const betaDeviation = Math.abs(frame.beta - 1);
+  const smirk = Math.max(0, sigmoid(betaDeviation * Math.abs(dev_z) * 8 - 1.5, 6));
 
   return { alarm, fatigue, aggression, dominance, maturity, sharpness, smirk };
 }

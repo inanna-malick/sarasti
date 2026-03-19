@@ -82,7 +82,7 @@ export function resolve(
     };
   }
 
-  const activations = computeChordActivations(frame, stats, ticker.id);
+  const activations = computeChordActivations(frame, stats, ticker.id, undefined, ticker);
   const chordResult = resolveExpressionChords(activations);
   const shapeResult = resolveShapeChords(activations);
   addIdentityNoise(shapeResult.shape, ticker.id);
@@ -150,7 +150,7 @@ export function createResolver(
     }
 
     // Compute chord activations
-    const activations = computeChordActivations(frame, stats, ticker.id, timestamp);
+    const activations = computeChordActivations(frame, stats, ticker.id, timestamp, ticker);
     const chordResult = resolveExpressionChords(activations);
 
     // Shape with EMA smoothing
