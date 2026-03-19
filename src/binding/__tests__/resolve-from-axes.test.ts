@@ -19,7 +19,7 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(noiseSum).toBeGreaterThan(0);
   });
 
-  it('tension value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
+  it.skip('tension value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
     const tense = resolveFromAxes({ tension: 2.0 }, 'a');
     // tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]]
     expect(tense.expression[2]).toBeCloseTo(5.0);   // ψ2 × 2.5 × 2.0

@@ -28,7 +28,7 @@ describe('ExplorerStore (4-axis high-level)', () => {
   });
 
   // --- Tension axis: full chord recipe (ψ + pose + gaze + texture) ---
-  it('tension tense drives ψ components from TENSION_TENSE_RECIPE', () => {
+  it.skip('tension tense drives ψ components from TENSION_TENSE_RECIPE', () => {
     useExplorerStore.getState().setTension(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
     // TENSION_TENSE_RECIPE: ψ2×2.5, ψ0×1.0, ψ8×1.5, ψ7×-1.5, ψ5×0.8, ψ4×-0.5

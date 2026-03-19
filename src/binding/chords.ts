@@ -63,15 +63,18 @@ export interface ChordActivations {
 
 // ─── Chord Recipes ───────────────────────────────────
 
-/** TENSION TENSE (+): acute volatility × |velocity| + chronic drawdown */
+/** TENSION TENSE (+): acute volatility × |velocity| + chronic drawdown
+ * Wide eyes + jaw + brow up = alarm/scream when mood is low.
+ * When stacked with positive mood, ψ11+ψ12 from mood recipe turn this
+ * into an adrenaline grin (wide eyes + smile + jaw = manic). */
 export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   expression: [
     [2, 2.5],   // ψ2: brow rockets up
-    [0, 1.0],   // ψ0: jaw seasoning
+    [0, 1.0],   // ψ0: jaw open
     [8, 1.5],   // ψ8: nose wrinkle
-    [7, -1.5],  // ψ7: eyes snap open
-    [5, 0.8],   // ψ5: upper lip raises — slight snarl
-    [4, -0.5],  // ψ4: lips part — unpucker
+    [7, -1.5],  // ψ7: eyes snap WIDE open
+    [11, 0.8],  // ψ11+ψ12: slight smile that reads as grin when mood adds more
+    [12, 0.8],
   ],
   pose: { jaw: 0.3, pitch: -0.06 },
   gaze: { gazeV: 0.10 },
