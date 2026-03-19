@@ -78,18 +78,19 @@ export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   texture: { fatigue: -0.3 },  // wired, not fatigued
 };
 
-/** TENSION PLACID (−): low activation, peaceful / zen / contemplative
- * Heavy lids + sagging brow + rotational jaw parting (not ψ0 linear pull).
- * Explicitly zero furrow (ψ3) and lip compression — absence of tension cues. */
+/** TENSION PLACID (−): zen / contemplative / peaceful equilibrium
+ * Heavy lids + Mona Lisa smile + strong downward gaze = meditation posture.
+ * Differentiates from exhaustion via: smile (not furrow), clear skin (not fatigued),
+ * downcast gaze (contemplative, not head-sag). ψ3 strictly 0 — no glabella tension. */
 export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [7, 1.5],   // ψ7: heavy lids — half-shut, low alertness
-    [2, -1.5],  // ψ2: brow sags — counters wide-eyed wakefulness
-    [1, 0.4],   // ψ1: hint of smile — serene, not slack
+    [7, 2.5],   // ψ7: heavy half-shut lids — low alertness, meditative
+    [1, 1.0],   // ψ1: Mona Lisa smile — shifts valence from depressed to peaceful
+    [2, -1.0],  // ψ2: gentle brow relaxation — smooth, unbothered
   ],
-  pose: { jaw: 0.08, pitch: -0.04 },  // rotational jaw = natural lip parting
-  gaze: { gazeV: -0.05 },
-  texture: { fatigue: 0.1 },  // minimal — rested, not exhausted
+  pose: { jaw: 0.04, pitch: -0.05 },  // unclenched jaw + slight mindful bow
+  gaze: { gazeV: -0.20 },  // eyes cast down — primary contemplation anchor
+  texture: { fatigue: 0.0 },  // clear skin — rested, NOT exhausted
 };
 
 /** MOOD EUPHORIC (+): positive deviation → warm glow, bilateral smile

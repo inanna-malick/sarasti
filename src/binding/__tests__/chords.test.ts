@@ -139,12 +139,12 @@ describe('resolveExpressionChords (2-axis)', () => {
     expect(result.expression[7]).toBeGreaterThan(0); // eyelid droop
   });
 
-  it('placid → fatigue is positive (exhausted)', () => {
+  it('placid → fatigue is zero (zen, not exhausted)', () => {
     const frame = makeTickerFrame({ volatility: 0, velocity: 0, drawdown: 2.0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
 
-    expect(result.fatigue).toBeGreaterThan(0); // exhausted
+    expect(result.fatigue).toBe(0); // rested — zen, not exhausted
   });
 
   it.skip('euphoric → ψ1 positive (smile), ψ7 positive (Duchenne)', () => {

@@ -52,11 +52,11 @@ describe('ExplorerStore (4-axis high-level)', () => {
     expect(p.fatigue).toBeLessThan(0);  // wired
   });
 
-  it('tension placid drives fatigue positive (exhausted) and gaze down', () => {
+  it('tension placid drives gaze down (contemplative) and clear skin', () => {
     useExplorerStore.getState().setTension(-2.0);
     const p = useExplorerStore.getState().currentParams!;
-    expect(p.fatigue).toBeGreaterThan(0);           // exhausted
-    expect(p.pose.leftEye[1]).toBeLessThan(0);       // gaze down
+    expect(p.fatigue).toBe(0);                       // rested, not exhausted
+    expect(p.pose.leftEye[1]).toBeLessThan(0);       // gaze down — contemplation
   });
 
   // --- Mood axis: full chord recipe (ψ + pose + gaze + texture) ---
@@ -110,12 +110,11 @@ describe('ExplorerStore (4-axis high-level)', () => {
     expect(p.fatigue).toBeLessThan(0);  // wired, not fatigued
   });
 
-  it('DEPRESSED quadrant: placid + grief → droopy + pallid + fatigued', () => {
+  it('DEPRESSED quadrant: placid + grief → droopy + pallid', () => {
     useExplorerStore.getState().setTension(-2.0);
     useExplorerStore.getState().setMood(-2.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.flush).toBeLessThan(0);     // pallid
-    expect(p.fatigue).toBeGreaterThan(0); // exhausted
   });
 
   // --- Shape axes with pose ---
