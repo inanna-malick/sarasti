@@ -179,7 +179,7 @@ export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   expression: [
     [6, 3.0],    // ψ6: horizontal lip stretch — tense, bared-teeth grimace
     [3, -2.0],   // ψ3: mouth wide — snarl, grimace width
-    [9, -2.0],   // ψ9: eye SQUINT — focused, predatory gaze (was -1.5, boosted)
+    [9, -1.0],   // ψ9: eye squint — reduced to prevent eye-closure stacking with exhaustion
     [5, 1.8],    // ψ5: upper lip snarl — nostril flare, bared upper teeth
     [4, 1.5],    // ψ4: brow FURROWED — corrugator, angry V-shape
     [0, -0.6],   // ψ0: mouth pursed/clenched — jaw tension
@@ -187,6 +187,7 @@ export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
     [26, 1.3],   // ψ26: chin protruded — jaw forward, charging
     [25, -1.0],  // ψ25: squint + wide mouth — intense focus
     [16, 1.5],   // ψ16: mouth narrow/pointed — lip compression
+    [21, 2.5],   // ψ21: alert/awake eyes — upper face recruitment, prevents "fake shout"
   ],
   pose: { pitch: 0.05 },
   gaze: {},
@@ -449,7 +450,12 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
     applyRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(aggrMag));
   }
 
-  // ψ7 safety clamp
+  // Per-component safety clamp — prevents mesh distortion from recipe stacking
+  const PSI_CLAMP = 6.0;
+  for (let i = 0; i < expression.length; i++) {
+    expression[i] = Math.max(-PSI_CLAMP, Math.min(PSI_CLAMP, expression[i]));
+  }
+  // ψ7 tighter clamp (eyelid clips through eyeball)
   expression[7] = Math.max(-PSI7_CLAMP, Math.min(PSI7_CLAMP, expression[7]));
 
   return { expression, pose: { pitch, yaw, roll, jaw }, gaze: { gazeH, gazeV }, flush, fatigue };
@@ -522,9 +528,9 @@ export interface MetaAxes {
  * - Aggression low-level 0.9→0.7 (reduce yielding eye-closure overpowering alarm)
  */
 export const META_MIXING: Record<keyof MetaAxes, Record<string, number>> = {
-  distress:   { alarm: 0.9, fatigue: 0.4, aggression: 0.2, sharpness: 0.6 },
-  vitality:   { alarm: -0.5, fatigue: 0.7, dominance: 0.3, sharpness: -0.15 },
-  aggression: { alarm: 0.2, fatigue: 0.3, aggression: 0.7, dominance: 0.2, sharpness: 0.2 },
+  distress:   { alarm: 1.1, fatigue: 0.15, aggression: 0, sharpness: 0.6 },
+  vitality:   { alarm: -0.4, fatigue: 0.7, dominance: 0.15, sharpness: -0.15 },
+  aggression: { alarm: 0.15, fatigue: 0.15, aggression: 0.9, dominance: 0.2, sharpness: 0.4 },
 };
 
 /**
