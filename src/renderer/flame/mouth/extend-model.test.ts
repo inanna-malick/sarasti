@@ -200,11 +200,12 @@ describe('extendModelWithMouth', () => {
     expect(foundJaw).toBe(true);
   });
 
-  it('cavity vertices have blended head+jaw weights summing to 1', () => {
+  it('cavity vertices have pure head or jaw weights', () => {
     const model = mockFlameModel();
     const extended = extendModelWithMouth(model);
     const groups = extended.mouthGroups!;
-    // Cavity faces reference vertices that should have blended weights
+    const nOrig = extended.originalVertexCount;
+    // Cavity faces reference new mouth vertices with pure head or jaw weights
     const cavityVertexSet = new Set<number>();
     for (let f = groups.cavity.faceStart; f < groups.cavity.faceStart + groups.cavity.faceCount; f++) {
       cavityVertexSet.add(extended.faces[f * 3]);
@@ -212,11 +213,12 @@ describe('extendModelWithMouth', () => {
       cavityVertexSet.add(extended.faces[f * 3 + 2]);
     }
     for (const v of cavityVertexSet) {
+      if (v < nOrig) continue; // skip original vertices referenced by strip faces
       const headW = extended.weights[v * N_JOINTS + 0];
       const jawW = extended.weights[v * N_JOINTS + 2];
+      // Each mouth vertex is pure head or pure jaw
       expect(headW + jawW).toBeCloseTo(1.0, 5);
-      expect(headW).toBeGreaterThanOrEqual(0);
-      expect(jawW).toBeGreaterThanOrEqual(0);
+      expect(headW === 1.0 || jawW === 1.0).toBe(true);
     }
   });
 

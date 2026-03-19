@@ -31,9 +31,9 @@ export const MAX_DEVIATION_SIGMA = 0.2;
 export const EXPRESSION_INTENSITY_DEFAULT = 35;
 
 // Chord architecture
-/** Softmax temperature for expression chord competition. τ=0.5 → winner-take-most (~70% dominant). */
-export const SOFTMAX_TEMPERATURE = 0.5;
 /** ψ7 (eyelid close) safe range. Beyond ±4.0, eyelids clip through eyeball joint sphere. */
 export const PSI7_CLAMP = 4.0;
 /** β3 (mandibular width) safe range. Past -4.0 SD, jaw vertices collapse into oral cavity. */
 export const BETA3_CLAMP = 4.0;
+/** General β component safe range. Artifacts begin ~±5σ, mesh inversion by ~±10σ. */
+export const BETA_GENERAL_CLAMP = 5.0;

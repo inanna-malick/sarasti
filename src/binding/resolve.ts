@@ -26,7 +26,7 @@ import { hashToScalars } from './identity';
 import type { DatasetStats } from '../data/stats';
 import {
   computeChordActivations,
-  computeExchangeFatigueForArousal,
+  computeExchangeFatigueForTension,
   resolveExpressionChords,
   resolveShapeChords,
 } from './chords';
@@ -239,10 +239,9 @@ export function createResolver(
 
 /** Pre-extracted axis values — all optional, unset = 0 */
 export interface AxisValues {
-  // Expression chords
-  alarm?: number;
-  valence?: number;
-  arousal?: number;
+  // Expression axes (Russell circumplex)
+  tension?: number;
+  mood?: number;
   // Shape
   dominance?: number;
   stature?: number;
@@ -268,10 +267,9 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
   const expression = emptyExpression();
   const shape = emptyShape();
 
-  // Expression axes
-  if (values.alarm !== undefined) applyMapping(expression, EXPR_AXES.alarm, values.alarm);
-  if (values.valence !== undefined) applyMapping(expression, EXPR_AXES.valence, values.valence);
-  if (values.arousal !== undefined) applyMapping(expression, EXPR_AXES.arousal, values.arousal);
+  // Expression axes (Russell circumplex)
+  if (values.tension !== undefined) applyMapping(expression, EXPR_AXES.tension, values.tension);
+  if (values.mood !== undefined) applyMapping(expression, EXPR_AXES.mood, values.mood);
 
   // Shape axes
   if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);

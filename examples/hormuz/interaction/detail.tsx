@@ -140,32 +140,28 @@ function getStats(): DatasetStats | null {
   return cachedStats;
 }
 
-/** Chord activation bars — the main display. */
+/** Chord activation bars — 2-axis circumplex + 2 shape axes. */
 function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: string }) {
   const stats = getStats();
   const activations = computeChordActivations(frame, stats ?? undefined, tickerId);
 
-  // Find winner chord
-  const weights = [
-    { name: 'alarm', w: activations.wAlarm, raw: activations.rawAlarm, sign: activations.alarmSign },
-    { name: 'valence', w: activations.wValence, raw: activations.rawValence, sign: activations.valenceSign },
-    { name: 'arousal', w: activations.wArousal, raw: activations.rawArousal, sign: activations.arousalSign },
-  ];
-  const maxW = Math.max(...weights.map(c => c.w));
-
   return (
     <>
-      <Section title="expression chords">
-        {weights.map(({ name, w, raw, sign }) => (
-          <ChordBar
-            key={name}
-            name={name}
-            weight={w}
-            rawActivation={raw}
-            sign={sign}
-            isWinner={w === maxW}
-          />
-        ))}
+      <Section title="expression axes">
+        <ChordBar
+          name="tension"
+          weight={Math.abs(activations.tension)}
+          rawActivation={activations.tension}
+          sign={Math.sign(activations.tension) || 1}
+          isWinner={false}
+        />
+        <ChordBar
+          name="mood"
+          weight={Math.abs(activations.mood)}
+          rawActivation={activations.mood}
+          sign={Math.sign(activations.mood) || 1}
+          isWinner={false}
+        />
       </Section>
       <Section title="shape axes">
         <ChordBar
@@ -211,10 +207,10 @@ function ChordBar({
       ? 'rgba(100, 200, 255, 0.6)'
       : 'rgba(255, 100, 100, 0.6)';
 
-  const signLabel = name === 'valence'
-    ? (sign > 0 ? ' (euphoria)' : ' (grief)')
-    : name === 'arousal'
-      ? (sign > 0 ? ' (alert)' : ' (exhausted)')
+  const signLabel = name === 'tension'
+    ? (sign > 0 ? ' (tense)' : ' (placid)')
+    : name === 'mood'
+      ? (sign > 0 ? ' (euphoric)' : ' (grief)')
       : name === 'dominance'
         ? (sign > 0 ? ' (chad)' : ' (soyboi)')
         : name === 'stature'

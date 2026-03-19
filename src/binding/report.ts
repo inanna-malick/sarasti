@@ -1,5 +1,5 @@
 /**
- * Binding Report — traces chord activations + softmax weights.
+ * Binding Report — traces 2-axis circumplex activations (tension/mood).
  */
 
 import type { TickerConfig, TickerFrame, FaceParams } from '../types';
@@ -36,7 +36,6 @@ export interface BindingEntry {
 export interface ChordEntry {
   name: string;
   rawActivation: number;
-  softmaxWeight: number;
   sign: number;
 }
 
@@ -89,22 +88,14 @@ export function generateReport(
 function traceChords(activations: ChordActivations): ChordEntry[] {
   return [
     {
-      name: 'alarm',
-      rawActivation: activations.rawAlarm,
-      softmaxWeight: activations.wAlarm,
-      sign: activations.alarmSign,
+      name: 'tension',
+      rawActivation: activations.tension,
+      sign: Math.sign(activations.tension) || 1,
     },
     {
-      name: 'valence',
-      rawActivation: activations.rawValence,
-      softmaxWeight: activations.wValence,
-      sign: activations.valenceSign,
-    },
-    {
-      name: 'arousal',
-      rawActivation: activations.rawArousal,
-      softmaxWeight: activations.wArousal,
-      sign: activations.arousalSign,
+      name: 'mood',
+      rawActivation: activations.mood,
+      sign: Math.sign(activations.mood) || 1,
     },
   ];
 }

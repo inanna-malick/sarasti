@@ -44,10 +44,38 @@ public/data/        — baked data files (.bin, .json)
 - `TimelineDataset` — all frames + ticker configs
 - `PlaybackState` — current_index, playing, speed, loop
 
-## Binding Principles
-- Shape = structural identity. Determined by TickerConfig (age, class, family). Fixed per face.
-- Expression = crisis dynamics. Determined by TickerFrame (deviation, velocity, volatility). Changes each frame.
-- The visual mapping is a deliberate analytical choice. The expressions represent statistical deviations.
+## Binding Architecture — 2-Axis Expression Circumplex
+
+Expression uses the Russell circumplex: **Tension** (tense↔placid) × **Mood** (euphoric↔grief).
+Shape uses two additive axes: **Dominance** (soyboi↔chad) × **Stature** (heavy↔gaunt).
+No softmax — the two expression axes are orthogonal. Component overlap produces natural blending.
+
+### Tension (tense ↔ placid)
+- **Input:** `0.6 × sigmoid(vol_z × |vel_z| - 0.5) + 0.4 × sigmoid(-(dd_z + exchFatigue))`
+- **Tense (+):** ψ2×2.5, ψ0×1.0, ψ8×1.5, ψ7×-1.5, ψ5×0.8, ψ4×-0.5 + jaw + gaze up
+- **Placid (−):** ψ2×-2.0, ψ7×2.0, ψ3×0.8, ψ4×0.5 + gaze down
+- **Texture ownership:** fatigue (tense = wired −0.3, placid = exhausted +0.5)
+
+### Mood (euphoric ↔ grief)
+- **Input:** `sigmoid(deviation_z)`
+- **Euphoric (+):** ψ5×2.0 (bilateral smile), ψ4×-1.0 (mouth widens), ψ9×3.0, ψ0×1.0, ψ7×1.5, ψ8×0.5 + chin up + gaze right
+- **Grief (−):** ψ3×2.0, ψ6×2.5, ψ7×1.0, ψ4×0.8 + head tilt + gaze down
+- **Texture ownership:** flush (euphoric = warm +0.3, grief = pallid −0.2)
+
+### Circumplex Quadrants
+- Tense + Euphoric = **MANIC** (wide eyes + smile + flushed)
+- Tense + Grief = **PANICKED** (wide eyes + furrowed + pallid)
+- Placid + Euphoric = **CONTENT** (soft eyes + smile + warm)
+- Placid + Grief = **DEPRESSED** (droopy + frown + pale)
+
+### Shape Axes
+- **Dominance** (β0,β2,β3,β4,β7,β13,β18,β23,β48) ← momentum. Pose: chin forward (+dom) / chin tucked (-dom)
+- **Stature** (β1,β5,β6,β8,β15,β32,β49) ← |1-beta| with sign from deviation
+- Zero component overlap between axes ✓
+
+### Component Inventory
+- **Expression (10 of 100 ψ used):** ψ0–ψ9 (ψ1 banned — asymmetric)
+- **Shape (16 of 100 β used):** 9 dominance + 7 stature, zero overlap
 
 ## FLAME Expression Components (ψ0–ψ9)
 Official FLAME 2023 PCA ordering. Bilateral symmetry verified via vertex mirror map (tools/compute_mirror.py):

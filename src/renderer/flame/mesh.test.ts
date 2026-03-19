@@ -49,17 +49,13 @@ describe('FlameFaceMesh', () => {
     expect(geometry.getAttribute('color').count).toBe(3);
     expect(geometry.index?.count).toBe(3);
     
-    // Multi-material
+    // Single skin material (eyes use FLAME albedo defaults, no custom shader)
     expect(Array.isArray(meshWrapper.mesh.material)).toBe(true);
     const materials = meshWrapper.mesh.material as THREE.Material[];
-    expect(materials.length).toBe(3);
-    
+    expect(materials.length).toBe(1);
+
     const faceMaterial = materials[0] as THREE.MeshStandardMaterial;
     expect(faceMaterial.vertexColors).toBe(true);
-
-    const leftEyeMaterial = materials[1] as THREE.ShaderMaterial;
-    expect(leftEyeMaterial.uniforms.irisColor).toBeDefined();
-    expect(leftEyeMaterial.uniforms.gazeOffset).toBeDefined();
   });
 
   it('should update geometry in-place when updateFromParams is called', () => {

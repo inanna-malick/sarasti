@@ -100,21 +100,14 @@ export function RefineHarness() {
             if (configStr !== lastConfigStr) {
               lastConfigStr = configStr;
 
-              // Setup mesh if new or ticker changed (simplified: just recreate if ticker changes)
-              if (!mesh || (mesh as any)['__tickerId'] !== config.tickerId || (mesh as any)['__irisRadius'] !== config.overrides.irisRadius || (mesh as any)['__pupilRadius'] !== config.overrides.pupilRadius) {
+              // Setup mesh if new or ticker changed
+              if (!mesh || (mesh as any)['__tickerId'] !== config.tickerId) {
                 if (mesh) {
                   scene.remove(mesh.mesh);
                   mesh.dispose();
                 }
-                const eyeOverrides = {
-                  irisRadius: config.overrides.irisRadius,
-                  pupilRadius: config.overrides.pupilRadius,
-                };
-                mesh = new FlameFaceMesh(pipeline, config.tickerId, eyeOverrides);
-                // Keep track of parameters to avoid unnecessary recreation
+                mesh = new FlameFaceMesh(pipeline, config.tickerId);
                 (mesh as any)['__tickerId'] = config.tickerId;
-                (mesh as any)['__irisRadius'] = config.overrides.irisRadius;
-                (mesh as any)['__pupilRadius'] = config.overrides.pupilRadius;
 
                 // Typical scale/position from compositor
                 mesh.mesh.scale.setScalar(1);

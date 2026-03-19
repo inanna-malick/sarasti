@@ -1,46 +1,37 @@
-import * as THREE from 'three';
 import type { FlameModel } from '../types';
 import type { ExtendedFlameModel, MouthGroups } from './types';
 import { extractMouthMeasurements } from './measurements';
-import type { MouthMeasurements } from './types';
 import {
-  createUpperTeethGeometry,
-  createLowerTeethGeometry,
-  createUpperGumsGeometry,
-  createLowerGumsGeometry,
+  sortVerticesIntoRing,
+  buildRingStrip,
+  buildRingCap,
   createTongueGeometry,
-  createCavityGeometry,
 } from './geometry';
 
 const HEAD_JOINT = 0;
 const JAW_JOINT = 2;
 
-type SkinWeight = 'head' | 'jaw' | 'cavity';
+// Recession depths as fractions of lipWidth
+const TEETH_RECESS = 0.1;
+const GUMS_RECESS = 0.3;
+const CAVITY_RECESS = 0.7;
+const TONGUE_RECESS = 0.35;
 
-interface MouthPart {
-  geo: THREE.BufferGeometry;
-  offset: THREE.Vector3;
-  skinWeight: SkinWeight;
-  group: 'teeth' | 'gums' | 'tongue' | 'cavity';
-  albedoBGR: [number, number, number];
-}
+type SkinWeight = 'head' | 'jaw';
 
 // Albedo colors in BGR (matching FLAME albedo format), sRGB normalized [0,1]
-// Teeth: 0xF0E8D8 → R=0.941 G=0.910 B=0.847
 const TEETH_BGR: [number, number, number] = [0.847, 0.910, 0.941];
-// Gums: 0x8B5E6B → R=0.545 G=0.369 B=0.420
 const GUMS_BGR: [number, number, number] = [0.420, 0.369, 0.545];
-// Tongue: 0x7B4B5A → R=0.482 G=0.294 B=0.353
 const TONGUE_BGR: [number, number, number] = [0.353, 0.294, 0.482];
-// Cavity: 0x1A0F0A → R=0.102 G=0.059 B=0.039
 const CAVITY_BGR: [number, number, number] = [0.039, 0.059, 0.102];
 
 /**
- * Extend a FlameModel with procedural mouth vertices.
+ * Extend a FlameModel with mouth interior vertices derived from lip boundary.
  *
- * Mouth vertices are integrated into all vertex-indexed arrays so they
- * participate in native shape + expression + LBS deformation. The deformation
- * pipeline operates on n_vertices generically — no changes needed.
+ * Instead of procedural geometry, duplicates the actual lip vertices at
+ * increasing recession depths to create teeth, gums, and cavity surfaces.
+ * Each new vertex inherits shape/expression/pose deformation from its source
+ * lip vertex, so mouth interior deforms naturally with the face.
  *
  * Graceful no-op: if lip measurements can't be extracted, returns model unchanged.
  */
@@ -51,39 +42,142 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   }
 
   const m = measurements;
-  const recessZ = -m.mouthDepth * 0.6;
-
-  const parts = buildMouthParts(m, recessZ);
-
-  // Extract vertices, faces, and metadata from all parts
-  const { positions, faces, skinWeights, albedoColors, groupFaceCounts, totalVertices } =
-    extractPartGeometry(parts, model.n_vertices);
-
-  // Dispose temporary geometries
-  for (const part of parts) part.geo.dispose();
-
   const nOrig = model.n_vertices;
-  const nMouth = totalVertices;
-  const nNew = nOrig + nMouth;
   const nOrigFaces = model.n_faces;
-  const nMouthFaces = faces.length / 3;
+
+  // Sort lip vertices into rings
+  const upperRing = sortVerticesIntoRing(model.template, m.upperLipVertices, m.upperLipCenter);
+  const lowerRing = sortVerticesIntoRing(model.template, m.lowerLipVertices, m.lowerLipCenter);
+
+  // Accumulate new vertices
+  const newPositions: number[] = [];
+  const sourceVertices: number[] = []; // maps each new vertex → source FLAME vertex
+  const skinWeights: SkinWeight[] = [];
+  const albedoColors: [number, number, number][] = [];
+
+  // Create a recession layer: duplicate ring vertices, offset into -Z
+  function addLayer(
+    ring: number[], recess: number, skinType: SkinWeight, color: [number, number, number],
+  ): number[] {
+    const newRing: number[] = [];
+    for (const v of ring) {
+      const newIdx = nOrig + newPositions.length / 3;
+      newRing.push(newIdx);
+      newPositions.push(
+        model.template[v * 3],
+        model.template[v * 3 + 1],
+        model.template[v * 3 + 2] - recess * m.lipWidth,
+      );
+      sourceVertices.push(v);
+      skinWeights.push(skinType);
+      albedoColors.push(color);
+    }
+    return newRing;
+  }
+
+  // Create a center vertex for fan cap
+  function addCenter(
+    ring: number[], recess: number, skinType: SkinWeight, color: [number, number, number],
+  ): number {
+    let cx = 0, cy = 0, cz = 0;
+    for (const v of ring) {
+      cx += model.template[v * 3];
+      cy += model.template[v * 3 + 1];
+      cz += model.template[v * 3 + 2];
+    }
+    const n = ring.length;
+    const newIdx = nOrig + newPositions.length / 3;
+    newPositions.push(cx / n, cy / n, cz / n - recess * m.lipWidth);
+    sourceVertices.push(ring[0]); // approximate for deformation
+    skinWeights.push(skinType);
+    albedoColors.push(color);
+    return newIdx;
+  }
+
+  // Upper mouth (skinned to head)
+  const upperTeeth = addLayer(upperRing, TEETH_RECESS, 'head', TEETH_BGR);
+  const upperGums = addLayer(upperRing, GUMS_RECESS, 'head', GUMS_BGR);
+  const upperCavityCenter = addCenter(upperRing, CAVITY_RECESS, 'head', CAVITY_BGR);
+
+  // Lower mouth (skinned to jaw)
+  const lowerTeeth = addLayer(lowerRing, TEETH_RECESS, 'jaw', TEETH_BGR);
+  const lowerGums = addLayer(lowerRing, GUMS_RECESS, 'jaw', GUMS_BGR);
+  const lowerCavityCenter = addCenter(lowerRing, CAVITY_RECESS, 'jaw', CAVITY_BGR);
+
+  // Build faces by group
+  const teethFaces = [
+    ...buildRingStrip(upperRing, upperTeeth),
+    ...buildRingStrip(lowerRing, lowerTeeth),
+  ];
+  const gumsFaces = [
+    ...buildRingStrip(upperTeeth, upperGums),
+    ...buildRingStrip(lowerTeeth, lowerGums),
+  ];
+  const cavityFaces = [
+    ...buildRingCap(upperGums, upperCavityCenter),
+    ...buildRingCap(lowerGums, lowerCavityCenter),
+  ];
+
+  // Tongue: procedural ellipsoid, positioned at gums depth
+  const tongueGeo = createTongueGeometry(m);
+  const tonguePosAttr = tongueGeo.getAttribute('position');
+  const tongueStartIdx = nOrig + newPositions.length / 3;
+  const tongueOffset = {
+    x: m.lowerLipCenter.x,
+    y: m.lowerLipCenter.y,
+    z: m.lowerLipCenter.z - TONGUE_RECESS * m.lipWidth,
+  };
+  for (let i = 0; i < tonguePosAttr.count; i++) {
+    newPositions.push(
+      tonguePosAttr.getX(i) + tongueOffset.x,
+      tonguePosAttr.getY(i) + tongueOffset.y,
+      tonguePosAttr.getZ(i) + tongueOffset.z,
+    );
+    sourceVertices.push(m.lowerLipVertices[0]);
+    skinWeights.push('jaw');
+    albedoColors.push(TONGUE_BGR);
+  }
+  const tongueFaces: number[] = [];
+  const tongueIndexAttr = tongueGeo.index;
+  if (tongueIndexAttr) {
+    for (let i = 0; i < tongueIndexAttr.count; i++) {
+      tongueFaces.push(tongueIndexAttr.getX(i) + tongueStartIdx);
+    }
+  }
+  tongueGeo.dispose();
+
+  // Assemble face indices in group order: teeth, gums, tongue, cavity
+  const allFaceIndices: number[] = [...teethFaces, ...gumsFaces, ...tongueFaces, ...cavityFaces];
+  const groupFaceCounts = {
+    teeth: teethFaces.length / 3,
+    gums: gumsFaces.length / 3,
+    tongue: tongueFaces.length / 3,
+    cavity: cavityFaces.length / 3,
+  };
+
+  const nMouth = newPositions.length / 3;
+  const nNew = nOrig + nMouth;
+  const nMouthFaces = allFaceIndices.length / 3;
   const nNewFaces = nOrigFaces + nMouthFaces;
 
-  // Find nearest original FLAME vertex for each mouth vertex (brute force, runs once)
-  const nearestVertex = findNearestVertices(positions, model.template, nMouth, nOrig);
+  // Direct source vertex mapping (no brute-force search needed)
+  const nearestVertex = new Uint32Array(nMouth);
+  for (let i = 0; i < nMouth; i++) {
+    nearestVertex[i] = sourceVertices[i];
+  }
 
   // Build extended arrays
-  const newTemplate = extendTemplate(model.template, positions, nOrig, nMouth);
-  const newFaces = extendFaces(model.faces, faces, nOrigFaces, nMouthFaces);
+  const newTemplate = extendTemplate(model.template, newPositions, nOrig, nMouth);
+  const newFaces = extendFaces(model.faces, allFaceIndices, nOrigFaces, nMouthFaces);
   const newShapedirs = extendPerComponentArray(model.shapedirs, model.n_shape, nOrig, nNew, nMouth, nearestVertex);
   const newExprdirs = extendPerComponentArray(model.exprdirs, model.n_expr, nOrig, nNew, nMouth, nearestVertex);
   const newPosedirs = extendPerComponentArray(model.posedirs, model.n_pose_features, nOrig, nNew, nMouth, nearestVertex);
-  const newWeights = extendWeights(model.weights, positions, skinWeights, nOrig, nNew, nMouth, model.n_joints);
+  const newWeights = extendWeights(model.weights, skinWeights, nOrig, nNew, nMouth, model.n_joints);
   const newJRegressor = extendJRegressor(model.jRegressor, nOrig, nNew, model.n_joints);
   const newAlbedoMean = extendAlbedoMean(model.albedoMean, albedoColors, nOrig, nMouth);
   const newAlbedoBasis = extendAlbedoBasis(model.albedoBasis, model.n_albedo_components, nOrig, nNew);
 
-  // Build mouth face group ranges (faces appended in group order)
+  // Build mouth face group ranges
   let faceOffset = nOrigFaces;
   const mouthGroups: MouthGroups = {
     teeth: { faceStart: faceOffset, faceCount: groupFaceCounts.teeth },
@@ -115,108 +209,6 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   };
 }
 
-function buildMouthParts(m: MouthMeasurements, recessZ: number): MouthPart[] {
-  return [
-    {
-      geo: createUpperTeethGeometry(m),
-      offset: new THREE.Vector3(m.upperLipCenter.x, m.upperLipCenter.y, m.upperLipCenter.z + recessZ),
-      skinWeight: 'head', group: 'teeth', albedoBGR: TEETH_BGR,
-    },
-    {
-      geo: createLowerTeethGeometry(m),
-      offset: new THREE.Vector3(m.lowerLipCenter.x, m.lowerLipCenter.y, m.lowerLipCenter.z + recessZ),
-      skinWeight: 'jaw', group: 'teeth', albedoBGR: TEETH_BGR,
-    },
-    {
-      geo: createUpperGumsGeometry(m),
-      offset: new THREE.Vector3(m.upperLipCenter.x, m.upperLipCenter.y, m.upperLipCenter.z + recessZ),
-      skinWeight: 'head', group: 'gums', albedoBGR: GUMS_BGR,
-    },
-    {
-      geo: createLowerGumsGeometry(m),
-      offset: new THREE.Vector3(m.lowerLipCenter.x, m.lowerLipCenter.y, m.lowerLipCenter.z + recessZ),
-      skinWeight: 'jaw', group: 'gums', albedoBGR: GUMS_BGR,
-    },
-    {
-      geo: createTongueGeometry(m),
-      offset: new THREE.Vector3(m.lowerLipCenter.x, m.lowerLipCenter.y, m.lowerLipCenter.z + recessZ - m.mouthDepth * 0.3),
-      skinWeight: 'jaw', group: 'tongue', albedoBGR: TONGUE_BGR,
-    },
-    {
-      geo: createCavityGeometry(m),
-      offset: new THREE.Vector3(m.mouthCenter.x, m.mouthCenter.y, m.mouthCenter.z + recessZ - m.mouthDepth * 0.3),
-      skinWeight: 'cavity', group: 'cavity', albedoBGR: CAVITY_BGR,
-    },
-  ];
-}
-
-function extractPartGeometry(parts: MouthPart[], baseVertexOffset: number) {
-  const positions: number[] = [];
-  const faces: number[] = [];
-  const skinWeights: SkinWeight[] = [];
-  const albedoColors: [number, number, number][] = [];
-  const groupFaceCounts = { teeth: 0, gums: 0, tongue: 0, cavity: 0 };
-  let vertexOffset = 0;
-
-  for (const part of parts) {
-    const posAttr = part.geo.getAttribute('position');
-    const nVerts = posAttr.count;
-    const posArray = posAttr.array;
-
-    for (let i = 0; i < nVerts; i++) {
-      positions.push(
-        posArray[i * 3] + part.offset.x,
-        posArray[i * 3 + 1] + part.offset.y,
-        posArray[i * 3 + 2] + part.offset.z,
-      );
-      skinWeights.push(part.skinWeight);
-      albedoColors.push(part.albedoBGR);
-    }
-
-    const indexAttr = part.geo.index;
-    if (indexAttr) {
-      const indexArray = indexAttr.array;
-      for (let i = 0; i < indexArray.length; i++) {
-        faces.push(indexArray[i] + baseVertexOffset + vertexOffset);
-      }
-      groupFaceCounts[part.group] += indexArray.length / 3;
-    }
-
-    vertexOffset += nVerts;
-  }
-
-  return { positions, faces, skinWeights, albedoColors, groupFaceCounts, totalVertices: vertexOffset };
-}
-
-/** Brute-force nearest-vertex search. O(nMouth × nOrig), runs once at load. */
-function findNearestVertices(
-  mouthPositions: number[],
-  template: Float32Array,
-  nMouth: number,
-  nOrig: number,
-): Uint32Array {
-  const nearest = new Uint32Array(nMouth);
-  for (let m = 0; m < nMouth; m++) {
-    const mx = mouthPositions[m * 3];
-    const my = mouthPositions[m * 3 + 1];
-    const mz = mouthPositions[m * 3 + 2];
-    let bestDist = Infinity;
-    let bestIdx = 0;
-    for (let v = 0; v < nOrig; v++) {
-      const dx = template[v * 3] - mx;
-      const dy = template[v * 3 + 1] - my;
-      const dz = template[v * 3 + 2] - mz;
-      const dist = dx * dx + dy * dy + dz * dz;
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestIdx = v;
-      }
-    }
-    nearest[m] = bestIdx;
-  }
-  return nearest;
-}
-
 function extendTemplate(
   original: Float32Array, mouthPositions: number[], nOrig: number, nMouth: number,
 ): Float32Array {
@@ -241,7 +233,7 @@ function extendFaces(
 
 /**
  * Extend a per-component vertex array laid out as [n_components][n_vertices * 3].
- * For each mouth vertex, copies shape/expression/pose data from its nearest original vertex.
+ * For each mouth vertex, copies data from its source lip vertex.
  */
 function extendPerComponentArray(
   source: Float32Array,
@@ -270,7 +262,6 @@ function extendPerComponentArray(
 
 function extendWeights(
   original: Float32Array,
-  mouthPositions: number[],
   skinWeights: SkinWeight[],
   nOrig: number,
   nNew: number,
@@ -280,30 +271,13 @@ function extendWeights(
   const result = new Float32Array(nNew * nJoints);
   result.set(original);
 
-  // Compute cavity Y range for head↔jaw blending
-  let cavityMinY = Infinity, cavityMaxY = -Infinity;
-  for (let m = 0; m < nMouth; m++) {
-    if (skinWeights[m] === 'cavity') {
-      const y = mouthPositions[m * 3 + 1];
-      cavityMinY = Math.min(cavityMinY, y);
-      cavityMaxY = Math.max(cavityMaxY, y);
-    }
-  }
-  const cavityYRange = cavityMaxY - cavityMinY;
-
   for (let m = 0; m < nMouth; m++) {
     const vIdx = nOrig + m;
     const sw = skinWeights[m];
     if (sw === 'head') {
       result[vIdx * nJoints + HEAD_JOINT] = 1.0;
-    } else if (sw === 'jaw') {
-      result[vIdx * nJoints + JAW_JOINT] = 1.0;
     } else {
-      // Cavity: gradient blend from head (top) → jaw (bottom) along Y
-      const y = mouthPositions[m * 3 + 1];
-      const t = cavityYRange > 1e-8 ? (y - cavityMinY) / cavityYRange : 0.5;
-      result[vIdx * nJoints + HEAD_JOINT] = t;
-      result[vIdx * nJoints + JAW_JOINT] = 1.0 - t;
+      result[vIdx * nJoints + JAW_JOINT] = 1.0;
     }
   }
 

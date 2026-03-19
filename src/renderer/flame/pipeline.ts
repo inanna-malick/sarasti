@@ -18,9 +18,11 @@ export interface FlamePipeline {
   deformFace(params: FaceParams): FlameBuffers;
 }
 
+const ENABLE_MOUTH = false;
+
 export async function createFlamePipeline(basePath: string): Promise<FlamePipeline> {
   const rawModel = await loadFlameModel(basePath);
-  const model = extendModelWithMouth(rawModel);
+  const model = ENABLE_MOUTH ? extendModelWithMouth(rawModel) : { ...rawModel, mouthGroups: null, originalVertexCount: rawModel.n_vertices };
 
   return {
     model,

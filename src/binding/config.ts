@@ -10,10 +10,9 @@ import {
 
 /** Default curves for generic [-1, 1] input range (library API) */
 export const DEFAULT_AXIS_CURVES: AxisCurveConfig = {
-  // Expression chords (bipolar ±)
-  alarm:      { type: 'sigmoid', input_min: 0,  input_max: 1, output_min: 0,  output_max: 3, steepness: 2 },
-  valence:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
-  arousal:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  // Expression axes (Russell circumplex, bipolar ±)
+  tension:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  mood:       { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   // Shape (bipolar ±)
   dominance:  { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   stature:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },

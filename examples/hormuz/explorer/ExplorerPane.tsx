@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExplorerRenderer } from './ExplorerRenderer';
-import { ShapeSliders } from './sliders/ShapeSliders';
 import { ExpressionSliders } from './sliders/ExpressionSliders';
+import { ShapeSliders } from './sliders/ShapeSliders';
 import { PoseSliders } from './sliders/PoseSliders';
 import { GazeSliders } from './sliders/GazeSliders';
 import { TextureSliders } from './sliders/TextureSliders';
@@ -92,11 +92,8 @@ export function ExplorerPane() {
         }}>
           {mode === 'highlevel' ? (
             <>
-              <ShapeSliders />
               <ExpressionSliders />
-              <PoseSliders />
-              <GazeSliders />
-              <TextureSliders />
+              <ShapeSliders />
               <ReportPanel />
             </>
           ) : (
