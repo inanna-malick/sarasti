@@ -137,7 +137,12 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
         // First render + signal ready
         renderer.render(scene, camObj);
         if (headless) {
-          window.__EXPLORER_READY = true;
+          // In data mode, loadDataMode() sets __EXPLORER_READY after async data load.
+          // In other modes, signal ready immediately.
+          const isDataMode = new URLSearchParams(window.location.search).get('mode') === 'data';
+          if (!isDataMode) {
+            window.__EXPLORER_READY = true;
+          }
         }
 
         function renderLoop() {

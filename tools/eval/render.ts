@@ -18,7 +18,7 @@
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { resolve, dirname } from 'path';
-import { mkdirSync, readFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import * as readline from 'readline';
 
@@ -52,7 +52,7 @@ async function renderOne(page: any, baseUrl: string, config: RenderConfig): Prom
 
   // Hormuz needs wider viewport to fit 25 faces
   if (isHormuz) {
-    await page.setViewportSize({ width: 2560, height: 1440 });
+    await page.setViewportSize({ width: 1920, height: 1080 });
   } else {
     await page.setViewportSize({ width: 512, height: 512 });
   }
@@ -71,6 +71,14 @@ async function renderOne(page: any, baseUrl: string, config: RenderConfig): Prom
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
 
   await page.screenshot({ path: outPath, type: 'png' });
+
+  // Write metadata sidecar if present (data mode sets window.__RENDER_METADATA)
+  const metadata = await page.evaluate(() => (window as any).__RENDER_METADATA);
+  if (metadata) {
+    const jsonPath = outPath.replace(/\.png$/, '.json');
+    writeFileSync(jsonPath, JSON.stringify(metadata, null, 2));
+  }
+
   return outPath;
 }
 

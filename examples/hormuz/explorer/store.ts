@@ -20,7 +20,7 @@ import {
   type MetaAxes,
 } from '../../../src/binding/chords';
 
-type ExplorerMode = 'highlevel' | 'semantic' | 'raw';
+type ExplorerMode = 'highlevel' | 'semantic' | 'raw' | 'data';
 
 interface ExplorerState {
   mode: ExplorerMode;
@@ -78,6 +78,7 @@ interface ExplorerState {
   setFatigueTex: (v: number) => void;
   setRawShape: (index: number, value: number) => void;
   setRawExpression: (index: number, value: number) => void;
+  setCurrentParams: (params: FaceParams) => void;
   recompute: () => void;
 }
 
@@ -132,7 +133,12 @@ function applyFullExprRecipe(
   applyExprRecipePoseGazeTexture(recipe, magnitude, out);
 }
 
-function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
+function recomputeParams(state: ExplorerState): { currentParams: FaceParams | null } {
+  if (state.mode === 'data') {
+    // Data mode: params set externally via setCurrentParams, no recompute needed
+    return { currentParams: state.currentParams };
+  }
+
   if (state.mode === 'semantic') {
     // Semantic mode: 3 meta-axes → mixing matrix → 6 low-level activations → recipes
     const meta: MetaAxes = {
@@ -327,6 +333,8 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setGazeVertical: (v) => update(set, get, { gazeVertical: v }),
   setFlush: (v) => update(set, get, { flush: v }),
   setFatigueTex: (v) => update(set, get, { fatigueTex: v }),
+
+  setCurrentParams: (params) => set({ currentParams: params }),
 
   setRawShape: (index, value) => {
     const arr = new Float32Array(get().rawShape);

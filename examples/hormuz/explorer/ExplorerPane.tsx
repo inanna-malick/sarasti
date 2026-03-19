@@ -9,12 +9,86 @@ import { TextureSliders } from './sliders/TextureSliders';
 import { RawSliders } from './sliders/RawSliders';
 import { ReportPanel } from './ReportPanel';
 import { useExplorerStore } from './store';
+import { loadDataset, getFrameIndexAtTime } from '../../../src/data/loader';
+import { resolve } from '../../../src/binding/resolve';
+import { computeMetaAxes, metaToChordActivations, computeChordActivations } from '../../../src/binding/chords';
+import { computeDatasetStats } from '../../../src/data/stats';
+import { TICKERS, TICKER_MAP } from '../tickers';
+
+declare global {
+  interface Window {
+    __RENDER_METADATA?: Record<string, unknown>;
+  }
+}
 
 export type CameraPreset = 'front' | 'left34' | 'right34' | 'closeup' | 'closeup_eyes';
+
+async function loadDataMode(tickerId: string, timestamp: string) {
+  const store = useExplorerStore.getState();
+  const ticker = TICKER_MAP.get(tickerId);
+  if (!ticker) {
+    console.error(`[data mode] Unknown ticker: ${tickerId}`);
+    return;
+  }
+
+  const dataset = await loadDataset('/data/market-data.json', TICKERS);
+  const stats = computeDatasetStats(dataset);
+  const frameIdx = getFrameIndexAtTime(dataset, timestamp);
+  const frame = dataset.frames[frameIdx];
+  const tickerFrame = frame.values[tickerId];
+
+  if (!tickerFrame) {
+    console.error(`[data mode] No data for ticker ${tickerId} at frame ${frameIdx}`);
+    return;
+  }
+
+  const faceParams = resolve(ticker, tickerFrame, undefined, stats);
+  store.setCurrentParams(faceParams);
+
+  // Compute metadata for sidecar output
+  const meta = computeMetaAxes(tickerFrame, stats, tickerId, timestamp, ticker);
+  const activations = metaToChordActivations(meta, ticker);
+
+  window.__RENDER_METADATA = {
+    ticker: tickerId,
+    timestamp: frame.timestamp,
+    metaAxes: meta,
+    activations,
+    rawSignals: {
+      dev: tickerFrame.deviation,
+      vel: tickerFrame.velocity,
+      vol: tickerFrame.volatility,
+      mom: tickerFrame.momentum,
+      dd: tickerFrame.drawdown,
+      mr_z: tickerFrame.mean_reversion_z,
+    },
+    texture: {
+      flush: faceParams.flush,
+      fatigue: faceParams.fatigue,
+      skinAge: faceParams.skinAge,
+    },
+  };
+
+  // Signal ready after data is loaded and params are set.
+  // In data mode, ExplorerRenderer defers its ready signal until this fires.
+  window.__EXPLORER_READY = true;
+}
 
 function parseUrlParams() {
   const params = new URLSearchParams(window.location.search);
   const store = useExplorerStore.getState();
+
+  if (params.get('mode') === 'data') {
+    store.setMode('data');
+    const tickerId = params.get('ticker');
+    const timestamp = params.get('t');
+    if (tickerId && timestamp) {
+      loadDataMode(tickerId, timestamp);
+    } else {
+      console.error('[data mode] Missing ticker or t param');
+    }
+    return;
+  }
 
   if (params.get('mode') === 'raw') {
     store.setMode('raw');
