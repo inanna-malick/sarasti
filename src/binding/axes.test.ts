@@ -7,11 +7,11 @@ describe('EXPR_AXES', () => {
     expect(EXPR_AXIS_NAMES).toEqual(['tension', 'mood']);
   });
 
-  it('all indices are within ψ0-ψ9', () => {
+  it('all indices are within ψ0-ψ49 (safe symmetric range)', () => {
     for (const axis of EXPR_AXIS_NAMES) {
       for (const [idx] of EXPR_AXES[axis]) {
         expect(idx).toBeGreaterThanOrEqual(0);
-        expect(idx).toBeLessThan(10);
+        expect(idx).toBeLessThan(50);
       }
     }
   });
@@ -33,10 +33,12 @@ describe('EXPR_AXES', () => {
     expect(target[4]).toBeCloseTo(-0.5);  // ψ4: lip unpucker
   });
 
-  it('mood uses ψ1 (zygomaticus major — actual smile muscle)', () => {
+  it('mood uses ψ11+ψ12 conjugate pair for bilateral smile', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.mood, 1.0);
-    expect(target[1]).toBeCloseTo(2.5);   // ψ1: zygomaticus major — corners up+back
+    expect(target[11]).toBeCloseTo(2.0);  // ψ11: left mouth corner
+    expect(target[12]).toBeCloseTo(2.0);  // ψ12: right mouth corner
+    expect(target[1]).toBeCloseTo(1.0);   // ψ1: overall smile shape (low weight)
     expect(target[7]).toBeCloseTo(1.5);   // ψ7: Duchenne crinkle
   });
 });

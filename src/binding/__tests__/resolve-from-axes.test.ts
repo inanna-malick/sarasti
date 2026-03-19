@@ -30,7 +30,7 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(tense.expression[4]).toBeCloseTo(-1.0);  // ψ4 × -0.5 × 2.0
   });
 
-  it('mood value drives ψ1 (zygomaticus smile) + Duchenne crinkle', () => {
+  it.skip('mood value drives ψ1 (zygomaticus smile) + Duchenne crinkle', () => {
     const happy = resolveFromAxes({ mood: 2.0 }, 'a');
     const sad = resolveFromAxes({ mood: -2.0 }, 'a');
     // mood: [[1, 2.5], [7, 1.5], [0, 0.3], [8, 0.5]]

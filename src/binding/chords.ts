@@ -92,17 +92,18 @@ export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
 };
 
 /** MOOD EUPHORIC (+): positive deviation → warm glow, bilateral smile
- * ψ1 is the actual smile component (zygomaticus major). It's asymmetric
- * in the PCA decomposition (-0.898 self-reflection) but it's the only
- * component that correctly pulls mouth corners up and back.
- * Slight lopsidedness is acceptable — better than a sneer (ψ5) or grimace (ψ9).
+ * ψ11+ψ12 are the unilateral smile conjugate pair (left + right mouth corner).
+ * Combined at equal weight they produce a bilateral smile.
+ * ψ1 adds overall smile shape but is asymmetric (-0.898) — used at lower weight.
  * Weights ≤2.5 so slider extreme (3.0) stays ≤7.5σ — no mesh inversion. */
 export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [1, 2.5],   // ψ1: zygomaticus major — THE smile muscle, corners up+back
+    [11, 2.0],  // ψ11: left mouth corner raise — half of bilateral smile
+    [12, 2.0],  // ψ12: right mouth corner raise — other half
+    [1, 1.0],   // ψ1: overall smile shape (asymmetric, so low weight)
     [7, 1.5],   // ψ7: Duchenne eye crinkle — genuine smile tell
-    [0, 0.3],   // ψ0: minimal jaw — grin is closed-mouth, jaw comes from tension
-    [8, 0.5],   // ψ8: nose wrinkle — subtle genuine-smile seasoning
+    [0, 0.3],   // ψ0: minimal jaw
+    [8, 0.5],   // ψ8: nose wrinkle — subtle
   ],
   pose: { pitch: 0.08, yaw: 0.04 },
   gaze: { gazeH: 0.08 },

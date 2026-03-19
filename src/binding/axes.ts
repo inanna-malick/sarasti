@@ -25,9 +25,8 @@
 export const EXPR_AXES = {
   // Tension (+): brow up + jaw + nose wrinkle + eyes open + snarl + lip part
   tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]] as const,
-  // Mood (+): ψ1 (zygomaticus major — actual smile) + Duchenne crinkle
-  // ψ1 is slightly asymmetric in PCA but it's the correct smile muscle
-  mood:    [[1, 2.5], [7, 1.5], [0, 0.3], [8, 0.5]] as const,
+  // Mood (+): ψ11+ψ12 conjugate pair (bilateral smile) + ψ1 (overall smile shape)
+  mood:    [[11, 2.0], [12, 2.0], [1, 1.0], [7, 1.5], [0, 0.3], [8, 0.5]] as const,
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
