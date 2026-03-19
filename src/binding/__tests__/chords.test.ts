@@ -167,7 +167,7 @@ describe('resolveExpressionChords (3-axis)', () => {
 
   it('wired fatigue → ψ5 positive (tight lip), fatigue texture negative', () => {
     // Need drawdown to be negative (in drawdown), which makes -(dd_z) positive → wired
-    const act = { alarm: 0, fatigue: 0.8, dominance: 0 };
+    const act = { alarm: 0, fatigue: 0.8, dominance: 0, aggression: 0, maturity: 0, sharpness: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[5]).toBeGreaterThan(0); // tight upper lip
@@ -175,7 +175,7 @@ describe('resolveExpressionChords (3-axis)', () => {
   });
 
   it('exhausted fatigue → ψ7 positive (heavy lids), fatigue texture positive', () => {
-    const act = { alarm: 0, fatigue: -0.8, dominance: 0 };
+    const act = { alarm: 0, fatigue: -0.8, dominance: 0, aggression: 0, maturity: 0, sharpness: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[7]).toBeGreaterThan(0); // heavy lids
@@ -183,7 +183,7 @@ describe('resolveExpressionChords (3-axis)', () => {
   });
 
   it('wired fatigue → ψ3 (curiosity), ψ4 (engagement), ψ5 (tightness), gaze lateral', () => {
-    const act = { alarm: 0, fatigue: 0.8, dominance: 0 };
+    const act = { alarm: 0, fatigue: 0.8, dominance: 0, aggression: 0, maturity: 0, sharpness: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[3]).toBeGreaterThan(0); // open curiosity — evaluating

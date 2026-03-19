@@ -11,7 +11,10 @@ import {
   FATIGUE_EXHAUSTED_RECIPE,
   AGGRESSION_AGGRESSIVE_RECIPE,
   AGGRESSION_YIELDING_RECIPE,
+  SMIRK_RECIPE,
   DOMINANCE_RECIPE,
+  MATURITY_RECIPE,
+  SHARPNESS_RECIPE,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
 } from '../../../src/binding/chords';
@@ -21,11 +24,14 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 4 axes (pose/gaze/texture computed from chord recipes)
+  // High-level: 5 axes (pose/gaze/texture computed from chord recipes)
   alarm: number;
   fatigue: number;
   aggression: number;
   dominance: number;
+  maturity: number;
+  sharpness: number;
+  smirk: number;
 
   // Raw mode: manual overrides
   poseOverride: boolean;
@@ -50,6 +56,9 @@ interface ExplorerState {
   setFatigue: (v: number) => void;
   setAggression: (v: number) => void;
   setDominance: (v: number) => void;
+  setMaturity: (v: number) => void;
+  setSharpness: (v: number) => void;
+  setSmirk: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -105,8 +114,12 @@ function applyFullExprRecipe(
   expression: Float32Array,
   out: { pitch: number; yaw: number; roll: number; jaw: number; gazeH: number; gazeV: number; flush: number; fatigue: number },
 ) {
-  for (const [idx, w] of recipe.expression) {
-    expression[idx] += w * magnitude;
+  for (const entry of recipe.expression) {
+    const idx = entry[0];
+    const w = entry[1];
+    const power = entry.length > 2 ? (entry as readonly [number, number, number])[2] : 1;
+    const effectiveMag = power === 1 ? magnitude : Math.sign(magnitude) * Math.pow(Math.abs(magnitude), power);
+    expression[idx] += w * effectiveMag;
   }
   applyExprRecipePoseGazeTexture(recipe, magnitude, out);
 }
@@ -150,11 +163,18 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     applyFullExprRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(state.aggression), expression, pgt);
   }
 
+  // Smirk → deceptive (positive only)
+  if (state.smirk > 0) {
+    applyFullExprRecipe(SMIRK_RECIPE, state.smirk, expression, pgt);
+  }
+
   // ψ7 safety clamp
   expression[7] = clamp(expression[7], -PSI7_CLAMP, PSI7_CLAMP);
 
-  // Shape β components — dominance only
+  // Shape β components — dominance + maturity + sharpness
   applyMapping(shape, SHAPE_AXES.dominance, state.dominance);
+  applyMapping(shape, SHAPE_AXES.maturity, state.maturity);
+  applyMapping(shape, SHAPE_AXES.sharpness, state.sharpness);
 
   // Shape safety clamps — prevents mesh breakage at extreme slider values
   shape[3] = clamp(shape[3], -BETA3_CLAMP, BETA3_CLAMP);
@@ -164,6 +184,8 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
 
   // Shape → identity pose
   applyShapeRecipePose(DOMINANCE_RECIPE, state.dominance, pgt);
+  applyShapeRecipePose(MATURITY_RECIPE, state.maturity, pgt);
+  applyShapeRecipePose(SHARPNESS_RECIPE, state.sharpness, pgt);
 
   const params: FaceParams = {
     shape,
@@ -220,6 +242,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   fatigue: 0,
   aggression: 0,
   dominance: 0,
+  maturity: 0,
+  sharpness: 0,
+  smirk: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -242,6 +267,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setFatigue: (v) => update(set, get, { fatigue: v }),
   setAggression: (v) => update(set, get, { aggression: v }),
   setDominance: (v) => update(set, get, { dominance: v }),
+  setMaturity: (v) => update(set, get, { maturity: v }),
+  setSharpness: (v) => update(set, get, { sharpness: v }),
+  setSmirk: (v) => update(set, get, { smirk: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),

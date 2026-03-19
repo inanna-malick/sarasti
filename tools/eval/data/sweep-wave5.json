@@ -1,0 +1,24 @@
+[
+  {"params": {"aggression": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_1.0_front.png"},
+  {"params": {"aggression": "0.7"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_0.7_front.png"},
+  {"params": {"aggression": "0.4"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_0.4_front.png"},
+  {"params": {"aggression": "0.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_0.0_front.png"},
+  {"params": {"aggression": "-0.4"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_-0.4_front.png"},
+  {"params": {"aggression": "-0.7"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_-0.7_front.png"},
+  {"params": {"aggression": "-1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/aggression_-1.0_front.png"},
+
+  {"params": {"aggression": "1.0", "alarm": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_aggressive-alarmed_front.png"},
+  {"params": {"aggression": "1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_aggressive-wired_front.png"},
+  {"params": {"aggression": "1.0", "dominance": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_aggressive-chad_front.png"},
+  {"params": {"aggression": "1.0", "dominance": "-1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_aggressive-soyboi_front.png"},
+
+  {"params": {"aggression": "-1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/yielding_-1.0_front.png"},
+  {"params": {"fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/exhausted_-1.0_front.png"},
+  {"params": {"aggression": "-1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_yielding-exhausted_front.png"},
+  {"params": {"aggression": "-0.7", "fatigue": "-0.7"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_yielding-exhausted_0.7_front.png"},
+  {"params": {"aggression": "-1.0", "alarm": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/cross_yielding-alarmed_front.png"},
+
+  {"params": {"alarm": "1.0", "aggression": "1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/triple_berserker_front.png"},
+  {"params": {"alarm": "-1.0", "aggression": "1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/triple_smug-predator_front.png"},
+  {"params": {"alarm": "1.0", "aggression": "-1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave5-20260319-025802/triple_total-surrender_front.png"}
+]

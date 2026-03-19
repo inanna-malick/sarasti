@@ -55,10 +55,16 @@ function parseUrlParams() {
     const fatigue = params.get('fatigue');
     const aggression = params.get('aggression');
     const dominance = params.get('dominance');
+    const maturity = params.get('maturity');
     if (alarm) store.setAlarm(parseFloat(alarm));
     if (fatigue) store.setFatigue(parseFloat(fatigue));
     if (aggression) store.setAggression(parseFloat(aggression));
     if (dominance) store.setDominance(parseFloat(dominance));
+    if (maturity) store.setMaturity(parseFloat(maturity));
+    const sharpness = params.get('sharpness');
+    if (sharpness) store.setSharpness(parseFloat(sharpness));
+    const smirk = params.get('smirk');
+    if (smirk) store.setSmirk(parseFloat(smirk));
   }
 }
 

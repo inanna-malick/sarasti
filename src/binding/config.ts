@@ -38,20 +38,20 @@ export const TEXTURE_CONFIG = {
   ema_window: 20,
   ema_alpha: 2 / (20 + 1),
   flush: {
-    warm_red: 0.20,
-    warm_green: -0.04,
-    warm_blue: -0.06,
-    cold_red: -0.08,
-    cold_green: -0.03,
-    cold_blue: 0.06,
-    cheek_radius: 0.035,
+    warm_red: 0.35,    // [w12: was 0.20 — barely visible, need 2x for thumbnail readability]
+    warm_green: -0.03,  // [w14: was -0.08 — makeup artist: "bronzed/fake tan". less green drain = pink-red not orange]
+    warm_blue: -0.04,   // [w14: was -0.10 — less blue drain shifts hue from orange toward rosy-pink]
+    cold_red: -0.18,    // [w12: was -0.08 — invisible, need 2x+ for pallor signal]
+    cold_green: -0.06,  // [w12: was -0.03 — slight green drain for sickly look]
+    cold_blue: 0.12,    // [w12: was 0.06 — more blue for cold/deoxygenated read]
+    cheek_radius: 0.042, // [w13: was 0.045 — slightly reduced, dermatologist says "painted-on" edges at max]
     sigmoid_center: 0.15,
     sigmoid_steepness: 4,
     sigmoid_range: [0, 0.3] as [number, number],
   },
   fatigue: {
     components: [5, 8],
-    weights: [1.5, -1.0],
+    weights: [3.0, -2.0],  // [w12: was [1.5, -1.0] — invisible, doubled for visibility]
     sigmoid_center: 1.25,
     sigmoid_steepness: 3,
     sigmoid_range: [0.5, 2.0] as [number, number],

@@ -24,6 +24,10 @@ export const EXPR_AXES = {
 export const SHAPE_AXES = {
   // Dominance (Soyboi↔Chad): jaw width, chin, thickness, brow, bone detail
   dominance: [[3, 3.75], [2, 2.5], [0, 2.5], [4, 1.9], [7, 1.25], [18, 3.75], [23, 3.75], [13, 3.1], [48, 3.1], [16, 1.9], [19, -1.9]] as const,
+  // Maturity (Young↔Weathered): face length, midface, nose, philtrum — ZERO dominance overlap
+  maturity: [[1, -1.5], [15, -1.5], [17, 2.0], [24, 2.0]] as const,
+  // Sharpness (Angular/Lean↔Puffy/Soft): leanness, jaw definition, lip volume — ZERO dom/mat overlap
+  sharpness: [[10, -1.0], [28, -2.5], [9, -2.0], [6, -1.5], [21, -1.5], [22, 2.0], [20, -1.0]] as const,
 } as const;
 
 export type ExprAxis = keyof typeof EXPR_AXES;
@@ -31,7 +35,7 @@ export type ShapeAxis = keyof typeof SHAPE_AXES;
 export type AxisMapping = readonly (readonly [number, number])[];
 
 export const EXPR_AXIS_NAMES: ExprAxis[] = ['alarm', 'fatigue'];
-export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance'];
+export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance', 'maturity', 'sharpness'];
 
 /**
  * Apply a mapping: target[idx] += weight * value for each [idx, weight].

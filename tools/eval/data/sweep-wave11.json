@@ -1,0 +1,55 @@
+[
+  {"params": {}, "output": "tools/eval/data/renders/wave11/neutral.png"},
+
+  {"params": {"alarm": "-0.5"}, "output": "tools/eval/data/renders/wave11/euphoric_0.5.png"},
+  {"params": {"alarm": "-0.8"}, "output": "tools/eval/data/renders/wave11/euphoric_0.8.png"},
+  {"params": {"alarm": "-1.0"}, "output": "tools/eval/data/renders/wave11/euphoric_1.0.png"},
+  {"params": {"alarm": "-1.2"}, "output": "tools/eval/data/renders/wave11/euphoric_1.2.png"},
+  {"params": {"alarm": "-1.5"}, "output": "tools/eval/data/renders/wave11/euphoric_1.5.png"},
+
+  {"params": {"alarm": "0.5"}, "output": "tools/eval/data/renders/wave11/alarmed_0.5.png"},
+  {"params": {"alarm": "0.8"}, "output": "tools/eval/data/renders/wave11/alarmed_0.8.png"},
+  {"params": {"alarm": "1.0"}, "output": "tools/eval/data/renders/wave11/alarmed_1.0.png"},
+  {"params": {"alarm": "1.2"}, "output": "tools/eval/data/renders/wave11/alarmed_1.2.png"},
+
+  {"params": {"fatigue": "0.5"}, "output": "tools/eval/data/renders/wave11/wired_0.5.png"},
+  {"params": {"fatigue": "0.8"}, "output": "tools/eval/data/renders/wave11/wired_0.8.png"},
+  {"params": {"fatigue": "1.0"}, "output": "tools/eval/data/renders/wave11/wired_1.0.png"},
+  {"params": {"fatigue": "1.2"}, "output": "tools/eval/data/renders/wave11/wired_1.2.png"},
+  {"params": {"fatigue": "1.5"}, "output": "tools/eval/data/renders/wave11/wired_1.5.png"},
+  {"params": {"fatigue": "2.0"}, "output": "tools/eval/data/renders/wave11/wired_2.0.png"},
+
+  {"params": {"fatigue": "-0.5"}, "output": "tools/eval/data/renders/wave11/exhausted_0.5.png"},
+  {"params": {"fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave11/exhausted_1.0.png"},
+  {"params": {"fatigue": "-1.5"}, "output": "tools/eval/data/renders/wave11/exhausted_1.5.png"},
+
+  {"params": {"aggression": "0.8"}, "output": "tools/eval/data/renders/wave11/aggressive_0.8.png"},
+  {"params": {"aggression": "1.0"}, "output": "tools/eval/data/renders/wave11/aggressive_1.0.png"},
+  {"params": {"aggression": "1.2"}, "output": "tools/eval/data/renders/wave11/aggressive_1.2.png"},
+  {"params": {"aggression": "-0.8"}, "output": "tools/eval/data/renders/wave11/yielding_0.8.png"},
+  {"params": {"aggression": "-1.0"}, "output": "tools/eval/data/renders/wave11/yielding_1.0.png"},
+  {"params": {"aggression": "-1.2"}, "output": "tools/eval/data/renders/wave11/yielding_1.2.png"},
+
+  {"params": {"smirk": "0.5"}, "output": "tools/eval/data/renders/wave11/smirk_0.5.png"},
+  {"params": {"smirk": "1.0"}, "output": "tools/eval/data/renders/wave11/smirk_1.0.png"},
+
+  {"params": {"alarm": "-1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_euphoric-wired.png"},
+  {"params": {"alarm": "-1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave11/cross_euphoric-exhausted.png"},
+  {"params": {"alarm": "-1.0", "aggression": "-1.0"}, "output": "tools/eval/data/renders/wave11/cross_euphoric-yielding.png"},
+  {"params": {"alarm": "-1.0", "aggression": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_euphoric-aggressive.png"},
+  {"params": {"alarm": "-1.0", "smirk": "0.8"}, "output": "tools/eval/data/renders/wave11/cross_euphoric-smirk.png"},
+
+  {"params": {"alarm": "1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_alarmed-wired.png"},
+  {"params": {"alarm": "1.0", "aggression": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_alarmed-aggressive.png"},
+  {"params": {"fatigue": "1.0", "aggression": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_wired-aggressive.png"},
+  {"params": {"fatigue": "-1.0", "aggression": "-1.0"}, "output": "tools/eval/data/renders/wave11/cross_exhausted-yielding.png"},
+  {"params": {"smirk": "0.8", "alarm": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_smirk-alarmed.png"},
+  {"params": {"smirk": "0.8", "aggression": "1.0"}, "output": "tools/eval/data/renders/wave11/cross_smirk-aggressive.png"},
+
+  {"params": {"sharpness": "1.0", "dominance": "1.0", "alarm": "-1.0"}, "output": "tools/eval/data/renders/wave11/full_sharp-chad-euphoric.png"},
+  {"params": {"sharpness": "-1.0", "dominance": "-1.0", "alarm": "-1.0"}, "output": "tools/eval/data/renders/wave11/full_puffy-soyboi-euphoric.png"},
+  {"params": {"alarm": "1.0", "fatigue": "1.0", "aggression": "1.0"}, "output": "tools/eval/data/renders/wave11/full_alarmed-wired-aggressive.png"},
+  {"params": {"alarm": "-1.0", "fatigue": "-1.0", "aggression": "-1.0"}, "output": "tools/eval/data/renders/wave11/full_euphoric-exhausted-yielding.png"},
+  {"params": {"smirk": "0.8", "alarm": "0.8", "aggression": "0.5", "sharpness": "1.0"}, "output": "tools/eval/data/renders/wave11/full_sharp-smirk-alarmed-aggro.png"},
+  {"params": {"alarm": "-0.8", "fatigue": "0.8", "smirk": "0.5"}, "output": "tools/eval/data/renders/wave11/full_euphoric-wired-smirk.png"}
+]

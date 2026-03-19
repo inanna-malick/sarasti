@@ -1,0 +1,426 @@
+[
+  {
+    "params": {
+      "sharpness": "-3.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_-3.0.png"
+  },
+  {
+    "params": {
+      "sharpness": "-2.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_-2.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "-2.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_-2.0.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_-1.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_-1.0.png"
+  },
+  {
+    "params": {
+      "sharpness": "-0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_-0.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "0.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_0.0.png"
+  },
+  {
+    "params": {
+      "sharpness": "0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_0.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_1.0.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_1.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "2.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_2.0.png"
+  },
+  {
+    "params": {
+      "sharpness": "2.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_2.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "3.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/sharpness_3.0.png"
+  },
+  {
+    "params": {
+      "alarm": "-2.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_-2.0.png"
+  },
+  {
+    "params": {
+      "alarm": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_-1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "-1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_-1.0.png"
+  },
+  {
+    "params": {
+      "alarm": "-0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_-0.5.png"
+  },
+  {
+    "params": {
+      "alarm": "0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_0.5.png"
+  },
+  {
+    "params": {
+      "alarm": "1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_1.0.png"
+  },
+  {
+    "params": {
+      "alarm": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/alarm_1.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "-2.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_-2.0.png"
+  },
+  {
+    "params": {
+      "fatigue": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_-1.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "-1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_-1.0.png"
+  },
+  {
+    "params": {
+      "fatigue": "-0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_-0.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_0.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_1.0.png"
+  },
+  {
+    "params": {
+      "fatigue": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/fatigue_1.5.png"
+  },
+  {
+    "params": {
+      "aggression": "-2.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_-2.0.png"
+  },
+  {
+    "params": {
+      "aggression": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_-1.5.png"
+  },
+  {
+    "params": {
+      "aggression": "-1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_-1.0.png"
+  },
+  {
+    "params": {
+      "aggression": "-0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_-0.5.png"
+  },
+  {
+    "params": {
+      "aggression": "0.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_0.5.png"
+  },
+  {
+    "params": {
+      "aggression": "1.0"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_1.0.png"
+  },
+  {
+    "params": {
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/aggression_1.5.png"
+  },
+  {
+    "params": {},
+    "output": "tools/eval/data/renders/wave8-20260319-034450/neutral.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "dominance": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_sharp-chad.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "dominance": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_sharp-soyboi.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "dominance": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_puffy-chad.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "dominance": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_puffy-soyboi.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "maturity": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_sharp-old.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "maturity": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_sharp-young.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "maturity": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_puffy-old.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "maturity": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_puffy-young.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "dominance": "1.5",
+      "maturity": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_lean-patriarch.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "dominance": "-1.5",
+      "maturity": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_bloated-intern.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "dominance": "1.5",
+      "maturity": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_lean-prodigy.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "dominance": "-1.5",
+      "maturity": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shape_bloated-professor.png"
+  },
+  {
+    "params": {
+      "alarm": "1.5",
+      "fatigue": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_1.5_fati_1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "1.5",
+      "fatigue": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_1.5_fati_-1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "-1.5",
+      "fatigue": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_-1.5_fati_1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "-1.5",
+      "fatigue": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_-1.5_fati_-1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "1.5",
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_1.5_aggr_1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "1.5",
+      "aggression": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_1.5_aggr_-1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "-1.5",
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_-1.5_aggr_1.5.png"
+  },
+  {
+    "params": {
+      "alarm": "-1.5",
+      "aggression": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_alar_-1.5_aggr_-1.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "1.5",
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_fati_1.5_aggr_1.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "1.5",
+      "aggression": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_fati_1.5_aggr_-1.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "-1.5",
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_fati_-1.5_aggr_1.5.png"
+  },
+  {
+    "params": {
+      "fatigue": "-1.5",
+      "aggression": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/cross_fati_-1.5_aggr_-1.5.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "alarm": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shapexpr_sharp-alarmed.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "fatigue": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shapexpr_sharp-exhausted.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "alarm": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shapexpr_puffy-euphoric.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shapexpr_puffy-aggressive.png"
+  },
+  {
+    "params": {
+      "sharpness": "1.5",
+      "fatigue": "1.5",
+      "aggression": "1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shapexpr_sharp-wired-aggressive.png"
+  },
+  {
+    "params": {
+      "sharpness": "-1.5",
+      "fatigue": "-1.5",
+      "aggression": "-1.5"
+    },
+    "output": "tools/eval/data/renders/wave8-20260319-034450/shapexpr_puffy-exhausted-yielding.png"
+  }
+]
