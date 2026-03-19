@@ -83,21 +83,24 @@ export interface ChordActivations {
 // ─── Chord Recipes ───────────────────────────────────
 
 /** ALARM ALARMED (+): acute volatility × |velocity| snap response.
- * [w16e] MECHANICAL AUDIT: ψ8 was lateral jaw shift, not "shocked" — worked from front
- * by accident but breaks under rotation. Replaced with mechanically correct components:
- * ψ4(-) brow raise + ψ9(+) eyes wide + ψ2(+) jaw drop = alarm from every angle. */
+ * [w17] REDUCE JAW GAPE: ψ2 was 1.5 → 0.5. Alarm is about EYES + BROWS, not gaping mouth.
+ * When alarm + exhausted + yielding all fire, their ψ2 contributions stacked to 2.7+ creating
+ * universal open-mouth on every face. Alarm owns the upper face; fatigue owns the mouth.
+ * Reduced ψ6 from -1.5 to -0.8: the "Oh" mouth shape was too dramatic, reads as cartoon shock.
+ * Boosted ψ4 to -3.5 and ψ9 to 3.0: leaning harder into brow raise + wide eyes as PRIMARY. */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [4, -3.0],      // ψ4: brow RAISED / eyes wide — PRIMARY alarm signal (neg = brow up)
-    [9, 2.5],       // ψ9: eyes wide open — sclera visible, startled gaze
-    [2, 1.5],       // ψ2: jaw dropped — mouth opens in shock
-    [6, -1.5],      // ψ6: rounded "Oh" mouth — alarm shape
+    [4, -3.5],      // ψ4: brow RAISED / eyes wide — PRIMARY alarm signal (boosted)
+    [9, 3.0],       // ψ9: eyes wide open — sclera visible, startled gaze (boosted)
+    [2, 0.5],       // ψ2: jaw drop — MINIMAL, prevents universal gape (was 1.5)
+    [6, -0.8],      // ψ6: rounded mouth — subtle "Oh" (was -1.5)
     [5, 1.2],       // ψ5: upper lip snarl — nostril flare, tension
     [20, -1.5],     // ψ20: visceral sneer — nasolabial crunch, distress texture
+    [21, 1.5],      // ψ21: alert/awake eyes — reinforces wide-eyed look
   ],
   pose: {},
   gaze: {},
-  texture: { flush: -0.8 },
+  texture: { flush: -0.6 },  // reduced from -0.8 — less pallid
 };
 
 /** ALARM EUPHORIC (−): positive deviation, low volatility → warm glow, smile.
@@ -155,16 +158,20 @@ export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
  * Strategy: reduce jaw drop, increase FROWN (ψ7) to make the open mouth sag DOWN not gape.
  * The mouth should look like it's falling open from gravity, not opening from surprise.
  * More head sag + list to reinforce "melting" rather than "reacting." */
+/** [w17] EXHAUSTED OWNS THE MOUTH: jaw sag is exhaustion's territory, not alarm's.
+ * Reduced ψ7 from -4.0 to -3.0 — extreme frown was stacking with yielding's ψ7:-3.0.
+ * Kept ψ2 at 1.2 (slack jaw) since alarm dropped to 0.5, total budget stays reasonable.
+ * Added ψ3:1.0 (lip pucker) for "fish-mouth sag" — different from alarm's round "Oh". */
 export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
   expression: [
     [9, -3.5],   // ψ9: eyes closing — MAXED exhaustion (near-shut lids)
-    [7, -4.0],   // ψ7: mouth corners DOWN — MAXED frown, gravity pulling face down
-    [2, 1.2],    // ψ2: jaw drop — reduced from 2.0, just enough for visible slack mouth
+    [7, -3.0],   // ψ7: mouth corners DOWN — heavy frown (was -4.0, reduce stacking)
+    [2, 1.2],    // ψ2: jaw drop — slack jaw (exhaustion owns this)
     [21, -3.0],  // ψ21: sleepy/droopy — heavy, depleted
     [0, 0.5],    // ψ0: broad/loose — mouth slack, no tension
-    [25, 2.0],   // ψ25: relaxed/vacant — zero focus (boosted)
-    [24, -2.0],  // ψ24: brow outer corners DOWN — tired brow tilt (boosted)
-    [6, -1.0],   // ψ6: rounded mouth — sag shape, not grimace (NEW)
+    [3, 1.0],    // ψ3: lip pucker/narrow — "fish mouth" sag, different from alarm's "Oh"
+    [25, 2.0],   // ψ25: relaxed/vacant — zero focus
+    [24, -2.0],  // ψ24: brow outer corners DOWN — tired brow tilt
   ],
   pose: { pitch: 0.10, roll: 0.08 },  // head sags MAXIMUM + lists hard
   gaze: { gazeV: -0.35 },  // eyes down maximum — not looking at anything
@@ -175,23 +182,27 @@ export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
  * [w16e] MECHANICAL AUDIT: ψ7(+) is mouth corners UP (smile), NOT eye squint — removed.
  * ψ9(-) IS eye squint — kept. ψ6(+) is lip stretch (tension). ψ3(-) is mouth wide (grimace).
  * ψ20(-) visceral sneer CONFIRMED. ψ26(+) chin protrusion CONFIRMED. ψ25(-) squint CONFIRMED. */
+/** [w17] AGGRESSIVE OWNS UPPER FACE: deconflict ψ6/ψ3 overlap with wired.
+ * Wired already drives ψ6:3.0 + ψ3:-2.5 for mouth width. When both fire = ψ6:6.0 → grotesque.
+ * Aggressive now: brow (ψ4), nose (ψ5,ψ20), chin (ψ26), squint (ψ9,ψ25) — no ψ6/ψ3.
+ * The "predatory" look is brow V + sneer + jaw forward, not stretched grimace.
+ * Added ψ7:-1.5 (tight-lipped frown) — controlled anger reads as compressed, not gaping. */
 export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [6, 3.0],    // ψ6: horizontal lip stretch — tense, bared-teeth grimace
-    [3, -2.0],   // ψ3: mouth wide — snarl, grimace width
-    [9, -1.0],   // ψ9: eye squint — reduced to prevent eye-closure stacking with exhaustion
-    [5, 1.8],    // ψ5: upper lip snarl — nostril flare, bared upper teeth
-    [4, 1.5],    // ψ4: brow FURROWED — corrugator, angry V-shape
-    [0, -0.6],   // ψ0: mouth pursed/clenched — jaw tension
-    [20, -2.0],  // ψ20: visceral sneer — nasolabial crunch, primal
-    [26, 1.3],   // ψ26: chin protruded — jaw forward, charging
-    [25, -1.0],  // ψ25: squint + wide mouth — intense focus
-    [16, 1.5],   // ψ16: mouth narrow/pointed — lip compression
-    [21, 2.5],   // ψ21: alert/awake eyes — upper face recruitment, prevents "fake shout"
+    [4, 2.5],    // ψ4: brow FURROWED — corrugator, angry V-shape (PRIMARY)
+    [5, 2.5],    // ψ5: upper lip snarl — nostril flare, bared teeth (boosted)
+    [20, -2.5],  // ψ20: visceral sneer — nasolabial crunch, primal (boosted)
+    [9, -1.5],   // ψ9: eye squint — predatory narrowing
+    [26, 1.5],   // ψ26: chin protruded — jaw forward, charging (boosted)
+    [25, -1.5],  // ψ25: squint + focus — intense (boosted)
+    [21, 2.5],   // ψ21: alert/awake eyes — prevents "fake shout"
+    [7, -1.5],   // ψ7: mouth corners down — tight, compressed anger (NEW)
+    [0, -1.0],   // ψ0: mouth pursed/clenched — jaw tension
+    [16, 1.0],   // ψ16: mouth narrow — lip compression (reduced from 1.5)
   ],
-  pose: { pitch: 0.05 },
+  pose: { pitch: 0.05, yaw: -0.03 },  // slight head turn — predatory regard
   gaze: {},
-  texture: { flush: -0.6 },  // cold — controlled rage, blood drains from face
+  texture: { flush: -0.4 },  // cold but less extreme (was -0.6)
 };
 
 /** AGGRESSION YIELDING (−): flinching, wincing, "I can't look" submission.

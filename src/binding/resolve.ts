@@ -107,7 +107,7 @@ export function resolve(
     shape: shapeResult.shape,
     expression: chordResult.expression,
     pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
-    flush: Math.max(-1, Math.min(1, chordResult.flush + meta.distress * -0.8 + meta.vitality * 0.4)),
+    flush: Math.max(-1, Math.min(1, chordResult.flush + meta.distress * -0.5 + meta.vitality * 0.4)),
     fatigue: chordResult.fatigue,
     skinAge: shapeResult.skinAge,
   };
@@ -204,7 +204,7 @@ export function createResolver(
     // Meta-level flush boost for thumbnail readability.
     // Distress → pallor, vitality → warmth — on top of recipe contributions.
     // Amplified to survive at 80-150px face scale in the Hormuz grid.
-    flush += meta.distress * -0.8 + meta.vitality * 0.4;
+    flush += meta.distress * -0.5 + meta.vitality * 0.4;
 
     // Combine expression chord pose + shape identity pose
     const combinedPose = {
