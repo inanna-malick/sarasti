@@ -131,8 +131,8 @@ export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
  * to compress silhouette (chin tucks toward camera = shorter face = different from alarmed). */
 export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [6, 4.0],    // ψ6: horizontal lip stretch — MAXED, changes face width at thumbnail
-    [3, -3.0],   // ψ3: mouth WIDE — widens lower face silhouette (boosted)
+    [6, 3.0],    // ψ6: horizontal lip stretch — reduced from 4.0, prevents grotesque stacking with aggression
+    [3, -2.5],   // ψ3: mouth WIDE — widens lower face silhouette (reduced from -3.0)
     [5, 2.5],    // ψ5: upper lip SNARL — nostril flare, intensity
     [0, -1.0],   // ψ0: mouth pursed/clenched — jaw TENSION
     [9, 2.0],    // ψ9: eyes wide — secondary signal
@@ -451,7 +451,8 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
   }
 
   // Per-component safety clamp — prevents mesh distortion from recipe stacking
-  const PSI_CLAMP = 6.0;
+  // ±5 keeps grotesque stacking in check for professional dashboard context
+  const PSI_CLAMP = 5.0;
   for (let i = 0; i < expression.length; i++) {
     expression[i] = Math.max(-PSI_CLAMP, Math.min(PSI_CLAMP, expression[i]));
   }
@@ -529,7 +530,7 @@ export interface MetaAxes {
  */
 export const META_MIXING: Record<keyof MetaAxes, Record<string, number>> = {
   distress:   { alarm: 1.1, fatigue: 0.15, aggression: 0, sharpness: 0.6 },
-  vitality:   { alarm: -0.4, fatigue: 0.7, dominance: 0.15, sharpness: -0.15 },
+  vitality:   { alarm: -0.4, fatigue: 0.7, dominance: 0.2, sharpness: -0.15 },
   aggression: { alarm: 0.15, fatigue: 0.15, aggression: 0.9, dominance: 0.2, sharpness: 0.4 },
 };
 
