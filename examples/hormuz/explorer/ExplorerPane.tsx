@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ExplorerRenderer } from './ExplorerRenderer';
 import { ExpressionSliders } from './sliders/ExpressionSliders';
 import { ShapeSliders } from './sliders/ShapeSliders';
@@ -9,7 +9,80 @@ import { RawSliders } from './sliders/RawSliders';
 import { ReportPanel } from './ReportPanel';
 import { useExplorerStore } from './store';
 
+export type CameraPreset = 'front' | 'left34' | 'right34';
+
+function parseUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const store = useExplorerStore.getState();
+
+  if (params.get('mode') === 'raw') {
+    store.setMode('raw');
+    for (let i = 0; i < 50; i++) {
+      const v = params.get(`psi${i}`);
+      if (v) store.setRawExpression(i, parseFloat(v));
+    }
+    for (let i = 0; i < 100; i++) {
+      const v = params.get(`beta${i}`);
+      if (v) store.setRawShape(i, parseFloat(v));
+    }
+    // Pose overrides
+    const pitch = params.get('pitch');
+    const yaw = params.get('yaw');
+    const roll = params.get('roll');
+    const jaw = params.get('jaw');
+    if (pitch || yaw || roll || jaw) {
+      store.setPoseOverride(true);
+      if (pitch) store.setPitch(parseFloat(pitch));
+      if (yaw) store.setYaw(parseFloat(yaw));
+      if (roll) store.setRoll(parseFloat(roll));
+      if (jaw) store.setJawOpen(parseFloat(jaw));
+    }
+    // Gaze overrides
+    const gazeH = params.get('gazeH');
+    const gazeV = params.get('gazeV');
+    if (gazeH || gazeV) {
+      store.setGazeOverride(true);
+      if (gazeH) store.setGazeHorizontal(parseFloat(gazeH));
+      if (gazeV) store.setGazeVertical(parseFloat(gazeV));
+    }
+    // Texture
+    const flush = params.get('flush');
+    const fatigueTex = params.get('fatigueTex');
+    if (flush) store.setFlush(parseFloat(flush));
+    if (fatigueTex) store.setFatigueTex(parseFloat(fatigueTex));
+  } else {
+    const alarm = params.get('alarm');
+    const fatigue = params.get('fatigue');
+    const dominance = params.get('dominance');
+    if (alarm) store.setAlarm(parseFloat(alarm));
+    if (fatigue) store.setFatigue(parseFloat(fatigue));
+    if (dominance) store.setDominance(parseFloat(dominance));
+  }
+}
+
+function getCameraPreset(): CameraPreset {
+  const params = new URLSearchParams(window.location.search);
+  const camera = params.get('camera');
+  if (camera === 'left34' || camera === 'right34') return camera;
+  return 'front';
+}
+
 export function ExplorerPane() {
+  const params = new URLSearchParams(window.location.search);
+  const headless = params.get('headless') === 'true';
+
+  useEffect(() => {
+    parseUrlParams();
+  }, []);
+
+  if (headless) {
+    return <ExplorerRenderer headless camera={getCameraPreset()} />;
+  }
+
+  return <ExplorerPaneUI />;
+}
+
+function ExplorerPaneUI() {
   const mode = useExplorerStore(s => s.mode);
   const setMode = useExplorerStore(s => s.setMode);
 

@@ -5,18 +5,36 @@ import { createFlamePipeline } from '../../../src/renderer/flame/pipeline';
 import { FlameFaceMesh } from '../../../src/renderer/flame/mesh';
 import { FLAME_DATA_BASE } from '../../../src/renderer/constants';
 import { useExplorerStore } from './store';
+import type { CameraPreset } from './ExplorerPane';
 
-export function ExplorerRenderer() {
+declare global {
+  interface Window {
+    __EXPLORER_READY?: boolean;
+  }
+}
+
+const CAMERA_PRESETS: Record<CameraPreset, [number, number, number]> = {
+  front:   [0,     0,    0.6],
+  left34:  [-0.25, 0.05, 0.53],
+  right34: [0.25,  0.05, 0.53],
+};
+
+interface ExplorerRendererProps {
+  headless?: boolean;
+  camera?: CameraPreset;
+}
+
+export function ExplorerRenderer({ headless = false, camera = 'front' }: ExplorerRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
     let disposed = false;
     let renderer: THREE.WebGLRenderer;
-    let controls: OrbitControls;
+    let controls: OrbitControls | null = null;
     let mesh: FlameFaceMesh | null = null;
     let animationFrameId: number;
-    let resizeObserver: ResizeObserver;
+    let resizeObserver: ResizeObserver | null = null;
     let unsubscribe: (() => void) | null = null;
 
     async function init() {
@@ -28,11 +46,22 @@ export function ExplorerRenderer() {
         if (disposed) return;
 
         const container = containerRef.current!;
-        const rect = container.getBoundingClientRect();
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(rect.width, rect.height);
+        if (headless) {
+          renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: false,
+            preserveDrawingBuffer: true,
+          });
+          renderer.setPixelRatio(1);
+          renderer.setSize(512, 512);
+        } else {
+          const rect = container.getBoundingClientRect();
+          renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+          renderer.setPixelRatio(window.devicePixelRatio);
+          renderer.setSize(rect.width, rect.height);
+        }
+
         renderer.setClearColor(0x1a1a1a);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -57,33 +86,37 @@ export function ExplorerRenderer() {
         const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
         scene.add(ambientLight);
 
-        const aspect = rect.width / rect.height;
-        const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 10);
-        camera.position.set(0, 0, 0.6);
-        camera.lookAt(0, 0, 0);
+        const aspect = headless ? 1 : (container.getBoundingClientRect().width / container.getBoundingClientRect().height);
+        const camObj = new THREE.PerspectiveCamera(45, aspect, 0.1, 10);
+        const preset = CAMERA_PRESETS[camera];
+        camObj.position.set(preset[0], preset[1], preset[2]);
+        camObj.lookAt(0, 0, 0);
 
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
-        controls.target.set(0, 0, 0);
+        if (!headless) {
+          controls = new OrbitControls(camObj, renderer.domElement);
+          controls.enableDamping = true;
+          controls.dampingFactor = 0.1;
+          controls.target.set(0, 0, 0);
+        }
 
         mesh = new FlameFaceMesh(pipeline, 'explorer');
         mesh.mesh.scale.setScalar(1);
         mesh.mesh.position.set(0, 0, 0);
         scene.add(mesh.mesh);
 
-        // Handle resize
-        resizeObserver = new ResizeObserver((entries) => {
-          for (const entry of entries) {
-            const { width, height } = entry.contentRect;
-            if (width > 0 && height > 0) {
-              renderer.setSize(width, height);
-              camera.aspect = width / height;
-              camera.updateProjectionMatrix();
+        if (!headless) {
+          resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+              const { width, height } = entry.contentRect;
+              if (width > 0 && height > 0) {
+                renderer.setSize(width, height);
+                camObj.aspect = width / height;
+                camObj.updateProjectionMatrix();
+              }
             }
-          }
-        });
-        resizeObserver.observe(container);
+          });
+          resizeObserver.observe(container);
+        }
 
         // Subscribe to store changes
         unsubscribe = useExplorerStore.subscribe((state) => {
@@ -99,11 +132,17 @@ export function ExplorerRenderer() {
           mesh.updateFromParams(initialParams);
         }
 
+        // First render + signal ready
+        renderer.render(scene, camObj);
+        if (headless) {
+          window.__EXPLORER_READY = true;
+        }
+
         function renderLoop() {
           if (disposed) return;
           animationFrameId = requestAnimationFrame(renderLoop);
-          controls.update();
-          renderer.render(scene, camera);
+          controls?.update();
+          renderer.render(scene, camObj);
         }
         renderLoop();
       } catch (err) {
@@ -132,6 +171,10 @@ export function ExplorerRenderer() {
 
   if (error) {
     return <div style={{ color: 'red', padding: 20 }}>Error: {error}</div>;
+  }
+
+  if (headless) {
+    return <div ref={containerRef} style={{ width: 512, height: 512 }} />;
   }
 
   return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
