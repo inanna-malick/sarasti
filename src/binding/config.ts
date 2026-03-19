@@ -10,9 +10,8 @@ import {
 
 /** Default curves for generic [-1, 1] input range (library API) */
 export const DEFAULT_AXIS_CURVES: AxisCurveConfig = {
-  // Expression axes (3-axis, bipolar ±)
+  // Expression axes (2-axis, bipolar ±)
   alarm:      { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
-  mood:       { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   fatigue:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   // Shape (bipolar ±)
   dominance:  { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },

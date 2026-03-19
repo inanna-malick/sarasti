@@ -1,12 +1,11 @@
 /**
- * Chord Architecture — 3-axis expression + 2-axis shape.
+ * Chord Architecture — 2-axis expression + 1-axis shape.
  *
- * Expression: Alarm × Mood × Fatigue — channel-separated.
+ * Expression: Alarm (alarmed↔euphoric) × Fatigue (wired↔exhausted).
  * Shape: Dominance (soyboi↔chad).
  *
- * Each expression axis expresses through a different spatial channel:
- *   Alarm    → upper face (ψ8 shocked, ψ6 surprise)
- *   Mood     → lower face (ψ9/ψ11/ψ12 smile, ψ0 frown-smile)
+ * Channel separation:
+ *   Alarm    → alarmed: upper face (ψ8, ψ6, ψ2) / euphoric: lower face (ψ9, ψ11, ψ12, ψ7)
  *   Fatigue  → mid-face tone + assessment (ψ3–ψ5, ψ7, ψ8) + gaze
  *
  * ψ component actual visual reads (from explorer testing):
@@ -60,10 +59,8 @@ export interface ShapeChordRecipe {
 }
 
 export interface ChordActivations {
-  /** Alarm axis: -1 (calm) to +1 (alarmed) ← vol_z × |vel_z| */
+  /** Alarm axis: +1 (alarmed) to -1 (euphoric) ← vol×|vel| − deviation */
   alarm: number;
-  /** Mood axis: -1 (grief) to +1 (euphoric) ← deviation_z */
-  mood: number;
   /** Fatigue axis: -1 (exhausted) to +1 (wired) ← -(dd_z + exchFatigue) + mean_reversion_z */
   fatigue: number;
   /** Shape: dominance (soyboi↔chad) ← momentum */
@@ -86,22 +83,10 @@ export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   texture: {},
 };
 
-/** ALARM CALM (−): low acute activity → flat, settled.
- * ψ8- = flat/bored (anti-shocked). ψ7+ = happy/relaxed. */
-export const ALARM_CALM_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [8, -0.8],  // ψ8: flat/bored (opposite of shocked)
-    [7, 0.6],   // ψ7: happy — gentle relaxation
-  ],
-  pose: { pitch: 0.03 },   // settled
-  gaze: { gazeV: -0.05 },  // eyes drift down
-  texture: {},
-};
-
-/** MOOD EUPHORIC (+): positive deviation → warm glow, smile.
+/** ALARM EUPHORIC (−): positive deviation, low volatility → warm glow, smile.
  * Primary channel: lower face (mouth + cheeks).
- * Proven recipes from explorer testing — kept as-is. */
-export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
+ * Proven recipes from explorer testing. */
+export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
   expression: [
     [0, 0.75],  // ψ0: frown-smile — light smile
     [9, 2.5],   // ψ9: smile — reinforces smile character
@@ -113,20 +98,6 @@ export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   pose: { pitch: 0.10, yaw: 0.05 },
   gaze: { gazeH: 0.10 },
   texture: { flush: 0.3 },  // warm glow
-};
-
-/** MOOD GRIEF (−): negative deviation → pallid.
- * Proven recipes from explorer testing — kept as-is. */
-export const MOOD_GRIEF_RECIPE: ExpressionChordRecipe = {
-  expression: [
-    [3, 2.5],   // ψ3: open curiosity at this weight reads as distress
-    [6, 3.1],   // ψ6: angry — the edge of grief
-    [7, 1.25],  // ψ7: happy — at low weight with ψ6 reads as pained
-    [4, 1.0],   // ψ4: engagement — grief is not passive
-  ],
-  pose: { pitch: 0.08, roll: -0.05 },  // chin UP — sky-gazing
-  gaze: { gazeV: 0.12 },  // eyes UP — searching
-  texture: { flush: -0.25 },  // pallid
 };
 
 /** FATIGUE WIRED (+): caffeinated + suspicious — tight, engaged, scanning.
@@ -223,11 +194,8 @@ export function computeChordActivations(
   // Exchange fatigue (for fatigue chronic component)
   let exchFatigue = 0;
 
-  // ─── Alarm: acute snap response ──────────────
-  const alarm = symmetricSigmoid(vol_z * Math.abs(vel_z) - 0.5, 6);
-
-  // ─── Mood: deviation (bipolar) ───────────────
-  const mood = symmetricSigmoid(dev_z, 6);
+  // ─── Alarm: vol×|vel| pushes alarmed (+), deviation pushes euphoric (−) ───
+  const alarm = symmetricSigmoid(vol_z * Math.abs(vel_z) - 0.5 - dev_z, 6);
 
   // ─── Fatigue: chronic toll + mean reversion (merged) ───
   const fatigue = symmetricSigmoid((-(dd_z + exchFatigue) + mr_z) * 0.5, 6);
@@ -235,7 +203,7 @@ export function computeChordActivations(
   // ─── Shape axis ───────────────────────────────
   const dominance = symmetricSigmoid(mom_z, 6);
 
-  return { alarm, mood, fatigue, dominance };
+  return { alarm, fatigue, dominance };
 }
 
 /**
@@ -261,7 +229,7 @@ export interface ChordResult {
 }
 
 /**
- * Apply expression chord recipes — 4-axis, channel-separated.
+ * Apply expression chord recipes — 2-axis.
  */
 export function resolveExpressionChords(activations: ChordActivations): ChordResult {
   const expression = new Float32Array(N_EXPR);
@@ -283,21 +251,14 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
     if (recipe.texture.fatigue) fatigue += recipe.texture.fatigue * magnitude;
   }
 
-  // ALARM
+  // ALARM (alarmed ↔ euphoric)
   if (activations.alarm >= 0) {
     applyRecipe(ALARM_ALARMED_RECIPE, activations.alarm);
   } else {
-    applyRecipe(ALARM_CALM_RECIPE, Math.abs(activations.alarm));
+    applyRecipe(ALARM_EUPHORIC_RECIPE, Math.abs(activations.alarm));
   }
 
-  // MOOD
-  if (activations.mood >= 0) {
-    applyRecipe(MOOD_EUPHORIA_RECIPE, activations.mood);
-  } else {
-    applyRecipe(MOOD_GRIEF_RECIPE, Math.abs(activations.mood));
-  }
-
-  // FATIGUE (merged with vigilance)
+  // FATIGUE (wired ↔ exhausted)
   if (activations.fatigue >= 0) {
     applyRecipe(FATIGUE_WIRED_RECIPE, activations.fatigue);
   } else {

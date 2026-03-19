@@ -4,7 +4,7 @@ import { useExplorerStore } from './store';
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
-    alarm: 0, mood: 0, fatigue: 0,
+    alarm: 0, fatigue: 0,
     dominance: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
@@ -33,8 +33,8 @@ describe('ExplorerStore (6-axis high-level)', () => {
     expect(p.pose.leftEye[1]).toBeGreaterThan(0);  // gaze up
   });
 
-  it('mood grief drives flush negative (pallid)', () => {
-    useExplorerStore.getState().setMood(-3.0);
+  it('alarm euphoric drives flush negative (pallid)', () => {
+    useExplorerStore.getState().setAlarm(-3.0);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.flush).toBeLessThan(0);
   });
@@ -66,7 +66,7 @@ describe('ExplorerStore (6-axis high-level)', () => {
   });
 
   it('ψ7 is clamped in high-level mode', () => {
-    useExplorerStore.getState().setMood(3.0);
+    useExplorerStore.getState().setAlarm(3.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
     expect(expr[7]).toBeLessThanOrEqual(4.0);
     expect(expr[7]).toBeGreaterThanOrEqual(-4.0);

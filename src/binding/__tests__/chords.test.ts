@@ -39,7 +39,7 @@ describe('computeChordActivations (3-axis expression + 2 shape)', () => {
     const act = computeChordActivations(frame);
 
     expect(Number.isFinite(act.alarm)).toBe(true);
-    expect(Number.isFinite(act.mood)).toBe(true);
+    expect(Number.isFinite(act.alarm)).toBe(true);
     expect(Number.isFinite(act.fatigue)).toBe(true);
     expect(Number.isFinite(act.dominance)).toBe(true);
   });
@@ -63,14 +63,14 @@ describe('computeChordActivations (3-axis expression + 2 shape)', () => {
     const frame = makeTickerFrame({ deviation: 2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.mood).toBeGreaterThan(0);
+    expect(act.alarm).toBeGreaterThan(0);
   });
 
   it('high negative deviation → negative mood (grief)', () => {
     const frame = makeTickerFrame({ deviation: -2.0 });
     const act = computeChordActivations(frame);
 
-    expect(act.mood).toBeLessThan(0);
+    expect(act.alarm).toBeLessThan(0);
   });
 
   it('deep drawdown → negative fatigue (exhausted)', () => {
@@ -122,8 +122,8 @@ describe('computeChordActivations (3-axis expression + 2 shape)', () => {
     const act = computeChordActivations(extreme);
     expect(act.alarm).toBeGreaterThanOrEqual(-1);
     expect(act.alarm).toBeLessThanOrEqual(1);
-    expect(act.mood).toBeGreaterThanOrEqual(-1);
-    expect(act.mood).toBeLessThanOrEqual(1);
+    expect(act.alarm).toBeGreaterThanOrEqual(-1);
+    expect(act.alarm).toBeLessThanOrEqual(1);
     expect(act.fatigue).toBeGreaterThanOrEqual(-1);
     expect(act.fatigue).toBeLessThanOrEqual(1);
   });
@@ -167,7 +167,7 @@ describe('resolveExpressionChords (3-axis)', () => {
 
   it('wired fatigue → ψ5 positive (tight lip), fatigue texture negative', () => {
     // Need drawdown to be negative (in drawdown), which makes -(dd_z) positive → wired
-    const act = { alarm: 0, mood: 0, fatigue: 0.8, dominance: 0 };
+    const act = { alarm: 0, fatigue: 0.8, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[5]).toBeGreaterThan(0); // tight upper lip
@@ -175,7 +175,7 @@ describe('resolveExpressionChords (3-axis)', () => {
   });
 
   it('exhausted fatigue → ψ7 positive (heavy lids), fatigue texture positive', () => {
-    const act = { alarm: 0, mood: 0, fatigue: -0.8, dominance: 0 };
+    const act = { alarm: 0, fatigue: -0.8, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[7]).toBeGreaterThan(0); // heavy lids
@@ -183,7 +183,7 @@ describe('resolveExpressionChords (3-axis)', () => {
   });
 
   it('wired fatigue → ψ3 (curiosity), ψ4 (engagement), ψ5 (tightness), gaze lateral', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0.8, dominance: 0 };
+    const act = { alarm: 0, fatigue: 0.8, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[3]).toBeGreaterThan(0); // open curiosity — evaluating
@@ -195,7 +195,7 @@ describe('resolveExpressionChords (3-axis)', () => {
 
   it('ψ7 is clamped to safe range', () => {
     // All axes that affect ψ7 at maximum
-    const act = { alarm: -1, mood: 1, fatigue: -1, dominance: 0 };
+    const act = { alarm: -1, fatigue: -1, dominance: 0 };
     const result = resolveExpressionChords(act);
 
     expect(result.expression[7]).toBeGreaterThanOrEqual(-PSI7_CLAMP);
@@ -205,14 +205,14 @@ describe('resolveExpressionChords (3-axis)', () => {
 
 describe('resolveShapeChords (2 shape axes)', () => {
   it('positive dominance → positive β0 (thick)', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, dominance: 0.8 };
+    const act = { alarm: 0, fatigue: 0, dominance: 0.8 };
     const { shape } = resolveShapeChords(act);
 
     expect(shape[0]).toBeGreaterThan(0);
   });
 
   it('negative dominance → negative β0, clamped', () => {
-    const act = { alarm: 0, mood: 0, fatigue: 0, dominance: -1 };
+    const act = { alarm: 0, fatigue: 0, dominance: -1 };
     const { shape } = resolveShapeChords(act);
 
     expect(shape[3]).toBeGreaterThanOrEqual(-BETA3_CLAMP);

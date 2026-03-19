@@ -240,9 +240,8 @@ export function createResolver(
 
 /** Pre-extracted axis values — all optional, unset = 0 */
 export interface AxisValues {
-  // Expression axes (3-axis)
+  // Expression axes (2-axis)
   alarm?: number;
-  mood?: number;
   fatigue?: number;
   // Shape
   dominance?: number;
@@ -267,9 +266,8 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
   const expression = emptyExpression();
   const shape = emptyShape();
 
-  // Expression axes (3-axis)
+  // Expression axes (2-axis)
   if (values.alarm !== undefined) applyMapping(expression, EXPR_AXES.alarm, values.alarm);
-  if (values.mood !== undefined) applyMapping(expression, EXPR_AXES.mood, values.mood);
   if (values.fatigue !== undefined) applyMapping(expression, EXPR_AXES.fatigue, values.fatigue);
 
   // Shape axes

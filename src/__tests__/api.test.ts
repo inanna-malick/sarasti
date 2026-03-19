@@ -35,7 +35,7 @@ describe('SarastiBuilder', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
     const result = builder
       .data(testData)
-      .axes({ mood: d => d.score })
+      .axes({ alarm: d => d.score })
       .layout({ cols: 3 });
     expect(result).toBe(builder);
   });
@@ -43,26 +43,26 @@ describe('SarastiBuilder', () => {
   it('resolveDatum produces valid FaceParams', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
     builder.data(testData).axes({
-      mood: d => d.score,
-      alarm: d => d.risk,
+      alarm: d => d.score,
+      fatigue: d => d.risk,
     });
 
     // Access private method via any for testing
     const params = (builder as any).resolveDatum(testData[0]);
     expect(params.expression.length).toBe(N_EXPR);
     expect(params.shape.length).toBe(N_SHAPE);
-    // mood accessor returns 0.8, should produce nonzero ψ1 (smile)
-    expect(params.expression[1]).not.toBe(0); // ψ1 driven by mood
+    // alarm accessor returns 0.8, should produce nonzero ψ1 (smile)
+    expect(params.expression[1]).not.toBe(0); // ψ1 driven by alarm
   });
 
   it('different data produces different expressions', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
-    builder.data(testData).axes({ mood: d => d.score });
+    builder.data(testData).axes({ alarm: d => d.score });
 
     const paramsA = (builder as any).resolveDatum(testData[0]); // score 0.8
     const paramsB = (builder as any).resolveDatum(testData[1]); // score -0.2
 
-    // Different scores should produce different mood values
+    // Different scores should produce different alarm values
     expect(paramsA.expression[1]).not.toBeCloseTo(paramsB.expression[1]);
   });
 

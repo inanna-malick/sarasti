@@ -4,7 +4,7 @@ import { N_SHAPE, N_EXPR } from '../constants';
 
 describe('EXPR_AXES', () => {
   it('has 4 expression axes', () => {
-    expect(EXPR_AXIS_NAMES).toEqual(['alarm', 'mood', 'fatigue']);
+    expect(EXPR_AXIS_NAMES).toEqual(['alarm', 'fatigue']);
   });
 
   it('all indices are within ψ0-ψ49', () => {
@@ -45,7 +45,7 @@ describe('applyMapping', () => {
   it('stacks when called multiple times', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.alarm, 1.0);
-    applyMapping(target, EXPR_AXES.mood, 1.0);
+    applyMapping(target, EXPR_AXES.alarm, 1.0);
     // ψ8: alarm 2.0 + mood 0 = 2.0 (only alarm uses ψ8)
     expect(target[8]).toBeCloseTo(2.0);
   });

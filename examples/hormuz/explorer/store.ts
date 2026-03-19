@@ -6,9 +6,7 @@ import { SHAPE_AXES, applyMapping } from '../../../src/binding/axes';
 import type { ExprAxis, ShapeAxis } from '../../../src/binding/axes';
 import {
   ALARM_ALARMED_RECIPE,
-  ALARM_CALM_RECIPE,
-  MOOD_EUPHORIA_RECIPE,
-  MOOD_GRIEF_RECIPE,
+  ALARM_EUPHORIC_RECIPE,
   FATIGUE_WIRED_RECIPE,
   FATIGUE_EXHAUSTED_RECIPE,
   DOMINANCE_RECIPE,
@@ -21,9 +19,8 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 4 axes (pose/gaze/texture computed from chord recipes)
+  // High-level: 3 axes (pose/gaze/texture computed from chord recipes)
   alarm: number;
-  mood: number;
   fatigue: number;
   dominance: number;
 
@@ -47,7 +44,6 @@ interface ExplorerState {
   // Actions
   setMode: (mode: ExplorerMode) => void;
   setAlarm: (v: number) => void;
-  setMood: (v: number) => void;
   setFatigue: (v: number) => void;
   setDominance: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
@@ -129,18 +125,11 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
   const expression = new Float32Array(N_EXPR);
   const pgt = { pitch: 0, yaw: 0, roll: 0, jaw: 0, gazeH: 0, gazeV: 0, flush: 0, fatigue: 0 };
 
-  // Alarm → full bipolar recipe (ψ + pose + gaze)
+  // Alarm → alarmed (+) / euphoric (−)
   if (state.alarm >= 0) {
     applyFullExprRecipe(ALARM_ALARMED_RECIPE, state.alarm, expression, pgt);
   } else {
-    applyFullExprRecipe(ALARM_CALM_RECIPE, Math.abs(state.alarm), expression, pgt);
-  }
-
-  // Mood → full bipolar recipe (ψ + pose + gaze + texture)
-  if (state.mood >= 0) {
-    applyFullExprRecipe(MOOD_EUPHORIA_RECIPE, state.mood, expression, pgt);
-  } else {
-    applyFullExprRecipe(MOOD_GRIEF_RECIPE, Math.abs(state.mood), expression, pgt);
+    applyFullExprRecipe(ALARM_EUPHORIC_RECIPE, Math.abs(state.alarm), expression, pgt);
   }
 
   // Fatigue → full bipolar recipe (ψ + pose + gaze + texture)
@@ -217,7 +206,6 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
 
   alarm: 0,
-  mood: 0,
   fatigue: 0,
   dominance: 0,
 
@@ -239,7 +227,6 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
 
   setMode: (v) => update(set, get, { mode: v }),
   setAlarm: (v) => update(set, get, { alarm: v }),
-  setMood: (v) => update(set, get, { mood: v }),
   setFatigue: (v) => update(set, get, { fatigue: v }),
   setDominance: (v) => update(set, get, { dominance: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),

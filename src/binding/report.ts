@@ -93,11 +93,6 @@ function traceChords(activations: ChordActivations): ChordEntry[] {
       sign: Math.sign(activations.alarm) || 1,
     },
     {
-      name: 'mood',
-      rawActivation: activations.mood,
-      sign: Math.sign(activations.mood) || 1,
-    },
-    {
       name: 'fatigue',
       rawActivation: activations.fatigue,
       sign: Math.sign(activations.fatigue) || 1,

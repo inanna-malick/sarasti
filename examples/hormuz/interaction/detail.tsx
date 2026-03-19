@@ -156,13 +156,6 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
           isWinner={false}
         />
         <ChordBar
-          name="mood"
-          weight={Math.abs(activations.mood)}
-          rawActivation={activations.mood}
-          sign={Math.sign(activations.mood) || 1}
-          isWinner={false}
-        />
-        <ChordBar
           name="fatigue"
           weight={Math.abs(activations.fatigue)}
           rawActivation={activations.fatigue}
@@ -208,8 +201,7 @@ function ChordBar({
       : 'rgba(255, 100, 100, 0.6)';
 
   const signLabels: Record<string, [string, string]> = {
-    alarm: ['alarmed', 'calm'],
-    mood: ['euphoric', 'grief'],
+    alarm: ['alarmed', 'euphoric'],
     fatigue: ['wired', 'exhausted'],
     dominance: ['chad', 'soyboi'],
   };
