@@ -192,7 +192,7 @@ export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   ],
   pose: { pitch: 0.05 },
   gaze: {},
-  texture: { flush: 0.5 },
+  texture: { flush: -0.6 },  // cold — controlled rage, blood drains from face
 };
 
 /** AGGRESSION YIELDING (−): flinching, wincing, "I can't look" submission.
@@ -212,7 +212,7 @@ export const AGGRESSION_YIELDING_RECIPE: ExpressionChordRecipe = {
   ],
   pose: { yaw: 0.06, pitch: 0.05, roll: -0.12 },  // head cocked sideways — submission
   gaze: { gazeH: -0.20, gazeV: -0.25 },  // eyes averted (visible when partially open at low activation)
-  texture: { flush: -0.8 },  // MAXIMUM pallor — blood drained
+  texture: { flush: 0.5 },  // warm/flushed — vulnerable, blood rushing, open
 };
 
 /** SMIRK/DECEPTION (+): the market is lying — asymmetric, untrustworthy.
