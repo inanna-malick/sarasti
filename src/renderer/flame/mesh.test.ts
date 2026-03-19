@@ -58,6 +58,18 @@ describe('FlameFaceMesh', () => {
     expect(faceMaterial.vertexColors).toBe(true);
   });
 
+  it('should have a black BackSide child mesh for mouth interior', () => {
+    const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
+    const children = meshWrapper.mesh.children;
+    expect(children.length).toBe(1);
+
+    const interior = children[0] as THREE.Mesh;
+    expect(interior.geometry).toBe(meshWrapper.mesh.geometry); // shares geometry
+    const mat = interior.material as THREE.MeshBasicMaterial;
+    expect(mat.side).toBe(THREE.BackSide);
+    expect(mat.color.getHex()).toBe(0x000000);
+  });
+
   it('should update geometry in-place when updateFromParams is called', () => {
     const meshWrapper = new FlameFaceMesh(mockPipeline, 'BTC');
     const geometry = meshWrapper.mesh.geometry as THREE.BufferGeometry;
