@@ -14,7 +14,7 @@ export const TICKERS: TickerConfig[] = [
   { id: 'XLE',        name: 'Energy Select SPDR',    class: 'equity',    family: 'sector',     age: 30, exchange: 'NYSE' },
   { id: 'SPY',        name: 'S&P 500',               class: 'equity',    family: 'broad',      age: 40, exchange: 'NYSE' },
   { id: 'CF',         name: 'CF Industries',         class: 'equity',    family: 'fertilizer', age: 35, exchange: 'NYSE' },
-  { id: 'GDELT:iran', name: 'GDELT Iran',            class: 'media',     family: 'gdelt',      age: 20, exchange: '24H' },
+  // GDELT:iran cut — no data in current market-data.json bake
 ];
 
 export const TICKER_MAP = new Map(TICKERS.map(t => [t.id, t]));
