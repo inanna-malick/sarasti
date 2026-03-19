@@ -8,7 +8,7 @@ function sumContributions(entry: BindingEntry): number {
   return entry.contributions.reduce((sum, c) => sum + c.contribution, 0);
 }
 
-describe('BindingReport (2-axis circumplex)', () => {
+describe('BindingReport (4-axis expression + 2 shape)', () => {
   const ticker = TEST_TICKERS[0]; // energy, age 20
   const frame = makeTickerFrame({ deviation: -0.15, velocity: -0.8, volatility: 2.5, drawdown: -0.3, momentum: -1.5, mean_reversion_z: 2.0, beta: 0.5 });
 
@@ -18,7 +18,7 @@ describe('BindingReport (2-axis circumplex)', () => {
 
     expect(report.tickerId).toBe(ticker.id);
     expect(report.chords).toBeDefined();
-    expect(report.chords.length).toBe(2);
+    expect(report.chords.length).toBe(4);
     expect(report.shape).toBeDefined();
     expect(report.expression).toBeDefined();
     expect(report.pose).toBeDefined();
@@ -27,13 +27,15 @@ describe('BindingReport (2-axis circumplex)', () => {
     expect(report.fatigue).toBeDefined();
   });
 
-  it('chord entries have tension and mood', () => {
+  it('chord entries have alarm, mood, fatigue, vigilance', () => {
     const params = resolve(ticker, frame);
     const report = generateReport(ticker, frame, params);
 
     const names = report.chords.map(c => c.name);
-    expect(names).toContain('tension');
+    expect(names).toContain('alarm');
     expect(names).toContain('mood');
+    expect(names).toContain('fatigue');
+    expect(names).toContain('vigilance');
   });
 
   it('chord activations are bounded [-1, 1]', () => {

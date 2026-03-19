@@ -10,11 +10,14 @@ import {
 
 /** Default curves for generic [-1, 1] input range (library API) */
 export const DEFAULT_AXIS_CURVES: AxisCurveConfig = {
-  // Expression axes (Russell circumplex, bipolar ±)
-  tension:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  // Expression axes (4-axis channel-separated, bipolar ±)
+  alarm:      { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   mood:       { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  fatigue:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  vigilance:  { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   // Shape (bipolar ±)
   dominance:  { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
+  feastFamine:    { type: 'sigmoid', input_min: -1, input_max: 1, output_min: -3, output_max: 3, steepness: 2 },
   // Pose (all bipolar, small output range in radians)
   pitch:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_PITCH, output_max: MAX_NECK_PITCH, steepness: 1 },
   yaw:        { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_NECK_YAW,   output_max: MAX_NECK_YAW,   steepness: 1 },
@@ -25,7 +28,6 @@ export const DEFAULT_AXIS_CURVES: AxisCurveConfig = {
   gazeV:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -MAX_EYE_VERTICAL,   output_max: MAX_EYE_VERTICAL,   steepness: 1 },
   // Texture (bipolar)
   flush:      { type: 'linear',  input_min: -1, input_max: 1, output_min: -1, output_max: 1, steepness: 1 },
-  fatigue:    { type: 'linear',  input_min: -1, input_max: 1, output_min: -1, output_max: 1, steepness: 1 },
 };
 
 /**

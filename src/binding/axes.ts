@@ -2,44 +2,45 @@
  * Shared axis definitions for FLAME parameter mapping.
  * Single source of truth — both explorer and binding import from here.
  *
- * Expression axes: tension (tense↔placid), mood (euphoric↔grief) — Russell circumplex.
- * Shape axes: ogre (Ogre↔Elf), predator (Predator↔Herbivore) — additive, EMA-smoothed.
+ * Expression axes: alarm (alarmed↔calm), mood (euphoric↔grief),
+ *   fatigue (wired↔exhausted), vigilance (suspicious↔oblivious).
+ * Shape axes: dominance (Soyboi↔Chad), feastFamine (heavy↔gaunt).
  *
- * FLAME ψ components — actual visual reads (from explorer testing):
- *   ψ0: pursed↔frown-smile    ψ1: frown↔lopsided smile (ANTI)  ψ2: —↔open angry mouth
- *   ψ3: disgust↔open curiosity ψ4: boredom↔engagement           ψ5: uninterested↔frown
- *   ψ6: surprise↔angry         ψ7: disappointed↔happy            ψ8: flat/bored↔shocked
- *   ψ9: frown↔smile            ψ11+ψ12: bilateral smile (conjugate pair)
- *
- * FLAME β components — actual visual reads:
- *   β0: encephalic elfin↔ogre thick     β1: squat↔tall         β2: compressed↔elongated
- *   β5: elfin↔portly                     β6: pencilneck↔thicc   β7: observing↔intent
- *   β8: brawler closely-spaced↔cowlike    β9: small cranium↔big skull
- *   β16: soft jaw↔defined jaw             β19: jutting chin(-5)↔recessed(+5)
+ * Each expression axis expresses through a different spatial channel:
+ *   Alarm    → upper face (brow + eyelids)
+ *   Mood     → lower face (mouth + cheeks)
+ *   Fatigue  → mid-face (muscle tone)
+ *   Vigilance→ gaze + head pose
  */
 
 // Expression axes — for the library API (resolveFromAxes).
-// Positive value = tense pole / euphoric pole. Negative = placid / grief.
-// Each entry is [ψ_index, weight].
+// Positive value = alarmed / euphoric / wired / suspicious pole.
+// Each entry is [ψ_index, weight] — positive-pole weights only.
 export const EXPR_AXES = {
-  // Tension (+): wide eyes + open angry mouth + sneer + shocked + adrenaline smile base
-  tension: [[7, -2.0], [2, 2.0], [3, 1.5], [5, 1.5], [8, 1.5], [11, 0.6], [12, 0.6]] as const,
-  // Mood (+): smile (ψ0+ψ9) + knowing smirk (ψ11+ψ12+ψ1) + happy eyes (ψ7) + warm
-  mood:    [[0, 1.5], [9, 2.0], [11, 2.0], [12, 2.0], [1, 1.0], [7, 1.5]] as const,
+  // Alarm (+): ψ8 shocked + ψ6- surprise + ψ2 open mouth
+  alarm:     [[8, 2.0], [6, -1.5], [2, 1.0]] as const,
+  // Mood (+): smile (ψ9+ψ11+ψ12) + frown-smile (ψ0) + happy eyes (ψ7)
+  mood:      [[0, 0.75], [9, 2.5], [11, 2.5], [12, 2.5], [1, 1.25], [7, 1.9]] as const,
+  // Fatigue (+): frown (ψ5) + engagement (ψ4) + curiosity (ψ3)
+  fatigue:   [[5, 1.2], [4, 0.8], [3, 0.6]] as const,
+  // Vigilance (+): curiosity (ψ3) + engagement (ψ4)
+  vigilance: [[3, 0.8], [4, 0.5]] as const,
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
 export const SHAPE_AXES = {
-  // Dominance (Soyboi↔Chad): jaw width, chin, thickness, brow, bone detail + explorer jaw/chin
-  dominance: [[3, 3.0], [2, 2.0], [0, 2.0], [4, 1.5], [7, 1.0], [18, 3.0], [23, 3.0], [16, 1.5], [19, -1.5]] as const,
+  // Dominance (Soyboi↔Chad): jaw width, chin, thickness, brow, bone detail
+  dominance: [[3, 3.75], [2, 2.5], [0, 2.5], [4, 1.9], [7, 1.25], [18, 3.75], [23, 3.75], [13, 3.1], [48, 3.1], [16, 1.9], [19, -1.9]] as const,
+  // Feast/Famine (full↔gaunt): portly, thicc, tall, skull, body mass
+  feastFamine:   [[5, 2.5], [6, 2.0], [1, 2.0], [9, 1.5], [8, 1.2], [15, 2.0], [32, 2.0], [49, 2.0]] as const,
 } as const;
 
 export type ExprAxis = keyof typeof EXPR_AXES;
 export type ShapeAxis = keyof typeof SHAPE_AXES;
 export type AxisMapping = readonly (readonly [number, number])[];
 
-export const EXPR_AXIS_NAMES: ExprAxis[] = ['tension', 'mood'];
-export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance'];
+export const EXPR_AXIS_NAMES: ExprAxis[] = ['alarm', 'mood', 'fatigue', 'vigilance'];
+export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance', 'feastFamine'];
 
 /**
  * Apply a mapping: target[idx] += weight * value for each [idx, weight].

@@ -44,7 +44,7 @@ describe('SarastiBuilder', () => {
     const builder = new SarastiBuilder<TestDatum>(document.createElement('div'));
     builder.data(testData).axes({
       mood: d => d.score,
-      tension: d => d.risk,
+      alarm: d => d.risk,
     });
 
     // Access private method via any for testing

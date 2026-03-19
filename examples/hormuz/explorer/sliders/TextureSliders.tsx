@@ -4,9 +4,9 @@ import { useExplorerStore } from '../store';
 
 export function TextureSliders() {
   const flush = useExplorerStore(s => s.flush);
-  const fatigue = useExplorerStore(s => s.fatigue);
+  const fatigueTex = useExplorerStore(s => s.fatigueTex);
   const setFlush = useExplorerStore(s => s.setFlush);
-  const setFatigue = useExplorerStore(s => s.setFatigue);
+  const setFatigueTex = useExplorerStore(s => s.setFatigueTex);
 
   return (
     <div>
@@ -14,7 +14,7 @@ export function TextureSliders() {
         Texture
       </div>
       <SliderRow label="flush" value={flush} min={-1} max={1} step={0.01} onChange={setFlush} />
-      <SliderRow label="fatigue" value={fatigue} min={-1} max={1} step={0.01} onChange={setFatigue} />
+      <SliderRow label="fatigue" value={fatigueTex} min={-1} max={1} step={0.01} onChange={setFatigueTex} />
     </div>
   );
 }

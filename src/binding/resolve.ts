@@ -39,9 +39,9 @@ import type { Exchange } from '../types';
 const noiseCache = new Map<string, Float32Array>();
 
 /**
- * Add small deterministic noise on unused β components (β11-β19).
+ * Add small deterministic noise on unused β components (β33-β41).
  * Gives each ticker a unique face fingerprint without affecting axis-controlled components.
- * Dominance uses β0,β2,β3,β4,β7,β18,β23. Stature uses β1,β5,β6,β8,β32.
+ * Dominance uses β{0,2,3,4,7,13,16,18,19,23,48}. Stature uses β{1,5,6,8,15,32,49}.
  */
 function addIdentityNoise(shape: Float32Array, tickerId: string): void {
   let noise = noiseCache.get(tickerId);
@@ -49,12 +49,12 @@ function addIdentityNoise(shape: Float32Array, tickerId: string): void {
     const scalars = hashToScalars(tickerId, 9);
     noise = new Float32Array(N_SHAPE);
     for (let i = 0; i < 9; i++) {
-      noise[11 + i] = scalars[i] * 0.5; // small perturbation
+      noise[33 + i] = scalars[i] * 0.5; // small perturbation
     }
     noiseCache.set(tickerId, noise);
   }
 
-  for (let i = 11; i < 20; i++) {
+  for (let i = 33; i < 42; i++) {
     shape[i] += noise[i];
   }
 }
@@ -240,11 +240,14 @@ export function createResolver(
 
 /** Pre-extracted axis values — all optional, unset = 0 */
 export interface AxisValues {
-  // Expression axes (Russell circumplex)
-  tension?: number;
+  // Expression axes (4-axis channel-separated)
+  alarm?: number;
   mood?: number;
+  fatigue?: number;
+  vigilance?: number;
   // Shape
   dominance?: number;
+  feastFamine?: number;
   // Pose
   pitch?: number;
   yaw?: number;
@@ -255,7 +258,6 @@ export interface AxisValues {
   gazeV?: number;
   // Texture
   flush?: number;
-  fatigue?: number;
 }
 
 /**
@@ -267,12 +269,15 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
   const expression = emptyExpression();
   const shape = emptyShape();
 
-  // Expression axes (Russell circumplex)
-  if (values.tension !== undefined) applyMapping(expression, EXPR_AXES.tension, values.tension);
+  // Expression axes (4-axis channel-separated)
+  if (values.alarm !== undefined) applyMapping(expression, EXPR_AXES.alarm, values.alarm);
   if (values.mood !== undefined) applyMapping(expression, EXPR_AXES.mood, values.mood);
+  if (values.fatigue !== undefined) applyMapping(expression, EXPR_AXES.fatigue, values.fatigue);
+  if (values.vigilance !== undefined) applyMapping(expression, EXPR_AXES.vigilance, values.vigilance);
 
   // Shape axes
   if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);
+  if (values.feastFamine !== undefined) applyMapping(shape, SHAPE_AXES.feastFamine, values.feastFamine);
 
   // Identity noise on unused shape components
   addIdentityNoise(shape, datumId);
@@ -309,6 +314,6 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
     expression,
     pose,
     flush: values.flush ?? 0,
-    fatigue: values.fatigue ?? 0,
+    fatigue: 0,
   };
 }

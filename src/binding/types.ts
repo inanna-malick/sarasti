@@ -21,11 +21,14 @@ export interface ExpressionResolver {
 
 /** Accessor-based axes configuration for the library API */
 export interface AxesConfig<T extends FaceDatum = FaceDatum> {
-  // Expression axes (Russell circumplex)
-  tension?: Accessor<T>;
+  // Expression axes (4-axis channel-separated)
+  alarm?: Accessor<T>;
   mood?: Accessor<T>;
+  fatigue?: Accessor<T>;
+  vigilance?: Accessor<T>;
   // Shape axes
   dominance?: Accessor<T>;
+  feastFamine?: Accessor<T>;
   // Pose axes
   pitch?: Accessor<T>;
   yaw?: Accessor<T>;
@@ -36,7 +39,6 @@ export interface AxesConfig<T extends FaceDatum = FaceDatum> {
   gazeV?: Accessor<T>;
   // Texture axes
   flush?: Accessor<T>;
-  fatigue?: Accessor<T>;
 }
 
 /** Per-axis curve overrides */

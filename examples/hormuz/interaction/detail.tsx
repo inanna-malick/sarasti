@@ -140,7 +140,7 @@ function getStats(): DatasetStats | null {
   return cachedStats;
 }
 
-/** Chord activation bars — 2-axis circumplex + 2 shape axes. */
+/** Chord activation bars — 4-axis expression + 2-axis shape. */
 function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: string }) {
   const stats = getStats();
   const activations = computeChordActivations(frame, stats ?? undefined, tickerId);
@@ -149,10 +149,10 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
     <>
       <Section title="expression axes">
         <ChordBar
-          name="tension"
-          weight={Math.abs(activations.tension)}
-          rawActivation={activations.tension}
-          sign={Math.sign(activations.tension) || 1}
+          name="alarm"
+          weight={Math.abs(activations.alarm)}
+          rawActivation={activations.alarm}
+          sign={Math.sign(activations.alarm) || 1}
           isWinner={false}
         />
         <ChordBar
@@ -162,6 +162,20 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
           sign={Math.sign(activations.mood) || 1}
           isWinner={false}
         />
+        <ChordBar
+          name="fatigue"
+          weight={Math.abs(activations.fatigue)}
+          rawActivation={activations.fatigue}
+          sign={Math.sign(activations.fatigue) || 1}
+          isWinner={false}
+        />
+        <ChordBar
+          name="vigilance"
+          weight={Math.abs(activations.vigilance)}
+          rawActivation={activations.vigilance}
+          sign={Math.sign(activations.vigilance) || 1}
+          isWinner={false}
+        />
       </Section>
       <Section title="shape axes">
         <ChordBar
@@ -169,6 +183,13 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
           weight={Math.abs(activations.dominance)}
           rawActivation={activations.dominance}
           sign={Math.sign(activations.dominance) || 1}
+          isWinner={false}
+        />
+        <ChordBar
+          name="feast/famine"
+          weight={Math.abs(activations.feastFamine)}
+          rawActivation={activations.feastFamine}
+          sign={Math.sign(activations.feastFamine) || 1}
           isWinner={false}
         />
       </Section>
@@ -200,13 +221,16 @@ function ChordBar({
       ? 'rgba(100, 200, 255, 0.6)'
       : 'rgba(255, 100, 100, 0.6)';
 
-  const signLabel = name === 'tension'
-    ? (sign > 0 ? ' (tense)' : ' (placid)')
-    : name === 'mood'
-      ? (sign > 0 ? ' (euphoric)' : ' (grief)')
-      : name === 'dominance'
-        ? (sign > 0 ? ' (chad)' : ' (soyboi)')
-        : '';
+  const signLabels: Record<string, [string, string]> = {
+    alarm: ['alarmed', 'calm'],
+    mood: ['euphoric', 'grief'],
+    fatigue: ['wired', 'exhausted'],
+    vigilance: ['suspicious', 'oblivious'],
+    dominance: ['chad', 'soyboi'],
+    'feast/famine': ['feast', 'famine'],
+  };
+  const pair = signLabels[name];
+  const signLabel = pair ? ` (${sign > 0 ? pair[0] : pair[1]})` : '';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>

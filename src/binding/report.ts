@@ -1,5 +1,5 @@
 /**
- * Binding Report — traces 2-axis circumplex activations (tension/mood).
+ * Binding Report — traces 4-axis expression + 2-axis shape activations.
  */
 
 import type { TickerConfig, TickerFrame, FaceParams } from '../types';
@@ -88,14 +88,24 @@ export function generateReport(
 function traceChords(activations: ChordActivations): ChordEntry[] {
   return [
     {
-      name: 'tension',
-      rawActivation: activations.tension,
-      sign: Math.sign(activations.tension) || 1,
+      name: 'alarm',
+      rawActivation: activations.alarm,
+      sign: Math.sign(activations.alarm) || 1,
     },
     {
       name: 'mood',
       rawActivation: activations.mood,
       sign: Math.sign(activations.mood) || 1,
+    },
+    {
+      name: 'fatigue',
+      rawActivation: activations.fatigue,
+      sign: Math.sign(activations.fatigue) || 1,
+    },
+    {
+      name: 'vigilance',
+      rawActivation: activations.vigilance,
+      sign: Math.sign(activations.vigilance) || 1,
     },
   ];
 }
@@ -115,12 +125,18 @@ function traceShape(
   }
   sources.push({ name: 'chord:dominance←momentum', vec: domVec, input: activations.dominance });
 
+  // Stature
+  const statVec = new Float32Array(N_SHAPE);
+  for (const [idx, weight] of SHAPE_AXES.feastFamine) {
+    statVec[idx] = weight * activations.feastFamine;
+  }
+  sources.push({ name: 'chord:feastFamine←|beta|×sign(dev)', vec: statVec, input: activations.feastFamine });
 
   // Identity noise
   const identityVec = new Float32Array(N_SHAPE);
   const scalars = hashToScalars(ticker.id, 9);
   for (let i = 0; i < 9; i++) {
-    identityVec[11 + i] = scalars[i] * 0.5;
+    identityVec[33 + i] = scalars[i] * 0.5;
   }
   sources.push({ name: 'identity_noise', vec: identityVec, input: 0 });
 

@@ -5,11 +5,16 @@ import { N_SHAPE, N_EXPR, PSI7_CLAMP, BETA3_CLAMP, BETA_GENERAL_CLAMP, MAX_NECK_
 import { SHAPE_AXES, applyMapping } from '../../../src/binding/axes';
 import type { ExprAxis, ShapeAxis } from '../../../src/binding/axes';
 import {
-  TENSION_TENSE_RECIPE,
-  TENSION_PLACID_RECIPE,
+  ALARM_ALARMED_RECIPE,
+  ALARM_CALM_RECIPE,
   MOOD_EUPHORIA_RECIPE,
   MOOD_GRIEF_RECIPE,
+  FATIGUE_WIRED_RECIPE,
+  FATIGUE_EXHAUSTED_RECIPE,
+  VIGILANCE_SUSPICIOUS_RECIPE,
+  VIGILANCE_OBLIVIOUS_RECIPE,
   DOMINANCE_RECIPE,
+  FEAST_FAMINE_RECIPE,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
 } from '../../../src/binding/chords';
@@ -19,10 +24,13 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 4 axes (pose/gaze/texture computed from chord recipes)
-  tension: number;
+  // High-level: 6 axes (pose/gaze/texture computed from chord recipes)
+  alarm: number;
   mood: number;
+  fatigue: number;
+  vigilance: number;
   dominance: number;
+  feastFamine: number;
 
   // Raw mode: manual overrides
   poseOverride: boolean;
@@ -34,7 +42,7 @@ interface ExplorerState {
   gazeHorizontal: number;
   gazeVertical: number;
   flush: number;
-  fatigue: number;
+  fatigueTex: number;
   rawShape: Float32Array;
   rawExpression: Float32Array;
 
@@ -43,9 +51,12 @@ interface ExplorerState {
 
   // Actions
   setMode: (mode: ExplorerMode) => void;
-  setTension: (v: number) => void;
+  setAlarm: (v: number) => void;
   setMood: (v: number) => void;
+  setFatigue: (v: number) => void;
+  setVigilance: (v: number) => void;
   setDominance: (v: number) => void;
+  setFeastFamine: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -55,7 +66,7 @@ interface ExplorerState {
   setGazeHorizontal: (v: number) => void;
   setGazeVertical: (v: number) => void;
   setFlush: (v: number) => void;
-  setFatigue: (v: number) => void;
+  setFatigueTex: (v: number) => void;
   setRawShape: (index: number, value: number) => void;
   setRawExpression: (index: number, value: number) => void;
   recompute: () => void;
@@ -114,22 +125,22 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
       expression: new Float32Array(state.rawExpression),
       pose: zeroPose(),
       flush: state.flush,
-      fatigue: state.fatigue,
+      fatigue: state.fatigueTex,
     };
     applyRawOverrides(params, state);
     return { currentParams: params };
   }
 
-  // High-level mode: 4 axes drive everything via full chord recipes
+  // High-level mode: 6 axes drive everything via full chord recipes
   const shape = new Float32Array(N_SHAPE);
   const expression = new Float32Array(N_EXPR);
   const pgt = { pitch: 0, yaw: 0, roll: 0, jaw: 0, gazeH: 0, gazeV: 0, flush: 0, fatigue: 0 };
 
-  // Tension → full bipolar recipe (ψ + pose + gaze + texture)
-  if (state.tension >= 0) {
-    applyFullExprRecipe(TENSION_TENSE_RECIPE, state.tension, expression, pgt);
+  // Alarm → full bipolar recipe (ψ + pose + gaze)
+  if (state.alarm >= 0) {
+    applyFullExprRecipe(ALARM_ALARMED_RECIPE, state.alarm, expression, pgt);
   } else {
-    applyFullExprRecipe(TENSION_PLACID_RECIPE, Math.abs(state.tension), expression, pgt);
+    applyFullExprRecipe(ALARM_CALM_RECIPE, Math.abs(state.alarm), expression, pgt);
   }
 
   // Mood → full bipolar recipe (ψ + pose + gaze + texture)
@@ -139,11 +150,26 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     applyFullExprRecipe(MOOD_GRIEF_RECIPE, Math.abs(state.mood), expression, pgt);
   }
 
+  // Fatigue → full bipolar recipe (ψ + pose + texture)
+  if (state.fatigue >= 0) {
+    applyFullExprRecipe(FATIGUE_WIRED_RECIPE, state.fatigue, expression, pgt);
+  } else {
+    applyFullExprRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(state.fatigue), expression, pgt);
+  }
+
+  // Vigilance → full bipolar recipe (ψ + pose + gaze)
+  if (state.vigilance >= 0) {
+    applyFullExprRecipe(VIGILANCE_SUSPICIOUS_RECIPE, state.vigilance, expression, pgt);
+  } else {
+    applyFullExprRecipe(VIGILANCE_OBLIVIOUS_RECIPE, Math.abs(state.vigilance), expression, pgt);
+  }
+
   // ψ7 safety clamp
   expression[7] = clamp(expression[7], -PSI7_CLAMP, PSI7_CLAMP);
 
-  // Shape β components
+  // Shape β components — dominance + feastFamine
   applyMapping(shape, SHAPE_AXES.dominance, state.dominance);
+  applyMapping(shape, SHAPE_AXES.feastFamine, state.feastFamine);
 
   // Shape safety clamps — prevents mesh breakage at extreme slider values
   shape[3] = clamp(shape[3], -BETA3_CLAMP, BETA3_CLAMP);
@@ -153,6 +179,7 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
 
   // Shape → identity pose
   applyShapeRecipePose(DOMINANCE_RECIPE, state.dominance, pgt);
+  applyShapeRecipePose(FEAST_FAMINE_RECIPE, state.feastFamine, pgt);
 
   const params: FaceParams = {
     shape,
@@ -205,9 +232,12 @@ function update(set: any, get: any, patch: Partial<ExplorerState>) {
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
 
-  tension: 0,
+  alarm: 0,
   mood: 0,
+  fatigue: 0,
+  vigilance: 0,
   dominance: 0,
+  feastFamine: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -218,7 +248,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   gazeHorizontal: 0,
   gazeVertical: 0,
   flush: 0,
-  fatigue: 0,
+  fatigueTex: 0,
 
   rawShape: new Float32Array(N_SHAPE),
   rawExpression: new Float32Array(N_EXPR),
@@ -226,9 +256,12 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   currentParams: null,
 
   setMode: (v) => update(set, get, { mode: v }),
-  setTension: (v) => update(set, get, { tension: v }),
+  setAlarm: (v) => update(set, get, { alarm: v }),
   setMood: (v) => update(set, get, { mood: v }),
+  setFatigue: (v) => update(set, get, { fatigue: v }),
+  setVigilance: (v) => update(set, get, { vigilance: v }),
   setDominance: (v) => update(set, get, { dominance: v }),
+  setFeastFamine: (v) => update(set, get, { feastFamine: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),
@@ -238,7 +271,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setGazeHorizontal: (v) => update(set, get, { gazeHorizontal: v }),
   setGazeVertical: (v) => update(set, get, { gazeVertical: v }),
   setFlush: (v) => update(set, get, { flush: v }),
-  setFatigue: (v) => update(set, get, { fatigue: v }),
+  setFatigueTex: (v) => update(set, get, { fatigueTex: v }),
 
   setRawShape: (index, value) => {
     const arr = new Float32Array(get().rawShape);

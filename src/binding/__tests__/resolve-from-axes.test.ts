@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { resolveFromAxes } from '../resolve';
 import { N_SHAPE, N_EXPR } from '../../constants';
 
-describe('resolveFromAxes (2-axis circumplex)', () => {
+describe('resolveFromAxes (4-axis expression + 2 shape)', () => {
   it('empty values → near-zero output with identity noise', () => {
     const result = resolveFromAxes({}, 'test-id');
     expect(result.expression.length).toBe(N_EXPR);
@@ -19,38 +19,49 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(noiseSum).toBeGreaterThan(0);
   });
 
-  it.skip('tension value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
-    const tense = resolveFromAxes({ tension: 2.0 }, 'a');
-    // tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]]
-    expect(tense.expression[2]).toBeCloseTo(5.0);   // ψ2 × 2.5 × 2.0
-    expect(tense.expression[0]).toBeCloseTo(2.0);   // ψ0 × 1.0 × 2.0
-    expect(tense.expression[8]).toBeCloseTo(3.0);   // ψ8 × 1.5 × 2.0
-    expect(tense.expression[7]).toBeCloseTo(-3.0);  // ψ7 × -1.5 × 2.0
-    expect(tense.expression[5]).toBeCloseTo(1.6);   // ψ5 × 0.8 × 2.0
-    expect(tense.expression[4]).toBeCloseTo(-1.0);  // ψ4 × -0.5 × 2.0
+  it('alarm value drives ψ2 (brow up), ψ0 (jaw), ψ8 (nose wrinkle)', () => {
+    const alarmed = resolveFromAxes({ alarm: 2.0 }, 'a');
+    // alarm: [[2, 2.0], [7, -2.0], [0, 1.0], [8, 1.0]]
+    expect(alarmed.expression[2]).toBeCloseTo(4.0);   // ψ2 × 2.0 × 2.0
+    expect(alarmed.expression[0]).toBeCloseTo(2.0);   // ψ0 × 1.0 × 2.0
+    expect(alarmed.expression[8]).toBeCloseTo(2.0);   // ψ8 × 1.0 × 2.0
+    expect(alarmed.expression[7]).toBeCloseTo(-4.0);  // ψ7 × -2.0 × 2.0
   });
 
-  it.skip('mood value drives ψ1 (zygomaticus smile) + Duchenne crinkle', () => {
-    const happy = resolveFromAxes({ mood: 2.0 }, 'a');
-    const sad = resolveFromAxes({ mood: -2.0 }, 'a');
-    // mood: [[1, 2.5], [7, 1.5], [0, 0.3], [8, 0.5]]
-    expect(happy.expression[1]).toBeCloseTo(5.0);   // ψ1 × 2.5 × 2.0 (zygomaticus — smile)
-    expect(happy.expression[7]).toBeCloseTo(3.0);   // ψ7 × 1.5 × 2.0 (Duchenne crinkle)
-    expect(happy.expression[0]).toBeCloseTo(0.6);   // ψ0 × 0.3 × 2.0 (minimal jaw)
-    expect(sad.expression[1]).toBeCloseTo(-5.0);
-    expect(sad.expression[0]).toBeCloseTo(-0.6);
+  it('fatigue value drives ψ5 (tight lip), ψ3 (furrow)', () => {
+    const wired = resolveFromAxes({ fatigue: 2.0 }, 'a');
+    // fatigue: [[5, 1.5], [3, 1.0], [4, -0.8]]
+    expect(wired.expression[5]).toBeCloseTo(3.0);   // ψ5 × 1.5 × 2.0
+    expect(wired.expression[3]).toBeCloseTo(2.0);   // ψ3 × 1.0 × 2.0
+    expect(wired.expression[4]).toBeCloseTo(-1.6);  // ψ4 × -0.8 × 2.0
   });
 
-  it('chad drives mass + jaw + eyes + bone detail', () => {
-    const chad = resolveFromAxes({ chad: 2.0 }, 'a');
-    const soyboi = resolveFromAxes({ chad: -2.0 }, 'a');
+  it('vigilance value drives ψ3 (furrow), ψ8 (nose wrinkle)', () => {
+    const suspicious = resolveFromAxes({ vigilance: 2.0 }, 'a');
+    // vigilance: [[3, 0.8], [7, -0.5], [8, 0.6]]
+    expect(suspicious.expression[3]).toBeCloseTo(1.6);   // ψ3 × 0.8 × 2.0
+    expect(suspicious.expression[7]).toBeCloseTo(-1.0);  // ψ7 × -0.5 × 2.0
+    expect(suspicious.expression[8]).toBeCloseTo(1.2);   // ψ8 × 0.6 × 2.0
+  });
+
+  it('dominance drives mass + jaw + bone detail', () => {
+    const chad = resolveFromAxes({ dominance: 2.0 }, 'a');
+    const soyboi = resolveFromAxes({ dominance: -2.0 }, 'a');
     expect(chad.shape[0]).toBeGreaterThan(0);   // β0: thick
     expect(soyboi.shape[0]).toBeLessThan(0);
     expect(chad.shape[3]).toBeGreaterThan(0);   // β3: jaw width
     expect(chad.shape[16]).toBeGreaterThan(0);  // β16: defined jaw
     expect(chad.shape[19]).toBeLessThan(0);     // β19: jutting chin (inverted)
-    expect(chad.shape[7]).toBeGreaterThan(0);   // β7: intent eyes
     expect(chad.shape[18]).toBeGreaterThan(0);  // β18: bone structure
+  });
+
+  it('feastFamine drives body mass components', () => {
+    const heavy = resolveFromAxes({ feastFamine: 2.0 }, 'a');
+    const gaunt = resolveFromAxes({ feastFamine: -2.0 }, 'a');
+    expect(heavy.shape[1]).toBeGreaterThan(0);   // β1: tall
+    expect(gaunt.shape[1]).toBeLessThan(0);
+    expect(heavy.shape[6]).toBeGreaterThan(0);   // β6: thicc
+    expect(heavy.shape[5]).toBeGreaterThan(0);   // β5: portly
   });
 
   it('pose values map to neck and jaw', () => {
@@ -68,10 +79,9 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(result.pose.leftEye[1]).toBeCloseTo(-0.1);
   });
 
-  it('flush and fatigue pass through', () => {
-    const result = resolveFromAxes({ flush: 0.7, fatigue: -0.3 }, 'a');
+  it('flush passes through', () => {
+    const result = resolveFromAxes({ flush: 0.7 }, 'a');
     expect(result.flush).toBeCloseTo(0.7);
-    expect(result.fatigue).toBeCloseTo(-0.3);
   });
 
   it('different datumIds get different identity noise', () => {
@@ -83,11 +93,11 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
   });
 
   it('multiple axes combine additively on shared components', () => {
-    // tension uses ψ0 (weight 1.0), mood also uses ψ0 (weight 1.0)
-    const combined = resolveFromAxes({ tension: 1.0, mood: 1.0 }, 'a');
-    const tensionOnly = resolveFromAxes({ tension: 1.0 }, 'a');
+    // alarm uses ψ0 (weight 1.0), mood also uses ψ0 (weight 0.75)
+    const combined = resolveFromAxes({ alarm: 1.0, mood: 1.0 }, 'a');
+    const alarmOnly = resolveFromAxes({ alarm: 1.0 }, 'a');
     const moodOnly = resolveFromAxes({ mood: 1.0 }, 'a');
     // ψ0 should be sum of both contributions
-    expect(combined.expression[0]).toBeCloseTo(tensionOnly.expression[0] + moodOnly.expression[0]);
+    expect(combined.expression[0]).toBeCloseTo(alarmOnly.expression[0] + moodOnly.expression[0]);
   });
 });
