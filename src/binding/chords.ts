@@ -511,10 +511,20 @@ export interface MetaAxes {
  * Each row: how much one meta-axis drives each low-level axis.
  * Will be refined via Gemini critique loops.
  */
+/**
+ * [w3] Adjustments from Gemini critique waves 1-2:
+ * - Vitality dominance 0.7→0.3 (puffing overwhelmed emotional signal)
+ * - Vitality sharpness -0.3→-0.15 (less anti-gaunt at positive vitality)
+ * - Distress fatigue 0.2→0.4 (more wired under stress, counteracts exhaustion stacking)
+ * - Distress sharpness 0.7→0.6 (gauntness is strong thumbnail signal)
+ * - Aggression alarm 0.1→0.2 (more brow tension in aggression)
+ * - Aggression fatigue 0.2→0.3 (wired-grimace reinforces upper face)
+ * - Aggression low-level 0.9→0.7 (reduce yielding eye-closure overpowering alarm)
+ */
 export const META_MIXING: Record<keyof MetaAxes, Record<string, number>> = {
-  distress:   { alarm: 0.8, fatigue: 0.2, aggression: 0.2, sharpness: 0.7 },
-  vitality:   { alarm: -0.5, fatigue: 0.7, dominance: 0.7, sharpness: -0.3 },
-  aggression: { alarm: 0.1, fatigue: 0.2, aggression: 0.9, dominance: 0.2, sharpness: 0.2 },
+  distress:   { alarm: 0.9, fatigue: 0.4, aggression: 0.2, sharpness: 0.6 },
+  vitality:   { alarm: -0.5, fatigue: 0.7, dominance: 0.3, sharpness: -0.15 },
+  aggression: { alarm: 0.2, fatigue: 0.3, aggression: 0.7, dominance: 0.2, sharpness: 0.2 },
 };
 
 /**
