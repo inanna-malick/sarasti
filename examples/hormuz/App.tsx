@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { FaceRenderer } from '../../src/types';
 import { createFlameSceneRenderer } from '../../src/renderer';
-import { loadDataset, getFrameAtTime } from '../../src/data/loader';
+import { loadDataset, getFrameIndexAtTime } from '../../src/data/loader';
 import { FrameDriver } from '../../src/timeline/driver';
 import { setupHoverInteraction, setupClickInteraction } from './interaction/hover';
 import { Tooltip } from './interaction/Tooltip';
@@ -26,6 +26,7 @@ export function App() {
   const params = new URLSearchParams(window.location.search);
   const isExplorer = params.get('explorer') === 'true';
   const isRefine = params.get('refine') === 'true';
+  const isHeadless = params.get('headless') === 'true';
 
   useEffect(() => {
     if (isRefine) return;
@@ -58,9 +59,7 @@ export function App() {
         const params = new URLSearchParams(window.location.search);
         const targetTime = params.get('t');
         if (targetTime && dataset.frames.length > 0) {
-          const targetFrame = getFrameAtTime(dataset, targetTime);
-          initialIndex = dataset.frames.indexOf(targetFrame);
-          if (initialIndex < 0) initialIndex = 0;
+          initialIndex = getFrameIndexAtTime(dataset, targetTime);
         }
 
         const driver = new FrameDriver(dataset, renderer, initialIndex);
@@ -74,6 +73,14 @@ export function App() {
 
         setStatus('');
         setReady(true);
+
+        // Headless mode: skip landing, signal ready after initial render
+        if (isHeadless) {
+          useStore.getState().setShowLanding(false);
+          // Constructor already rendered initial frame — wait for GPU flush
+          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+          (window as any).__HORMUZ_READY = true;
+        }
       } catch (err) {
         setStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
         console.error(err);
@@ -151,7 +158,7 @@ export function App() {
       )}
 
       {/* UI overlay */}
-      {ready && (
+      {ready && !isHeadless && (
         <>
           <Landing onStart={handleLandingStart} />
           <TimelineBar

@@ -340,20 +340,20 @@ export function computeChordActivations(
   // Exchange fatigue (for fatigue chronic component)
   let exchFatigue = 0;
 
-  // ─── Alarm: vol×|vel| pushes alarmed (+), deviation pushes euphoric (−) ───
-  const alarm = symmetricSigmoid(vol_z * Math.abs(vel_z) - 0.5 - dev_z, 6);
+  // ─── Alarm: |vel| pushes alarmed (+), deviation pushes euphoric (−) ───
+  const alarm = symmetricSigmoid(Math.abs(vel_z) - 0.5 - dev_z, 1.0);
 
   // ─── Fatigue: chronic toll + mean reversion (merged) ───
-  const fatigue = symmetricSigmoid((-(dd_z + exchFatigue) + mr_z) * 0.5, 6);
+  const fatigue = symmetricSigmoid((-(dd_z + exchFatigue) + mr_z) * 0.5, 1.5);
 
   // ─── Aggression: negative momentum with directional velocity = fighting ───
   const vel_sign = vel_z >= 0 ? 1 : -1;
-  const aggression = symmetricSigmoid(-mom_z * vel_sign, 6);
+  const aggression = symmetricSigmoid(-mom_z * vel_sign, 1.5);
 
   // ─── Shape axes ──────────────────────────────
 
   // Dominance: momentum direction → jaw width (chad=strong trend, soyboi=no direction)
-  const dominance = symmetricSigmoid(mom_z, 6);
+  const dominance = symmetricSigmoid(mom_z, 1.5);
 
   // ─── MATURITY: static identity from ticker age ───
   // Encodes WHO this instrument is: ^TNX (55) = weathered patriarch, VIX (20) = volatile youth.
@@ -367,7 +367,7 @@ export function computeChordActivations(
   // High vol + far from mean = gaunt/sharp (stressed regime, market eating this instrument).
   // Low vol + near mean = puffy (complacent, range-bound, boring).
   // The 2× scaling ensures moderate stress activates visibly.
-  const sharpness = symmetricSigmoid(vol_z * Math.abs(mr_z) * 2 - 0.3, 6);
+  const sharpness = symmetricSigmoid(Math.abs(mr_z) * 2 - 0.3, 1.0);
 
   return { alarm, fatigue, aggression, dominance, maturity, sharpness };
 }
@@ -554,18 +554,20 @@ export function computeMetaAxes(
   const mom_z = ts ? zScore(frame.momentum, ts.momentum) : frame.momentum;
   const mr_z = ts ? zScore(frame.mean_reversion_z, ts.mean_reversion_z) : frame.mean_reversion_z;
 
-  // DISTRESS: vol×max(|vel|, |mr|) + drawdown contribution
+  // DISTRESS: |velocity| + |mean_reversion| + drawdown contribution
+  // Velocity and mean_reversion carry the crisis signal in this dataset
+  // (volatility is pre-normalized and nearly constant across the timeline).
   const distress = symmetricSigmoid(
-    vol_z * Math.max(Math.abs(vel_z), Math.abs(mr_z)) + 0.3 * dd_z,
-    6,
+    Math.max(Math.abs(vel_z), Math.abs(mr_z)) + 0.3 * Math.abs(dd_z) - 0.5,
+    1.0,
   );
 
   // VITALITY: deviation + momentum → life force
-  const vitality = symmetricSigmoid(dev_z + 0.5 * mom_z, 6);
+  const vitality = symmetricSigmoid(dev_z + 0.5 * mom_z, 1.5);
 
   // AGGRESSION: negative momentum × velocity direction = fighting
   const vel_sign = vel_z >= 0 ? 1 : -1;
-  const aggression = symmetricSigmoid(-mom_z * vel_sign, 6);
+  const aggression = symmetricSigmoid(-mom_z * vel_sign, 1.5);
 
   return { distress, vitality, aggression };
 }

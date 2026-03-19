@@ -1,5 +1,5 @@
 /**
- * Batch screenshot harness for the explorer.
+ * Batch screenshot harness for explorer and Hormuz visualization.
  *
  * Usage:
  *   nix-shell --run "npx tsx tools/eval/render.ts configs.json"
@@ -9,7 +9,10 @@
  *   { "params": { "alarm": "0.8" }, "output": "renders/alarm_0.8.png" }
  *   { "params": { "mode": "raw", "psi8": "3.0" }, "output": "renders/psi8_3.0.png" }
  *
- * headless=true and explorer=true are always injected.
+ * Hormuz mode (full face field): set "hormuz": "true" in params
+ *   { "params": { "hormuz": "true", "t": "2025-03-05T14:00:00Z" }, "output": "renders/crisis.png" }
+ *
+ * headless=true is always injected. explorer=true is injected unless hormuz mode.
  */
 
 import { chromium } from 'playwright';
@@ -28,28 +31,40 @@ interface RenderConfig {
 }
 
 function buildUrl(baseUrl: string, params: Record<string, string>): string {
+  const isHormuz = params.hormuz === 'true';
+  const { hormuz, ...rest } = params;
   const merged: Record<string, string> = {
-    explorer: 'true',
     headless: 'true',
-    ...params,
+    ...(isHormuz ? {} : { explorer: 'true' }),
+    ...rest,
   };
   const qs = new URLSearchParams(merged).toString();
   return `${baseUrl}/?${qs}`;
 }
 
 async function renderOne(page: any, baseUrl: string, config: RenderConfig): Promise<string> {
+  const isHormuz = config.params.hormuz === 'true';
   const url = buildUrl(baseUrl, config.params);
   const outPath = resolve(config.output);
 
   // Ensure output directory exists
   mkdirSync(dirname(outPath), { recursive: true });
 
+  // Hormuz needs wider viewport to fit 25 faces
+  if (isHormuz) {
+    await page.setViewportSize({ width: 2560, height: 1440 });
+  } else {
+    await page.setViewportSize({ width: 512, height: 512 });
+  }
+
   await page.goto(url, { waitUntil: 'networkidle' });
 
-  // Wait for explorer to signal ready
+  // Wait for ready signal
+  const readyFlag = isHormuz ? '__HORMUZ_READY' : '__EXPLORER_READY';
   await page.waitForFunction(
-    () => (window as any).__EXPLORER_READY === true,
-    { timeout: 10000 },
+    (flag: string) => (window as any)[flag] === true,
+    readyFlag,
+    { timeout: 30000 },
   );
 
   // Wait one RAF for render to complete
@@ -80,6 +95,7 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+    // Start with explorer viewport; resize per-config for hormuz mode
     await page.setViewportSize({ width: 512, height: 512 });
 
     page.on('console', (msg: any) => console.error(`[browser ${msg.type()}] ${msg.text()}`));

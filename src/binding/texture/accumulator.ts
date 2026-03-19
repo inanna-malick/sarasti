@@ -24,7 +24,8 @@ export function createTextureAccumulator(): TextureAccumulator {
 
 /**
  * Updates the accumulator with a new frame using Exponential Moving Average.
- * ema = alpha * value + (1 - alpha) * ema
+ * On first update (when ema_abs_deviation is 0), initializes to the frame's
+ * values instead of slowly ramping up from zero (cold-start fix).
  */
 export function updateAccumulator(
   acc: TextureAccumulator,
@@ -34,9 +35,12 @@ export function updateAccumulator(
   const absDev = Math.abs(frame.deviation);
   const vol = frame.volatility;
 
+  // Warm start: if accumulator is at initial state, jump to current values
+  const isCold = acc.ema_abs_deviation === 0;
+
   return {
-    ema_abs_deviation: alpha * absDev + (1 - alpha) * acc.ema_abs_deviation,
-    ema_volatility: alpha * vol + (1 - alpha) * acc.ema_volatility,
+    ema_abs_deviation: isCold ? absDev : alpha * absDev + (1 - alpha) * acc.ema_abs_deviation,
+    ema_volatility: isCold ? vol : alpha * vol + (1 - alpha) * acc.ema_volatility,
   };
 }
 

@@ -183,6 +183,17 @@ export class FlameFaceMesh {
           arr[i]     += t * weight * bMod;     // B
         }
       }
+
+      // Global diffuse flush: whole-face color shift for thumbnail readability.
+      // At 80-150px per face, localized cheek flush is invisible. This shifts
+      // the entire face temperature (warm pink vs cold pale) at 40% of the
+      // localized intensity so it reads at small scale without overpowering close-up.
+      const globalScale = 0.4;
+      for (let i = 0; i < stride; i += 3) {
+        arr[i + 2] += t * globalScale * rMod;    // R
+        arr[i + 1] += t * globalScale * gMod;    // G
+        arr[i]     += t * globalScale * bMod;     // B
+      }
     }
 
     // Fatigue: PC components from TEXTURE_CONFIG (eye-area warmth/darkness)
