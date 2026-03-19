@@ -1,0 +1,30 @@
+{
+  "component": "beta4",
+  "component_type": "shape",
+  "positive_description": "Forehead prominence and brow ridge development: the forehead slopes forward, the brow ridge becomes more pronounced, the supraorbital torus thickens. The upper face gains structural mass and forward projection. The nose bridge may also become slightly more prominent. Overall, the face gains a heavier upper-face architecture.",
+  "negative_description": "Forehead recession and brow flattening: the forehead becomes more vertical and flatter, the brow ridge recedes, the supraorbital area smooths out. The upper face loses its heavy structural character, becoming cleaner and more vertical. The overall impression is a lighter, less projecting upper face.",
+  "symmetry_score": 0.97,
+  "symmetry_notes": "Highly symmetric — forehead and brow changes are bilaterally even. Left and right 3/4 views confirm symmetric brow ridge development.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. At +3.0 the brow ridge is quite prominent but geometry holds. The forehead slope is visible in profile views. No mesh issues at any tested value.",
+  "primary_face_region": "upper face — forehead, brow ridge, supraorbital area, upper nose bridge",
+  "useful_for": [
+    "brow ridge prominence",
+    "forehead slope/projection",
+    "perceived robustness of upper face",
+    "dominance signaling via heavy brow",
+    "age signaling — heavier brow reads as more mature"
+  ],
+  "interactions": {
+    "beta0": "beta0 scales everything, beta4 specifically targets upper face weight — combining adds heavy brow to an already massive head",
+    "beta3": "beta3 = lower face angularity, beta4 = upper face heaviness. Together they build a full-face dominance recipe",
+    "beta7": "both affect the orbital area — beta4 from above (brow ridge), beta7 from around the eye"
+  },
+  "current_recipes": [
+    "dominance: weight 1.9 — adds brow ridge and forehead mass to the chad pole"
+  ],
+  "prose": "Beta4 targets the upper face — specifically the forehead and brow ridge area. Positive values push the forehead forward and develop the supraorbital torus (brow ridge), creating a heavier, more projecting upper face that overhangs the eyes slightly. The brow becomes a shelf rather than a smooth curve. Negative values flatten the brow, make the forehead more vertical, and smooth out the supraorbital architecture, creating a lighter, cleaner upper face. The effect is most visible in the 3/4 profile views where the forehead slope and brow projection are clearly apparent. In the frontal view, the change manifests as deeper shadowing under the brow at positive values (heavier ridge casting more shadow) and a flatter, more evenly lit upper face at negative values. This component pairs naturally with beta3 (jaw) to create a full-face dominance recipe — beta3 handles the lower face angularity while beta4 handles the upper face heaviness. The dominance recipe appropriately uses both.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

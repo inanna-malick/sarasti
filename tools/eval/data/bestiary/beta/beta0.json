@@ -1,0 +1,29 @@
+{
+  "component": "beta0",
+  "component_type": "shape",
+  "positive_description": "Overall head enlargement and mass: wider jaw, broader cranium, thicker neck, fuller cheeks. The face becomes heavier and more imposing — a large-skulled, broad-featured individual. Brow ridge deepens, midface widens, and the entire head scales up volumetrically.",
+  "negative_description": "Overall head reduction and narrowing: smaller cranium, narrower jaw, thinner neck, more delicate features. The face becomes lighter and more gracile — a small, fine-boned head with proportionally larger eyes relative to face area. Reads as youthful or slight.",
+  "symmetry_score": 0.98,
+  "symmetry_notes": "Highly symmetric — this is a global scale/mass axis. Left-right 3/4 views are near-mirror images. No lateral asymmetry detected.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Very robust component. At +3.0 the face begins to look unnaturally bulky but geometry stays clean. At -3.0 the head is quite small/thin but no mesh artifacts. This is the highest-variance component and extrapolates cleanly.",
+  "primary_face_region": "global — affects cranium, jaw, cheeks, neck, and forehead uniformly",
+  "useful_for": [
+    "overall face mass/weight",
+    "perceived age via skull size",
+    "dominance signaling (larger = more imposing)",
+    "distinguishing heavy vs. light builds",
+    "the 'chad jaw' broadening effect"
+  ],
+  "interactions": {
+    "beta1": "beta0 scales overall while beta1 stretches vertically — combining positive of both yields a tall, heavy head",
+    "beta2": "beta0+beta2 together can create extremely wide, heavy faces — use with caution"
+  },
+  "current_recipes": [
+    "dominance: weight 2.5 — provides the mass/broadening foundation for the chad pole"
+  ],
+  "prose": "Beta0 is the first principal component of head shape and captures the single largest axis of variance in the FLAME training population: overall cranial mass and facial breadth. Pushing positive inflates the entire skull — the jaw widens, the cranium expands, cheeks fill out, and the neck thickens, producing a face that reads as heavy, imposing, and physically dominant. Pulling negative deflates everything proportionally, yielding a delicate, fine-boned head that can read as youthful or slight. The effect is remarkably uniform across the face; it is not a local deformation but a global volumetric scaling with some shape coupling (wider jaws tend to come with deeper brow ridges in the training data). This makes it an excellent foundation for any 'mass' or 'weight' axis. At the extremes (+3.0) the face looks like an implausibly thick-skulled brute; at -3.0 it resembles a child's proportions on an adult frame. The 3/4 views confirm perfect bilateral symmetry.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

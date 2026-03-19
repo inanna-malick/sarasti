@@ -1,0 +1,22 @@
+{
+  "component": "beta21",
+  "component_type": "shape",
+  "positive_description": "Subtle ear and lateral skull modulation. At +3.0 the ears appear to shift very slightly in position or protrusion, and there may be a marginal widening of the temporal region. The midface and lower face show negligible change. The effect at +1.5 is nearly invisible.",
+  "negative_description": "At -3.0 the ears sit fractionally differently and the lateral skull contour changes by a barely perceptible amount. The frontal face shape is essentially unchanged. At -1.5 the render is indistinguishable from neutral.",
+  "symmetry_score": 0.93,
+  "symmetry_notes": "Appears symmetric in the front views. The 3/4 views show the effect is primarily lateral/temporal, making left34 vs right34 comparison the more informative test — both sides appear to shift comparably.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts visible at any tested value. Very low vertex displacement even at extremes.",
+  "primary_face_region": "lateral skull — ears and temporal region",
+  "useful_for": [
+    "ear position tuning",
+    "lateral skull contour variation",
+    "identity differentiation"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta21 operates primarily on the lateral skull and ear region, producing changes that are difficult to detect from a frontal view. The front renders from -3.0 to +3.0 look nearly identical to each other and to the neutral baseline. The 3/4 views hint at subtle ear position or protrusion changes, but the magnitude is very small. This component captures fine individual variation in temporal and auricular morphology from the FLAME training population. It has no practical value for expressive face recipes where the audience views faces primarily from the front, but could contribute to subtle identity variation if many faces need to look distinct.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

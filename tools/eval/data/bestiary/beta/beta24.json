@@ -1,0 +1,21 @@
+{
+  "component": "beta24",
+  "component_type": "shape",
+  "positive_description": "Extremely subtle effect. At +3.0 there may be a very slight change in cheek fullness or zygomatic arch prominence, but the difference from neutral is at the threshold of visual detection. The overall face shape is essentially unchanged from baseline.",
+  "negative_description": "At -3.0 the opposite pole shows an equally minimal change — possibly a marginal flattening or narrowing of the cheek area. The effect at -1.5 is indistinguishable from neutral.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Appears symmetric, though the effect is too small for reliable assessment. No obvious left-right asymmetry in the 3/4 views.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. Negligible vertex displacement.",
+  "primary_face_region": "midface — cheek/zygomatic area",
+  "useful_for": [
+    "identity differentiation at small weights",
+    "very fine cheek volume tuning"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta24 produces changes that are at or below the threshold of reliable visual detection at the tested magnitudes. The renders across the full -3.0 to +3.0 range look essentially identical, with any differences being marginal enough to be confounded with rendering noise or lighting interpretation. The component likely captures very fine cheek or zygomatic variation from the FLAME training data, but at this PCA rank the explained variance is small enough that the effect is invisible at practical magnitudes. It has no utility for expressive recipes and would contribute only to identity differentiation as part of a high-dimensional fingerprint.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

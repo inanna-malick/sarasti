@@ -1,0 +1,23 @@
+{
+  "component": "psi22",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, no consistent visual change from neutral is discernible in frontal or 3/4 views. If an asymmetric pair member (psi22/psi23), it would be the left-lateralized component of a fifth conjugate pair.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.5,
+  "symmetry_notes": "Indeterminate. If the conjugate pair pattern continues beyond psi20 (pair at 22/23 after symmetric psi21), this would be asymmetric. Cannot be confirmed from renders — the deformation is below visual threshold.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights",
+    "potentially part of fifth conjugate pair with psi23"
+  ],
+  "interactions": {
+    "psi23": "Predicted conjugate pair if the alternating symmetric/asymmetric pattern continues"
+  },
+  "current_recipes": [],
+  "prose": "Psi22 sits deep in the mid-frequency expression PCA band. All seven renders appear visually identical to the neutral face at the tested weight range (-3.0 to +3.0). No feature change — mouth, eyes, brows, cheeks, jaw — is discernible across the sweep or between the 3/4 profile views. If the alternating pattern from psi10-20 continues (symmetric modulator, then asymmetric pair, repeat), psi22 would be the first member of a fifth conjugate pair. However, this deep into the PCA ordering, components increasingly reflect training-subject idiosyncrasies, and the clean architectural patterns may not persist.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

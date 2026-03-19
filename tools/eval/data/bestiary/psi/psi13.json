@@ -1,0 +1,25 @@
+{
+  "component": "psi13",
+  "component_type": "expression",
+  "positive_description": "Subtle upper-face adjustment — a slight widening of the eye region and mild brow smoothing. The forehead relaxes and the periorbital area opens marginally. The overall impression is a very subtle alertness or openness in the upper face, without dramatic brow movement.",
+  "negative_description": "Subtle upper-face narrowing — the eye region contracts slightly and there is mild brow compression. The forehead tightens marginally. The overall impression is of a very subtle closing-down or guarding of the upper face.",
+  "symmetry_score": 0.90,
+  "symmetry_notes": "Appears bilaterally symmetric based on the 3/4 views. Both sides show consistent deformation at +2.0. No clear left-right asymmetry detected.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at any tested value. Very subtle component — would likely tolerate higher weights than primary components before artifacts appear. Conservative safe range set at +/-5.0.",
+  "primary_face_region": "upper face, periorbital area, forehead",
+  "useful_for": [
+    "subtle eye-area openness/closure modulation",
+    "upper face nuance layering",
+    "fine-grained alertness adjustment"
+  ],
+  "interactions": {
+    "psi2": "Both affect upper face; psi2 drives dramatic mouth opening while psi13 provides subtle periorbital adjustment",
+    "psi7": "psi7 drives eyelid-inclusive happy/disappointed axis; psi13 operates on the surrounding periorbital region more subtly"
+  },
+  "current_recipes": [],
+  "prose": "Psi13 is a subtle upper-face modulator operating in the periorbital and forehead region. Its positive pole opens the eye area slightly — not a dramatic brow raise like psi2 but a gentle widening and smoothing of the forehead. Its negative pole does the opposite, producing a very mild narrowing and compression. The effects are among the most subtle of the mid-frequency components examined, requiring careful A/B comparison to detect. It represents the kind of fine-grained tonal adjustment that PCA captures in its mid-frequency band — micro-variations in upper face tension that contribute to expression authenticity but do not carry emotional valence on their own.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

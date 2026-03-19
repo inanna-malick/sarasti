@@ -1,0 +1,26 @@
+{
+  "component": "beta12",
+  "component_type": "shape",
+  "positive_description": "Subtle jaw and lower face reshaping. The chin becomes slightly more prominent and squared, with the jaw angle becoming marginally more defined. The lower face gains a small amount of vertical depth. The overall effect reads as a slightly stronger, more angular lower face.",
+  "negative_description": "The chin recedes slightly and the jaw angle softens. The lower face becomes marginally rounder and less angular. The jaw line loses some definition, reading as softer and less prominent.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Symmetric. Left and right 3/4 views are consistent. No meaningful lateral asymmetry.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Subtle component. No artifacts visible. Clean geometry throughout. The visual differences are modest — most visible in the chin and jaw angle region when comparing extremes side by side.",
+  "primary_face_region": "lower face — chin prominence, jaw angle, mandibular contour",
+  "useful_for": [
+    "chin shape variation",
+    "jaw angle definition",
+    "subtle lower-face character",
+    "identity noise — safe at any weight in range"
+  ],
+  "interactions": {
+    "beta3": "beta3 controls jaw width more dramatically; beta12 fine-tunes jaw angularity and chin shape",
+    "beta2": "beta2 is the primary chin projection axis; beta12 adds supplementary chin/jaw angle detail"
+  },
+  "current_recipes": [],
+  "prose": "Beta12 is a subtle lower-face detail component that adjusts chin prominence and jaw angularity. Where beta3 dramatically widens or narrows the jaw, beta12 operates at a finer scale, tweaking the angle of the mandible and the forward projection of the chin. Positive values produce a slightly more angular, squared-off jaw with a more prominent chin; negative values soften and round the lower face. The effect is modest even at +/-3.0, making this a safe component for adding individual character to faces. It is bilaterally symmetric and artifact-free. Not currently used in any recipe, but its focus on jaw angularity makes it a potential complement to the dominance axis if more jaw detail variation is desired.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

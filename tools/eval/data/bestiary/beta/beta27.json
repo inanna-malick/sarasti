@@ -1,0 +1,21 @@
+{
+  "component": "beta27",
+  "component_type": "shape",
+  "positive_description": "Very subtle cranial vault modulation. At +3.0 the top of the head may appear very marginally taller or more domed. The face itself — features, proportions, contour — is essentially unchanged. At +1.5, indistinguishable from neutral.",
+  "negative_description": "At -3.0 the cranial vault may appear fractionally flatter or lower. The facial features are unchanged. The effect is at the threshold of visual detection.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Appears symmetric. The effect primarily involves the cranial vault, which is inherently symmetric. No left-right asymmetry detected in the 3/4 views.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. Clean geometry throughout.",
+  "primary_face_region": "cranial vault — top of head",
+  "useful_for": [
+    "skull height variation",
+    "identity differentiation"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta27 appears to modulate the cranial vault — the dome of the skull above the face. At +3.0 the head may be fractionally taller; at -3.0, fractionally flatter. The facial features themselves are unaffected. This is a component that matters for anatomical accuracy in head modeling but has zero utility for expressive face rendering, since the cranial vault sits above the face region where emotional signals are read. The effect is subtle enough that it is difficult to confirm even at +/-3.0, and at the render scales used in the crisis monitor, cranial vault height differences would be completely invisible.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

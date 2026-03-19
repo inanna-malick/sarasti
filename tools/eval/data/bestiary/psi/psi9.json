@@ -1,0 +1,24 @@
+{
+  "component": "psi9",
+  "component_type": "expression",
+  "positive_description": "A warm, broad smile. The cheeks lift, the mouth widens into a natural grin, and the nasolabial folds deepen. At +3.0 the face displays a full, genuine, symmetric smile -- the most natural and balanced smile-producing component in the first ten.",
+  "negative_description": "A subtle frown or grimace. The mouth corners pull down slightly, the cheeks flatten, and the face takes on a mildly displeased or saddened quality. At -3.0 the expression is a clear, symmetric frown -- deflated and unhappy.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Good bilateral symmetry. Left34 and right34 views at +2.0 show a consistent smile on both sides. Slightly less perfect than psi0 or psi4 symmetry scores but well within the range for bilateral expression use.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "At +3.0 the smile is broad but clean -- no mesh distortion. The cheek-puffing that gives this component its FLAME label ('cheek puffer') is visible at extreme positive values as a slight rounding of the cheeks, but this reads naturally. No artifacts at negative values.",
+  "primary_face_region": "lower-face",
+  "useful_for": ["alarm-euphoric", "mood", "smile", "contentment"],
+  "interactions": {
+    "psi7": "psi9 positive (smile) + psi7 positive (happy) creates a deeply euphoric expression with both eye and mouth engagement.",
+    "psi0": "psi9 positive (smile) + psi0 positive (open grin) creates an exaggerated, open-mouthed joy.",
+    "psi11+psi12": "psi9 + psi11/psi12 conjugate pair layers two different smile sources for a rich, complex euphoria."
+  },
+  "current_recipes": [
+    {"axis": "alarm_euphoric", "weight": 2.5, "role": "smile -- reinforces smile character"}
+  ],
+  "prose": "The tenth principal component is the best symmetric smile in the first ten expression PCs. Despite the FLAME label 'cheek puffer,' what psi9 actually produces is a natural, balanced, warm smile that engages the mouth, cheeks, and nasolabial folds in a convincing grin. Its negative pole produces an equally symmetric frown. This is one of the most emotionally legible components: even at moderate weights (+/-1.5), the face clearly reads as smiling or frowning. Psi9 is heavily weighted in the euphoric recipe at 2.5, where it serves as the primary smile driver alongside psi7 (happy eyes) and the psi11+psi12 conjugate pair. The combination of psi9 (mouth smile) + psi7 (eye happiness) produces the layered, authentic-looking euphoria that the alarm axis requires. The component is well-behaved, symmetric, and artifact-free through the tested range.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

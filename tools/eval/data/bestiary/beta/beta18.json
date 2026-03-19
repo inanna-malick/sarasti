@@ -1,0 +1,29 @@
+{
+  "component": "beta18",
+  "component_type": "shape",
+  "positive_description": "Bone structure refinement and facial angularity. The face gains subtle structural definition — cheekbones become slightly more prominent, the brow ridge sharpens marginally, and the overall facial geometry reads as more sculpted and angular. The transition from forehead to brow to eye socket becomes more defined. The chin and jaw gain marginal sharpness.",
+  "negative_description": "Bone structure softening and facial rounding. The cheekbones become less pronounced, the brow ridge softens, and the facial geometry becomes smoother and less angular. The face reads as more padded and less structurally defined, with gentler transitions between facial planes.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. Both 3/4 views are consistent mirror images. No lateral asymmetry.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Subtle but meaningful component, especially at its dominance recipe weight of 3.75 where its contribution becomes visible. No artifacts at any tested value. Clean geometry throughout.",
+  "primary_face_region": "distributed — cheekbone definition, brow ridge sharpness, jaw angularity, overall facial plane transitions",
+  "useful_for": [
+    "facial bone structure definition",
+    "overall angularity vs softness",
+    "dominance axis — primary bone structure refinement for the chad pole",
+    "distinguishing angular/sculpted from soft/rounded faces"
+  ],
+  "interactions": {
+    "beta0": "beta0 adds mass, beta18 adds angularity — a massive-but-angular face vs a massive-but-soft face",
+    "beta13": "beta13 adds midface volume, beta18 refines bone structure — they stack in the dominance recipe for both mass and definition",
+    "beta23": "both contribute bone structure detail to the dominance recipe at similar weights (3.75) — beta18 is more distributed, beta23 may be more localized"
+  },
+  "current_recipes": [
+    "dominance: weight 3.75 — the highest-weighted component alongside beta3 and beta23; provides bone structure angularity to the chad pole, softens structure for soyboi"
+  ],
+  "prose": "Beta18 is a distributed bone structure refinement component that controls the overall angularity and sculptedness of the face. Unlike the lower-order components that each dominate a specific region (jaw, forehead, overall mass), beta18 affects the sharpness of multiple structural transitions simultaneously — cheekbone prominence, brow ridge definition, jaw angularity, and the planes of the face in general. Positive values create a more chiseled, angular appearance; negative values soften everything into rounder, more padded contours. This component carries the highest weight (3.75) in the dominance recipe alongside beta3 and beta23, making it one of the three most important contributors to the soyboi-chad axis. At this weight, its subtle-per-unit effect becomes quite meaningful in aggregate. The component is bilaterally symmetric and produces no artifacts in its tested range.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

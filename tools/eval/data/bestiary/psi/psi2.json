@@ -1,0 +1,23 @@
+{
+  "component": "psi2",
+  "component_type": "expression",
+  "positive_description": "The mouth opens wide with an aggressive, confrontational quality. The jaw drops but the brows lower and the mid-face tenses, creating an expression that reads as shouting, snarling, or demanding. At +3.0 the mouth is wide open in what looks like an angry yell or fierce exclamation.",
+  "negative_description": "The mouth compresses and the face tightens into a flat, tight-lipped expression. At -3.0 the lips are firmly closed with a slight underbite quality and the face reads as closed-off, resolute, or stubbornly silent.",
+  "symmetry_score": 0.90,
+  "symmetry_notes": "Good bilateral symmetry. Left34 and right34 views at +2.0 show consistent open-mouth expression on both sides. Very slight asymmetry in the nasolabial region but negligible.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "At +3.0 the mouth opening is aggressive but geometry holds. No mesh inversion. The aggressive character intensifies sharply past +2.0 -- the jump from +1.5 to +3.0 is dramatic.",
+  "primary_face_region": "lower-face",
+  "useful_for": ["alarm-alarmed", "intensity", "aggression"],
+  "interactions": {
+    "psi8": "psi8 (shocked) + psi2 (open angry mouth) creates a powerful 'stunned outrage' expression.",
+    "psi6": "psi6 negative (surprise) + psi2 positive creates alarmed, open-mouthed shock."
+  },
+  "current_recipes": [
+    {"axis": "alarm_alarmed", "weight": 1.0, "role": "open mouth intensity"}
+  ],
+  "prose": "The third principal component is an intensity amplifier centered on the mouth. Unlike psi0's warm, friendly opening, psi2's positive pole opens the mouth with tension and aggression -- not a smile but a shout. The brows engage, the mid-face tenses, and the overall affect is confrontational or startled-fierce. Negative values clamp the face shut with a resolute, stubborn quality. This component is currently used in the alarm-alarmed recipe to add open-mouth intensity to the startle response. It pairs well with psi8 (shocked) and psi6-negative (surprise) to create layered alarm expressions. The transition from mild to extreme positive values is notably nonlinear -- there is a sharp intensification past +2.0 where the expression snaps from 'surprised' to 'screaming.'",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

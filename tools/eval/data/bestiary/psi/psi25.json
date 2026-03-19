@@ -1,0 +1,22 @@
+{
+  "component": "psi25",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, visually indistinguishable from neutral in all views. If the conjugate pair pattern continues, this could be the left-lateralized member of a sixth pair.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.5,
+  "symmetry_notes": "Indeterminate. Could be asymmetric (sixth pair member) if the pattern continues, but cannot be assessed from renders.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights"
+  ],
+  "interactions": {
+    "psi26": "Possible conjugate pair if the alternating pattern continues"
+  },
+  "current_recipes": [],
+  "prose": "Psi25 is deep in the expression PCA tail. All seven renders are visually identical to neutral. If the conjugate pair architecture persists this deep, psi25 and psi26 would form the sixth asymmetric pair. However, at this PCA depth, the clean architectural organization observed in psi10-20 almost certainly gives way to less structured, increasingly subject-specific residual modes. The component is functionally invisible at any practical expression weight budget.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

@@ -1,0 +1,21 @@
+{
+  "component": "beta26",
+  "component_type": "shape",
+  "positive_description": "Extremely subtle effect. At +3.0 there may be a very marginal change in orbital region or eye socket depth, but the difference from neutral is barely perceptible. The overall face geometry is essentially unchanged across the tested range.",
+  "negative_description": "At -3.0 the opposite pole is equally minimal. Any change appears confined to the periorbital region but is too small to describe with confidence.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Appears symmetric. The 3/4 views show no left-right asymmetry, though precise assessment is limited by the small effect magnitude.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. Negligible vertex displacement.",
+  "primary_face_region": "periorbital — eye socket region (uncertain)",
+  "useful_for": [
+    "identity differentiation",
+    "very fine orbital shape tuning"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta26 produces changes that are at the noise floor of visual detection at +/-3.0. Careful comparison of the extreme renders hints at a possible effect in the orbital or periorbital region, but the magnitude is small enough that this characterization has very low confidence. The renders are essentially identical across the entire range. This component captures real but extremely fine population variation — the kind of subtle eye socket depth or orbital shape difference that makes real human faces unique but is invisible at the scale these crisis monitor faces will be viewed. No utility for expressive recipes.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

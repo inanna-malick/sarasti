@@ -1,0 +1,21 @@
+{
+  "component": "beta29",
+  "component_type": "shape",
+  "positive_description": "Very subtle effect, possibly affecting neck or submental area. At +3.0 the neck region or area under the chin may show a barely perceptible change in thickness or contour. Facial features are unchanged. At +1.5, indistinguishable from neutral.",
+  "negative_description": "At -3.0 the neck or submental region shifts marginally in the opposite direction. The effect is at the threshold of visual detection. Facial features are identical to neutral.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Appears bilaterally symmetric. No left-right asymmetry detected. The 3/4 views show comparable contours on both sides.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. The component is safe at all magnitudes tested. Negligible vertex displacement.",
+  "primary_face_region": "lower face / neck — submental area (uncertain)",
+  "useful_for": [
+    "identity differentiation",
+    "very subtle neck thickness variation"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta29 is the last component in this survey batch and continues the trend of diminishing visual impact seen across the beta20s. The renders from -3.0 to +3.0 are nearly indistinguishable, with any visible differences confined to the lower face or neck region and marginal enough to be uncertain. The component likely captures fine variation in submental (under-chin) or neck morphology from the FLAME training population. At this PCA rank, the explained variance is extremely small, and the component has no utility for expressive face recipes. It could contribute to identity differentiation as part of a multi-component fingerprint, but would produce no perceivable effect at typical recipe weights.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

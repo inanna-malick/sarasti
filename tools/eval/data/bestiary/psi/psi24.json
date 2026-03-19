@@ -1,0 +1,20 @@
+{
+  "component": "psi24",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, visually indistinguishable from neutral in frontal and 3/4 views. If the alternating pattern continues, this would be a symmetric modulator.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.9,
+  "symmetry_notes": "Predicted symmetric based on pattern extrapolation (symmetric components at indices 10, 13, 16, 21, 24...). Cannot be confirmed from renders.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Psi24 is deep in the expression PCA tail. All seven renders are visually identical to the neutral face across the full -3.0 to +3.0 sweep. If the alternating symmetric/asymmetric architecture from the psi10-20 band continues, psi24 would occupy a symmetric modulator slot — but this extrapolation is increasingly uncertain. At this PCA depth, components likely capture subject-specific residuals from the FLAME training set rather than universal expression modes. The component is functionally inert at any practical expression weight budget.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

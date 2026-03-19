@@ -1,0 +1,25 @@
+{
+  "component": "psi16",
+  "component_type": "expression",
+  "positive_description": "Subtle jaw and lower face adjustment — a very mild forward projection of the chin and slight compression of the lower lip region. The mentalis area tightens. The overall effect is a barely-perceptible jutting or firming of the lower face, giving a quality of quiet determination or stubbornness.",
+  "negative_description": "Subtle chin retraction and lower lip relaxation. The mentalis area softens and the chin pulls slightly backward. The lower face takes on a marginally weaker, more receding quality.",
+  "symmetry_score": 0.93,
+  "symmetry_notes": "Appears bilaterally symmetric. The 3/4 views show consistent deformation on both sides. No detectable left-right asymmetry.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Very subtle component. Generous safe range.",
+  "primary_face_region": "chin, mentalis, lower lip area, jaw",
+  "useful_for": [
+    "jaw/chin character adjustment",
+    "determination/weakness nuance",
+    "lower face tone modulation"
+  ],
+  "interactions": {
+    "psi0": "psi0 drives jaw drop with smile character; psi16 adjusts chin projection without opening the mouth",
+    "psi4": "psi4 modulates lip pucker/engagement; psi16 operates on the chin/mentalis below the lips"
+  },
+  "current_recipes": [],
+  "prose": "Psi16 is a symmetric lower-face modulator centered on the chin and mentalis region. Its positive pole pushes the chin subtly forward and tightens the mentalis, creating a quality of quiet determination — the jaw firms, the lower face becomes slightly more assertive. Its negative pole does the opposite: the chin recedes marginally and the lower face softens into a weaker posture. This component occupies a functional niche distinct from the primary lower-face drivers (psi0 for jaw drop, psi4 for lip engagement) — it adjusts the structural character of the chin rather than the mouth's expression. At the tested weights, the effects are subtle enough to serve as tonal seasoning rather than expression drivers.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

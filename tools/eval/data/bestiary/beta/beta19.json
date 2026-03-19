@@ -1,0 +1,29 @@
+{
+  "component": "beta19",
+  "component_type": "shape",
+  "positive_description": "Subtle chin retraction and lower face softening. The chin pulls back marginally and the lower face becomes slightly less projected. The jawline softens in the anterior direction, creating a face that reads as marginally more recessed in the chin region. The profile becomes slightly flatter below the mouth.",
+  "negative_description": "Subtle chin projection and lower face extension. The chin pushes forward marginally, the lower face gains slight forward projection, and the jawline becomes more anteriorly prominent. The profile becomes slightly more jutting below the mouth.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. Left and right 3/4 views are consistent. No lateral asymmetry.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Subtle component. No artifacts at any tested value. The visual difference is most visible in the 3/4 views where chin projection is more apparent. Frontal view shows minimal change.",
+  "primary_face_region": "lower face — chin projection (anterior-posterior), lower jaw profile",
+  "useful_for": [
+    "chin projection/retraction",
+    "lower face profile adjustment",
+    "dominance axis — inverted to contribute jutting chin to chad pole",
+    "profile silhouette variation"
+  ],
+  "interactions": {
+    "beta2": "beta2 is the primary chin projection axis; beta19 provides supplementary anterior-posterior chin adjustment",
+    "beta12": "beta12 adjusts chin shape/angularity; beta19 adjusts chin depth — complementary dimensions",
+    "beta3": "beta3 widens the jaw laterally; beta19 projects the chin anteriorly (when negative) — orthogonal jaw modifications"
+  },
+  "current_recipes": [
+    "dominance: weight -1.9 (INVERTED) — negative weight means positive dominance pushes beta19 negative (jutting chin), negative dominance pushes beta19 positive (recessed chin). The inversion is deliberate: the component's negative pole provides the forward chin projection desired for the chad pole."
+  ],
+  "prose": "Beta19 is a chin projection component that adjusts the anterior-posterior position of the chin and lower jaw. Its negative pole pushes the chin forward, creating a more jutting, prominent profile; its positive pole retracts the chin, creating a more recessed lower face. In the dominance recipe, it is used with an inverted weight of -1.9, which means the chad pole (positive dominance) drives beta19 negative (jutting chin) while the soyboi pole drives it positive (recessed chin). This inversion is the only one in the dominance recipe and is deliberate — the component's natural negative pole aligns with the forward-chin quality desired for dominant faces. The effect is most visible in the 3/4 views where the chin profile is prominent. The component is bilaterally symmetric and artifact-free throughout its tested range.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

@@ -1,0 +1,28 @@
+{
+  "component": "beta1",
+  "component_type": "shape",
+  "positive_description": "Vertical face elongation and narrowing: taller forehead, longer midface, more elongated skull profile, narrower jaw. The face stretches vertically while compressing horizontally, producing a lean, tall-faced individual. Chin becomes more pointed and prominent.",
+  "negative_description": "Vertical face compression and broadening: shorter forehead, wider and rounder face, broader jaw, more compact skull. The face squashes vertically and expands laterally, creating a round, wide-faced appearance. Chin recedes and shortens.",
+  "symmetry_score": 0.97,
+  "symmetry_notes": "Highly symmetric — vertical elongation/compression applies evenly to both sides. Left and right 3/4 views match well.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean throughout the tested range. At +3.0 the face looks unusually elongated but geometry is intact. At -3.0 the face is quite compressed/round but no mesh issues. Robust component.",
+  "primary_face_region": "global — primarily forehead height, midface length, jaw height, and cranial aspect ratio",
+  "useful_for": [
+    "face aspect ratio (tall/narrow vs short/wide)",
+    "perceived age — elongation reads as more mature",
+    "stature axis — lean vs stocky build",
+    "distinguishing face proportions within a mass class"
+  ],
+  "interactions": {
+    "beta0": "beta0 adds mass, beta1 stretches vertically — they are somewhat orthogonal and combine naturally for tall-heavy or short-light faces",
+    "beta5": "both affect vertical proportions — beta1 is global elongation while beta5 is more localized"
+  },
+  "current_recipes": [
+    "stature: weight listed in SHAPE_AXES definition (component 1 in stature axis per CLAUDE.md)"
+  ],
+  "prose": "Beta1 is the second principal component and controls the vertical aspect ratio of the face. Where beta0 scales everything, beta1 stretches vertically while mildly compressing horizontally — or vice versa for negative values. Positive beta1 produces a face that is taller than it is wide: the forehead grows, the midface lengthens, the chin drops and sharpens, and the overall silhouette becomes an elongated oval. Negative beta1 compresses the face into a rounder, wider shape — shorter forehead, broader cheeks, receding chin, almost moon-faced at extremes. The effect is quite visible in the frontal progression from -3.0 to +3.0, where the face transitions from compact and round to tall and narrow. The 3/4 views at +2.0 show the elongated profile clearly — the skull is taller from crown to chin. This is a clean, symmetric, well-behaved component that extrapolates smoothly.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

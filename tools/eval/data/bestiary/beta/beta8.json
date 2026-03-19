@@ -1,0 +1,29 @@
+{
+  "component": "beta8",
+  "component_type": "shape",
+  "positive_description": "Neck and lower jaw thickening with slight chin advancement: the neck column widens, the under-chin area fills, and the lower mandible gains mass. The neck-to-jaw transition becomes thicker and more filled. The chin may project slightly further forward. Overall, the lower head and neck become more robust.",
+  "negative_description": "Neck and lower jaw thinning with slight chin recession: the neck column narrows, the under-chin area thins, and the lower mandible loses mass. The neck-to-jaw transition becomes more defined (less filled). The chin may recede slightly. The lower head reads as more slender and defined.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Symmetric — neck and lower jaw changes are bilaterally even. The 3/4 views confirm symmetric neck development.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. The neck region has relatively simple geometry and extrapolates well. No mesh issues at any value. The changes are subtle and concentrated below the mouth — easy to miss without careful comparison.",
+  "primary_face_region": "lower face and neck — under-chin, submental area, neck column, lower mandible",
+  "useful_for": [
+    "neck thickness",
+    "under-chin fullness",
+    "chin projection",
+    "perceived physical robustness via neck mass",
+    "weight/body composition signaling"
+  ],
+  "interactions": {
+    "beta0": "beta0 thickens everything including the neck, beta8 specifically targets the neck/under-chin region — beta8 allows independent neck mass control",
+    "beta3": "beta3 sharpens the jaw angle, beta8 fills the area underneath — they can work in opposition (sharp jaw but thick neck) or concert"
+  },
+  "current_recipes": [
+    "stature: listed in CLAUDE.md stature axis (component 8)"
+  ],
+  "prose": "Beta8 is a lower-face and neck component, targeting the area from the chin down to the base of the neck. Positive values thicken the neck column, fill the submental area (under the chin), and add mass to the lower mandible — the overall impression is of a thicker, more robust neck-jaw junction. Negative values thin the neck, hollow out the under-chin area, and create a more slender lower head profile. This is one of the subtler components — the changes are concentrated in a region that is often partially occluded by the jaw in frontal views and is most visible in the 3/4 profiles where the neck-to-chin transition is apparent. In the context of the stature axis, positive beta8 contributes to a heavier/stockier build while negative contributes to a leaner/more gaunt profile. The component does not carry much dominance semantic weight on its own (a thick neck can read as powerful OR simply heavy), which explains its placement in stature rather than dominance.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

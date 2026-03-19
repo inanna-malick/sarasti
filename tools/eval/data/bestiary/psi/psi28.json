@@ -1,0 +1,20 @@
+{
+  "component": "psi28",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, visually indistinguishable from neutral in all views.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.5,
+  "symmetry_notes": "Indeterminate. Cannot be assessed from renders at these weights.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Psi28 is deep in the expression PCA tail. All seven renders are visually indistinguishable from the neutral face across the full weight sweep and in both 3/4 profile views. The component captures a vanishingly small fraction of training-set expression variance. At standard render conditions and practical weight magnitudes, it produces no detectable visual change. It is functionally inert for any expression recipe operating within the safe magnitude budget.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

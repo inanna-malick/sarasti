@@ -1,0 +1,23 @@
+{
+  "component": "psi6",
+  "component_type": "expression",
+  "positive_description": "The face hardens into anger or stern displeasure. The brows lower, the jaw tightens, and the mouth compresses with a downward-pulling tension. At +3.0 the expression is an angry glare -- confrontational, hostile, and assertive.",
+  "negative_description": "The face opens into surprise or startlement. The brows rise, the eyes widen, the mouth drops open slightly, and the overall expression reads as caught off guard. At -3.0 the face is in open-mouthed astonishment.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Strong bilateral symmetry. Left34 and right34 views at +2.0 show consistent expression. Both surprise and anger are symmetric states.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "At -3.0 (surprise), the mouth opens and the eyes widen noticeably but geometry remains clean. At +3.0 (anger), the brow compression and jaw tightening are dramatic but artifact-free. Well-behaved component.",
+  "primary_face_region": "upper-face",
+  "useful_for": ["alarm-alarmed", "surprise", "anger", "confrontation"],
+  "interactions": {
+    "psi8": "psi6 negative (surprise) + psi8 positive (shocked) creates the full alarm-alarmed startle response.",
+    "psi2": "psi6 negative (surprise) + psi2 positive (open mouth) amplifies the startled-mouth-open look."
+  },
+  "current_recipes": [
+    {"axis": "alarm_alarmed", "weight": -1.5, "role": "surprise (negative = surprise, not angry)"}
+  ],
+  "prose": "The seventh principal component spans a surprise-to-anger axis. This is a polarity-reversed component relative to naive expectations: negative values produce surprise (brows up, eyes wide, mouth dropping) while positive values produce anger (brows down, jaw clenching, hostile glare). The FLAME label 'lower lip depressor' is particularly misleading here -- this component is fundamentally an upper-face driver, centered on the brow-eye complex. Its surprise pole (negative) is currently used in the alarm-alarmed recipe, where it combines with psi8 (shocked) and psi2 (open mouth) to produce the full startle response. Its anger pole (positive) is currently unused but could serve confrontational or aggressive expression states. The component is well-behaved with clean geometry through the full tested range.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

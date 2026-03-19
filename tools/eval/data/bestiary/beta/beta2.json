@@ -1,0 +1,29 @@
+{
+  "component": "beta2",
+  "component_type": "shape",
+  "positive_description": "Mid-face widening and nose broadening: the cheeks push out laterally, nose widens at the bridge and alar base, midface gains mass. The face becomes broader across the cheekbone region specifically, with a wider, flatter nasal structure. Orbital area appears slightly wider-set.",
+  "negative_description": "Mid-face narrowing and nose thinning: the cheeks pull inward, nose narrows at the bridge, midface loses lateral mass. The face becomes more pinched through the cheekbone region, with a narrower, more projecting nasal profile. Features cluster closer to the midline.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Symmetric — midface widening applies evenly. Left and right 3/4 views at +2.0 are consistent mirrors. No lateral bias detected.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean throughout -3.0 to +3.0. At extreme positive the midface gets quite flat and wide but no geometry breakdown. At extreme negative the face becomes pinched but holds together. The 3/4 views at +2.0 show some subtle variation in how the nose bridge renders laterally but nothing problematic.",
+  "primary_face_region": "midface — cheekbones, nose, orbital spacing",
+  "useful_for": [
+    "cheekbone prominence and width",
+    "nasal bridge width",
+    "midface mass",
+    "ethnic/population variation in facial structure",
+    "dominance/robustness signaling via wide cheekbones"
+  ],
+  "interactions": {
+    "beta0": "both widen the face — beta0 globally, beta2 concentrated on midface. Stacking both positive creates an extremely wide face",
+    "beta4": "beta4 also affects nose shape — combining allows separate control of upper vs lower nose geometry"
+  },
+  "current_recipes": [
+    "dominance: weight 2.5 — adds midface width and cheekbone mass to the chad pole"
+  ],
+  "prose": "Beta2 is the third principal component and targets the midface specifically — the band from cheekbone to cheekbone, running through the nose. Positive values push the cheeks outward, widen the nasal bridge and alar base, and create a broader, flatter midface with wider-set orbital margins. The effect is concentrated between the brow and upper lip, leaving the forehead and chin relatively untouched. Negative values pull everything inward toward the midline, narrowing the nose, flattening the cheekbones, and creating a more pinched, narrow midface. In the frontal progression the change is clearly visible — at +3.0 the face looks broad and flat through the middle, while at -3.0 it is noticeably narrow and pinched. The 3/4 views confirm the width change is skeletal, with the cheekbone projection clearly varying. This component is a reliable midface width control with clean geometry throughout the tested range.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

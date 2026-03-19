@@ -1,0 +1,24 @@
+{
+  "component": "psi4",
+  "component_type": "expression",
+  "positive_description": "The face tightens into engaged focus. The lips press together with purpose, the eyes narrow slightly with concentration, and the overall expression reads as locked-in and attentive. At +3.0 the face is intensely focused -- someone concentrating hard on a task or problem.",
+  "negative_description": "The face slackens into disengaged boredom. The mouth relaxes, eyes defocus, and the overall expression reads as vacant and uninterested. At -3.0 the face is checked out -- someone who has completely lost interest and is barely present.",
+  "symmetry_score": 0.97,
+  "symmetry_notes": "Excellent bilateral symmetry. Left34 and right34 views at +2.0 are near-perfect mirror images. One of the most symmetric components.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Extremely clean component. Both poles produce subtle but readable expressions without any mesh distortion. The effect is more about muscle tone than dramatic geometry changes, making artifacts unlikely even at extreme values.",
+  "primary_face_region": "whole-face",
+  "useful_for": ["fatigue-wired", "fatigue-exhausted", "engagement", "attention"],
+  "interactions": {
+    "psi3": "psi4 positive (engagement) + psi3 positive (curiosity) creates an intensely focused, analytical scanning look.",
+    "psi7": "psi4 negative (boredom) + psi7 negative (disappointed) creates deep, checked-out exhaustion."
+  },
+  "current_recipes": [
+    {"axis": "fatigue_wired", "weight": 1.2, "role": "engagement -- locked in, wired"},
+    {"axis": "fatigue_exhausted", "weight": -1.5, "role": "boredom -- shutdown, vacant"}
+  ],
+  "prose": "The fifth principal component controls an engagement-to-boredom gradient that operates across the whole face. Unlike components that primarily move the mouth or brows, psi4 modulates facial muscle tone as a gestalt: positive values tighten everything into focused attention, negative values let everything sag into vacancy. The effect is subtle compared to the dramatic mouth-opening of psi0 or psi2, but it is highly readable at a glance -- you can tell whether the face is 'paying attention' or 'checked out.' This subtlety makes it an excellent supporting component in recipes, where it modulates the energy level without competing with more dramatic shape-changers. It is currently used on both poles of the fatigue axis: positive for wired engagement, negative for exhausted vacancy.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

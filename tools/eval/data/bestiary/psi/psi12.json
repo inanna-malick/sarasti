@@ -1,0 +1,32 @@
+{
+  "component": "psi12",
+  "component_type": "expression",
+  "positive_description": "Right-lateralized mouth corner lift and cheek bunching. At positive values, the right side of the mouth pulls upward and outward while the left side stays relatively neutral. The effect is a right-sided smirk or half-smile. Subtle right-side nasolabial deepening accompanies the mouth movement.",
+  "negative_description": "Right-lateralized mouth corner depression. The right mouth corner pulls slightly downward, creating a subtle asymmetric downturn. The right cheek flattens while the left side remains neutral.",
+  "symmetry_score": 0.3,
+  "symmetry_notes": "Strongly asymmetric — this is the right-side member of the psi11/psi12 conjugate pair. The deformation is lateralized to the right side of the face. The 3/4 views confirm: the right34 view shows more pronounced cheek/mouth movement than the left34 view.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "No visible mesh artifacts at +/-3.0. Clean asymmetric deformation. Safe at normal weights.",
+  "primary_face_region": "right mouth corner, right cheek, right nasolabial fold",
+  "useful_for": [
+    "bilateral smile (as conjugate pair with psi11)",
+    "asymmetric right-sided smirk (solo)",
+    "right-sided emotional expression"
+  ],
+  "interactions": {
+    "psi11": "CONJUGATE PAIR. psi12+psi11 at equal weights produces bilateral smile. This is the primary smile mechanism used in current recipes.",
+    "psi9": "psi9 provides a symmetric full-face smile; the psi11+psi12 pair adds a different, more mouth-focused smile character",
+    "psi1": "psi1 is also asymmetric but as a primary component has much larger deformation per unit weight"
+  },
+  "current_recipes": [
+    {
+      "recipe": "ALARM_EUPHORIC_RECIPE",
+      "weight": 2.5,
+      "role": "Right mouth corner lift — half of the bilateral knowing smirk"
+    }
+  ],
+  "prose": "Psi12 is the right-handed member of the psi11/psi12 conjugate pair. It mirrors psi11 exactly but lateralized to the right side of the face. Applied alone, it produces a right-sided half-smile — the right mouth corner lifts while the left stays neutral. Paired with psi11 at matching weight, it completes the bilateral smile that serves as the primary smile driver in the euphoric expression recipe. The deformation is subtle but clearly lateralized in the 3/4 views, with the right34 view showing more prominent cheek and mouth movement. As with psi11, it operates in the mid-frequency PCA band with smaller per-unit deformations than the primary components.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

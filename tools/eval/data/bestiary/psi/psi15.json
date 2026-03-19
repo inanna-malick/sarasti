@@ -1,0 +1,26 @@
+{
+  "component": "psi15",
+  "component_type": "expression",
+  "positive_description": "Right-lateralized upper face movement — subtle right brow lift and right periorbital widening. The right side of the upper face opens slightly while the left remains comparatively neutral. Creates a mild right-biased quizzical or skeptical look.",
+  "negative_description": "Right-lateralized upper face depression — the right brow area lowers subtly and the right periorbital region narrows. A very mild right-sided furrowing or closing quality.",
+  "symmetry_score": 0.4,
+  "symmetry_notes": "Asymmetric — this is the right-sided member of the psi14/psi15 conjugate pair. Mirrors psi14 across the sagittal plane. The 3/4 views show right-side bias in the deformation.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Very subtle deformation. Safe at higher weights than primary components.",
+  "primary_face_region": "right brow, right periorbital area, right upper face",
+  "useful_for": [
+    "bilateral brow expression (as conjugate pair with psi14)",
+    "asymmetric skeptical/quizzical look (solo)",
+    "right-sided upper face nuance"
+  ],
+  "interactions": {
+    "psi14": "CONJUGATE PAIR. psi15+psi14 at equal weights produces bilateral brow/upper face expression.",
+    "psi2": "psi2 drives dramatic upper face changes symmetrically; psi15 provides fine asymmetric control",
+    "psi12": "Same conjugate architecture — psi11/12 for mouth, psi14/15 for brow region"
+  },
+  "current_recipes": [],
+  "prose": "Psi15 is the right-handed mirror of psi14 — the second member of the psi14/psi15 conjugate pair. Everything about psi14 applies here in mirror: the deformation is lateralized to the right side of the upper face. At positive values, the right brow lifts subtly and the right eye area widens. At negative values, the right upper face narrows. Paired with psi14 at equal weight, the two produce bilateral brow expression. Not currently deployed in any recipe, but available for nuance layering in the upper face.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low-medium"
+}

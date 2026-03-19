@@ -1,0 +1,24 @@
+{
+  "component": "psi0",
+  "component_type": "expression",
+  "positive_description": "Mouth opens and widens into a broad, slightly dopey grin. The jaw drops, cheeks pull laterally, and the nasolabial folds deepen. At +3.0 the mouth is wide open with a loose, affable smile character -- the face of someone who just heard unexpectedly good news.",
+  "negative_description": "Lips compress and purse inward. The mouth tightens into a small, pinched shape. At -3.0 the lips are pressed firmly together in a tight rosebud, giving a prim, disapproving, or contemplative look. The overall face reads as clenched and withholding.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Highly symmetric. Left34 and right34 views at +2.0 show near-identical mouth and cheek displacement. No meaningful left-right bias.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through the tested range. At +3.0 the mouth opening is very wide but geometry remains intact. Lip thinning at negative extremes but no mesh inversion visible.",
+  "primary_face_region": "lower-face",
+  "useful_for": ["mood", "alarm-euphoric", "fatigue-exhausted"],
+  "interactions": {
+    "psi9": "Both drive smile-like expressions; combining them creates an exaggerated grin.",
+    "psi4": "psi4 positive (engagement) + psi0 positive creates animated, open-mouthed enthusiasm."
+  },
+  "current_recipes": [
+    {"axis": "alarm_euphoric", "weight": 0.75, "role": "light smile contribution"},
+    {"axis": "fatigue_exhausted", "weight": 0.4, "role": "slack, dopey mouth"}
+  ],
+  "prose": "The first principal component of FLAME expression is fundamentally about mouth aperture and valence. It is a whole-face gesture more than a jaw hinge: positive values produce a broad, warm, slightly goofy smile with the mouth falling open and cheeks widening, while negative values compress the lips into a tight, withheld pucker. The transition through zero is smooth and linear. This is one of the most robust and artifact-free components in the entire expression space, making it a reliable workhorse for any recipe that needs to modulate mouth openness or add a baseline smile-to-purse continuum.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

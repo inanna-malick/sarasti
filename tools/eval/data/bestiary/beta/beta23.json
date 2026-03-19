@@ -1,0 +1,28 @@
+{
+  "component": "beta23",
+  "component_type": "shape",
+  "positive_description": "Subtle chin and lower jaw refinement. At +3.0 the chin appears very slightly more pointed or projected, and the jawline contour may sharpen marginally. The overall lower face reads as fractionally more angular. The effect at +1.5 is near the threshold of detection.",
+  "negative_description": "At -3.0 the chin becomes very slightly more recessed or rounded, and the jawline softens by a marginal amount. The face reads as fractionally less angular in the lower third. At -1.5, the change is barely detectable.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Appears bilaterally symmetric. The 3/4 views show comparable changes on both sides. No left-right asymmetry detected.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. The vertex displacements are too small to cause geometry issues even at extreme coefficients.",
+  "primary_face_region": "lower face — chin and jawline",
+  "useful_for": [
+    "chin projection/recession fine-tuning",
+    "jawline angularity refinement",
+    "bone structure detail in dominance axis",
+    "identity differentiation"
+  ],
+  "interactions": {
+    "beta2": "beta2 provides primary chin projection; beta23 adds fine detail on top of that foundation",
+    "beta3": "beta3 controls jaw width broadly; beta23 refines the chin/jaw contour"
+  },
+  "current_recipes": [
+    {"axis": "dominance", "weight": 3.75, "role": "bone structure detail — adds angular chin refinement to the chad pole"}
+  ],
+  "prose": "Beta23 is used in the dominance recipe at a high weight of 3.75, where it contributes 'bone structure detail' to the chad pole. In isolation at these render magnitudes, its visual effect is subtle — a very slight sharpening or softening of the chin and jawline contour. The renders from -3.0 to +3.0 show differences that are real but marginal, concentrated in the lower face. The reason it works in the dominance recipe despite its subtlety in isolation is that it operates additively with the other dominance components (beta0, beta2, beta3, beta4, beta7, beta13, beta18, beta48), each contributing a small piece of the overall structural transformation. At its recipe weight of 3.75 multiplied by typical dominance activation values, it adds a fine angular refinement to the chin and jaw that helps sell the 'defined bone structure' read of the chad pole.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

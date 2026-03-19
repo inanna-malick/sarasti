@@ -1,0 +1,21 @@
+{
+  "component": "beta28",
+  "component_type": "shape",
+  "positive_description": "Extremely subtle effect, possibly affecting nasolabial or philtrum area. At +3.0 the midface below the nose may show a barely perceptible change in contour. The rest of the face is unchanged. At +1.5, identical to neutral.",
+  "negative_description": "At -3.0 the opposite pole shows an equally minimal change in the nose-to-lip region. The effect is below the threshold of reliable visual detection at these magnitudes.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Appears symmetric. No left-right asymmetry detected, though the effect is too small for reliable assessment.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. Negligible vertex displacement.",
+  "primary_face_region": "midface — nasolabial/philtrum area (uncertain)",
+  "useful_for": [
+    "identity differentiation",
+    "very fine nasolabial contour tuning"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta28 is another very low-variance component whose visual effect at +/-3.0 is at or below the detection threshold. Careful side-by-side comparison of the extreme renders hints at a possible change in the nasolabial or philtrum region — the area between the nose and upper lip — but the magnitude is too small to characterize with any certainty. The renders are functionally identical across the entire tested range. This component captures real population variation in a facial region that is anatomically distinctive (philtrum shape varies significantly across individuals) but at this PCA rank the captured variance is too small to produce visible effects at practical magnitudes.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

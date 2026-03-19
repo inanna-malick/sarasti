@@ -1,0 +1,25 @@
+{
+  "component": "beta14",
+  "component_type": "shape",
+  "positive_description": "Subtle nose and philtrum region reshaping. The nose lengthens slightly and the nasal tip becomes marginally more projected. The philtrum area between nose and upper lip adjusts subtly. The upper lip may thin slightly. The overall effect is a minor vertical redistribution of material in the central lower-midface.",
+  "negative_description": "The nose shortens slightly, the nasal tip retracts marginally. The philtrum compresses. The upper lip becomes slightly fuller. The central lower-midface compacts vertically.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. No lateral bias visible in 3/4 views.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Very subtle component. No artifacts at any value. The visual change between -3.0 and +3.0 is barely perceptible without side-by-side comparison. This is a fine-detail parameter.",
+  "primary_face_region": "central lower-midface — nose length, philtrum, nasal tip projection",
+  "useful_for": [
+    "nose length variation",
+    "subtle philtrum reshaping",
+    "identity noise — extremely safe",
+    "adding individual nasal character"
+  ],
+  "interactions": {
+    "beta10": "beta10 affects nasal bridge width; beta14 affects nose length/projection — orthogonal aspects of nasal shape"
+  },
+  "current_recipes": [],
+  "prose": "Beta14 is a fine-detail nose and philtrum component that makes subtle adjustments to nose length, nasal tip projection, and the vertical proportions of the central lower-midface. The visual effect is quite modest even at extreme values — this is deep in the PCA tail where each component captures progressively less population variance. Positive values elongate the nose slightly and project the tip forward; negative values shorten and retract it. The component is bilaterally symmetric and artifact-free. It is not used in any current recipe but could contribute to identity-level nose variation if per-ticker facial character is desired.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

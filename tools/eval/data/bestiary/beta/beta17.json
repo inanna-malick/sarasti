@@ -1,0 +1,26 @@
+{
+  "component": "beta17",
+  "component_type": "shape",
+  "positive_description": "Subtle periorbital and upper-midface reshaping. The eye sockets adjust marginally — the orbital ridges may become slightly more pronounced and the inter-ocular distance shifts subtly. The upper cheek region fills out slightly. The overall effect is a minor reorganization of the eye-socket-to-cheek transition zone.",
+  "negative_description": "The eye socket region flattens subtly, the orbital ridges soften, and the upper cheek area becomes marginally more concave. The eye-to-cheek transition becomes slightly less defined.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Symmetric. Both 3/4 views are consistent. No meaningful lateral asymmetry.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Very subtle component. No artifacts at any tested value. Minimal visual impact even at extremes. This is a fine-detail parameter deep in the PCA hierarchy.",
+  "primary_face_region": "periorbital region — eye socket shape, orbital ridge, upper cheek transition",
+  "useful_for": [
+    "subtle eye socket variation",
+    "orbital ridge prominence",
+    "upper cheek definition",
+    "identity noise — very safe"
+  ],
+  "interactions": {
+    "beta4": "beta4 is the primary brow ridge axis; beta17 provides finer periorbital detail",
+    "beta7": "beta7 affects broader mid-face width; beta17 is more focused on the eye socket region"
+  },
+  "current_recipes": [],
+  "prose": "Beta17 is a fine-detail periorbital component that adjusts the shape of the eye socket region, the prominence of the orbital ridges, and the transition zone between the eyes and the upper cheeks. The visual effect is quite subtle even at extreme values — this is a high-order PCA component capturing minor population variance in eye-socket morphology. Positive values create slightly more defined orbital ridges and fuller upper cheeks; negative values flatten and soften this region. The component is bilaterally symmetric and artifact-free. It is not used in any current recipe but could contribute to identity-level variation in the eye region if per-ticker facial character is desired.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

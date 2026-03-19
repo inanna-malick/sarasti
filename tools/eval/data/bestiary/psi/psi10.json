@@ -1,0 +1,25 @@
+{
+  "component": "psi10",
+  "component_type": "expression",
+  "positive_description": "Subtle mid-face tightening with slight nasolabial deepening and very mild brow tension. The overall impression shifts toward a contained, controlled expression — not quite a grimace but a tightening of the face around the nose-to-mouth corridor. Cheeks flatten slightly.",
+  "negative_description": "Mild facial softening and relaxation. The nasolabial folds ease, the mid-face broadens subtly. The overall effect is a slightly more open, slack quality to the face — less muscular tension across the mid-face.",
+  "symmetry_score": 0.92,
+  "symmetry_notes": "Appears bilaterally symmetric. The 3/4 views show consistent deformation on both sides. No visible left-right asymmetry at +2.0.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Very subtle component at the tested range. No visible mesh artifacts at +/-3.0. Safe to extrapolate further than the primary components. Being the 11th PCA component (0-indexed), it captures less variance and produces smaller deformations per unit weight.",
+  "primary_face_region": "mid-face, nasolabial area",
+  "useful_for": [
+    "subtle tension modulation",
+    "nuance layering on top of primary expressions",
+    "fine-grained mid-face character"
+  ],
+  "interactions": {
+    "psi3": "Both affect mid-face; psi10 adds subtle tonal tension while psi3 drives the brow furrow/curiosity axis more dramatically",
+    "psi8": "psi8 drives whole-face shock; psi10 could provide subtle mid-face tension underpinning"
+  },
+  "current_recipes": [],
+  "prose": "Psi10 is the first component beyond the primary expression battery, and it shows. The deformations are subtle — a tightening or loosening of the mid-face corridor from nose to mouth. In positive values, the face takes on a quality of held-back tension, as if bracing against something. Negative values release that brace into a slackness. This is a modulation component, not a driver: it adds tonal nuance rather than carrying an expression on its own. At the ranges tested (-3 to +3), the visual delta from neutral is small but discernible in direct A/B comparison.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

@@ -1,0 +1,20 @@
+{
+  "component": "psi27",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, visually indistinguishable from neutral in all views.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.5,
+  "symmetry_notes": "Indeterminate. Cannot be assessed from renders at these weights.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Psi27 is deep in the expression PCA tail. All seven renders are visually indistinguishable from the neutral face. At this point in the PCA ordering, the component captures a minuscule fraction of training-set expression variance. The deformation is sub-pixel at standard render conditions, making visual characterization impossible. Whatever micro-expression or subject-specific residual this component encodes, it is functionally inert for Sarasti's crisis-to-face mapping.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

@@ -1,0 +1,29 @@
+{
+  "component": "beta6",
+  "component_type": "shape",
+  "positive_description": "Cranial vault height and forehead expansion: the top of the skull rises, the forehead becomes taller and more domed. The cranial vault gains height without proportional widening, creating a taller head overall with a more prominent, rounded forehead. The hairline effectively moves upward.",
+  "negative_description": "Cranial vault flattening and forehead compression: the top of the skull lowers, the forehead becomes shorter and flatter. The head appears lower and more compact from crown to brow. The cranial vault loses its dome, creating a flatter top-of-head silhouette.",
+  "symmetry_score": 0.97,
+  "symmetry_notes": "Highly symmetric — cranial vault changes are bilaterally even by nature. The 3/4 views confirm even cranial development on both sides.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. This is a subtle component — the cranial vault changes are most visible in the overall head silhouette rather than in facial feature details. The 3/4 views help show the profile change. No mesh artifacts at any value.",
+  "primary_face_region": "cranial vault — top of skull, forehead height, overall head height",
+  "useful_for": [
+    "cranial vault height",
+    "forehead dome vs. flat",
+    "overall head silhouette",
+    "perceived cranial capacity",
+    "fine-tuning head proportions"
+  ],
+  "interactions": {
+    "beta1": "beta1 stretches the face vertically (including jaw), beta6 specifically raises the cranial vault — combining allows independent control of face length vs. cranial height",
+    "beta4": "beta4 affects forehead slope/brow, beta6 affects forehead height — they target different aspects of the same region"
+  },
+  "current_recipes": [
+    "stature: listed in CLAUDE.md stature axis (component 6)"
+  ],
+  "prose": "Beta6 targets the cranial vault — the dome of the skull above the brow line. Positive values raise the vault, making the forehead taller and more domed, increasing the overall height of the head from brow to crown. Negative values flatten the vault, compressing the cranial dome and creating a lower, more compact head silhouette. This is a subtle component with effects concentrated at the top of the head rather than in the facial features themselves — the nose, mouth, jaw, and eyes are relatively unaffected. The change is most visible in the overall head outline: a rounder, taller silhouette at positive values versus a flatter, squatter one at negative. The 3/4 profile views help reveal the cranial height change. Within the stature axis, this component contributes to the distinction between a tall/gaunt head (high vault) and a compact/heavy one (low vault), which is a sensible application given its anatomical focus.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

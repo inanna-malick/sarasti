@@ -1,0 +1,24 @@
+{
+  "component": "psi8",
+  "component_type": "expression",
+  "positive_description": "The face snaps into a startled, shocked expression. The eyes widen dramatically, the brows shoot up, and the whole face opens with a 'what just happened?' quality. At +3.0 the expression is full-blown shock -- frozen in a moment of acute surprise with wide staring eyes.",
+  "negative_description": "The face flattens into a dull, understimulated blankness. The eyes narrow slightly, the brows settle, and the face loses all alertness. At -3.0 the expression reads as bored, flat, and emotionally blank -- someone staring at nothing.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Good bilateral symmetry. Left34 and right34 views at +2.0 show consistent eye-widening and brow-raising on both sides. Very slight asymmetry in brow region but well within acceptable range.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "At +3.0 the eye-widening is dramatic but clean. At extreme positive values the upper eyelid lifts aggressively, and past +4.0 there may be risk of eyelid geometry stretching. Negative values are very safe -- the flattening effect is subtle.",
+  "primary_face_region": "upper-face",
+  "useful_for": ["alarm-alarmed", "shock", "surprise", "startle"],
+  "interactions": {
+    "psi6": "psi8 positive (shocked) + psi6 negative (surprise) creates the full startle alarm response.",
+    "psi2": "psi8 positive (shocked) + psi2 positive (open mouth) creates screaming shock."
+  },
+  "current_recipes": [
+    {"axis": "alarm_alarmed", "weight": 2.0, "role": "shocked (PRIMARY -- whole-face startle)"},
+    {"axis": "fatigue_wired", "weight": 0.6, "role": "slightly shocked -- alert edge"}
+  ],
+  "prose": "The ninth principal component is the startle reflex of the FLAME expression space. At its positive pole, psi8 produces the widest, most dramatic eye-opening in the first ten components -- a frozen moment of shock where the brows shoot up, the eyes fly open, and the face radiates 'something just happened.' At its negative pole, the face goes flat and dull, losing all alertness in a way that reads as boredom or emotional blankness. The FLAME label 'nose wrinkler' is wildly inaccurate -- the primary action is in the upper face, specifically the periorbital region and brows. Psi8 is the most important component in the alarm-alarmed recipe, where it serves as the PRIMARY startle driver at a high weight of 2.0. It also contributes a subtle alert edge to the fatigue-wired recipe. This is the component you reach for when the face needs to say 'something shocking just happened.'",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

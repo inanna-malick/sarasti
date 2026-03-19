@@ -1,0 +1,26 @@
+{
+  "component": "psi19",
+  "component_type": "expression",
+  "positive_description": "Left-lateralized lower face and jaw deformation. A subtle left-side jaw shift or lower face asymmetry — the left jaw area adjusts while the right stays neutral. Creates a very mild left-biased jaw tension or positioning. The left lower face firms slightly.",
+  "negative_description": "Left-lateralized lower face relaxation. The left jaw area softens and the left lower face eases. A very subtle left-sided slackening.",
+  "symmetry_score": 0.35,
+  "symmetry_notes": "Asymmetric — this is the left-sided member of the psi19/psi20 conjugate pair. The 3/4 views show left-side bias. Follows the conjugate pair pattern established by psi11/12, psi14/15, and psi17/18, now extending to the lower face/jaw region.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Very subtle component. Safe at extended weights.",
+  "primary_face_region": "left jaw, left lower face, left chin area",
+  "useful_for": [
+    "bilateral lower face expression (as conjugate pair with psi20)",
+    "asymmetric jaw tension (solo)",
+    "left-sided lower face character"
+  ],
+  "interactions": {
+    "psi20": "CONJUGATE PAIR. psi19+psi20 at equal weights produces bilateral lower face/jaw expression.",
+    "psi11": "Same conjugate architecture — psi11/12 for mouth corners, psi14/15 for brows, psi17/18 for mid-face, psi19/20 for lower face/jaw",
+    "psi0": "psi0 drives symmetric jaw drop; psi19/20 provides asymmetric jaw control"
+  },
+  "current_recipes": [],
+  "prose": "Psi19 is the left-handed member of the fourth documented conjugate pair (psi19/psi20), operating in the lower face and jaw region. The conjugate pair architecture now spans the full face in a systematic top-to-bottom progression: mouth corners (psi11/12), brows (psi14/15), mid-face (psi17/18), and lower face/jaw (psi19/20). Psi19 produces a very subtle left-sided jaw tension or positioning — the left lower face firms while the right stays neutral. The effect is among the most subtle of all components examined, consistent with its position deep in the mid-frequency PCA band. Paired with psi20, it would produce bilateral lower face/jaw expression.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

@@ -1,0 +1,27 @@
+{
+  "component": "beta15",
+  "component_type": "shape",
+  "positive_description": "Subtle cranial and forehead depth adjustment. The forehead gains marginal forward projection, the cranial vault deepens slightly in the anterior-posterior direction, and the face may read as having a slightly more prominent brow shelf. The temples fill out subtly.",
+  "negative_description": "The forehead flattens in the anterior-posterior axis, the cranial vault becomes shallower, and the temples become marginally more concave. The face reads as having a slightly flatter, more recessed upper structure.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. Both 3/4 views confirm consistent bilateral behavior.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Subtle component. No artifacts visible at any tested value. The visual change is most noticeable in the 3/4 views where cranial depth variation is more apparent. Frontal views show minimal change.",
+  "primary_face_region": "upper face and cranium — forehead depth, temporal region, cranial vault anterior-posterior dimension",
+  "useful_for": [
+    "cranial depth variation",
+    "forehead prominence adjustment",
+    "temple fullness",
+    "identity noise — very safe",
+    "profile silhouette variation"
+  ],
+  "interactions": {
+    "beta11": "beta11 adjusts forehead height/roundness; beta15 adjusts forehead depth — complementary upper-face controls",
+    "beta1": "beta1 is vertical stretch including forehead; beta15 is anterior-posterior depth — orthogonal dimensions"
+  },
+  "current_recipes": [],
+  "prose": "Beta15 is a subtle cranial depth component that adjusts the anterior-posterior dimension of the upper skull. Positive values push the forehead forward and deepen the cranial vault, creating a slightly more prominent brow shelf and fuller temples. Negative values flatten the forehead and create a shallower cranial profile. The effect is most visible in 3/4 views where the depth dimension is more apparent; from the front, the change is barely perceptible. The component is noted in the CLAUDE.md spec as part of the stature axis, but the current codebase does not include a stature axis in the recipe — it uses only dominance for shape. The component is bilaterally symmetric and artifact-free throughout its range.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

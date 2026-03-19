@@ -1,0 +1,24 @@
+{
+  "component": "psi7",
+  "component_type": "expression",
+  "positive_description": "The face brightens into a warm, contented happiness. The cheeks lift, the eyes soften and crinkle slightly at the corners, and the mouth settles into a satisfied, pleased expression. At +3.0 the face radiates genuine, quiet contentment -- not grinning but deeply satisfied.",
+  "negative_description": "The face sags into disappointment and dejection. The cheeks drop, the eyes lose their light, the mouth turns down subtly, and the whole face reads as depleted and let down. At -3.0 the expression is one of profound, weary disappointment.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Strong bilateral symmetry. Left34 and right34 views at +2.0 show consistent cheek lift and eye softening on both sides.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "At extreme negative values the eyelids can begin to droop in ways that approach eyeball clipping (documented PSI7_CLAMP = 4.0 in constants.ts). Within the tested range of +/-3.0, geometry is clean. The clamping is a known safety measure.",
+  "primary_face_region": "whole-face",
+  "useful_for": ["alarm-euphoric", "fatigue-exhausted", "contentment", "disappointment"],
+  "interactions": {
+    "psi9": "psi7 positive (happy) + psi9 positive (smile) creates a powerful euphoric expression.",
+    "psi4": "psi7 negative (disappointed) + psi4 negative (boredom) creates deep exhaustion."
+  },
+  "current_recipes": [
+    {"axis": "alarm_euphoric", "weight": 1.9, "role": "happy eyes -- genuine joy"},
+    {"axis": "fatigue_exhausted", "weight": -2.0, "role": "disappointed -- PRIMARY exhaustion (droopy, depleted)"}
+  ],
+  "prose": "The eighth principal component is one of the most emotionally potent in the FLAME space. It governs a happiness-to-disappointment continuum that operates across the entire face, with particular emphasis on the periorbital region. At its positive pole, the face achieves a quiet, genuine contentment -- the Duchenne markers of real happiness with crinkling around the eyes and lifted cheeks. At its negative pole, the face collapses into weary disappointment, with everything drooping and the light going out of the eyes. The FLAME label 'eyelid close' dramatically undersells what this component does. It is currently one of the most heavily weighted components in the system, serving as the primary driver of happiness in the euphoric recipe and the primary driver of exhaustion/depletion in the fatigue-exhausted recipe. A safety clamp at +/-4.0 is enforced in code because extreme negative values can cause eyelid geometry to clip through the eyeball mesh.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

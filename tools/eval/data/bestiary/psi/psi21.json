@@ -1,0 +1,21 @@
+{
+  "component": "psi21",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle full-face deformation. At +3.0, the face appears visually identical to neutral. The effect is below reliable visual discrimination in static renders at these weights. Structurally expected to be a symmetric modulator given its position after the psi19/20 conjugate pair.",
+  "negative_description": "Extremely subtle full-face deformation in the opposite direction. At -3.0, the face appears visually identical to neutral.",
+  "symmetry_score": 0.9,
+  "symmetry_notes": "Likely symmetric. Following the established pattern (symmetric components at psi10, psi13, psi16 interleaved between asymmetric pairs), psi21 occupies the position of a symmetric modulator in the next group. Left/right 3/4 views appear bilaterally balanced, though at these subtle magnitudes symmetry assessment is unreliable.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Component is too subtle to produce artifacts at tested weights.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at high weights",
+    "subtle individual variation"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Psi21 is the first component beyond the psi19/20 conjugate pair, entering deep mid-frequency PCA territory. At the tested weight range (-3.0 to +3.0), all seven renders appear visually identical to the neutral face — no consistent change in mouth shape, eye aperture, brow position, or overall expression is discernible across the sweep. The 3/4 profile views at +2.0 also show no detectable deformation. This component would require substantially higher weights to produce visible effects, and even then its contribution would likely be imperceptible in the context of active primary components. Based on the alternating symmetric/asymmetric pattern established in psi10-20, psi21 is predicted to be a symmetric modulator, but this cannot be confirmed from the available renders.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

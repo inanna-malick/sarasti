@@ -1,0 +1,22 @@
+{
+  "component": "psi26",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, visually indistinguishable from neutral. Possible right-lateralized counterpart to psi25 if conjugate pair pattern persists.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.5,
+  "symmetry_notes": "Indeterminate. Cannot be assessed from renders at these weights.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights"
+  ],
+  "interactions": {
+    "psi25": "Possible conjugate pair if the alternating pattern continues"
+  },
+  "current_recipes": [],
+  "prose": "Psi26 is deep in the expression PCA tail, past the variance cliff where components cease to produce visually detectable deformations at standard weight magnitudes. All seven renders are indistinguishable from the neutral face. If it forms a conjugate pair with psi25, applying both at equal weights might produce a bilateral effect in some face region, but this is purely speculative at this PCA depth. The component is functionally inert for Sarasti's expression mapping.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

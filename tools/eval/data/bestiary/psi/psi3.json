@@ -1,0 +1,24 @@
+{
+  "component": "psi3",
+  "component_type": "expression",
+  "positive_description": "The face opens into a look of curious assessment. Brows lift slightly, eyes widen with interest, and the mouth parts in an attentive, questioning way. At +3.0 the expression is one of open, searching curiosity -- someone leaning in to examine something closely.",
+  "negative_description": "The face contracts into mild disgust or disdain. The nose wrinkles subtly, the upper lip draws up slightly, and the brows knit together. At -3.0 the expression reads as revulsion, distaste, or 'something smells bad.'",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Strong bilateral symmetry. Left34 and right34 views at +2.0 are near-mirror images with no meaningful asymmetry.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean throughout the tested range. Both poles produce natural-looking expressions without mesh distortion. One of the most well-behaved components.",
+  "primary_face_region": "mid-face",
+  "useful_for": ["fatigue-wired", "assessment", "vigilance", "disgust"],
+  "interactions": {
+    "psi4": "psi3 positive (curiosity) + psi4 positive (engagement) creates an intensely focused, analytical expression.",
+    "psi8": "psi3 positive + psi8 positive (shocked) creates 'alarmed curiosity' -- what is that?"
+  },
+  "current_recipes": [
+    {"axis": "fatigue_wired", "weight": 1.5, "role": "open curiosity -- assessing, scanning"},
+    {"axis": "fatigue_exhausted", "weight": -0.6, "role": "disgust -- checked out, whatever"}
+  ],
+  "prose": "The fourth principal component governs an assessment-to-revulsion axis across the mid-face. At its positive pole, the face assumes a look of searching, active curiosity -- brows lift, eyes widen with interest, the mouth parts slightly as if about to ask a question. At its negative pole, the face contracts into disdain, with subtle nose-wrinkling and upper-lip retraction suggesting something offensive or distasteful. This is one of the best-behaved components in the expression space: smooth transitions, clean geometry at extremes, and strong bilateral symmetry. It is currently the primary 'assessment' driver in the fatigue-wired recipe, where it conveys the hyper-attentive scanning quality of a wired, caffeinated state.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

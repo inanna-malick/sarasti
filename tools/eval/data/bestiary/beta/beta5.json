@@ -1,0 +1,29 @@
+{
+  "component": "beta5",
+  "component_type": "shape",
+  "positive_description": "Nose lengthening and midface vertical stretch: the nose elongates downward, the philtrum lengthens, and the distance between the nose tip and upper lip increases. The midface stretches vertically through the nasal region specifically. The nose tip may also drop slightly, pointing more downward.",
+  "negative_description": "Nose shortening and midface vertical compression: the nose compresses upward, the philtrum shortens, and the nose-to-lip distance decreases. The midface contracts vertically through the nasal region. The nose tip lifts slightly, creating a more upturned appearance.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Symmetric — nasal lengthening/shortening applies evenly. Confirmed by 3/4 views which show symmetric profile changes.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. The nose geometry is subtle but well-behaved at all tested values. No mesh issues. This is a more subtle component than beta0-beta4 — the changes require careful comparison between frames to spot.",
+  "primary_face_region": "midface — nose length, philtrum, nasal tip projection",
+  "useful_for": [
+    "nose length and vertical proportion",
+    "philtrum height",
+    "age signaling — noses lengthen with age",
+    "ethnic/population variation in nasal proportions",
+    "fine-tuning midface proportions"
+  ],
+  "interactions": {
+    "beta1": "beta1 stretches the whole face vertically, beta5 specifically targets the nose region — combining gives independent control over overall height vs. nose length",
+    "beta2": "beta2 controls nose width, beta5 controls nose length — together they give full 2D control over nasal proportions"
+  },
+  "current_recipes": [
+    "stature: listed in CLAUDE.md stature axis (component 5)"
+  ],
+  "prose": "Beta5 is a subtler component that primarily affects the vertical extent of the nose and surrounding midface. Positive values lengthen the nose, extending the distance from the nasal bridge to the tip and from the tip to the upper lip (philtrum). The nose tip may drop slightly, angling more downward. Negative values compress the nose vertically, shortening it and slightly upturning the tip. This is a progressively finer-grained component compared to beta0-beta4 — the changes are genuine and visible in careful comparison between the frontal frames, but they do not produce the dramatic whole-face transformations of the first few components. The 3/4 views help confirm the nasal length change in profile. This component is most useful for fine-tuning midface proportions and for age signaling, since human noses continue to grow throughout life — longer noses read as older. It is currently assigned to the stature axis rather than dominance, which is appropriate given its role in vertical proportions rather than mass or angularity.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

@@ -1,0 +1,26 @@
+{
+  "component": "psi20",
+  "component_type": "expression",
+  "positive_description": "Right-lateralized lower face and jaw deformation. The mirror of psi19 — a barely perceptible right-side jaw positioning or lower face firming. At the weights tested (+3.0), the effect is at the threshold of visual discrimination in static renders.",
+  "negative_description": "Right-lateralized lower face relaxation. A barely perceptible softening of the right jaw area. Visually near-indistinguishable from neutral at tested weights.",
+  "symmetry_score": 0.35,
+  "symmetry_notes": "Asymmetric — the right-sided member of the psi19/psi20 conjugate pair, mirroring psi19 across the sagittal plane. The left/right 3/4 views show no clearly discernible lateralization at these weights, consistent with the effect being below reliable visual threshold.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Component is too subtle at these weights to produce artifacts. Likely safe well beyond the tested range.",
+  "primary_face_region": "right jaw, right lower face, right chin area",
+  "useful_for": [
+    "bilateral lower face expression (as conjugate pair with psi19)",
+    "asymmetric jaw tension (solo)",
+    "right-sided lower face character"
+  ],
+  "interactions": {
+    "psi19": "CONJUGATE PAIR. psi19+psi20 at equal weights produces bilateral lower face/jaw expression.",
+    "psi17_18": "Same conjugate architecture — psi19/20 is the fourth pair, following psi17/18 (mid-face), psi14/15 (brows), psi11/12 (mouth corners)",
+    "psi0": "psi0 drives primary symmetric jaw drop; psi19/20 provides fine-grained asymmetric jaw control"
+  },
+  "current_recipes": [],
+  "prose": "Psi20 is the right-handed mirror of psi19, completing the fourth conjugate pair in the systematic left/right decomposition of FLAME expression space. At the tested weights (-3.0 to +3.0), the deformation is at or below the threshold of reliable visual discrimination in static frontal renders — all five frontal views and both 3/4 views appear essentially identical to the neutral baseline. This is consistent with the steady decline in PCA variance: by component 20, each component captures an extremely small fraction of training-set expression variance. The structural role (right-sided jaw/lower-face counterpart to psi19) is inferred from the conjugate pair architecture established in earlier components.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

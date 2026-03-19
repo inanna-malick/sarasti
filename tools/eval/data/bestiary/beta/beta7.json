@@ -1,0 +1,29 @@
+{
+  "component": "beta7",
+  "component_type": "shape",
+  "positive_description": "Orbital and eye region deepening: the eye sockets become more deeply set, the orbital rims become more pronounced, and the area around the eyes gains structural depth. The upper cheeks may hollow slightly, contributing to a more sculpted, deep-eyed appearance. The periorbital area gains shadow and definition.",
+  "negative_description": "Orbital and eye region flattening: the eye sockets become shallower, the orbital rims less pronounced, and the area around the eyes flattens. The upper cheeks fill out, creating a smoother, less sculpted appearance. The eyes sit closer to the surface plane of the face.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Symmetric — orbital changes apply evenly to both eyes. The 3/4 views confirm symmetric periorbital structure on both sides.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. This is a subtle component — the orbital depth changes are most visible in how shadows fall around the eyes rather than in gross geometric change. No mesh issues at any value tested.",
+  "primary_face_region": "periorbital — eye sockets, orbital rims, upper cheeks",
+  "useful_for": [
+    "eye socket depth",
+    "orbital rim definition",
+    "upper cheek hollowing vs. filling",
+    "age signaling — deeper-set eyes read as older/more gaunt",
+    "dominance signaling — deep-set eyes read as more intense"
+  ],
+  "interactions": {
+    "beta4": "beta4 controls brow ridge, beta7 controls orbital depth — together they determine how deeply set the eyes appear",
+    "beta0": "on a larger face (beta0+), beta7's orbital deepening creates more dramatic shadow under the brow"
+  },
+  "current_recipes": [
+    "dominance: weight 1.25 — adds orbital depth and intensity to the chad pole"
+  ],
+  "prose": "Beta7 sculpts the eye region — the orbital sockets, the rims that frame them, and the upper cheeks just below. Positive values deepen the eye sockets, making the orbital rims more pronounced and the eyes more deeply set within the skull. The upper cheeks may hollow slightly as bone structure around the orbit becomes more defined. Negative values flatten this region, pushing the eyes closer to the surface and filling in the upper cheeks for a smoother, less sculpted face. The effect is subtle compared to the jaw-and-brow components (beta3, beta4) but carries real perceptual weight — deeply set eyes are associated with intensity, maturity, and dominance in face perception. The frontal views show the change primarily through shadow: deeper orbits catch more shadow under the brow, creating a more intense gaze. The 3/4 views help confirm the structural depth change. In the dominance recipe, beta7 at 1.25 adds a measured dose of orbital depth — enough to make the eyes look more deeply set on a chad face without overdoing the gaunt-skull look.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

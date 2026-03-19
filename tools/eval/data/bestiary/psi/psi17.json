@@ -1,0 +1,26 @@
+{
+  "component": "psi17",
+  "component_type": "expression",
+  "positive_description": "Left-lateralized mid-face and cheek deformation. A subtle left-side cheek compression or hollowing, with mild adjustment to the left nasolabial fold. The left side of the mid-face pulls slightly inward or tightens while the right remains relatively neutral. Creates a very subtle left-biased grimace or tension.",
+  "negative_description": "Left-lateralized mid-face relaxation. The left cheek fills slightly and the left nasolabial area softens. The left side of the mid-face eases while the right stays neutral.",
+  "symmetry_score": 0.35,
+  "symmetry_notes": "Asymmetric — this is the left-sided member of the psi17/psi18 conjugate pair. The 3/4 views show differential deformation between left and right sides, with the left showing more activity.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Very subtle mid-frequency component. Safe at extended weights.",
+  "primary_face_region": "left cheek, left mid-face, left nasolabial area",
+  "useful_for": [
+    "bilateral mid-face expression (as conjugate pair with psi18)",
+    "asymmetric mid-face tension (solo)",
+    "left-sided cheek/mid-face character"
+  ],
+  "interactions": {
+    "psi18": "CONJUGATE PAIR. psi17+psi18 at equal weights produces bilateral mid-face expression.",
+    "psi11": "Same conjugate architecture — psi11/12 for mouth corners, psi14/15 for brows, psi17/18 for mid-face/cheeks",
+    "psi3": "psi3 drives symmetric mid-face disgust/curiosity; psi17/18 provides asymmetric mid-face control"
+  },
+  "current_recipes": [],
+  "prose": "Psi17 is the left-handed member of the third documented conjugate pair (psi17/psi18), operating in the mid-face and cheek region. The conjugate pair architecture continues the pattern established by psi11/12 (mouth corners) and psi14/15 (brows), now extending to the mid-face. Psi17 produces a subtle left-sided cheek tension or compression — the left mid-face tightens while the right stays neutral. Paired with psi18, the two halves combine into bilateral mid-face expression. The deformations are among the most subtle in this band, consistent with the decreasing variance captured by each successive PCA component.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

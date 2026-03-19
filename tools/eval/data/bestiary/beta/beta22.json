@@ -1,0 +1,22 @@
+{
+  "component": "beta22",
+  "component_type": "shape",
+  "positive_description": "Subtle forehead and upper face modulation. At +3.0 there is a barely perceptible change in forehead convexity or brow ridge depth — the upper face appears very marginally more prominent or rounded. The lower face shows no detectable change. At +1.5, indistinguishable from neutral.",
+  "negative_description": "At -3.0 the forehead contour shifts by a marginal amount — possibly very slightly flatter or less prominent. The effect is at the threshold of visual detection and could be influenced by lighting interpretation. At -1.5, identical to neutral.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Appears bilaterally symmetric. The 3/4 views show no left-right asymmetry, though the small effect magnitude limits the reliability of this assessment.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No artifacts at any tested value. Clean geometry throughout the full range.",
+  "primary_face_region": "upper face — forehead and brow region",
+  "useful_for": [
+    "subtle forehead shape variation",
+    "identity differentiation",
+    "fine-tuning brow prominence"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Beta22 affects the upper face and forehead region with a very subtle modulation of cranial convexity or brow ridge depth. The renders across the full -3.0 to +3.0 range show barely detectable changes, with the frontal views looking nearly identical at all values. The 3/4 views offer marginally more information, hinting at slight changes in forehead profile, but the effect remains at the edge of reliable visual detection. Like its neighbors in the PCA ordering, beta22 captures fine individual variation that has minimal expressive value but could contribute to identity differentiation in a population of faces.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

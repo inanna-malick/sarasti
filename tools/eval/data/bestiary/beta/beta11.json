@@ -1,0 +1,26 @@
+{
+  "component": "beta11",
+  "component_type": "shape",
+  "positive_description": "Subtle forehead and upper cranial reshaping. The forehead becomes slightly more prominent and rounded, with a mild increase in the vertical height of the upper face. The brow ridge softens marginally. The overall skull profile shifts toward a higher, rounder cranial vault.",
+  "negative_description": "The forehead flattens and recedes slightly. The upper cranium becomes lower-profile and the brow ridge becomes marginally more pronounced. The skull profile shifts toward a flatter, more sloped forehead.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. Both 3/4 views match well. No lateral bias detected.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Very subtle even at extremes. No artifacts in the tested range. The visual change from -3.0 to +3.0 is barely perceptible in frontal view; slightly more visible in profile. This is a high-frequency detail component.",
+  "primary_face_region": "upper face — forehead contour, cranial vault height, brow ridge",
+  "useful_for": [
+    "forehead shape variation",
+    "cranial vault profile adjustment",
+    "identity noise — extremely safe at any weight within range",
+    "subtle brow ridge modulation"
+  ],
+  "interactions": {
+    "beta1": "beta1 stretches the face vertically including forehead height; beta11 reshapes the forehead contour independent of overall elongation",
+    "beta4": "both can affect brow region — beta4 more dramatically, beta11 more subtly"
+  },
+  "current_recipes": [],
+  "prose": "Beta11 is a subtle cranial vault and forehead contour component. It reshapes the upper cranium, adjusting the roundness and prominence of the forehead and the profile of the brow ridge. The visual effect is quite modest even at extreme values — this is a fine-detail component that adds nuance rather than drama. Positive values give a slightly higher, rounder forehead; negative values flatten and slope it. The component is bilaterally symmetric and artifact-free throughout its tested range. It is not currently used in any recipe but could serve well as identity noise or for subtle forehead variation between faces.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

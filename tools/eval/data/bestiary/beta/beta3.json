@@ -1,0 +1,29 @@
+{
+  "component": "beta3",
+  "component_type": "shape",
+  "positive_description": "Jaw and lower-face projection: the jaw becomes more angular and forward-projecting, the chin gains definition, the mandibular angle sharpens. The lower face gains structural prominence, with the jawline becoming more squared and defined. The overall face takes on a more angular, hard-jawed character.",
+  "negative_description": "Jaw and lower-face recession: the jaw softens and recedes, the chin rounds and pulls back, the mandibular angle becomes less defined. The lower face loses structural prominence, creating a softer, less angular jawline. The face takes on a rounder, less defined lower contour.",
+  "symmetry_score": 0.96,
+  "symmetry_notes": "Symmetric — jaw and chin changes apply evenly to both sides. The 3/4 views confirm symmetric mandibular development. No lateral bias.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. At +3.0 the jaw is very prominent but geometry holds. At -3.0 the jaw is very soft/recessed but no artifacts. One of the most visually distinct components — the jaw changes are clearly readable at +/-1.5.",
+  "primary_face_region": "lower face — jaw, chin, mandibular angle, lower cheeks",
+  "useful_for": [
+    "jaw definition and angularity",
+    "chin projection",
+    "perceived masculinity/femininity",
+    "dominance signaling via jaw structure",
+    "age-related jaw development"
+  ],
+  "interactions": {
+    "beta0": "beta0 adds global mass, beta3 adds jaw-specific angularity — they combine well for different flavors of 'large face'",
+    "beta4": "beta4 also affects lower face — beta3 is jaw angularity, beta4 adds forehead/brow changes for a full robustness recipe"
+  },
+  "current_recipes": [
+    "dominance: weight 3.75 (HIGHEST weight in recipe) — this is the primary jaw-defining component for the chad pole"
+  ],
+  "prose": "Beta3 is the jaw component — the single most important axis for mandibular definition. Positive values push the jaw forward and outward, sharpening the mandibular angle, projecting the chin, and squaring off the lower face contour. The effect is concentrated from the ear to the chin and is one of the most visually readable shape changes in the first 10 components. Negative values soften everything: the jaw recedes, the chin rounds, the mandibular angle disappears into a smooth curve, creating a face that reads as structurally softer and less angular. This is the highest-weighted component in the dominance recipe (3.75) and for good reason — jaw angularity and projection are among the strongest single-feature cues for perceived physical dominance and masculinity. The frontal progression from -3.0 to +3.0 shows a dramatic transformation of the lower face silhouette, from a soft oval to a hard-cornered square. The 3/4 views confirm the changes are skeletal: the mandibular ramus and gonial angle are genuinely different in geometry.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

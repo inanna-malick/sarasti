@@ -1,0 +1,27 @@
+{
+  "component": "beta9",
+  "component_type": "shape",
+  "positive_description": "Ear prominence and lateral head widening at the temporal region: the ears push outward from the skull, the temporal area widens slightly, and the lateral silhouette of the head becomes broader at the ear level. The ears themselves may appear slightly larger or more protruding. A subtle but visible effect on the head's side profile.",
+  "negative_description": "Ear recession and lateral head narrowing at the temporal region: the ears flatten against the skull, the temporal area narrows slightly, and the lateral silhouette becomes sleeker at ear level. The ears appear less prominent, sitting closer to the head. A more streamlined side profile.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric — ear changes apply evenly to both sides. The 3/4 views show consistent ear prominence on left and right. The left-right 3/4 views match well.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through -3.0 to +3.0. Ear geometry is relatively simple and handles extrapolation well. The component is subtle — changes are most visible in the ears and temporal region of the silhouette. No mesh issues at any value.",
+  "primary_face_region": "lateral — ears, temporal region, head width at ear level",
+  "useful_for": [
+    "ear prominence/protrusion",
+    "temporal region width",
+    "head silhouette variation",
+    "individual character/identity differentiation",
+    "subtle personality/age cues"
+  ],
+  "interactions": {
+    "beta0": "beta0 scales the whole head including ears, beta9 independently controls ear prominence — allows big head with flat ears or small head with prominent ears",
+    "beta2": "beta2 widens the midface, beta9 widens at the ear level — different horizontal planes of width control"
+  },
+  "current_recipes": [],
+  "prose": "Beta9 is an ear and temporal component — subtle but distinctive. Positive values push the ears outward from the skull and may widen the temporal region slightly, making the ears more prominent in the head silhouette. Negative values flatten the ears against the skull and narrow the temporal area. This is one of the subtlest components in the beta0-beta9 range, with its primary effects concentrated on structures (ears) that carry relatively little semantic weight in face perception compared to the jaw, brow, or eyes. The frontal view progression shows the change mainly through the visible ear area — ears becoming more or less prominent at the sides of the head. The 3/4 views help reveal the ear protrusion in profile. This component is not currently used in any recipe (neither dominance nor stature), which makes sense given that ear prominence is not a major driver of dominance or build perception. However, it could serve as a useful source of individual variation — a way to differentiate faces in the field beyond the mass/angularity/proportions captured by beta0-beta8.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

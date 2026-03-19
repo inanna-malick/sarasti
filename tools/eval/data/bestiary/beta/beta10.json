@@ -1,0 +1,26 @@
+{
+  "component": "beta10",
+  "component_type": "shape",
+  "positive_description": "Subtle midface narrowing and nasal bridge refinement. The nose becomes slightly more pinched and the midface compresses laterally. The cheekbones become marginally more defined as the soft tissue between them and the nose tightens. Overall silhouette narrows slightly through the zygomatic region.",
+  "negative_description": "Subtle midface widening and nasal bridge broadening. The nose widens slightly, the midface spreads laterally, and the cheekbones become less defined as the inter-cheek region flattens. The face reads as slightly more flat and broad through the middle third.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. The left and right 3/4 views at +2.0 are near-mirror images. No lateral asymmetry detected.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Very subtle component even at extremes. No mesh artifacts visible anywhere in the tested range. The visual differences between -3.0 and +3.0 are modest — this is a fine-tuning parameter, not a dramatic deformer.",
+  "primary_face_region": "midface — nasal bridge, zygomatic region, inter-cheek width",
+  "useful_for": [
+    "subtle midface width variation",
+    "nasal bridge refinement",
+    "adding individual character without dramatic change",
+    "identity noise — safe to use at low weights for inter-face variation"
+  ],
+  "interactions": {
+    "beta0": "beta0 scales everything including midface; beta10 can fine-tune midface width independently of overall mass",
+    "beta7": "both affect mid-face structure — beta7 more broadly, beta10 more focused on nasal/zygomatic area"
+  },
+  "current_recipes": [],
+  "prose": "Beta10 is a subtle midface modulator that primarily affects the width of the nasal bridge and the definition of the zygomatic (cheekbone) region. At this PCA rank, the captured variance is considerably less than the first 10 components, and the visual differences between -3.0 and +3.0 are modest. Positive values slightly narrow and refine the midface, creating a more pinched, defined nasal bridge and subtly sharper cheekbones. Negative values broaden and flatten the midface. The component is well-behaved and clean throughout its range, making it a safe candidate for identity noise or fine-tuning facial proportions. It does not participate in any current recipe.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

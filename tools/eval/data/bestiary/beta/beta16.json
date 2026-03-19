@@ -1,0 +1,29 @@
+{
+  "component": "beta16",
+  "component_type": "shape",
+  "positive_description": "Subtle jaw definition and lower face angularity. The jaw line becomes marginally more defined and angular, with the mandibular angle becoming slightly sharper. The chin gains a small amount of squareness. The lower face reads as slightly more structured and sculpted.",
+  "negative_description": "The jaw line softens and rounds. The mandibular angle becomes less defined, the chin rounds slightly, and the lower face reads as softer and less structured. A subtle loss of jaw definition.",
+  "symmetry_score": 0.94,
+  "symmetry_notes": "Symmetric. Left and right 3/4 views are consistent. No lateral asymmetry.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Subtle component. No artifacts at any value. Clean geometry throughout. The effect is most visible in the jawline region when comparing extremes.",
+  "primary_face_region": "lower face — jaw line definition, mandibular angle, chin squareness",
+  "useful_for": [
+    "jaw definition and angularity",
+    "chin shape variation",
+    "dominance axis — contributes jaw structure to chad pole",
+    "lower face character"
+  ],
+  "interactions": {
+    "beta3": "beta3 is the primary jaw width axis; beta16 fine-tunes jaw angularity and definition without changing overall width",
+    "beta12": "both affect jaw/chin region — beta12 adjusts chin prominence, beta16 adjusts jaw line sharpness",
+    "beta13": "beta13 adds midface volume, beta16 adds jaw definition — complementary for the dominance recipe"
+  },
+  "current_recipes": [
+    "dominance: weight 1.9 — adds jaw definition to the chad pole, softens jaw for soyboi"
+  ],
+  "prose": "Beta16 is a jaw definition component that fine-tunes the angularity and structural sharpness of the mandibular line. Where beta3 dramatically widens or narrows the jaw, beta16 operates on the edge quality — making the jaw line read as either sculpted and angular (positive) or soft and rounded (negative). The effect is subtle but contributes meaningfully at the weight of 1.9 in the dominance recipe, where it helps create the defined, angular jaw associated with the chad pole. At the soyboi pole, the negative application softens the jaw line. The component is bilaterally symmetric and produces no artifacts anywhere in its tested range. It is most visible in the 3/4 views where the jaw line silhouette is most prominent.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

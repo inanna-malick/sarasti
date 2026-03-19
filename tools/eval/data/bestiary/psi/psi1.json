@@ -1,0 +1,23 @@
+{
+  "component": "psi1",
+  "component_type": "expression",
+  "positive_description": "A lopsided, asymmetric smile. The left side of the mouth pulls up and back while the right side stays relatively neutral. At +3.0 this produces a knowing smirk or wry half-grin. Subtle brow and cheek asymmetry accompanies the mouth.",
+  "negative_description": "The asymmetry reverses -- a slight downward pull on one side gives a mild frown or skeptical expression. At -3.0 the face reads as unimpressed or dubious, with one corner of the mouth dropping.",
+  "symmetry_score": -0.90,
+  "symmetry_notes": "This is the primary ANTISYMMETRIC component. The left34 and right34 views at +2.0 are deliberately NOT mirror images -- the left34 view shows a more pronounced smirk on the near side. This asymmetry is by design (PCA captured lateralized expression).",
+  "safe_range": [-3.0, 3.0],
+  "artifact_notes": "No mesh artifacts in the tested range, but the inherent asymmetry makes it unsuitable for solo use in recipes that need bilateral expression. Best used at low weights or avoided entirely in favor of symmetric alternatives.",
+  "primary_face_region": "lower-face",
+  "useful_for": ["character", "asymmetric-accent"],
+  "interactions": {
+    "psi11+psi12": "The conjugate pair psi11+psi12 produces a bilateral smile and is the preferred alternative to psi1 for symmetric smile needs.",
+    "psi9": "psi9 provides a symmetric smile alternative."
+  },
+  "current_recipes": [
+    {"axis": "alarm_euphoric", "weight": 1.25, "role": "overall smile shape (asymmetric, low weight warning)"}
+  ],
+  "prose": "The second principal component is FLAME's asymmetry axis. Where every other component in psi0-psi10 moves the face bilaterally, psi1 deliberately breaks left-right symmetry. Positive values produce a knowing, one-sided smirk -- the kind of expression someone makes when they get a private joke. Negative values invert this into a skeptical, one-sided frown. The component is marked ANTI-symmetric with a self-reflection score of -0.898, meaning it nearly perfectly reverses across the midline. For the crisis monitor, this component is used sparingly at low weight in the euphoric recipe, but the project conventions explicitly flag it as problematic for bilateral expression. The conjugate pair psi11+psi12 is the sanctioned replacement for symmetric smiles.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "high"
+}

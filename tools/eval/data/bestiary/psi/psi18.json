@@ -1,0 +1,26 @@
+{
+  "component": "psi18",
+  "component_type": "expression",
+  "positive_description": "Right-lateralized mid-face and cheek deformation. A subtle right-side cheek compression or hollowing, with mild adjustment to the right nasolabial fold. The right side of the mid-face tightens while the left remains relatively neutral.",
+  "negative_description": "Right-lateralized mid-face relaxation. The right cheek fills slightly and the right nasolabial area softens. The right side eases while the left stays neutral.",
+  "symmetry_score": 0.35,
+  "symmetry_notes": "Asymmetric — this is the right-sided member of the psi17/psi18 conjugate pair. Mirrors psi17 across the sagittal plane. The 3/4 views show right-side bias in the deformation.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Very subtle mid-frequency component. Safe at extended weights.",
+  "primary_face_region": "right cheek, right mid-face, right nasolabial area",
+  "useful_for": [
+    "bilateral mid-face expression (as conjugate pair with psi17)",
+    "asymmetric mid-face tension (solo)",
+    "right-sided cheek/mid-face character"
+  ],
+  "interactions": {
+    "psi17": "CONJUGATE PAIR. psi18+psi17 at equal weights produces bilateral mid-face expression.",
+    "psi12": "Same conjugate architecture — psi11/12 for mouth, psi14/15 for brows, psi17/18 for mid-face",
+    "psi3": "psi3 drives symmetric mid-face expression; psi17/18 provides asymmetric control"
+  },
+  "current_recipes": [],
+  "prose": "Psi18 is the right-handed mirror of psi17 — the second member of the psi17/psi18 conjugate pair. It lateralizes mid-face and cheek deformation to the right side. At positive values, the right cheek tightens and the right nasolabial area adjusts. At negative values, the right mid-face softens. Paired with psi17 at equal weight, the two produce bilateral mid-face expression. The deformations are very subtle at the tested weights, consistent with decreasing PCA variance at higher component indices.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low"
+}

@@ -1,0 +1,20 @@
+{
+  "component": "psi29",
+  "component_type": "expression",
+  "positive_description": "Extremely subtle deformation. At +3.0, visually indistinguishable from neutral in all views.",
+  "negative_description": "Extremely subtle deformation. At -3.0, visually indistinguishable from neutral.",
+  "symmetry_score": 0.5,
+  "symmetry_notes": "Indeterminate. Cannot be assessed from renders at these weights.",
+  "safe_range": [-6.0, 6.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Safe well beyond tested range.",
+  "primary_face_region": "indeterminate — deformation below visual threshold",
+  "useful_for": [
+    "micro-texture in expression blends at very high weights"
+  ],
+  "interactions": {},
+  "current_recipes": [],
+  "prose": "Psi29 is the last component in this census batch and sits deep in the expression PCA tail. All seven renders are visually indistinguishable from neutral. Like all components in the psi20-29 band, psi29 captures such a small fraction of expression variance that its deformation is sub-pixel at standard rendering conditions and practical weight magnitudes. The component marks the boundary of the deep mid-frequency band — beyond psi29, components are even more likely to encode training-subject-specific artifacts rather than generalizable expression patterns. For Sarasti's purposes, the useful expression space effectively ends around psi10-psi12.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "very_low"
+}

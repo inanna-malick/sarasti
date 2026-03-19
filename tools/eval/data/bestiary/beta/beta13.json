@@ -1,0 +1,29 @@
+{
+  "component": "beta13",
+  "component_type": "shape",
+  "positive_description": "Facial structure broadening and thickening through the midface and jaw. The zygomatic arches widen subtly, the cheeks gain volume, and the face reads as slightly more fleshy and broad through the middle and lower thirds. The nose tip may broaden marginally. The overall impression is a face with more structural mass in the mid-to-lower region.",
+  "negative_description": "Facial structure narrowing and thinning through the midface and jaw. The cheeks flatten, the zygomatic region narrows, and the face reads as slightly more lean and angular. The nose narrows subtly. The overall impression is a face with less soft tissue and tighter structural lines.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Symmetric. Both 3/4 views are consistent mirror images. No lateral asymmetry detected.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Subtle but clean component. No artifacts at any tested value. The visual effect is more visible than beta10-12 due to its participation in the dominance recipe at weight 3.1, which amplifies its contribution.",
+  "primary_face_region": "midface and lower face — cheek volume, zygomatic width, nose width, jaw fullness",
+  "useful_for": [
+    "midface mass and volume",
+    "cheek fullness variation",
+    "facial structure broadening independent of skull size",
+    "dominance axis — contributes structural mass to the chad pole"
+  ],
+  "interactions": {
+    "beta0": "beta0 is global mass, beta13 is more focused mid-to-lower face structural mass — they stack for heavy faces",
+    "beta3": "beta3 widens the jaw; beta13 adds cheek/midface volume — together they create a broad, full-featured face",
+    "beta18": "both participate in the dominance recipe — beta13 adds midface mass while beta18 refines bone structure"
+  },
+  "current_recipes": [
+    "dominance: weight 3.1 — adds midface structural mass to the chad pole, removes it for soyboi"
+  ],
+  "prose": "Beta13 is a mid-to-lower face structural mass component that adjusts cheek volume, zygomatic width, and overall facial fullness below the brow line. Positive values add fleshy mass to the cheeks, broaden the zygomatic arches, and create a face that reads as structurally broad and well-built through the middle third. Negative values strip this away, producing a leaner, more angular midface. The effect is subtle in isolation but becomes meaningful at the weight 3.1 used in the dominance recipe, where it contributes to the overall mass-and-width signature of the chad pole. The component is bilaterally symmetric and artifact-free throughout its range. It primarily operates on mid-face soft tissue volume rather than the skeletal frame, which distinguishes it from beta0 (global skull mass) and beta3 (jaw width).",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}

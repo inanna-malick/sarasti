@@ -1,0 +1,26 @@
+{
+  "component": "psi14",
+  "component_type": "expression",
+  "positive_description": "Left-lateralized upper face movement — subtle left brow lift and left periorbital widening. The left side of the upper face opens slightly while the right remains comparatively neutral. Creates a mild left-biased quizzical or skeptical look.",
+  "negative_description": "Left-lateralized upper face depression — the left brow area lowers subtly and the left periorbital region narrows. A very mild left-sided furrowing or closing quality.",
+  "symmetry_score": 0.4,
+  "symmetry_notes": "Asymmetric — this is the left-sided member of the psi14/psi15 conjugate pair. The 3/4 views show different deformation magnitudes between left and right sides, with the left side showing more activity. Follows the same conjugate pair pattern as psi11/psi12 but in the upper face.",
+  "safe_range": [-5.0, 5.0],
+  "artifact_notes": "No mesh artifacts at +/-3.0. Very subtle deformation. Safe at higher weights than primary components.",
+  "primary_face_region": "left brow, left periorbital area, left upper face",
+  "useful_for": [
+    "bilateral brow expression (as conjugate pair with psi15)",
+    "asymmetric skeptical/quizzical look (solo)",
+    "left-sided upper face nuance"
+  ],
+  "interactions": {
+    "psi15": "CONJUGATE PAIR. psi14+psi15 at equal weights produces bilateral brow/upper face expression. Mirror of the psi11/psi12 relationship but for the upper face.",
+    "psi2": "psi2 drives dramatic upper face/mouth changes symmetrically; psi14 provides fine asymmetric upper face control",
+    "psi11": "Same conjugate architecture — psi11/12 for mouth, psi14/15 for brow region"
+  },
+  "current_recipes": [],
+  "prose": "Psi14 is the left-sided member of the second documented conjugate pair (psi14/psi15), operating in the upper face. Where psi11/psi12 lateralize mouth corner movement, psi14/psi15 lateralize brow and periorbital movement. Alone, psi14 produces a subtle left-side brow lift and eye-area widening — a half-skeptical, half-quizzical quality limited to the left upper face. Paired with psi15 at equal weight, the two halves would combine into a bilateral upper-face expression. The deformations are subtle at the tested weights, consistent with mid-frequency PCA components. This pair has not yet been deployed in any expression recipe.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "low-medium"
+}

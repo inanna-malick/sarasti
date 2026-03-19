@@ -1,0 +1,24 @@
+{
+  "component": "psi5",
+  "component_type": "expression",
+  "positive_description": "The face draws downward into a frown or sneer. The upper lip lifts slightly while the mouth corners pull down and the brows contract. At +3.0 the expression is a clear frown with a tight, displeased quality -- not sadness but active displeasure or frustration.",
+  "negative_description": "The face relaxes into a flat, slack, uninterested expression. Muscle tone drops, the mouth settles into a neutral-to-slightly-open position, and the eyes lose engagement. At -3.0 the face reads as apathetic and indifferent.",
+  "symmetry_score": 0.95,
+  "symmetry_notes": "Good bilateral symmetry. Left34 and right34 views at +2.0 show consistent expression on both sides with no meaningful left-right bias.",
+  "safe_range": [-4.0, 4.0],
+  "artifact_notes": "Clean through the tested range. The effect is relatively subtle -- this component modulates tone more than it produces dramatic geometry changes. No mesh distortion observed.",
+  "primary_face_region": "mid-face",
+  "useful_for": ["fatigue-wired", "fatigue-exhausted", "tension", "displeasure"],
+  "interactions": {
+    "psi3": "psi5 positive (frown) + psi3 negative (disgust) creates a strong displeasure expression.",
+    "psi4": "psi5 positive (tightness) + psi4 positive (engagement) creates a clenched, focused frustration."
+  },
+  "current_recipes": [
+    {"axis": "fatigue_wired", "weight": 1.2, "role": "frown -- tight, clenched"},
+    {"axis": "fatigue_exhausted", "weight": -0.8, "role": "uninterested -- slack face"}
+  ],
+  "prose": "The sixth principal component operates a frown-to-flatness axis. Despite the FLAME label 'upper lip raiser,' what psi5 actually produces at positive values is a frown -- the mouth corners pull down, the brows contract slightly, and the upper lip lifts in what reads more as displeasure than as a smile. The negative pole is the opposite of this activation: a flat, slack indifference where the face loses all muscular engagement. This is a subtle component that primarily modulates the mid-face tonal quality rather than producing dramatic shape changes. It is currently used in both poles of the fatigue axis: positive for the tight, clenched quality of the wired state, negative for the slack disengagement of exhaustion. Its subtlety makes it a good blending ingredient that adds character without dominating a recipe.",
+  "renders_examined": 7,
+  "last_updated": "2026-03-19",
+  "confidence": "medium"
+}
