@@ -63,6 +63,8 @@ export interface ChordActivations {
   alarm: number;
   /** Fatigue axis: -1 (exhausted) to +1 (wired) ← -(dd_z + exchFatigue) + mean_reversion_z */
   fatigue: number;
+  /** Aggression axis: +1 (aggressive) to -1 (yielding) ← -momentum × velocity_sign */
+  aggression: number;
   /** Shape: dominance (soyboi↔chad) ← momentum */
   dominance: number;
 }
@@ -74,9 +76,11 @@ export interface ChordActivations {
  * ψ6- adds surprise. ψ2 adds open-mouth intensity. */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [8, 2.0],   // ψ8: shocked (PRIMARY — whole-face startle)
-    [6, -1.5],  // ψ6: surprise (negative = surprise, not angry)
+    [8, 2.5],   // ψ8: shocked (PRIMARY) [w2: +0.3 more sclera/startle]
+    [6, -1.2],  // ψ6: surprise (negative = brows up + eyes widen)
     [2, 1.0],   // ψ2: open mouth intensity
+    [0, 0.5],   // ψ0: mouth aperture — natural gasp
+    [5, 1.0],   // ψ5: frown/tightening — jaw tension in the gasp [w2: new]
   ],
   pose: { pitch: -0.08 },  // recoil
   gaze: { gazeV: 0.10 },   // scanning up
@@ -88,12 +92,12 @@ export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
  * Proven recipes from explorer testing. */
 export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [0, 0.75],  // ψ0: frown-smile — light smile
-    [9, 2.5],   // ψ9: smile — reinforces smile character
+    [0, 0.9],   // ψ0: frown-smile — fuller smile
+    [9, 2.5],   // ψ9: smile — cheek lift, pushes lower eyelids
     [11, 2.5],  // ψ11: left mouth corner — knowing smirk
     [12, 2.5],  // ψ12: right mouth corner — knowing smirk
-    [1, 1.25],  // ψ1: overall smile shape (asymmetric, low weight)
-    [7, 1.9],   // ψ7: happy eyes — genuine joy
+    [7, 2.5],   // ψ7: happy eyes — Duchenne crinkling [w2: +0.6 "lighting up from inside"]
+    [8, 0.5],   // ψ8: slight nose crinkle — Duchenne marker [w2: new]
   ],
   pose: { pitch: 0.10, yaw: 0.05 },
   gaze: { gazeH: 0.10 },
@@ -105,10 +109,12 @@ export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
  * Mid-face tone + assessment gaze. */
 export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [3, 1.5],   // ψ3: open curiosity — assessing, scanning
-    [4, 1.2],   // ψ4: engagement — locked in, wired
-    [5, 1.2],   // ψ5: frown — tight, clenched
+    [3, -1.0],  // ψ3: disgust/brow pinch — cognitive load, inner brow pull
+    [4, 2.5],   // ψ4: engagement — lips part, jaw tension
+    [5, 1.8],   // ψ5: frown/tight — clenched, wired
     [8, 0.6],   // ψ8: slightly shocked — alert edge
+    [0, 0.4],   // ψ0: slight mouth open — breathing through mouth
+    [9, -0.6],  // ψ9: frown — anchors cheeks, prevents fish-mouth [w3: new]
   ],
   pose: { pitch: 0.04, yaw: 0.08, roll: 0.04 },  // leaning forward + head turned
   gaze: { gazeH: 0.12 },  // eyes tracking lateral
@@ -120,15 +126,44 @@ export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
  * Sagging face + vacant gaze. */
 export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [7, -2.0],  // ψ7: disappointed — PRIMARY exhaustion (droopy, depleted)
+    [7, -2.8],  // ψ7: disappointed — HEAVY eyelid droop [w2: +0.8 "physically unable to stay awake"]
     [4, -1.5],  // ψ4: boredom — shutdown, vacant
     [5, -0.8],  // ψ5: uninterested — slack face
     [3, -0.6],  // ψ3: disgust — "whatever", checked out
-    [0, 0.4],   // ψ0: slight frown-smile — slack, dopey
+    [0, 0.6],   // ψ0: slack open jaw — surrendered to gravity [w2: FLIPPED +0.9, critics want open not pursed]
   ],
   pose: { pitch: -0.10, roll: -0.04 },  // head drops, listing
-  gaze: { gazeV: -0.12 },  // eyes sag down
+  gaze: { gazeV: -0.08 },  // unfocused downward [w2: reduced magnitude = thousand-yard stare]
   texture: { fatigue: 0.5 },  // bags, pallor
+};
+
+/** AGGRESSION AGGRESSIVE (+): sustained directional force — attacking, combative.
+ * Primary channel: ψ6+ (angry stare) + ψ2 (confrontational mouth).
+ * The "fighting for survival" face — narrowed eyes, set jaw, forward intent. */
+export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
+  expression: [
+    [6, 2.0],   // ψ6: angry — PRIMARY aggression. Narrowed brows, confrontational stare.
+    [2, 0.8],   // ψ2: confrontational mouth opening — bared-teeth intensity
+    [3, -1.2],  // ψ3: disgust/nasal crinkle — snarl quality
+    [9, -0.8],  // ψ9: frown — downturned mouth, no smile
+  ],
+  pose: { pitch: 0.06 },  // chin forward — confrontational
+  gaze: { gazeV: -0.04 },  // eyes level/slightly down — hunting
+  texture: { flush: 0.2 },  // blood rushing
+};
+
+/** AGGRESSION YIELDING (−): retreat, submission, avoidance.
+ * Soft eyes, averted gaze, closed/small mouth. The "I give up fighting" face. */
+export const AGGRESSION_YIELDING_RECIPE: ExpressionChordRecipe = {
+  expression: [
+    [6, -0.6],  // ψ6: surprise — softer brows, wide not angry
+    [4, -0.8],  // ψ4: boredom — disengagement
+    [7, -0.5],  // ψ7: slight disappointment — soft retreat
+    [0, -0.4],  // ψ0: pursed/closed — small mouth, retreating
+  ],
+  pose: { pitch: -0.04 },  // chin down — submissive
+  gaze: { gazeH: -0.08, gazeV: -0.06 },  // averted gaze
+  texture: {},
 };
 
 /** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar)
@@ -161,6 +196,13 @@ export function sigmoid(x: number, steepness: number): number {
 /** Symmetric sigmoid: maps any real number to (-1, 1). */
 export function symmetricSigmoid(x: number, steepness: number): number {
   return 2 * sigmoid(x, steepness) - 1;
+}
+
+/** Front-load activation: small inputs produce proportionally larger output.
+ * power < 1 makes low activations more visible (0.4 → 0.63 at power=0.6).
+ * Preserves sign and endpoints (0→0, ±1→±1). */
+function activationCurve(x: number, power: number): number {
+  return Math.sign(x) * Math.pow(Math.abs(x), power);
 }
 
 /** Z-score normalize a value against its ticker's history, clamped to ±3. */
@@ -200,10 +242,14 @@ export function computeChordActivations(
   // ─── Fatigue: chronic toll + mean reversion (merged) ───
   const fatigue = symmetricSigmoid((-(dd_z + exchFatigue) + mr_z) * 0.5, 6);
 
+  // ─── Aggression: negative momentum with directional velocity = fighting ───
+  const vel_sign = vel_z >= 0 ? 1 : -1;
+  const aggression = symmetricSigmoid(-mom_z * vel_sign, 6);
+
   // ─── Shape axis ───────────────────────────────
   const dominance = symmetricSigmoid(mom_z, 6);
 
-  return { alarm, fatigue, dominance };
+  return { alarm, fatigue, aggression, dominance };
 }
 
 /**
@@ -251,18 +297,32 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
     if (recipe.texture.fatigue) fatigue += recipe.texture.fatigue * magnitude;
   }
 
+  // Front-load activation curves: low axis values still produce visible expression.
+  // power=0.6 maps: 0.2→0.38, 0.4→0.57, 0.7→0.79, 1.0→1.0
+  const EXPR_CURVE = 0.6;
+  const alarmMag = activationCurve(activations.alarm, EXPR_CURVE);
+  const fatigueMag = activationCurve(activations.fatigue, EXPR_CURVE);
+
   // ALARM (alarmed ↔ euphoric)
-  if (activations.alarm >= 0) {
-    applyRecipe(ALARM_ALARMED_RECIPE, activations.alarm);
+  if (alarmMag >= 0) {
+    applyRecipe(ALARM_ALARMED_RECIPE, alarmMag);
   } else {
-    applyRecipe(ALARM_EUPHORIC_RECIPE, Math.abs(activations.alarm));
+    applyRecipe(ALARM_EUPHORIC_RECIPE, Math.abs(alarmMag));
   }
 
   // FATIGUE (wired ↔ exhausted)
-  if (activations.fatigue >= 0) {
-    applyRecipe(FATIGUE_WIRED_RECIPE, activations.fatigue);
+  if (fatigueMag >= 0) {
+    applyRecipe(FATIGUE_WIRED_RECIPE, fatigueMag);
   } else {
-    applyRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(activations.fatigue));
+    applyRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(fatigueMag));
+  }
+
+  // AGGRESSION (aggressive ↔ yielding)
+  const aggrMag = activationCurve(activations.aggression, EXPR_CURVE);
+  if (aggrMag >= 0) {
+    applyRecipe(AGGRESSION_AGGRESSIVE_RECIPE, aggrMag);
+  } else {
+    applyRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(aggrMag));
   }
 
   // ψ7 safety clamp

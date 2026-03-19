@@ -53,9 +53,11 @@ function parseUrlParams() {
   } else {
     const alarm = params.get('alarm');
     const fatigue = params.get('fatigue');
+    const aggression = params.get('aggression');
     const dominance = params.get('dominance');
     if (alarm) store.setAlarm(parseFloat(alarm));
     if (fatigue) store.setFatigue(parseFloat(fatigue));
+    if (aggression) store.setAggression(parseFloat(aggression));
     if (dominance) store.setDominance(parseFloat(dominance));
   }
 }

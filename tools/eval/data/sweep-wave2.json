@@ -1,0 +1,27 @@
+[
+  {"params": {"alarm": "-1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_-1.0_front.png"},
+  {"params": {"alarm": "-0.7"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_-0.7_front.png"},
+  {"params": {"alarm": "-0.4"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_-0.4_front.png"},
+  {"params": {"alarm": "0.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_0.0_front.png"},
+  {"params": {"alarm": "0.4"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_0.4_front.png"},
+  {"params": {"alarm": "0.7"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_0.7_front.png"},
+  {"params": {"alarm": "1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/alarm_1.0_front.png"},
+
+  {"params": {"fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_-1.0_front.png"},
+  {"params": {"fatigue": "-0.7"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_-0.7_front.png"},
+  {"params": {"fatigue": "-0.4"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_-0.4_front.png"},
+  {"params": {"fatigue": "0.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_0.0_front.png"},
+  {"params": {"fatigue": "0.4"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_0.4_front.png"},
+  {"params": {"fatigue": "0.7"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_0.7_front.png"},
+  {"params": {"fatigue": "1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/fatigue_1.0_front.png"},
+
+  {"params": {"alarm": "-1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/quad_euphoric-exhausted_front.png"},
+  {"params": {"alarm": "-1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/quad_euphoric-wired_front.png"},
+  {"params": {"alarm": "1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/quad_alarmed-exhausted_front.png"},
+  {"params": {"alarm": "1.0", "fatigue": "1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/quad_alarmed-wired_front.png"},
+
+  {"params": {"alarm": "0.7", "dominance": "1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/cross_alarmed-chad_front.png"},
+  {"params": {"alarm": "0.7", "dominance": "-1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/cross_alarmed-soyboi_front.png"},
+  {"params": {"alarm": "-0.7", "dominance": "1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/cross_euphoric-chad_front.png"},
+  {"params": {"alarm": "-0.7", "dominance": "-1.0"}, "output": "tools/eval/data/renders/wave2-20260319-023228/cross_euphoric-soyboi_front.png"}
+]

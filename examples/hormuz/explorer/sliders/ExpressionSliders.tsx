@@ -5,8 +5,10 @@ import { useExplorerStore } from '../store';
 export function ExpressionSliders() {
   const alarm = useExplorerStore(s => s.alarm);
   const fatigue = useExplorerStore(s => s.fatigue);
+  const aggression = useExplorerStore(s => s.aggression);
   const setAlarm = useExplorerStore(s => s.setAlarm);
   const setFatigue = useExplorerStore(s => s.setFatigue);
+  const setAggression = useExplorerStore(s => s.setAggression);
 
   return (
     <div>
@@ -15,6 +17,7 @@ export function ExpressionSliders() {
       </div>
       <SliderRow label="alarm" value={alarm} min={-3} max={3} step={0.01} onChange={setAlarm} />
       <SliderRow label="fatigue" value={fatigue} min={-3} max={3} step={0.01} onChange={setFatigue} />
+      <SliderRow label="aggression" value={aggression} min={-3} max={3} step={0.01} onChange={setAggression} />
     </div>
   );
 }

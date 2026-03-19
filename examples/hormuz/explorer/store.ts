@@ -9,6 +9,8 @@ import {
   ALARM_EUPHORIC_RECIPE,
   FATIGUE_WIRED_RECIPE,
   FATIGUE_EXHAUSTED_RECIPE,
+  AGGRESSION_AGGRESSIVE_RECIPE,
+  AGGRESSION_YIELDING_RECIPE,
   DOMINANCE_RECIPE,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
@@ -19,9 +21,10 @@ type ExplorerMode = 'highlevel' | 'raw';
 interface ExplorerState {
   mode: ExplorerMode;
 
-  // High-level: 3 axes (pose/gaze/texture computed from chord recipes)
+  // High-level: 4 axes (pose/gaze/texture computed from chord recipes)
   alarm: number;
   fatigue: number;
+  aggression: number;
   dominance: number;
 
   // Raw mode: manual overrides
@@ -45,6 +48,7 @@ interface ExplorerState {
   setMode: (mode: ExplorerMode) => void;
   setAlarm: (v: number) => void;
   setFatigue: (v: number) => void;
+  setAggression: (v: number) => void;
   setDominance: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
@@ -139,6 +143,13 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     applyFullExprRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(state.fatigue), expression, pgt);
   }
 
+  // Aggression → aggressive (+) / yielding (−)
+  if (state.aggression >= 0) {
+    applyFullExprRecipe(AGGRESSION_AGGRESSIVE_RECIPE, state.aggression, expression, pgt);
+  } else {
+    applyFullExprRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(state.aggression), expression, pgt);
+  }
+
   // ψ7 safety clamp
   expression[7] = clamp(expression[7], -PSI7_CLAMP, PSI7_CLAMP);
 
@@ -207,6 +218,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
 
   alarm: 0,
   fatigue: 0,
+  aggression: 0,
   dominance: 0,
 
   poseOverride: false,
@@ -228,6 +240,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setMode: (v) => update(set, get, { mode: v }),
   setAlarm: (v) => update(set, get, { alarm: v }),
   setFatigue: (v) => update(set, get, { fatigue: v }),
+  setAggression: (v) => update(set, get, { aggression: v }),
   setDominance: (v) => update(set, get, { dominance: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
