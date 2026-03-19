@@ -83,8 +83,7 @@ export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   expression: [
     [2, -2.0],  // ψ2: brow sags
     [7, 2.0],   // ψ7: eyelid droop — heavy lids
-    [3, 0.8],   // ψ3: brow furrow — mild
-    [4, 0.5],   // ψ4: lips purse — resting
+    [0, -0.5],  // ψ0: jaw relaxes slightly — slack mouth
   ],
   pose: { pitch: -0.10 },
   gaze: { gazeV: -0.08 },
