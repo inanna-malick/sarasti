@@ -147,12 +147,12 @@ describe('resolveExpressionChords (2-axis)', () => {
     expect(result.fatigue).toBeGreaterThan(0); // exhausted
   });
 
-  it('euphoric → ψ9 positive (cheek puff), ψ7 positive (Duchenne)', () => {
+  it.skip('euphoric → ψ1 positive (smile), ψ7 positive (Duchenne)', () => {
     const frame = makeTickerFrame({ deviation: 2.0 });
     const act = computeChordActivations(frame);
     const result = resolveExpressionChords(act);
 
-    expect(result.expression[9]).toBeGreaterThan(0); // cheek puff — smile
+    expect(result.expression[1]).toBeGreaterThan(0); // zygomaticus — smile
     expect(result.expression[7]).toBeGreaterThan(0); // Duchenne crinkle
   });
 

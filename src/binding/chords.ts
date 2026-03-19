@@ -92,17 +92,17 @@ export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
 };
 
 /** MOOD EUPHORIC (+): positive deviation → warm glow, bilateral smile
- * ψ5 is NOT a smile — it's a sneer (upper lip center lift, levator labii).
- * Actual smile = ψ9 (cheek lift / zygomaticus) + ψ4 neg (corners widen).
+ * ψ1 is the actual smile component (zygomaticus major). It's asymmetric
+ * in the PCA decomposition (-0.898 self-reflection) but it's the only
+ * component that correctly pulls mouth corners up and back.
+ * Slight lopsidedness is acceptable — better than a sneer (ψ5) or grimace (ψ9).
  * Weights ≤2.5 so slider extreme (3.0) stays ≤7.5σ — no mesh inversion. */
 export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [9, 2.5],   // ψ9: cheek lift — PRIMARY smile driver (zygomaticus)
-    [4, -2.0],  // ψ4: corners pull wide — the actual mouth-shape of a grin
+    [1, 2.5],   // ψ1: zygomaticus major — THE smile muscle, corners up+back
     [7, 1.5],   // ψ7: Duchenne eye crinkle — genuine smile tell
-    [5, 0.5],   // ψ5: light upper lip seasoning (NOT primary — sneer at high values)
     [0, 0.3],   // ψ0: minimal jaw — grin is closed-mouth, jaw comes from tension
-    [8, 0.5],   // ψ8: nose wrinkle — subtle
+    [8, 0.5],   // ψ8: nose wrinkle — subtle genuine-smile seasoning
   ],
   pose: { pitch: 0.08, yaw: 0.04 },
   gaze: { gazeH: 0.08 },

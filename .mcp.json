@@ -4,9 +4,9 @@
       "args": [
         "mcp-stdio",
         "--role",
-        "root",
+        "tl",
         "--name",
-        "root"
+        "mood-fixes"
       ],
       "command": "exomonad",
       "type": "stdio"
