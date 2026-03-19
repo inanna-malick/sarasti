@@ -4,17 +4,15 @@
  * Expression: Alarm (alarmed↔euphoric) × Fatigue (wired↔exhausted).
  * Shape: Dominance (soyboi↔chad).
  *
- * Channel separation:
- *   Alarm    → alarmed: upper face (ψ8, ψ6, ψ2) / euphoric: lower face (ψ9, ψ11, ψ12, ψ7)
- *   Fatigue  → mid-face tone + assessment (ψ3–ψ5, ψ7, ψ8) + gaze
- *
- * ψ component actual visual reads (from explorer testing):
- *   ψ0: pursed↔frown-smile    ψ1: frown↔lopsided smile (ANTI)
- *   ψ2: —↔open angry mouth    ψ3: disgust↔open curiosity
- *   ψ4: boredom↔engagement    ψ5: uninterested↔frown
- *   ψ6: surprise↔angry        ψ7: disappointed↔happy
- *   ψ8: flat/bored↔shocked    ψ9: frown↔smile
- *   ψ11+ψ12: bilateral smile (conjugate pair)
+ * ψ component MECHANICAL reads (multi-angle census, wave16d):
+ *   ψ0: mouth pursed ↔ broad smile       ψ1: asym lip corner L↔R (ANTI)
+ *   ψ2: jaw clenched ↔ jaw dropped        ψ3: mouth wide ↔ lip pucker
+ *   ψ4: brow raised/eyes wide ↔ brow furrow   ψ5: upper lip snarl ↔ lip tuck
+ *   ψ6: rounded mouth "Oh" ↔ horiz stretch    ψ7: corners down ↔ corners up
+ *   ψ8: LATERAL JAW SHIFT (not emotional)      ψ9: eye squint ↔ eye wide open
+ *   ψ11: mouth stretch ↔ pucker  ψ12: upper lip down ↔ up
+ *   ψ20: visceral sneer ↔ stoic  ψ21: sleepy lids ↔ alert eyes
+ *   ψ25: squint+wide mouth ↔ relaxed  ψ26: chin retracted ↔ protruded
  */
 
 import type { TickerFrame } from '../types';
@@ -83,151 +81,160 @@ export interface ChordActivations {
 // ─── Chord Recipes ───────────────────────────────────
 
 /** ALARM ALARMED (+): acute volatility × |velocity| snap response.
- * Primary channel: ψ8 (shocked) — THE startle component.
- * ψ6- adds surprise. ψ2 adds open-mouth intensity. */
+ * [w16e] MECHANICAL AUDIT: ψ8 was lateral jaw shift, not "shocked" — worked from front
+ * by accident but breaks under rotation. Replaced with mechanically correct components:
+ * ψ4(-) brow raise + ψ9(+) eyes wide + ψ2(+) jaw drop = alarm from every angle. */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [8, 2.5, 1.3],  // ψ8: shocked — LATE ONSET [w10: subtle at low, dramatic at high]
-    [6, -0.6],      // ψ6: surprise
-    [2, 0.6, 1.5],  // ψ2: open mouth — LATE ONSET [w10: prevents uncanny at low alarm]
-    [0, 0.4, 1.5],  // ψ0: mouth aperture — LATE ONSET [w10: mouth opens only at high alarm]
-    [5, 1.0],   // ψ5: frown/tightening — jaw tension
-    [3, -0.7],  // ψ3: brow pinch — reduced [w8: free brow for other axes]
-    [16, 0.8],  // ψ16: focused intensity — furrowed brows [w7: alarmed ≠ surprised]
-    [24, -0.8], // ψ24: concerned brow tilt — outer brow corners down [w5: census]
-    [20, -0.6], // ψ20: visceral fear — lip pull, primal flinch [w7: census breadth]
-    [15, 0.5],  // ψ15: vulnerability — narrow/anxious jaw posture [w7: census breadth]
-    [26, -1.0], // ψ26: retracted chin — LOUDER [w8: alarm lives in lower face now]
+    [4, -3.0],      // ψ4: brow RAISED / eyes wide — PRIMARY alarm signal (neg = brow up)
+    [9, 2.5],       // ψ9: eyes wide open — sclera visible, startled gaze
+    [2, 1.5],       // ψ2: jaw dropped — mouth opens in shock
+    [6, -1.5],      // ψ6: rounded "Oh" mouth — alarm shape
+    [5, 1.2],       // ψ5: upper lip snarl — nostril flare, tension
+    [20, -1.5],     // ψ20: visceral sneer — nasolabial crunch, distress texture
   ],
-  pose: {},  // pose zeroed — focus on expression geometry
+  pose: {},
   gaze: {},
-  texture: { flush: -0.8 },  // [w14: was -0.4 — ALL 3 w13 critics: still too warm, clusters with neutral at thumbnail. doubled.]
+  texture: { flush: -0.8 },
 };
 
 /** ALARM EUPHORIC (−): positive deviation, low volatility → warm glow, smile.
- * Primary channel: lower face (mouth + cheeks).
- * Proven recipes from explorer testing. */
+ * [w16f] PUSH HARDER: acting coach says "still polite, not bursting." Boost smile components,
+ * add ψ2(+) jaw drop for open-mouth joy (different from alarm — corners UP here).
+ * ψ0(+) at 2.0 is confirmed Duchenne (cheek raise + broad smile from census). */
 export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [0, 1.2],   // ψ0: open-mouth smile — reduced [w11: less jaw drop, more cheek]
-    [9, 2.0],   // ψ9: smile — reduced [w11: was 2.5, still squinting at high]
-    [11, 3.0],  // ψ11: left mouth corner — LOUDER [w11: primary smile driver]
-    [12, 3.0],  // ψ12: right mouth corner — LOUDER [w11: primary smile driver]
-    [4, -1.0],  // ψ4: mouth widens — open, relaxed [w11: NEW, replaces ψ7]
-    [8, 0.4, 0.6],  // ψ8: bright eyes — EARLY ONSET [w11: replaces ψ7, eyes OPEN not closed]
-    [19, 0.6],  // ψ19: full cheeks — reduced [w15: was 1.2 — looks weird/bulging in profile]
-    [24, 0.7],  // ψ24: confident brow tilt — lifted outer brows
-    [26, 0.5],  // ψ26: prominent chin — confident, decisive
-    [15, -0.5], // ψ15: toughness/wide jaw — expansive
+    [0, 2.5],   // ψ0: broad smile — PRIMARY. Cheek raise, Duchenne (boosted from 1.5)
+    [7, 3.0],   // ψ7: mouth corners UP — big warm smile (boosted from 2.5)
+    [9, 1.5],   // ψ9: eyes wide — bright, alert joy
+    [2, 0.8],   // ψ2: slight jaw drop — mouth opens in joyful exclamation
+    [21, 1.5],  // ψ21: alert/awake eyes — energized
+    [4, -0.8],  // ψ4: brows slightly raised — pleasant, open
+    [25, 1.0],  // ψ25: relaxed/soft — calm pleasure, not tense
   ],
-  pose: { pitch: -0.05 },  // chin up — open/happy [w11: NEW]
+  pose: { pitch: -0.05 },
   gaze: {},
-  texture: { flush: 0.4 },  // warmer glow [w11: louder flush for euphoria]
+  texture: { flush: 0.6 },  // warmer flush (boosted from 0.5)
 };
 
 /** FATIGUE WIRED (+): caffeinated, scanning, eyes-wide-open energy.
- * [w9] MAJOR REWORK — valence collapse fix. Old recipe read as "defeated/zombie"
- * because frown components (ψ5,ψ9,ψ6) overwhelmed the engagement signal.
- * New recipe: curiosity + alertness + engagement. Less frown, more open eyes. */
+ * [w16f] BOOST: v5 was 3/5 blind, 2/5 thumbnail. Eyes wide + brow furrow invisible at 48px.
+ * Strategy: MOUTH is the thumbnail signal. Add tight grimace (ψ6+, ψ3-) for visible
+ * lip tension + keep wide eyes (ψ9+) for closeup/detail. Texture is last thumbnail resort. */
+/** FATIGUE WIRED (+): overcaffeinated, teeth-grinding, can't-blink intensity.
+ * [w16h] THUMBNAIL FIX: v7 blind=5/5 but thumbnail=2/5. Closed grimace invisible at 48px.
+ * Blind test proves the FACE is readable — it's purely a scale problem.
+ * Strategy: widen the mouth stretch to change FACE WIDTH at thumbnail. The horizontal
+ * stretch of ψ6+ψ3 should make lower face visibly wider than neutral. Add pitch forward
+ * to compress silhouette (chin tucks toward camera = shorter face = different from alarmed). */
 export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [3, 0.5],   // ψ3: open curiosity — scanning [w9: was -0.7 "disgust" → FLIPPED]
-    [4, 1.8],   // ψ4: engagement — lips part, active processing
-    [8, 0.6, 0.7],  // ψ8: alert eyes — less weight, less saturation [w11: was 0.8/0.5, "dazed" at 2.0]
-    [7, 0.4],   // ψ7: energized eyes — LINEAR now [w11: was 0.5/0.7, simplify]
-    [5, 0.6],   // ψ5: frown/tight — reduced [w9: was 1.8 "too much frown"]
-    [9, -0.3],  // ψ9: slight frown anchor — reduced [w9: was -0.8 "too negative"]
-    [6, 0.5, 1.3],  // ψ6: brow narrow — LATE ONSET [w11: was 0.3 linear, now scales in at high]
-    [0, 0.4],   // ψ0: slight mouth open — breathing through mouth
-    [16, 1.0],  // ψ16: focus/intensity — reduced [w11: was 1.5, too much squint at high values]
-    [25, -0.6], // ψ25: lower eyelid tension — reduced [w11: was -0.9, daze-contributing]
-    [13, -0.4], // ψ13: skepticism — mouth corners, suspicious scanning
-    [20, 0.4],  // ψ20: stoic suppression — holding it together
+    [6, 4.0],    // ψ6: horizontal lip stretch — MAXED, changes face width at thumbnail
+    [3, -3.0],   // ψ3: mouth WIDE — widens lower face silhouette (boosted)
+    [5, 2.5],    // ψ5: upper lip SNARL — nostril flare, intensity
+    [0, -1.0],   // ψ0: mouth pursed/clenched — jaw TENSION
+    [9, 2.0],    // ψ9: eyes wide — secondary signal
+    [4, 2.5],    // ψ4: brow FURROWED hard — corrugator crunch (boosted from 2.0)
+    [20, -1.5],  // ψ20: visceral nasolabial crunch
+    [21, 2.0],   // ψ21: alert/awake eyes
   ],
-  pose: {},
+  pose: { pitch: -0.08 },  // chin FORWARD hard — leaning in, compressed silhouette
   gaze: {},
-  texture: { fatigue: -0.6 },  // wired skin tone
+  texture: { fatigue: -1.0 },
 };
 
 /** FATIGUE EXHAUSTED (−): depleted, heavy, everything melts downward.
- * [w9] Reduced ψ7 extremity (clipping at -4.0 was unpredictable).
- * More boredom, less mouth opening (was reading as "speaking/present"). */
+ * [w16f] BOOST: v5 scored 4/5 thumbnail but critic wants "heavier eyelids + slack jaw".
+ * ψ9(-) squint is our eyelid proxy. ψ7(-) frown adds mouth weight. Add ψ2(+) slight
+ * jaw drop for slack-jawed exhaustion (different from alarm — no brow raise here). */
+/** FATIGUE EXHAUSTED (−): depleted, melting, barely conscious.
+ * [w16h] SEMANTIC FIX: v7 blind guesser read this as "shock/panic" due to big jaw drop.
+ * The ψ2(2.0) jaw drop was too sharp — reads as reactive shock, not passive exhaustion.
+ * Strategy: reduce jaw drop, increase FROWN (ψ7) to make the open mouth sag DOWN not gape.
+ * The mouth should look like it's falling open from gravity, not opening from surprise.
+ * More head sag + list to reinforce "melting" rather than "reacting." */
 export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [7, -2.0],  // ψ7: disappointed/heavy eyelids — reduced [w9: was -2.8, clipping issues]
-    [4, -2.0],  // ψ4: boredom — deeper shutdown [w9: was -1.5]
-    [5, -0.8],  // ψ5: uninterested — slack face
-    [3, -0.8],  // ψ3: disgust/"whatever" — checked out [w9: was -0.6]
-    [0, 0.3],   // ψ0: slight slack jaw — reduced [w9: was 0.6 "read as speaking"]
-    [9, -0.6],  // ψ9: slight frown — sadness/depletion [w9: NEW]
-    [19, -1.0], // ψ19: sunken cheeks — physical toll [w9: deeper]
-    [24, -0.4], // ψ24: brow droop — outer corners heavy [w9: restored from w8 reduction]
-    [20, -0.4], // ψ20: slight pain grimace — everything hurts
-    [13, 0.3],  // ψ13: subtle engagement — not dead, just beaten
+    [9, -3.5],   // ψ9: eyes closing — MAXED exhaustion (near-shut lids)
+    [7, -4.0],   // ψ7: mouth corners DOWN — MAXED frown, gravity pulling face down
+    [2, 1.2],    // ψ2: jaw drop — reduced from 2.0, just enough for visible slack mouth
+    [21, -3.0],  // ψ21: sleepy/droopy — heavy, depleted
+    [0, 0.5],    // ψ0: broad/loose — mouth slack, no tension
+    [25, 2.0],   // ψ25: relaxed/vacant — zero focus (boosted)
+    [24, -2.0],  // ψ24: brow outer corners DOWN — tired brow tilt (boosted)
+    [6, -1.0],   // ψ6: rounded mouth — sag shape, not grimace (NEW)
   ],
-  pose: {},
-  gaze: {},
-  texture: { fatigue: 1.0 },  // max bags/pallor [w9: louder texture]
+  pose: { pitch: 0.10, roll: 0.08 },  // head sags MAXIMUM + lists hard
+  gaze: { gazeV: -0.35 },  // eyes down maximum — not looking at anything
+  texture: { fatigue: 1.0 },
 };
 
 /** AGGRESSION AGGRESSIVE (+): sustained directional force — attacking, combative.
- * Primary channel: ψ6+ (angry stare) + ψ2 (confrontational mouth).
- * The "fighting for survival" face — narrowed eyes, set jaw, forward intent. */
+ * [w16e] MECHANICAL AUDIT: ψ7(+) is mouth corners UP (smile), NOT eye squint — removed.
+ * ψ9(-) IS eye squint — kept. ψ6(+) is lip stretch (tension). ψ3(-) is mouth wide (grimace).
+ * ψ20(-) visceral sneer CONFIRMED. ψ26(+) chin protrusion CONFIRMED. ψ25(-) squint CONFIRMED. */
 export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [6, 2.5],   // ψ6: angry — PRIMARY. Narrowed brows, confrontational stare
-    [2, 0.6, 1.5],  // ψ2: confrontational mouth — LATE ONSET [w15: was 1.5 — "crying baby" from 3/4, mouth dominated]
-    [3, -1.8],  // ψ3: disgust/nasal crinkle — nostril flare, nasolabial depth
-    [9, -1.0],  // ψ9: frown — downturned mouth, lip curl
-    [5, 1.2],   // ψ5: tight frown — jaw clench, lip tension
-    [0, 0.3, 1.5],  // ψ0: jaw parting — LATE ONSET [w15: was 0.8 linear — open mouth reads as wailing from side]
-    [16, 1.5],  // ψ16: focus/intensity — squinted hunting eyes [w5: census]
-    [20, -2.0], // ψ20: visceral snarl — LOUDER [w8: key differentiator from wired]
-    [26, 1.3],  // ψ26: chin resolve — forward "charging" [w8: per director at aggr_2.0]
-    [25, -0.8], // ψ25: intense aggressive focus — thinned lips, squint [w15: was -0.6, louder to carry aggression without mouth]
-    [15, -0.6], // ψ15: toughness — wide jaw, determined set [w7: census breadth]
+    [6, 3.0],    // ψ6: horizontal lip stretch — tense, bared-teeth grimace
+    [3, -2.0],   // ψ3: mouth wide — snarl, grimace width
+    [9, -2.0],   // ψ9: eye SQUINT — focused, predatory gaze (was -1.5, boosted)
+    [5, 1.8],    // ψ5: upper lip snarl — nostril flare, bared upper teeth
+    [4, 1.5],    // ψ4: brow FURROWED — corrugator, angry V-shape
+    [0, -0.6],   // ψ0: mouth pursed/clenched — jaw tension
+    [20, -2.0],  // ψ20: visceral sneer — nasolabial crunch, primal
+    [26, 1.3],   // ψ26: chin protruded — jaw forward, charging
+    [25, -1.0],  // ψ25: squint + wide mouth — intense focus
+    [16, 1.5],   // ψ16: mouth narrow/pointed — lip compression
   ],
-  pose: {},
+  pose: { pitch: 0.05 },
   gaze: {},
-  texture: { flush: 0.3 },  // blood rushing
+  texture: { flush: 0.5 },
 };
 
 /** AGGRESSION YIELDING (−): active retreat, submission, turning away from the fight.
- * DISTINCT FROM FATIGUE: yielding = looking away, flinching. Fatigue = melting, drooping.
- * No ψ7 (that's fatigue's heavy-lid territory). Yielding has OPEN eyes that are AVERTED. */
+ * [w16f] BOOST: v5 thumbnail 2/5 — geometry too close to neutral. Pose helps but not enough.
+ * Strategy: LOUDER frown (ψ7-), LOUDER brow raise (ψ4-), add ψ24(-) concerned brow tilt.
+ * Chin retraction (ψ26-) only visible from side — keep but boost. More pallor. */
+/** AGGRESSION YIELDING (−): active retreat, submission, turning away from the fight.
+ * [w16h] THUMBNAIL FIX: v7 blind=3/5 but thumbnail=2/5. The yaw (turn away) makes face
+ * SMALLER at thumbnail, hurting visibility. Also reads as "disgust" not submission.
+ * Strategy: replace yaw with ROLL (head cock/tilt = universal submission gesture).
+ * Roll changes silhouette without shrinking face. Keep the frown but reduce jaw drop
+ * (it was reading as "surprised" not "defeated"). More droop, less gape. */
 export const AGGRESSION_YIELDING_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [6, -1.0],  // ψ6: surprise/soft brows — vulnerability, NOT anger
-    [4, -0.6],  // ψ4: disengagement — pulling back
-    [0, -0.5],  // ψ0: pursed/closed — small mouth, flinching
-    [9, -0.4],  // ψ9: slight frown — not happy but not devastated
-    [15, 1.0],  // ψ15: vulnerability/narrow jaw — delicate [w9: was 0.8]
-    [26, -1.0], // ψ26: strong chin retraction — pulling back [w9: was -0.6]
-    [24, -0.8], // ψ24: worried brow — deep worry
-    [19, 0.3],  // ψ19: slightly full cheeks — NOT emaciated (distinct from exhaustion)
-    [20, 0.3],  // ψ20: stoic suppression — holding back, not fighting
+    [7, -3.5],   // ψ7: mouth corners DOWN — deep defeated frown (PRIMARY signal)
+    [4, -3.0],   // ψ4: brows RAISED high — scared/vulnerable/exposed
+    [24, -2.0],  // ψ24: brow outer corners DOWN — worried/concerned tilt
+    [9, -1.5],   // ψ9: eyes slightly squinted — pained, wincing (re-added: "about to cry")
+    [0, -1.0],   // ψ0: mouth pursed/small — withdrawn, tight-lipped defeat
+    [26, -1.5],  // ψ26: chin RETRACTED — pulling back, submission
+    [21, -1.5],  // ψ21: heavy lids — disengaging, giving up
   ],
-  pose: {},
-  gaze: {},
-  texture: { flush: 0.3 },  // [w14: was 0.15 — makeup artist: "missed opportunity", invisible at thumbnail. doubled.]
+  pose: { yaw: 0.06, pitch: 0.05, roll: -0.12 },  // ROLL dominant — head cocked sideways (submission)
+  gaze: { gazeH: -0.20, gazeV: -0.25 },  // eyes down and slightly averted
+  texture: { flush: -0.8 },  // MAXIMUM pallor
 };
 
 /** SMIRK/DECEPTION (+): the market is lying — asymmetric, untrustworthy.
- * INTENTIONALLY uses ψ1 (antisymmetric lopsided smile) — the ONE component
- * we banned for bilateral expression. Here asymmetry IS the signal.
- * Smirk(+): one-sided smile, squinted eyes, "I know something you don't"
- * Sincere(-): open, symmetric, "what you see is what you get" */
+ * [w16e] MECHANICAL AUDIT: ψ1 CONFIRMED asymmetric lip corner (correct primary).
+ * ψ7(+) is mouth corners up — adds slight smile to smirk side. ψ3(-) widens mouth,
+ * ψ6(+) stretches lips horizontally. Replaced brow-misattributed components with
+ * ψ4(+) brow furrow for calculating look, ψ9(-) slight squint for knowing eyes. */
+/** SMIRK/DECEPTION (+): the market is lying — asymmetric, untrustworthy.
+ * [w16g] BOOST: thumbnail 3/5, euphoric↔smirk confusion HIGH.
+ * Strategy: 50% more ψ1 asymmetry, stronger head tilt, more squint for "knowing" look.
+ * Key differentiator from euphoric: asymmetry + squint vs euphoric's wide eyes + symmetry. */
 export const SMIRK_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [1, 2.0],       // ψ1: lopsided smile — THE asymmetry signal
-    [7, 0.8, 0.7],  // ψ7: slight eye squint — knowing look, early onset
-    [3, -0.5],      // ψ3: brow pinch — calculating
-    [9, 0.6],       // ψ9: slight smile — but only on one side via ψ1
-    [13, -0.4],     // ψ13: mouth corner pull — smug
-    [25, -0.3],     // ψ25: eye narrowing — sizing you up
+    [1, 5.0],       // ψ1: asymmetric lip corner — 50% boost for thumbnail visibility
+    [7, 0.8, 0.7],  // ψ7: mouth corners up — knowing half-smile (boosted)
+    [4, 1.2],       // ψ4: brow furrowed — calculating, skeptical (boosted)
+    [9, -1.0],      // ψ9: eyes squinted — "I know something you don't" (boosted)
+    [20, -0.5],     // ψ20: slight nasolabial crunch — adds smug texture
   ],
-  pose: {},
-  gaze: {},
+  pose: { roll: 0.05 },  // more head tilt — cocky, jaunty
+  gaze: { gazeH: 0.10 },  // slight sideways glance — shifty
   texture: {},
 };
 
@@ -270,13 +277,16 @@ export const MATURITY_RECIPE: ShapeChordRecipe = {
  * β{6,9,10,21,22,28} — ZERO overlap with dominance or maturity ✓ */
 export const SHARPNESS_RECIPE: ShapeChordRecipe = {
   shape: [
-    [10, -1.0], // β10: V-shape/lean — reduced [w9: was -2.0, homogenized with dominance]
-    [28, -2.5], // β28: jaw angularity — PRIMARY leanness cue [w9: was -2.0, louder]
-    [9, -2.0],  // β9: lip thinning — key visual leanness [w9: was -1.5, louder]
-    [6, -0.8],  // β6: nose refinement — [w15: was -1.5 — puffy nose looks bulbous/distorted from 3/4 view]
-    [21, -0.8], // β21: nostril width — [w15: was -1.5 — same issue, nostrils balloon in profile]
-    [22, 2.0],  // β22: chin angularity — harder [w9: was 1.5]
-    [20, -1.0], // β20: philtrum tautness — taut/alert(-) vs slack(+) [w9: NEW]
+    [10, -1.5], // β10: V-shape/lean skull — [w15b: was -1.0, boosted — reads from all angles]
+    [28, -2.5], // β28: jaw angularity — PRIMARY leanness cue
+    [9, -2.0],  // β9: lip thinning — key visual leanness
+    [6, -0.8],  // β6: nose refinement — [w15: reduced from -1.5 for profile]
+    [21, -0.8], // β21: nostril width — [w15: reduced from -1.5 for profile]
+    [22, 1.0],  // β22: chin angularity — [w15b: was 2.0, reduced — too chin-dominant]
+    [20, -1.0], // β20: philtrum tautness
+    [27, -1.5], // β27: deep-set eyes — [w15b: NEW — gaunt orbital hollows visible from ALL angles]
+    [12, 1.0],  // β12: canthal tilt — [w15b: NEW — alert/lean upward eye tilt]
+    [5, -0.8],  // β5: lowered brows — [w15b: NEW — intense/lean brow ridge]
   ],
   pose: {},
 };

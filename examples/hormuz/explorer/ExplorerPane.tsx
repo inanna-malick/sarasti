@@ -9,7 +9,7 @@ import { RawSliders } from './sliders/RawSliders';
 import { ReportPanel } from './ReportPanel';
 import { useExplorerStore } from './store';
 
-export type CameraPreset = 'front' | 'left34' | 'right34';
+export type CameraPreset = 'front' | 'left34' | 'right34' | 'closeup' | 'closeup_eyes';
 
 function parseUrlParams() {
   const params = new URLSearchParams(window.location.search);
@@ -71,7 +71,7 @@ function parseUrlParams() {
 function getCameraPreset(): CameraPreset {
   const params = new URLSearchParams(window.location.search);
   const camera = params.get('camera');
-  if (camera === 'left34' || camera === 'right34') return camera;
+  if (camera === 'left34' || camera === 'right34' || camera === 'closeup' || camera === 'closeup_eyes') return camera;
   return 'front';
 }
 

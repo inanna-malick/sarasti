@@ -14,9 +14,11 @@ declare global {
 }
 
 const CAMERA_PRESETS: Record<CameraPreset, [number, number, number]> = {
-  front:   [0,     0,    0.6],
-  left34:  [-0.25, 0.05, 0.53],
-  right34: [0.25,  0.05, 0.53],
+  front:       [0,     0,    0.6],
+  left34:      [-0.25, 0.05, 0.53],
+  right34:     [0.25,  0.05, 0.53],
+  closeup:     [0,    -0.01, 0.32],
+  closeup_eyes:[0,     0.01, 0.22],
 };
 
 interface ExplorerRendererProps {
