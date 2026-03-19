@@ -24,6 +24,7 @@ export class FlameFaceMesh {
   public readonly mesh: THREE.Mesh;
   private geometry: THREE.BufferGeometry;
   private material: THREE.MeshStandardMaterial;
+  private interiorMaterial: THREE.MeshBasicMaterial;
   private teethMaterial: THREE.MeshStandardMaterial | null = null;
   private gumsMaterial: THREE.MeshStandardMaterial | null = null;
   private tongueMaterial: THREE.MeshStandardMaterial | null = null;
@@ -111,6 +112,14 @@ export class FlameFaceMesh {
 
     // 3. Create Mesh
     this.mesh = new THREE.Mesh(this.geometry, materials);
+
+    // 4. Black interior — back faces render as black void (mouth, nostrils)
+    //    Added as child of the front mesh so it inherits all transforms.
+    this.interiorMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      side: THREE.BackSide,
+    });
+    this.mesh.add(new THREE.Mesh(this.geometry, this.interiorMaterial));
   }
 
 
@@ -271,6 +280,7 @@ export class FlameFaceMesh {
   public dispose(): void {
     this.geometry.dispose();
     this.material.dispose();
+    this.interiorMaterial.dispose();
     this.teethMaterial?.dispose();
     this.gumsMaterial?.dispose();
     this.tongueMaterial?.dispose();
