@@ -4,9 +4,9 @@ import { useExplorerStore } from '../store';
 
 export function ShapeSliders() {
   const dominance = useExplorerStore(s => s.dominance);
-  const stature = useExplorerStore(s => s.stature);
+  const predator = useExplorerStore(s => s.predator);
   const setDominance = useExplorerStore(s => s.setDominance);
-  const setStature = useExplorerStore(s => s.setStature);
+  const setPredator = useExplorerStore(s => s.setPredator);
 
   return (
     <div>
@@ -14,7 +14,7 @@ export function ShapeSliders() {
         Shape
       </div>
       <SliderRow label="dominance" value={dominance} min={-3} max={3} step={0.01} onChange={setDominance} />
-      <SliderRow label="stature" value={stature} min={-3} max={3} step={0.01} onChange={setStature} />
+      <SliderRow label="predator" value={predator} min={-3} max={3} step={0.01} onChange={setPredator} />
     </div>
   );
 }

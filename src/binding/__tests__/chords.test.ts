@@ -41,7 +41,7 @@ describe('computeChordActivations (2-axis circumplex)', () => {
     expect(Number.isFinite(act.tension)).toBe(true);
     expect(Number.isFinite(act.mood)).toBe(true);
     expect(Number.isFinite(act.dominance)).toBe(true);
-    expect(Number.isFinite(act.stature)).toBe(true);
+    expect(Number.isFinite(act.predator)).toBe(true);
   });
 
   it('high volatility × velocity → positive tension (tense)', () => {
@@ -237,7 +237,7 @@ describe('resolveShapeChords', () => {
     const act = computeChordActivations(frame);
     const { pose } = resolveShapeChords(act);
 
-    // Dominance has no pose — only stature contributes
+    // Neither dominance nor predator have pose
     expect(Math.abs(pose.pitch)).toBeLessThan(0.1);
   });
 
@@ -250,22 +250,26 @@ describe('resolveShapeChords', () => {
     expect(shape[48]).toBeGreaterThan(0); // β48: skull refinement
   });
 
-  it('stature includes mid-frequency enrichment (β15, β49)', () => {
-    const frame = makeTickerFrame({ beta: 2.5, deviation: 0.5 });
+  it('predator drives eye-region β (β4, β5, β7, β15)', () => {
+    const frame = makeTickerFrame({ velocity: 2.0, deviation: 1.0 });
     const act = computeChordActivations(frame);
+    expect(act.predator).toBeGreaterThan(0); // velocity-aligned with deviation → predator
     const { shape } = resolveShapeChords(act);
 
-    expect(shape[15]).not.toBe(0); // β15: bone structure
-    expect(shape[49]).not.toBe(0); // β49: surface detail
+    // Predator (+): heavy brow, high bridge, sharp tilt, close-set eyes
+    expect(shape[4]).toBeGreaterThan(0);   // β4: brow ridge
+    expect(shape[5]).toBeGreaterThan(0);   // β5: nasal bridge
+    expect(shape[7]).toBeGreaterThan(0);   // β7: orbital tilt
+    expect(shape[15]).toBeLessThan(0);     // β15: eye distance (negative = close-set)
   });
 
-  it('zero overlap between dominance and stature components', () => {
-    // Dominance: β0, β2, β3, β4, β7, β13, β18, β23, β48
-    // Stature: β1, β5, β6, β8, β15, β32, β49
-    const domComponents = new Set([0, 2, 3, 4, 7, 13, 18, 23, 48]);
-    const statComponents = new Set([1, 5, 6, 8, 15, 32, 49]);
+  it('zero overlap between dominance and predator components', () => {
+    // Dominance: β0, β1, β2, β3, β6, β8, β13, β18, β23, β32, β48, β49
+    // Predator: β4, β5, β7, β15
+    const domComponents = new Set([0, 1, 2, 3, 6, 8, 13, 18, 23, 32, 48, 49]);
+    const predComponents = new Set([4, 5, 7, 15]);
     for (const d of domComponents) {
-      expect(statComponents.has(d)).toBe(false);
+      expect(predComponents.has(d), `β${d} in both axes`).toBe(false);
     }
   });
 });

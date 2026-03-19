@@ -26,7 +26,7 @@ export interface AxesConfig<T extends FaceDatum = FaceDatum> {
   mood?: Accessor<T>;
   // Shape axes
   dominance?: Accessor<T>;
-  stature?: Accessor<T>;
+  predator?: Accessor<T>;
   // Pose axes
   pitch?: Accessor<T>;
   yaw?: Accessor<T>;

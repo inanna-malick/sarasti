@@ -43,15 +43,14 @@ describe('Shape resolution (chord-based)', () => {
     expect(rising.shape[48]).toBeGreaterThan(0);  // β48: skull refinement
   });
 
-  it('|1-beta| drives stature axis (β1, β6, β5, β8, β15, β32, β49)', () => {
-    const rebel = resolveShape({ beta: 2.5, deviation: 0.5 }); // far from herd, positive dev → heavy
-    const conformist = resolveShape({ beta: 1.0 }); // with herd
+  it('velocity-aligned deviation drives predator axis (β4, β5, β7, β15)', () => {
+    const hunter = resolveShape({ velocity: 2.0, deviation: 1.0 }); // velocity-aligned → predator
+    const prey = resolveShape({ velocity: -2.0, deviation: 1.0 });  // velocity opposing dev → prey
 
-    // β1 (face length) should be higher for rebel (stature active)
-    expect(Math.abs(rebel.shape[1])).toBeGreaterThan(Math.abs(conformist.shape[1]));
-    // New mid-frequency enrichment
-    expect(Math.abs(rebel.shape[15])).toBeGreaterThan(Math.abs(conformist.shape[15]));  // β15
-    expect(Math.abs(rebel.shape[49])).toBeGreaterThan(Math.abs(conformist.shape[49]));  // β49
+    // β4 (brow ridge) should be positive for predator
+    expect(hunter.shape[4]).toBeGreaterThan(prey.shape[4]);
+    // β15 (eye distance) should be negative for predator (close-set)
+    expect(hunter.shape[15]).toBeLessThan(prey.shape[15]);
   });
 
   it('shape values stay within reasonable bounds (±10)', () => {

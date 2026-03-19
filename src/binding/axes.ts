@@ -3,7 +3,7 @@
  * Single source of truth — both explorer and binding import from here.
  *
  * Expression axes: tension (tense↔placid), mood (euphoric↔grief) — Russell circumplex.
- * Shape axes: dominance (Soyboi↔Chad), stature (Heavy↔Gaunt) — additive, EMA-smoothed.
+ * Shape axis: dominance (Soyboi↔Chad) — single axis, all 16 β components.
  *
  * Component catalog (FLAME 2023 Open PCA ordering):
  *   ψ0: jaw drop            ψ1: smile/frown (ASYMMETRIC) ψ2: brow raise
@@ -29,14 +29,13 @@ export const EXPR_AXES = {
   mood:    [[5, 4.0], [9, 5.0], [7, 2.5], [4, -0.3], [0, 0.3], [8, 0.8]] as const,
 } as const;
 
-// Shape axes — each entry is [β_index, weight]
-// Zero component overlap between axes.
+// Shape axes — two axes with zero component overlap.
 // Mid-frequency components have higher weights to compensate for lower displacement.
 export const SHAPE_AXES = {
-  // Dominance (Chad+/Soyboi-): jaw, chin, neck, brow + mid-freq refinement
-  dominance:  [[3, 3.0], [2, 2.0], [0, 2.0], [4, 1.5], [7, 1.0], [18, 3.0], [23, 3.0], [13, 2.5], [48, 2.5]] as const,
-  // Stature (Heavy+/Gaunt-): face length, cheekbone, nasal, mouth + skull detail
-  stature:    [[1, 3.0], [6, 2.0], [5, 1.5], [8, 1.2], [32, 3.0], [15, 2.5], [49, 2.5]] as const,
+  // Dominance (Chad+/Soyboi-): jaw/chin/mass — no eye-region β
+  dominance:  [[3, 3.0], [2, 2.0], [0, 2.0], [18, 3.0], [23, 3.0], [13, 2.5], [48, 2.5], [1, 3.0], [6, 2.0], [8, 1.2], [32, 3.0], [49, 2.5]] as const,
+  // Predator/Prey (+/−): hunter eyes — eye spacing, orbital tilt, brow, bridge
+  predator:   [[15, -2.5], [7, 2.0], [5, 1.5], [4, 1.5]] as const,
 } as const;
 
 export type ExprAxis = keyof typeof EXPR_AXES;
@@ -44,7 +43,7 @@ export type ShapeAxis = keyof typeof SHAPE_AXES;
 export type AxisMapping = readonly (readonly [number, number])[];
 
 export const EXPR_AXIS_NAMES: ExprAxis[] = ['tension', 'mood'];
-export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance', 'stature'];
+export const SHAPE_AXIS_NAMES: ShapeAxis[] = ['dominance', 'predator'];
 
 /**
  * Apply a mapping: target[idx] += weight * value for each [idx, weight].

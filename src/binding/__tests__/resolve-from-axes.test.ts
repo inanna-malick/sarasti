@@ -51,13 +51,14 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(chad.shape[48]).toBeGreaterThan(0);  // new high-freq
   });
 
-  it('stature drives β1 (face length) + new β15, β49', () => {
-    const heavy = resolveFromAxes({ stature: 2.0 }, 'a');
-    const gaunt = resolveFromAxes({ stature: -2.0 }, 'a');
-    expect(heavy.shape[1]).toBeGreaterThan(0);
-    expect(gaunt.shape[1]).toBeLessThan(0);
-    expect(heavy.shape[15]).toBeGreaterThan(0);  // new mid-freq
-    expect(heavy.shape[49]).toBeGreaterThan(0);  // new high-freq
+  it('predator drives eye-region β (β4, β5, β7, β15)', () => {
+    const hunter = resolveFromAxes({ predator: 2.0 }, 'a');
+    const prey = resolveFromAxes({ predator: -2.0 }, 'a');
+    expect(hunter.shape[4]).toBeGreaterThan(0);   // brow ridge
+    expect(prey.shape[4]).toBeLessThan(0);
+    expect(hunter.shape[7]).toBeGreaterThan(0);   // orbital tilt
+    expect(hunter.shape[15]).toBeLessThan(0);     // close-set eyes (negative)
+    expect(prey.shape[15]).toBeGreaterThan(0);    // wide-set eyes (positive)
   });
 
   it('pose values map to neck and jaw', () => {

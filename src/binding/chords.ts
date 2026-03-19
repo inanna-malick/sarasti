@@ -1,8 +1,8 @@
 /**
- * Chord Architecture — 2-axis expression circumplex + 2 shape axes.
+ * Chord Architecture — 2-axis expression circumplex + 1 shape axis.
  *
  * Expression: Tension (tense↔placid) × Mood (euphoric↔grief) — Russell circumplex.
- * Shape: Dominance (soyboi↔chad) × Stature (heavy↔gaunt) — additive with EMA smoothing.
+ * Shape: Dominance (soyboi↔chad) — single axis, all 16 β components.
  *
  * No softmax — the two expression axes are orthogonal. Component overlap (ψ0, ψ3, ψ4, ψ5, ψ7, ψ8)
  * produces natural circumplex blending. Max ψ7 overlap at both axes full: ~3.5, within ±4 clamp.
@@ -56,9 +56,10 @@ export interface ChordActivations {
   tension: number;
   /** Mood axis: -1 (grief) to +1 (euphoric) */
   mood: number;
-  /** Shape axis values (not softmaxed) */
+  /** Shape axis: -1 (soyboi) to +1 (chad) */
   dominance: number;
-  stature: number;
+  /** Shape axis: -1 (prey/docile) to +1 (predator/hunter) */
+  predator: number;
 }
 
 // ─── Chord Recipes ───────────────────────────────────
@@ -119,35 +120,37 @@ export const MOOD_GRIEF_RECIPE: ExpressionChordRecipe = {
   texture: { flush: -0.2 },  // pallid — negative flush
 };
 
-/** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar) */
+/** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar). Jaw/chin/mass — no eye-region β. */
 export const DOMINANCE_RECIPE: ShapeChordRecipe = {
   shape: [
+    // Primary structure
     [3, 3.0],   // β3: jaw width (primary — biggest visual impact)
     [2, 2.0],   // β2: chin projection
     [0, 2.0],   // β0: neck thickness / global width
-    [4, 1.5],   // β4: brow ridge prominence
-    [7, 1.0],   // β7: mid-face width (SYM 0.94)
     [18, 3.0],  // β18: localized structure refinement (SYM 0.886)
     [23, 3.0],  // β23: bone structure detail (SYM 0.856)
     [13, 2.5],  // β13: facial structure detail (mixed 0.671)
     [48, 2.5],  // β48: high-freq skull refinement (mixed 0.780)
-  ],
-  // No pose link — dominance chin tuck interferes with expression (e.g. the scream)
-};
-
-/** STATURE (Heavy↔Gaunt) ← |1-beta| with sign from deviation */
-export const STATURE_RECIPE: ShapeChordRecipe = {
-  shape: [
-    [1, 3.0],   // β1: face length (primary)
+    // Volume/mass (ex-stature, folded in)
+    [1, 3.0],   // β1: face length
     [6, 2.0],   // β6: cheekbone prominence
-    [5, 1.5],   // β5: nasal bridge
     [8, 1.2],   // β8: mouth size (SYM 0.862)
     [32, 3.0],  // β32: skull surface detail (SYM 0.938)
-    [15, 2.5],  // β15: mid-freq bone structure (mixed 0.704)
     [49, 2.5],  // β49: high-freq surface detail (mixed 0.761)
   ],
-  /** Pose identity: heavy = chin slightly up (commanding), gaunt = head slightly forward */
-  pose: { pitch: 0.03 },
+};
+
+/** PREDATOR/PREY ← deviation sign × |velocity| (bipolar).
+ *  Predator (+): hunter eyes — close-set, sharp tilt, heavy brow, high bridge.
+ *  Prey (−): docile — wide-set, round eyes, flat brow, flat bridge.
+ *  β7 clamped to ±3.0 (caruncle tear), β4 clamped to ±3.5 (orbital bone clipping with ψ7). */
+export const PREDATOR_RECIPE: ShapeChordRecipe = {
+  shape: [
+    [15, -2.5],  // β15: eye distance — negative = close-set (predator)
+    [7, 2.0],    // β7: orbital tilt — positive = sharp canthal tilt (predator). CLAMP ±3.0!
+    [5, 1.5],    // β5: nasal bridge — positive = high aggressive bridge
+    [4, 1.5],    // β4: brow ridge — positive = heavy sloping brow. CLAMP ±3.5!
+  ],
 };
 
 // ─── Math Utilities ──────────────────────────────────
@@ -204,12 +207,12 @@ export function computeChordActivations(
   // ─── Mood: deviation (bipolar) ─────────────────
   const mood = symmetricSigmoid(dev_z, 6);
 
-  // ─── Shape axes (independent) ──────────────────
+  // ─── Shape axes ──────────────────────────────
   const dominance = symmetricSigmoid(mom_z, 6);
-  const statureSign = dev_z >= 0 ? 1 : -1;
-  const stature = sigmoid(Math.abs(beta_z), 6) * statureSign;
+  // Predator: velocity-aligned deviation → hunter; stagnant/mean-reverting → prey
+  const predator = symmetricSigmoid(vel_z * Math.sign(dev_z + 1e-9), 6);
 
-  return { tension, mood, dominance, stature };
+  return { tension, mood, dominance, predator };
 }
 
 /**
@@ -282,7 +285,7 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
 
 export interface ShapeResult {
   shape: Float32Array;
-  /** Resting pose from shape identity (accumulated from dominance + stature) */
+  /** Resting pose from shape identity */
   pose: { pitch: number; yaw: number; roll: number };
 }
 
@@ -306,18 +309,23 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
     }
   }
 
-  // DOMINANCE
+  // DOMINANCE (jaw/chin/mass)
   applyShape(DOMINANCE_RECIPE, activations.dominance);
 
-  // STATURE
-  applyShape(STATURE_RECIPE, activations.stature);
+  // PREDATOR/PREY (eye region)
+  applyShape(PREDATOR_RECIPE, activations.predator);
 
   // Per-component safety clamps
-  // β3 has tighter clamp (jaw collapse at -4σ)
+  // β3: jaw collapse at -4σ
   shape[3] = Math.max(-BETA3_CLAMP, Math.min(BETA3_CLAMP, shape[3]));
+  // β7: caruncle tear at ±3σ (orbital tilt — predator axis)
+  shape[7] = Math.max(-3.0, Math.min(3.0, shape[7]));
+  // β4: orbital bone clipping with ψ7 at ±3.5σ (brow ridge — predator axis)
+  shape[4] = Math.max(-3.5, Math.min(3.5, shape[4]));
   // General clamp: artifacts begin ~±5σ, mesh inversion by ~±10σ
+  const tightClamped = new Set([3, 4, 7]);
   for (let i = 0; i < N_SHAPE; i++) {
-    if (i !== 3) { // β3 already clamped tighter
+    if (!tightClamped.has(i)) {
       shape[i] = Math.max(-BETA_GENERAL_CLAMP, Math.min(BETA_GENERAL_CLAMP, shape[i]));
     }
   }

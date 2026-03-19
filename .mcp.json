@@ -4,9 +4,9 @@
       "args": [
         "mcp-stdio",
         "--role",
-        "root",
+        "tl",
         "--name",
-        "root"
+        "flush-eyes-fix"
       ],
       "command": "exomonad",
       "type": "stdio"

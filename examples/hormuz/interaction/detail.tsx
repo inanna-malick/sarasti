@@ -172,10 +172,10 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
           isWinner={false}
         />
         <ChordBar
-          name="stature"
-          weight={Math.abs(activations.stature)}
-          rawActivation={activations.stature}
-          sign={Math.sign(activations.stature) || 1}
+          name="predator"
+          weight={Math.abs(activations.predator)}
+          rawActivation={activations.predator}
+          sign={Math.sign(activations.predator) || 1}
           isWinner={false}
         />
       </Section>
@@ -213,8 +213,8 @@ function ChordBar({
       ? (sign > 0 ? ' (euphoric)' : ' (grief)')
       : name === 'dominance'
         ? (sign > 0 ? ' (chad)' : ' (soyboi)')
-        : name === 'stature'
-          ? (sign > 0 ? ' (heavy)' : ' (gaunt)')
+        : name === 'predator'
+          ? (sign > 0 ? ' (hunter)' : ' (prey)')
           : '';
 
   return (

@@ -244,7 +244,7 @@ export interface AxisValues {
   mood?: number;
   // Shape
   dominance?: number;
-  stature?: number;
+  predator?: number;
   // Pose
   pitch?: number;
   yaw?: number;
@@ -273,7 +273,7 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
 
   // Shape axes
   if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);
-  if (values.stature !== undefined) applyMapping(shape, SHAPE_AXES.stature, values.stature);
+  if (values.predator !== undefined) applyMapping(shape, SHAPE_AXES.predator, values.predator);
 
   // Identity noise on unused shape components
   addIdentityNoise(shape, datumId);

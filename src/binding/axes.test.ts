@@ -68,11 +68,13 @@ describe('SHAPE_AXES', () => {
     expect(target[48]).toBeCloseTo(2.5);  // β48: skull refinement
   });
 
-  it('stature includes new mid-frequency β15, β49', () => {
+  it('predator drives eye-region β4, β5, β7, β15', () => {
     const target = new Float32Array(N_SHAPE);
-    applyMapping(target, SHAPE_AXES.stature, 1.0);
-    expect(target[15]).toBeCloseTo(2.5);  // β15: bone structure
-    expect(target[49]).toBeCloseTo(2.5);  // β49: surface detail
+    applyMapping(target, SHAPE_AXES.predator, 1.0);
+    expect(target[15]).toBeCloseTo(-2.5);  // β15: eye distance (negative = close-set)
+    expect(target[7]).toBeCloseTo(2.0);    // β7: orbital tilt (positive = sharp)
+    expect(target[5]).toBeCloseTo(1.5);    // β5: nasal bridge
+    expect(target[4]).toBeCloseTo(1.5);    // β4: brow ridge
   });
 });
 
