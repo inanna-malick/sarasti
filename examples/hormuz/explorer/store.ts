@@ -91,14 +91,15 @@ function applyExprRecipePoseGazeTexture(
   if (recipe.texture.fatigue) out.fatigue += recipe.texture.fatigue * magnitude;
 }
 
-function applyShapeRecipePose(
+function applyShapeRecipePoseTexture(
   recipe: ShapeChordRecipe,
   value: number,
-  out: { pitch: number; yaw: number; roll: number },
+  out: { pitch: number; yaw: number; roll: number; skinAge: number },
 ) {
   if (recipe.pose?.pitch) out.pitch += recipe.pose.pitch * value;
   if (recipe.pose?.yaw) out.yaw += recipe.pose.yaw * value;
   if (recipe.pose?.roll) out.roll += recipe.pose.roll * value;
+  if (recipe.texture?.skinAge) out.skinAge += recipe.texture.skinAge * value;
 }
 
 function clamp(v: number, min: number, max: number): number {
@@ -132,6 +133,7 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
       pose: zeroPose(),
       flush: state.flush,
       fatigue: state.fatigueTex,
+      skinAge: 0,
     };
     applyRawOverrides(params, state);
     return { currentParams: params };
@@ -182,19 +184,20 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     if (i !== 3) shape[i] = clamp(shape[i], -BETA_GENERAL_CLAMP, BETA_GENERAL_CLAMP);
   }
 
-  // Shape → identity pose
-  applyShapeRecipePose(DOMINANCE_RECIPE, state.dominance, pgt);
-  applyShapeRecipePose(MATURITY_RECIPE, state.maturity, pgt);
-  applyShapeRecipePose(SHARPNESS_RECIPE, state.sharpness, pgt);
+  // Shape → identity pose + texture
+  const spt = { pitch: 0, yaw: 0, roll: 0, skinAge: 0 };
+  applyShapeRecipePoseTexture(DOMINANCE_RECIPE, state.dominance, spt);
+  applyShapeRecipePoseTexture(MATURITY_RECIPE, state.maturity, spt);
+  applyShapeRecipePoseTexture(SHARPNESS_RECIPE, state.sharpness, spt);
 
   const params: FaceParams = {
     shape,
     expression,
     pose: {
       neck: [
-        clamp(pgt.pitch, -MAX_NECK_PITCH, MAX_NECK_PITCH),
-        clamp(pgt.yaw, -MAX_NECK_YAW, MAX_NECK_YAW),
-        clamp(pgt.roll, -MAX_NECK_ROLL, MAX_NECK_ROLL),
+        clamp(pgt.pitch + spt.pitch, -MAX_NECK_PITCH, MAX_NECK_PITCH),
+        clamp(pgt.yaw + spt.yaw, -MAX_NECK_YAW, MAX_NECK_YAW),
+        clamp(pgt.roll + spt.roll, -MAX_NECK_ROLL, MAX_NECK_ROLL),
       ],
       jaw: clamp(pgt.jaw, 0, MAX_JAW_OPEN),
       leftEye: [
@@ -208,6 +211,7 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams } {
     },
     flush: clamp(pgt.flush, -1, 1),
     fatigue: clamp(pgt.fatigue, -1, 1),
+    skinAge: clamp(spt.skinAge, -1, 1),
   };
 
   return { currentParams: params };

@@ -72,6 +72,7 @@ export interface FaceParams {
   pose: PoseParams;
   flush: number;      // [-1, 1] — -1 bloodless, 0 baseline, +1 flushed
   fatigue: number;    // [-1, 1] — -1 alert, 0 baseline, +1 fatigued
+  skinAge?: number;   // [-1, 1] — -1 youthful/dewy, 0 baseline, +1 weathered/sallow
 }
 
 export interface FaceInstance {

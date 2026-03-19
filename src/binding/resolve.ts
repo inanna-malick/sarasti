@@ -78,6 +78,7 @@ export function resolve(
       pose: zeroPose(),
       flush: 0,
       fatigue: 0,
+      skinAge: 0,
     };
   }
 
@@ -105,6 +106,7 @@ export function resolve(
     pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
     flush: chordResult.flush,
     fatigue: chordResult.fatigue,
+    skinAge: shapeResult.skinAge,
   };
 }
 
@@ -143,6 +145,7 @@ export function createResolver(
         pose: zeroPose(),
         flush: 0,
         fatigue: 0,
+        skinAge: 0,
       };
     }
 
@@ -210,6 +213,7 @@ export function createResolver(
       pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
       flush: Math.max(-1, Math.min(1, flush)),
       fatigue: Math.max(-1, Math.min(1, fatigue)),
+      skinAge: shapeResult.skinAge,
     };
   }
 
@@ -309,5 +313,6 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
     pose,
     flush: values.flush ?? 0,
     fatigue: 0,
+    skinAge: 0,
   };
 }

@@ -59,6 +59,10 @@ export interface ShapeChordRecipe {
     yaw?: number;
     roll?: number;
   };
+  /** Texture contributions scaled by shape activation */
+  texture?: {
+    skinAge?: number;  // [-1, 1] — weathered(+) vs youthful(−)
+  };
 }
 
 export interface ChordActivations {
@@ -191,29 +195,24 @@ export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   texture: { flush: 0.5 },
 };
 
-/** AGGRESSION YIELDING (−): active retreat, submission, turning away from the fight.
- * [w16f] BOOST: v5 thumbnail 2/5 — geometry too close to neutral. Pose helps but not enough.
- * Strategy: LOUDER frown (ψ7-), LOUDER brow raise (ψ4-), add ψ24(-) concerned brow tilt.
- * Chin retraction (ψ26-) only visible from side — keep but boost. More pallor. */
-/** AGGRESSION YIELDING (−): active retreat, submission, turning away from the fight.
- * [w16h] THUMBNAIL FIX: v7 blind=3/5 but thumbnail=2/5. The yaw (turn away) makes face
- * SMALLER at thumbnail, hurting visibility. Also reads as "disgust" not submission.
- * Strategy: replace yaw with ROLL (head cock/tilt = universal submission gesture).
- * Roll changes silhouette without shrinking face. Keep the frown but reduce jaw drop
- * (it was reading as "surprised" not "defeated"). More droop, less gape. */
+/** AGGRESSION YIELDING (−): flinching, wincing, "I can't look" submission.
+ * [w16i] EYES CLOSED: the thumbnail breakthrough. Raised brows + closed eyes = FLINCH.
+ * This is a binary thumbnail signal (dark eye area vs light sclera in other expressions).
+ * Differentiated from exhausted by: raised brows (not drooped), head tilt (not sag),
+ * pursed mouth (not slack), and maximum pallor (not gray fatigue). */
 export const AGGRESSION_YIELDING_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [7, -3.5],   // ψ7: mouth corners DOWN — deep defeated frown (PRIMARY signal)
-    [4, -3.0],   // ψ4: brows RAISED high — scared/vulnerable/exposed
-    [24, -2.0],  // ψ24: brow outer corners DOWN — worried/concerned tilt
-    [9, -1.5],   // ψ9: eyes slightly squinted — pained, wincing (re-added: "about to cry")
-    [0, -1.0],   // ψ0: mouth pursed/small — withdrawn, tight-lipped defeat
+    [9, -3.5],   // ψ9: eyes CLOSED — PRIMARY: "I can't look" / wincing / flinch
+    [4, -3.0],   // ψ4: brows RAISED high — scared/vulnerable (flinch = raised brows + shut eyes)
+    [7, -3.0],   // ψ7: mouth corners DOWN — pained frown
+    [24, -2.0],  // ψ24: brow outer corners DOWN — worried, about-to-cry tilt
+    [0, -1.0],   // ψ0: mouth pursed/small — tight-lipped, withdrawn
+    [21, -2.0],  // ψ21: heavy lids — reinforces eye closure (boosted)
     [26, -1.5],  // ψ26: chin RETRACTED — pulling back, submission
-    [21, -1.5],  // ψ21: heavy lids — disengaging, giving up
   ],
-  pose: { yaw: 0.06, pitch: 0.05, roll: -0.12 },  // ROLL dominant — head cocked sideways (submission)
-  gaze: { gazeH: -0.20, gazeV: -0.25 },  // eyes down and slightly averted
-  texture: { flush: -0.8 },  // MAXIMUM pallor
+  pose: { yaw: 0.06, pitch: 0.05, roll: -0.12 },  // head cocked sideways — submission
+  gaze: { gazeH: -0.20, gazeV: -0.25 },  // eyes averted (visible when partially open at low activation)
+  texture: { flush: -0.8 },  // MAXIMUM pallor — blood drained
 };
 
 /** SMIRK/DECEPTION (+): the market is lying — asymmetric, untrustworthy.
@@ -239,54 +238,74 @@ export const SMIRK_RECIPE: ExpressionChordRecipe = {
 };
 
 /** DOMINANCE (Soyboi↔Chad) ← momentum (bipolar)
- * β{0,2,3,4,7,13,16,18,19,23,48} */
+ * [w16j] REBALANCED: user reports "too exaggerated at extremes, relies on too few components."
+ * Strategy: reduce peak weights ~40% (max 3.75→2.2), spread across more β components for subtlety.
+ * Add minor contributors that were previously absent for smoother deformation.
+ * β{0,2,3,4,7,11,13,14,16,18,19,23,29,48} — 14 components (was 11) */
 export const DOMINANCE_RECIPE: ShapeChordRecipe = {
   shape: [
-    [3, 3.75],  // β3: jaw width
-    [2, 2.5],   // β2: chin projection
-    [0, 2.5],   // β0: neck thickness
-    [4, 1.9],   // β4: brow ridge
-    [7, 1.25],  // β7: mid-face width
-    [18, 3.75], // β18: structure refinement
-    [23, 3.75], // β23: bone structure detail
-    [13, 3.1],  // β13: facial structure
-    [48, 3.1],  // β48: skull refinement
-    [16, 1.9],  // β16: defined jaw
-    [19, -1.9], // β19: jutting chin (inverted)
-  ],
-  pose: {},  // pose zeroed — focus on shape geometry
-};
-
-/** MATURITY (Young↔Weathered) ← instrument tenor/duration
- * Young = round, smooth, naive (short-term, newly issued)
- * Weathered = elongated, bony, aged (long-dated bonds, legacy instruments)
- * β{1,15,17,24} — ZERO overlap with dominance ✓ */
-export const MATURITY_RECIPE: ShapeChordRecipe = {
-  shape: [
-    [1, -0.8],  // β1: vertical scaling — [w15: was -1.5 — too elongated vs squat, halved]
-    [15, -1.0], // β15: midface projection — [w15: was -1.5 — less extreme]
-    [17, 1.5],  // β17: nose length — [w15: was 2.0 — subtler aging]
-    [24, 1.5],  // β24: philtrum length — [w15: was 2.0 — subtler aging]
+    [3, 2.2],   // β3: jaw width — was 3.75, primary silhouette signal
+    [2, 1.5],   // β2: chin projection — was 2.5
+    [0, 1.5],   // β0: neck thickness — was 2.5
+    [4, 1.2],   // β4: brow ridge — was 1.9
+    [7, 0.8],   // β7: mid-face width — was 1.25
+    [18, 2.2],  // β18: structure refinement — was 3.75
+    [23, 2.2],  // β23: bone structure detail — was 3.75
+    [13, 1.8],  // β13: facial structure — was 3.1
+    [48, 1.8],  // β48: skull refinement — was 3.1
+    [16, 1.2],  // β16: defined jaw — was 1.9
+    [19, -1.2], // β19: jutting chin (inverted) — was -1.9
+    [11, 0.8],  // β11: NEW — cheekbone width, adds to chad breadth
+    [14, 0.6],  // β14: NEW — temple width, subtle skull shape
+    [29, 0.5],  // β29: NEW — forehead structure, fills out overall form
   ],
   pose: {},
 };
 
+/** MATURITY (Young↔Weathered) ← instrument tenor/duration
+ * [w16j] OVERHAUL: was nearly invisible (4 β, tiny weights, no texture/pose).
+ * Now: 8 β components (boosted 2-3x), forward-pitch pose for aged stoop,
+ * and skinAge texture channel for sallow/weathered vs pink/dewy skin.
+ * Young = round, smooth, naive (short-term, newly issued)
+ * Weathered = elongated, bony, aged (long-dated bonds, legacy instruments)
+ * β{1,8,15,17,24,25,30,32} — ZERO overlap with dominance ✓ */
+export const MATURITY_RECIPE: ShapeChordRecipe = {
+  shape: [
+    [1, -2.0],  // β1: vertical scaling — elongation (was -0.8, 2.5x boost)
+    [15, -2.5], // β15: midface projection — bony prominence (was -1.0, 2.5x boost)
+    [17, 3.0],  // β17: nose length — PRIMARY age signal (was 1.5, doubled)
+    [24, 3.0],  // β24: philtrum length — face sag (was 1.5, doubled)
+    [8, -1.5],  // β8: NEW — brow-to-skull ratio, reads as cranial maturity
+    [25, 1.5],  // β25: NEW — nasolabial depth
+    [30, -1.0], // β30: NEW — orbital depth, sunken eyes = aged
+    [32, 1.2],  // β32: NEW — jowl/chin sag
+  ],
+  pose: { pitch: 0.04 },  // slight forward stoop for aged
+  texture: { skinAge: 1.0 },  // full skinAge modulation
+};
+
 /** SHARPNESS (Angular/Lean↔Puffy/Soft) ← volatility regime
+ * [w16j-b] PUSH HARDER: critics say 3/5 readability, 2/5 thumbnail. "Weakest axis."
+ * Strategy: max out gauntness cues (cheek hollows, orbital depth, jaw edge),
+ * and add NECK/JOWL components for puffy pole (differentiates from soyboi).
  * Sharp(+) = emaciated, razor cheekbones, hungry — high vol / efficiency / desperate
  * Puffy(-) = adipose, hidden bones, bloated — complacency / stagnation / overleveraged
- * β{6,9,10,21,22,28} — ZERO overlap with dominance or maturity ✓ */
+ * β{5,6,9,10,12,20,21,22,26,27,28,31,35} — ZERO overlap with dominance or maturity ✓ */
 export const SHARPNESS_RECIPE: ShapeChordRecipe = {
   shape: [
-    [10, -1.5], // β10: V-shape/lean skull — [w15b: was -1.0, boosted — reads from all angles]
-    [28, -2.5], // β28: jaw angularity — PRIMARY leanness cue
-    [9, -2.0],  // β9: lip thinning — key visual leanness
-    [6, -0.8],  // β6: nose refinement — [w15: reduced from -1.5 for profile]
-    [21, -0.8], // β21: nostril width — [w15: reduced from -1.5 for profile]
-    [22, 1.0],  // β22: chin angularity — [w15b: was 2.0, reduced — too chin-dominant]
-    [20, -1.0], // β20: philtrum tautness
-    [27, -1.5], // β27: deep-set eyes — [w15b: NEW — gaunt orbital hollows visible from ALL angles]
-    [12, 1.0],  // β12: canthal tilt — [w15b: NEW — alert/lean upward eye tilt]
-    [5, -0.8],  // β5: lowered brows — [w15b: NEW — intense/lean brow ridge]
+    [28, -3.5], // β28: jaw angularity — PRIMARY: sharp jawline vs soft jowl (maxed)
+    [27, -3.0], // β27: deep-set eyes — gaunt orbital hollows (maxed, key at thumbnail)
+    [10, -2.5], // β10: V-shape/lean skull — face narrows (boosted)
+    [9, -3.0],  // β9: lip thinning — thin-lipped lean vs plump (boosted)
+    [22, 2.0],  // β22: chin angularity — pointed chin (boosted)
+    [20, -2.0], // β20: philtrum tautness — skin taut over bone (boosted)
+    [6, -1.5],  // β6: nose refinement — thin nose vs bulbous
+    [21, -1.5], // β21: nostril width — pinched vs wide
+    [12, 2.0],  // β12: canthal tilt — alert/lean eye tilt (boosted)
+    [5, -1.5],  // β5: lowered brows — intense/lean brow ridge (boosted)
+    [26, -1.5], // β26: NEW — chin retraction: puffy chin sags back, sharp chin projects
+    [31, -1.5], // β31: NEW — cheek hollow depth: gaunt cheeks vs filled cheeks
+    [35, -1.0], // β35: NEW — neck thickness: thin neck (sharp) vs thick neck (puffy)
   ],
   pose: {},
 };
@@ -463,6 +482,7 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
 export interface ShapeResult {
   shape: Float32Array;
   pose: { pitch: number; yaw: number; roll: number };
+  skinAge: number;
 }
 
 /**
@@ -471,6 +491,7 @@ export interface ShapeResult {
 export function resolveShapeChords(activations: ChordActivations): ShapeResult {
   const shape = new Float32Array(N_SHAPE);
   let pitch = 0, yaw = 0, roll = 0;
+  let skinAge = 0;
 
   function applyShape(recipe: ShapeChordRecipe, value: number) {
     for (const [idx, weight] of recipe.shape) {
@@ -481,6 +502,7 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
       if (recipe.pose.yaw) yaw += recipe.pose.yaw * value;
       if (recipe.pose.roll) roll += recipe.pose.roll * value;
     }
+    if (recipe.texture?.skinAge) skinAge += recipe.texture.skinAge * value;
   }
 
   applyShape(DOMINANCE_RECIPE, activations.dominance);
@@ -495,5 +517,7 @@ export function resolveShapeChords(activations: ChordActivations): ShapeResult {
     }
   }
 
-  return { shape, pose: { pitch, yaw, roll } };
+  skinAge = Math.max(-1, Math.min(1, skinAge));
+
+  return { shape, pose: { pitch, yaw, roll }, skinAge };
 }

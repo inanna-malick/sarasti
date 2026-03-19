@@ -136,7 +136,11 @@ export class FlameFaceMesh {
     positionAttr.needsUpdate = true;
     normalAttr.needsUpdate = true;
 
-    this.updateTexture(params.flush, params.fatigue);
+    this.updateTexture(params.flush, params.fatigue, params.skinAge ?? 0);
+
+    // Dynamic roughness from skinAge: weathered = matte, youthful = dewy
+    const skinAge = params.skinAge ?? 0;
+    this.material.roughness = 0.7 + skinAge * 0.15;  // range: [0.55, 0.85]
 
     // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();
@@ -149,9 +153,10 @@ export class FlameFaceMesh {
   public setCrisis(_intensity: number): void {}
 
   /**
-   * Modulates vertex colors: flush via localized cheek weight map, fatigue via albedo PCA basis.
+   * Modulates vertex colors: flush via localized cheek weight map, fatigue via albedo PCA basis,
+   * skinAge via full-face sallow/fresh color shift.
    */
-  private updateTexture(flush: number, fatigue: number): void {
+  private updateTexture(flush: number, fatigue: number, skinAge: number = 0): void {
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     const arr = colors.array as Float32Array;
     arr.set(this.baseColors); // reset to identity base
@@ -189,6 +194,30 @@ export class FlameFaceMesh {
       for (let i = 0; i < stride; i++) {
         arr[i] += fatigue * fw0 * albedoBasis[pc0Offset + i];
         arr[i] += fatigue * fw1 * albedoBasis[pc1Offset + i];
+      }
+    }
+
+    // SkinAge: full-face color temperature shift for aged/youthful appearance
+    // Weathered (+): yellow desaturation — reduce blue, reduce overall saturation
+    // Youthful (−): pink freshness — boost red subtly, add vibrancy
+    // Applied to ALL vertices (full-face, not localized)
+    if (skinAge !== 0) {
+      const t = Math.abs(skinAge);
+      // arr is BGR order here
+      if (skinAge > 0) {
+        // Aged: sallow yellow — drain blue, add slight yellow (more red+green, less blue)
+        for (let i = 0; i < stride; i += 3) {
+          arr[i]     -= t * 0.06;   // B: drain blue → yellower
+          arr[i + 1] += t * 0.02;   // G: slight green boost → sallow
+          arr[i + 2] -= t * 0.01;   // R: tiny red drain → less vibrant
+        }
+      } else {
+        // Young: pink/dewy — boost pink, increase saturation
+        for (let i = 0; i < stride; i += 3) {
+          arr[i]     += t * 0.02;   // B: slight blue boost → cooler/fresh
+          arr[i + 1] -= t * 0.02;   // G: drain green → pinker
+          arr[i + 2] += t * 0.04;   // R: boost red → rosy/dewy
+        }
       }
     }
 

@@ -1,14 +1,16 @@
 /**
  * Shared axis definitions for FLAME parameter mapping.
- * Single source of truth — both explorer and binding import from here.
+ * Shape axes are derived from chord recipes (chords.ts is the single source of truth).
  *
  * Expression axes: alarm (alarmed↔euphoric), fatigue (wired↔exhausted).
- * Shape axes: dominance (Soyboi↔Chad).
- *
- * Each expression axis expresses through a different spatial channel:
- *   Alarm    → alarmed: upper face (ψ8, ψ6, ψ2) / euphoric: lower face (ψ9, ψ11, ψ12)
- *   Fatigue  → mid-face tone + assessment (ψ3–ψ5, ψ7, ψ8) + gaze
+ * Shape axes: dominance (Soyboi↔Chad), maturity (Young↔Weathered), sharpness (Angular↔Puffy).
  */
+
+import {
+  DOMINANCE_RECIPE,
+  MATURITY_RECIPE,
+  SHARPNESS_RECIPE,
+} from './chords';
 
 // Expression axes — for the library API (resolveFromAxes).
 // Positive value = alarmed / wired pole.
@@ -20,14 +22,11 @@ export const EXPR_AXES = {
   fatigue:   [[3, 1.5], [4, 1.2], [5, 1.2], [8, 0.6]] as const,
 } as const;
 
-// Shape axes — each entry is [β_index, weight]
+// Shape axes — derived from chord recipes for single source of truth
 export const SHAPE_AXES = {
-  // Dominance (Soyboi↔Chad): jaw width, chin, thickness, brow, bone detail
-  dominance: [[3, 3.75], [2, 2.5], [0, 2.5], [4, 1.9], [7, 1.25], [18, 3.75], [23, 3.75], [13, 3.1], [48, 3.1], [16, 1.9], [19, -1.9]] as const,
-  // Maturity (Young↔Weathered): face length, midface, nose, philtrum — ZERO dominance overlap
-  maturity: [[1, -1.5], [15, -1.5], [17, 2.0], [24, 2.0]] as const,
-  // Sharpness (Angular/Lean↔Puffy/Soft): leanness, jaw definition, lip volume — ZERO dom/mat overlap
-  sharpness: [[10, -1.0], [28, -2.5], [9, -2.0], [6, -1.5], [21, -1.5], [22, 2.0], [20, -1.0]] as const,
+  dominance: DOMINANCE_RECIPE.shape,
+  maturity: MATURITY_RECIPE.shape,
+  sharpness: SHARPNESS_RECIPE.shape,
 } as const;
 
 export type ExprAxis = keyof typeof EXPR_AXES;
