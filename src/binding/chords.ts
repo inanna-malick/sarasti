@@ -115,7 +115,7 @@ export const ALARM_EUPHORIC_RECIPE: ExpressionChordRecipe = {
     [12, 3.0],  // ψ12: right mouth corner — LOUDER [w11: primary smile driver]
     [4, -1.0],  // ψ4: mouth widens — open, relaxed [w11: NEW, replaces ψ7]
     [8, 0.4, 0.6],  // ψ8: bright eyes — EARLY ONSET [w11: replaces ψ7, eyes OPEN not closed]
-    [19, 1.2],  // ψ19: full cheeks — LOUDER [w11: cheek lift IS the smile, not eye squint]
+    [19, 0.6],  // ψ19: full cheeks — reduced [w15: was 1.2 — looks weird/bulging in profile]
     [24, 0.7],  // ψ24: confident brow tilt — lifted outer brows
     [26, 0.5],  // ψ26: prominent chin — confident, decisive
     [15, -0.5], // ψ15: toughness/wide jaw — expansive
@@ -176,15 +176,15 @@ export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
 export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   expression: [
     [6, 2.5],   // ψ6: angry — PRIMARY. Narrowed brows, confrontational stare
-    [2, 1.5],   // ψ2: confrontational mouth — bared-teeth [w7: was 1.2, more open]
+    [2, 0.6, 1.5],  // ψ2: confrontational mouth — LATE ONSET [w15: was 1.5 — "crying baby" from 3/4, mouth dominated]
     [3, -1.8],  // ψ3: disgust/nasal crinkle — nostril flare, nasolabial depth
     [9, -1.0],  // ψ9: frown — downturned mouth, lip curl
     [5, 1.2],   // ψ5: tight frown — jaw clench, lip tension
-    [0, 0.8],   // ψ0: jaw parting — snarl opening [w7: was 0, "too closed"]
+    [0, 0.3, 1.5],  // ψ0: jaw parting — LATE ONSET [w15: was 0.8 linear — open mouth reads as wailing from side]
     [16, 1.5],  // ψ16: focus/intensity — squinted hunting eyes [w5: census]
     [20, -2.0], // ψ20: visceral snarl — LOUDER [w8: key differentiator from wired]
     [26, 1.3],  // ψ26: chin resolve — forward "charging" [w8: per director at aggr_2.0]
-    [25, -0.6], // ψ25: intense aggressive focus — thinned lips, squint [w7: census breadth]
+    [25, -0.8], // ψ25: intense aggressive focus — thinned lips, squint [w15: was -0.6, louder to carry aggression without mouth]
     [15, -0.6], // ψ15: toughness — wide jaw, determined set [w7: census breadth]
   ],
   pose: {},
@@ -256,10 +256,10 @@ export const DOMINANCE_RECIPE: ShapeChordRecipe = {
  * β{1,15,17,24} — ZERO overlap with dominance ✓ */
 export const MATURITY_RECIPE: ShapeChordRecipe = {
   shape: [
-    [1, -1.5],  // β1: vertical scaling — stately/long(-) vs youthful/round(+)
-    [15, -1.5], // β15: midface projection — weathered/haggard(-) vs vital/prominent(+)
-    [17, 2.0],  // β17: nose length — stubby/youthful(-) vs long-nosed/mature(+)
-    [24, 2.0],  // β24: philtrum length — youthful/innocent(-) vs aged/sullen(+)
+    [1, -0.8],  // β1: vertical scaling — [w15: was -1.5 — too elongated vs squat, halved]
+    [15, -1.0], // β15: midface projection — [w15: was -1.5 — less extreme]
+    [17, 1.5],  // β17: nose length — [w15: was 2.0 — subtler aging]
+    [24, 1.5],  // β24: philtrum length — [w15: was 2.0 — subtler aging]
   ],
   pose: {},
 };
@@ -273,8 +273,8 @@ export const SHARPNESS_RECIPE: ShapeChordRecipe = {
     [10, -1.0], // β10: V-shape/lean — reduced [w9: was -2.0, homogenized with dominance]
     [28, -2.5], // β28: jaw angularity — PRIMARY leanness cue [w9: was -2.0, louder]
     [9, -2.0],  // β9: lip thinning — key visual leanness [w9: was -1.5, louder]
-    [6, -1.5],  // β6: nose refinement — sharp(-) vs bulbous(+)
-    [21, -1.5], // β21: nostril width — sharp(-) vs wide(+)
+    [6, -0.8],  // β6: nose refinement — [w15: was -1.5 — puffy nose looks bulbous/distorted from 3/4 view]
+    [21, -0.8], // β21: nostril width — [w15: was -1.5 — same issue, nostrils balloon in profile]
     [22, 2.0],  // β22: chin angularity — harder [w9: was 1.5]
     [20, -1.0], // β20: philtrum tautness — taut/alert(-) vs slack(+) [w9: NEW]
   ],

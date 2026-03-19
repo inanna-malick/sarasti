@@ -8,9 +8,10 @@
  * Two regions: cheeks (primary flush zone) and lips (secondary, for frostbite/blush).
  */
 
-/** Approximate cheek center positions in FLAME template space */
-const LEFT_CHEEK_CENTER = { x: -0.05, y: -0.01, z: 0.06 };
-const RIGHT_CHEEK_CENTER = { x: 0.05, y: -0.01, z: 0.06 };
+/** Approximate cheek center positions in FLAME template space
+ * [w15: lowered Y from -0.01 to -0.025 — flush was bleeding into periorbital area ("pinkeye")] */
+const LEFT_CHEEK_CENTER = { x: -0.05, y: -0.025, z: 0.06 };
+const RIGHT_CHEEK_CENTER = { x: 0.05, y: -0.025, z: 0.06 };
 
 /** Approximate lip center in FLAME template space (midline, between upper and lower lip) */
 const LIP_CENTER = { x: 0.0, y: -0.04, z: 0.07 };

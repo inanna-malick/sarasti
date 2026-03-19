@@ -1,0 +1,58 @@
+[
+  {"params": {}, "output": "tools/eval/data/renders/wave15/neutral_front.png"},
+  {"params": {"camera": "left34"}, "output": "tools/eval/data/renders/wave15/neutral_left34.png"},
+  {"params": {"camera": "right34"}, "output": "tools/eval/data/renders/wave15/neutral_right34.png"},
+
+  {"params": {"alarm": "1.0"}, "output": "tools/eval/data/renders/wave15/alarmed_front.png"},
+  {"params": {"alarm": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/alarmed_left34.png"},
+  {"params": {"alarm": "1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/alarmed_right34.png"},
+
+  {"params": {"alarm": "-1.0"}, "output": "tools/eval/data/renders/wave15/euphoric_front.png"},
+  {"params": {"alarm": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/euphoric_left34.png"},
+  {"params": {"alarm": "-1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/euphoric_right34.png"},
+
+  {"params": {"aggression": "1.0"}, "output": "tools/eval/data/renders/wave15/aggressive_front.png"},
+  {"params": {"aggression": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/aggressive_left34.png"},
+  {"params": {"aggression": "1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/aggressive_right34.png"},
+
+  {"params": {"fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave15/exhausted_front.png"},
+  {"params": {"fatigue": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/exhausted_left34.png"},
+  {"params": {"fatigue": "-1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/exhausted_right34.png"},
+
+  {"params": {"fatigue": "1.0"}, "output": "tools/eval/data/renders/wave15/wired_front.png"},
+  {"params": {"fatigue": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/wired_left34.png"},
+  {"params": {"fatigue": "1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/wired_right34.png"},
+
+  {"params": {"aggression": "-1.0"}, "output": "tools/eval/data/renders/wave15/yielding_front.png"},
+  {"params": {"aggression": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/yielding_left34.png"},
+  {"params": {"aggression": "-1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/yielding_right34.png"},
+
+  {"params": {"smirk": "1.0"}, "output": "tools/eval/data/renders/wave15/smirk_front.png"},
+  {"params": {"smirk": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/smirk_left34.png"},
+  {"params": {"smirk": "1.0", "camera": "right34"}, "output": "tools/eval/data/renders/wave15/smirk_right34.png"},
+
+  {"params": {"dominance": "1.0"}, "output": "tools/eval/data/renders/wave15/chad_front.png"},
+  {"params": {"dominance": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/chad_left34.png"},
+  {"params": {"dominance": "-1.0"}, "output": "tools/eval/data/renders/wave15/soyboi_front.png"},
+  {"params": {"dominance": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/soyboi_left34.png"},
+
+  {"params": {"maturity": "1.0"}, "output": "tools/eval/data/renders/wave15/weathered_front.png"},
+  {"params": {"maturity": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/weathered_left34.png"},
+  {"params": {"maturity": "-1.0"}, "output": "tools/eval/data/renders/wave15/young_front.png"},
+  {"params": {"maturity": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/young_left34.png"},
+
+  {"params": {"sharpness": "1.0"}, "output": "tools/eval/data/renders/wave15/sharp_front.png"},
+  {"params": {"sharpness": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/sharp_left34.png"},
+  {"params": {"sharpness": "-1.0"}, "output": "tools/eval/data/renders/wave15/puffy_front.png"},
+  {"params": {"sharpness": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/puffy_left34.png"},
+
+  {"params": {"alarm": "1.0", "aggression": "1.0", "fatigue": "1.0", "smirk": "0.5"}, "output": "tools/eval/data/renders/wave15/crisis_front.png"},
+  {"params": {"alarm": "1.0", "aggression": "1.0", "fatigue": "1.0", "smirk": "0.5", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/crisis_left34.png"},
+  {"params": {"alarm": "-1.0", "aggression": "-1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave15/calm_front.png"},
+  {"params": {"alarm": "-1.0", "aggression": "-1.0", "fatigue": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/calm_left34.png"},
+
+  {"params": {"sharpness": "1.0", "dominance": "1.0", "alarm": "1.0", "aggression": "1.0"}, "output": "tools/eval/data/renders/wave15/sharp-chad-crisis_front.png"},
+  {"params": {"sharpness": "1.0", "dominance": "1.0", "alarm": "1.0", "aggression": "1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/sharp-chad-crisis_left34.png"},
+  {"params": {"sharpness": "-1.0", "dominance": "-1.0", "alarm": "-1.0", "fatigue": "-1.0"}, "output": "tools/eval/data/renders/wave15/puffy-soyboi-calm_front.png"},
+  {"params": {"sharpness": "-1.0", "dominance": "-1.0", "alarm": "-1.0", "fatigue": "-1.0", "camera": "left34"}, "output": "tools/eval/data/renders/wave15/puffy-soyboi-calm_left34.png"}
+]

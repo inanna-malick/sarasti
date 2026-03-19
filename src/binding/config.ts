@@ -38,13 +38,13 @@ export const TEXTURE_CONFIG = {
   ema_window: 20,
   ema_alpha: 2 / (20 + 1),
   flush: {
-    warm_red: 0.35,    // [w12: was 0.20 — barely visible, need 2x for thumbnail readability]
+    warm_red: 0.25,    // [w15: was 0.35 — user: "red tones look like pinkeye". reduced + tighter cheek radius]
     warm_green: -0.03,  // [w14: was -0.08 — makeup artist: "bronzed/fake tan". less green drain = pink-red not orange]
     warm_blue: -0.04,   // [w14: was -0.10 — less blue drain shifts hue from orange toward rosy-pink]
     cold_red: -0.18,    // [w12: was -0.08 — invisible, need 2x+ for pallor signal]
     cold_green: -0.06,  // [w12: was -0.03 — slight green drain for sickly look]
     cold_blue: 0.12,    // [w12: was 0.06 — more blue for cold/deoxygenated read]
-    cheek_radius: 0.042, // [w13: was 0.045 — slightly reduced, dermatologist says "painted-on" edges at max]
+    cheek_radius: 0.032, // [w15: was 0.042 — flush bleeding into eye area causing "pinkeye". tighter + lower centers]
     sigmoid_center: 0.15,
     sigmoid_steepness: 4,
     sigmoid_range: [0, 0.3] as [number, number],
