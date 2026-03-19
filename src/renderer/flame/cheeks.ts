@@ -25,6 +25,10 @@ const MIN_RADIUS = 1e-6;
 /** Skip vertices with weight below this threshold */
 export const CHEEK_WEIGHT_THRESHOLD = 0.001;
 
+/** Y ceiling — vertices above this are in eye territory and excluded from flush.
+ *  Cheek centers are at y=-0.01; eyes sit above y=0.01 in FLAME template space. */
+const EYE_Y_CEILING = 0.005;
+
 /** Sparse flush vertex entry: index + precomputed weight */
 export interface CheekVertex {
   index: number;
@@ -48,6 +52,9 @@ export function identifyCheekRegion(
     const x = template[v * 3];
     const y = template[v * 3 + 1];
     const z = template[v * 3 + 2];
+
+    // Skip eye-region vertices (above cheek zone)
+    if (y > EYE_Y_CEILING) continue;
 
     // Distance to left cheek center
     const dxL = x - LEFT_CHEEK_CENTER.x;
@@ -92,6 +99,9 @@ export function identifyLipRegion(
     const x = template[v * 3];
     const y = template[v * 3 + 1];
     const z = template[v * 3 + 2];
+
+    // Skip eye-region vertices
+    if (y > EYE_Y_CEILING) continue;
 
     const dx = x - LIP_CENTER.x;
     const dy = y - LIP_CENTER.y;
