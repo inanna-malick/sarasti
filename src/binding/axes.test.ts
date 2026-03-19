@@ -33,11 +33,12 @@ describe('EXPR_AXES', () => {
     expect(target[4]).toBeCloseTo(-0.5);  // ψ4: lip unpucker
   });
 
-  it('mood uses ψ5 (bilateral smile driver) and ψ9 (cheek puff)', () => {
+  it('mood uses ψ9 (cheek lift) and ψ4 neg (corners wide) as primary smile', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.mood, 1.0);
-    expect(target[5]).toBeCloseTo(4.0);   // ψ5: upper lip lift (primary smile, cranked)
-    expect(target[9]).toBeCloseTo(5.0);   // ψ9: cheek puff (ecstatic grin)
+    expect(target[9]).toBeCloseTo(2.5);   // ψ9: cheek lift (primary smile driver)
+    expect(target[4]).toBeCloseTo(-2.0);  // ψ4: corners pull wide
+    expect(target[5]).toBeCloseTo(0.5);   // ψ5: light upper lip (demoted — sneer at high values)
   });
 });
 
@@ -94,7 +95,7 @@ describe('applyMapping', () => {
     const target = new Float32Array(N_EXPR);
     applyMapping(target, EXPR_AXES.tension, 1.0);
     applyMapping(target, EXPR_AXES.mood, 1.0);
-    // ψ0: tension 1.0 + mood 0.3 = 1.3
+    // ψ0: tension 1.0 + mood 0.3 = 1.3 (unchanged)
     expect(target[0]).toBeCloseTo(1.3);
   });
 

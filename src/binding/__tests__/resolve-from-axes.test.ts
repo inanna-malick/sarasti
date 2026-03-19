@@ -30,15 +30,15 @@ describe('resolveFromAxes (2-axis circumplex)', () => {
     expect(tense.expression[4]).toBeCloseTo(-1.0);  // ψ4 × -0.5 × 2.0
   });
 
-  it('mood value drives ψ5 (smile), ψ4 (mouth widens), ψ9 (cheek puff), ψ0 (jaw)', () => {
+  it('mood value drives ψ9 (cheek lift), ψ4 neg (corners wide), ψ5 light', () => {
     const happy = resolveFromAxes({ mood: 2.0 }, 'a');
     const sad = resolveFromAxes({ mood: -2.0 }, 'a');
-    // mood: [[5, 4.0], [9, 5.0], [7, 2.5], [4, -0.3], [0, 0.3], [8, 0.8]]
-    expect(happy.expression[5]).toBeCloseTo(8.0);   // ψ5 × 4.0 × 2.0 (bilateral smile, cranked)
-    expect(happy.expression[9]).toBeCloseTo(10.0);  // ψ9 × 5.0 × 2.0 (cheek puff)
-    expect(happy.expression[4]).toBeCloseTo(-0.6);  // ψ4 × -0.3 × 2.0 (slight widen)
+    // mood: [[9, 2.5], [4, -2.0], [7, 1.5], [5, 0.5], [0, 0.3], [8, 0.5]]
+    expect(happy.expression[9]).toBeCloseTo(5.0);   // ψ9 × 2.5 × 2.0 (cheek lift — primary)
+    expect(happy.expression[4]).toBeCloseTo(-4.0);  // ψ4 × -2.0 × 2.0 (corners wide)
+    expect(happy.expression[5]).toBeCloseTo(1.0);   // ψ5 × 0.5 × 2.0 (light upper lip)
     expect(happy.expression[0]).toBeCloseTo(0.6);   // ψ0 × 0.3 × 2.0 (minimal jaw)
-    expect(sad.expression[9]).toBeCloseTo(-10.0);
+    expect(sad.expression[9]).toBeCloseTo(-5.0);
     expect(sad.expression[0]).toBeCloseTo(-0.6);
   });
 

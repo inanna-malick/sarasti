@@ -91,15 +91,18 @@ export const TENSION_PLACID_RECIPE: ExpressionChordRecipe = {
   texture: { fatigue: 0.5 },  // exhausted
 };
 
-/** MOOD EUPHORIC (+): positive deviation → warm glow, big bilateral smile */
+/** MOOD EUPHORIC (+): positive deviation → warm glow, bilateral smile
+ * ψ5 is NOT a smile — it's a sneer (upper lip center lift, levator labii).
+ * Actual smile = ψ9 (cheek lift / zygomaticus) + ψ4 neg (corners widen).
+ * Weights ≤2.5 so slider extreme (3.0) stays ≤7.5σ — no mesh inversion. */
 export const MOOD_EUPHORIA_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [5, 4.0],   // ψ5: upper lip lift — PRIMARY bilateral smile driver, cranked hard
-    [9, 5.0],   // ψ9: cheek puff — lifts cheeks, reads as ecstatic grin
-    [7, 2.5],   // ψ7: Duchenne crinkle — squinting eye smile (the real tell)
-    [4, -0.3],  // ψ4: slight mouth widen — grin, not gape
+    [9, 2.5],   // ψ9: cheek lift — PRIMARY smile driver (zygomaticus)
+    [4, -2.0],  // ψ4: corners pull wide — the actual mouth-shape of a grin
+    [7, 1.5],   // ψ7: Duchenne eye crinkle — genuine smile tell
+    [5, 0.5],   // ψ5: light upper lip seasoning (NOT primary — sneer at high values)
     [0, 0.3],   // ψ0: minimal jaw — grin is closed-mouth, jaw comes from tension
-    [8, 0.8],   // ψ8: nose wrinkle — genuine smile
+    [8, 0.5],   // ψ8: nose wrinkle — subtle
   ],
   pose: { pitch: 0.08, yaw: 0.04 },
   gaze: { gazeH: 0.08 },

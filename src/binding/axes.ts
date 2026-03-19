@@ -25,8 +25,9 @@
 export const EXPR_AXES = {
   // Tension (+): brow up + jaw + nose wrinkle + eyes open + snarl + lip part
   tension: [[2, 2.5], [0, 1.0], [8, 1.5], [7, -1.5], [5, 0.8], [4, -0.5]] as const,
-  // Mood (+): big bilateral grin (ψ5+ψ9) + Duchenne crinkle + minimal jaw (jaw comes from tension)
-  mood:    [[5, 4.0], [9, 5.0], [7, 2.5], [4, -0.3], [0, 0.3], [8, 0.8]] as const,
+  // Mood (+): cheek lift (ψ9) + corners wide (ψ4 neg) + Duchenne crinkle
+  // ψ5 demoted — it's a sneer, not a smile. Weights ≤2.5 for safe slider range.
+  mood:    [[9, 2.5], [4, -2.0], [7, 1.5], [5, 0.5], [0, 0.3], [8, 0.5]] as const,
 } as const;
 
 // Shape axes — each entry is [β_index, weight]
