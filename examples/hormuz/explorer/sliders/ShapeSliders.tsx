@@ -15,9 +15,9 @@ export function ShapeSliders() {
       <div style={{ fontSize: 11, color: '#888', marginBottom: 6, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: 1 }}>
         Shape
       </div>
-      <SliderRow label="dominance" value={dominance} min={-3} max={3} step={0.01} onChange={setDominance} />
-      <SliderRow label="maturity" value={maturity} min={-3} max={3} step={0.01} onChange={setMaturity} />
-      <SliderRow label="sharpness" value={sharpness} min={-3} max={3} step={0.01} onChange={setSharpness} />
+      <SliderRow label="dominance" value={dominance} min={-1} max={1} step={0.01} onChange={setDominance} />
+      <SliderRow label="maturity" value={maturity} min={-1} max={1} step={0.01} onChange={setMaturity} />
+      <SliderRow label="sharpness" value={sharpness} min={-1} max={1} step={0.01} onChange={setSharpness} />
     </div>
   );
 }
