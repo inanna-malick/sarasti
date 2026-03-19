@@ -61,7 +61,10 @@ async function renderOne(page: any, baseUrl: string, config: RenderConfig): Prom
 
 async function main() {
   const port = 0;
-  const server = await createServer({ root: ROOT, server: { port, strictPort: false } });
+  const server = await createServer({
+    configFile: resolve(ROOT, 'vite.config.ts'),
+    server: { port, strictPort: false },
+  });
   await server.listen();
   const resolvedPort = server.httpServer?.address();
   const actualPort = typeof resolvedPort === 'object' && resolvedPort ? resolvedPort.port : 3099;
