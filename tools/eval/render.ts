@@ -117,8 +117,12 @@ async function main() {
       const configs: RenderConfig[] = Array.isArray(parsed) ? parsed : [parsed];
 
       for (const config of configs) {
-        const path = await renderOne(page, baseUrl, config);
-        console.log(path);
+        try {
+          const path = await renderOne(page, baseUrl, config);
+          console.log(path);
+        } catch (err) {
+          console.error(`Error rendering ${config.output}: ${err instanceof Error ? err.message : String(err)}`);
+        }
       }
       return;
     }

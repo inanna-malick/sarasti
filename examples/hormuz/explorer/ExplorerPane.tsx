@@ -28,6 +28,7 @@ async function loadDataMode(tickerId: string, timestamp: string) {
   const ticker = TICKER_MAP.get(tickerId);
   if (!ticker) {
     console.error(`[data mode] Unknown ticker: ${tickerId}`);
+    window.__EXPLORER_READY = true;
     return;
   }
 
@@ -39,6 +40,7 @@ async function loadDataMode(tickerId: string, timestamp: string) {
 
   if (!tickerFrame) {
     console.error(`[data mode] No data for ticker ${tickerId} at frame ${frameIdx}`);
+    window.__EXPLORER_READY = true;
     return;
   }
 
