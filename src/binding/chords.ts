@@ -64,20 +64,23 @@ export interface ChordActivations {
 // ─── Chord Recipes ───────────────────────────────────
 
 /** TENSION TENSE (+): acute volatility × |velocity| + chronic drawdown
- * Wide eyes + jaw + brow up = alarm/scream when mood is low.
- * When stacked with positive mood, ψ11+ψ12 from mood recipe turn this
- * into an adrenaline grin (wide eyes + smile + jaw = manic). */
+ * Alone (low mood) = the scream: wide eyes, raised brow, snarl.
+ * Stacked with euphoria = Kubrick/predatory grin: bared teeth (ψ5 sneer +
+ * mood's ψ1 smile), furrowed brow (ψ3) + raised outer brow (ψ2) = menace,
+ * head-down + gaze-up = looking through brow ridge. */
 export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [2, 2.5],   // ψ2: brow rockets up
-    [8, 1.5],   // ψ8: nose wrinkle
-    [7, -1.5],  // ψ7: eyes snap WIDE open
-    [11, 0.8],  // ψ11+ψ12: slight smile that reads as grin when mood adds more
-    [12, 0.8],
+    [7, -2.0],  // ψ7: eyelid retraction — manic wide eyes
+    [2, 2.0],   // ψ2: brow up (outer) — alarm + surprise
+    [3, 1.5],   // ψ3: brow furrow (inner) — anger/menace V-shape
+    [5, 1.5],   // ψ5: upper lip sneer — bares teeth when stacked with mood's smile
+    [8, 1.5],   // ψ8: nose wrinkle — aggression
+    [11, 0.6],  // ψ11+ψ12: smile base for adrenaline grin stacking
+    [12, 0.6],
   ],
-  pose: { jaw: 0.08, pitch: -0.06 },
-  gaze: { gazeV: 0.10 },
-  texture: { fatigue: -0.3 },  // wired, not fatigued
+  pose: { jaw: 0.10, pitch: -0.12 },  // teeth parted + Kubrick head-down
+  gaze: { gazeV: 0.15 },  // eyes locked upward through brow ridge
+  texture: { fatigue: -0.3 },  // wired, not fatigued. Flush comes from mood only.
 };
 
 /** TENSION PLACID (−): zen / contemplative / peaceful equilibrium
