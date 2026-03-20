@@ -4,8 +4,8 @@ import { computeJointLocations } from '../lbs';
 import type { MouthMeasurements } from './types';
 
 const JAW_JOINT_INDEX = 2;
-const JAW_WEIGHT_LOW = 0.3;
-const JAW_WEIGHT_HIGH = 0.7;
+const JAW_WEIGHT_LOW = 0.45;
+const JAW_WEIGHT_HIGH = 0.55;
 /** Threshold for upper/lower classification: < 0.5 = upper (head-dominant) */
 const LIP_SPLIT_THRESHOLD = 0.5;
 

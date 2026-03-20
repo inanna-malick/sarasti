@@ -208,12 +208,20 @@ export class FlameFaceMesh {
     this.mesh = new THREE.Mesh(this.geometry, materials);
 
     // 4. Black interior — back faces render as black void (mouth, nostrils)
-    //    Added as child of the front mesh so it inherits all transforms.
+    //    Uses a separate geometry that shares the same index/position/normal buffers
+    //    but only has a group for skin faces (excludes mouth geometry when enabled).
     this.interiorMaterial = new THREE.MeshBasicMaterial({
       color: 0x000000,
       side: THREE.BackSide,
     });
-    this.mesh.add(new THREE.Mesh(this.geometry, this.interiorMaterial));
+    const interiorGeometry = new THREE.BufferGeometry();
+    interiorGeometry.setIndex(this.geometry.getIndex()!);
+    interiorGeometry.setAttribute('position', this.geometry.getAttribute('position'));
+    interiorGeometry.setAttribute('normal', this.geometry.getAttribute('normal'));
+    // setDrawRange excludes mouth faces from the single-material interior mesh
+    // (addGroup only works with multi-material meshes)
+    interiorGeometry.setDrawRange(0, originalFaceCount * 3);
+    this.mesh.add(new THREE.Mesh(interiorGeometry, this.interiorMaterial));
   }
 
 
