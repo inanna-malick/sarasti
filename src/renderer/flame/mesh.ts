@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { FlamePipeline } from './pipeline';
+import type { EyeVertexGroups } from './eyes';
 import type { FaceParams } from '../../types';
 import { zeroPose } from '../../types';
 import { TEXTURE_CONFIG } from '../../binding/config';
@@ -10,6 +11,7 @@ import {
   createTongueMaterial,
   createCavityMaterial,
 } from './mouth/materials';
+import { createEyeMaterial } from './eyeMaterial';
 import { identifyCheekRegion, identifyLipRegion } from './cheeks';
 import type { CheekVertex } from './cheeks';
 
@@ -29,6 +31,9 @@ export class FlameFaceMesh {
   private gumsMaterial: THREE.MeshStandardMaterial | null = null;
   private tongueMaterial: THREE.MeshStandardMaterial | null = null;
   private cavityMaterial: THREE.MeshBasicMaterial | null = null;
+  private leftEyeMaterial: THREE.ShaderMaterial | null = null;
+  private rightEyeMaterial: THREE.ShaderMaterial | null = null;
+  private eyeGroups: EyeVertexGroups | null = null;
   private pipeline: FlamePipeline;
   private baseColors!: Float32Array;
   private cheekVertices: CheekVertex[];
@@ -38,33 +43,111 @@ export class FlameFaceMesh {
     this.pipeline = pipeline;
     const { model } = pipeline;
     const mouthGroups = model.mouthGroups;
+    const eyeGroups = pipeline.eyeGroups;
+    this.eyeGroups = eyeGroups;
 
     // 1. Create BufferGeometry with face indices
     this.geometry = new THREE.BufferGeometry();
 
     const originalFaceCount = mouthGroups ? mouthGroups.teeth.faceStart : model.n_faces;
 
-    // All original faces use the skin material (group 0) — eyes included
-    this.geometry.setIndex(new THREE.BufferAttribute(model.faces, 1));
+    // Build face index buffer: reorder so eye faces are in contiguous groups
+    let materialIdx = 0;
+    if (eyeGroups) {
+      // Build set of eye face indices for fast lookup
+      const eyeFaceSet = new Set<number>();
+      for (const f of eyeGroups.leftEyeFaces) eyeFaceSet.add(f);
+      for (const f of eyeGroups.rightEyeFaces) eyeFaceSet.add(f);
 
-    let groupOffset = 0;
-    this.geometry.addGroup(groupOffset, originalFaceCount * 3, 0);
-    groupOffset += originalFaceCount * 3;
+      // Reorder: skin faces first, then left eye, then right eye
+      const reorderedIndices = new Uint32Array(model.faces.length);
+      let writeIdx = 0;
 
-    // Mouth material groups (1–4) if enabled
-    if (mouthGroups) {
-      const teethCount = mouthGroups.teeth.faceCount * 3;
-      const gumsCount = mouthGroups.gums.faceCount * 3;
-      const tongueCount = mouthGroups.tongue.faceCount * 3;
-      const cavityCount = mouthGroups.cavity.faceCount * 3;
+      // Skin faces (non-eye original faces)
+      for (let f = 0; f < originalFaceCount; f++) {
+        if (!eyeFaceSet.has(f)) {
+          reorderedIndices[writeIdx++] = model.faces[f * 3];
+          reorderedIndices[writeIdx++] = model.faces[f * 3 + 1];
+          reorderedIndices[writeIdx++] = model.faces[f * 3 + 2];
+        }
+      }
+      const skinIndexCount = writeIdx;
 
-      this.geometry.addGroup(groupOffset, teethCount, 1);
-      groupOffset += teethCount;
-      this.geometry.addGroup(groupOffset, gumsCount, 2);
-      groupOffset += gumsCount;
-      this.geometry.addGroup(groupOffset, tongueCount, 3);
-      groupOffset += tongueCount;
-      this.geometry.addGroup(groupOffset, cavityCount, 4);
+      // Left eye faces
+      const leftEyeStart = writeIdx;
+      for (const f of eyeGroups.leftEyeFaces) {
+        reorderedIndices[writeIdx++] = model.faces[f * 3];
+        reorderedIndices[writeIdx++] = model.faces[f * 3 + 1];
+        reorderedIndices[writeIdx++] = model.faces[f * 3 + 2];
+      }
+      const leftEyeIndexCount = writeIdx - leftEyeStart;
+
+      // Right eye faces
+      const rightEyeStart = writeIdx;
+      for (const f of eyeGroups.rightEyeFaces) {
+        reorderedIndices[writeIdx++] = model.faces[f * 3];
+        reorderedIndices[writeIdx++] = model.faces[f * 3 + 1];
+        reorderedIndices[writeIdx++] = model.faces[f * 3 + 2];
+      }
+      const rightEyeIndexCount = writeIdx - rightEyeStart;
+
+      // Copy mouth faces (unchanged positions in buffer)
+      if (mouthGroups) {
+        const mouthStart = originalFaceCount * 3;
+        for (let i = mouthStart; i < model.faces.length; i++) {
+          reorderedIndices[writeIdx++] = model.faces[i];
+        }
+      }
+
+      this.geometry.setIndex(new THREE.BufferAttribute(reorderedIndices, 1));
+
+      // Material groups: skin=0, leftEye=1, rightEye=2
+      this.geometry.addGroup(0, skinIndexCount, 0);
+      materialIdx = 1;
+      this.geometry.addGroup(leftEyeStart, leftEyeIndexCount, materialIdx++);
+      this.geometry.addGroup(rightEyeStart, rightEyeIndexCount, materialIdx++);
+
+      // Mouth groups shifted by eye material count
+      if (mouthGroups) {
+        const mouthStartInReordered = rightEyeStart + rightEyeIndexCount;
+        const teethCount = mouthGroups.teeth.faceCount * 3;
+        const gumsCount = mouthGroups.gums.faceCount * 3;
+        const tongueCount = mouthGroups.tongue.faceCount * 3;
+        const cavityCount = mouthGroups.cavity.faceCount * 3;
+
+        let mouthOffset = mouthStartInReordered;
+        this.geometry.addGroup(mouthOffset, teethCount, materialIdx++);
+        mouthOffset += teethCount;
+        this.geometry.addGroup(mouthOffset, gumsCount, materialIdx++);
+        mouthOffset += gumsCount;
+        this.geometry.addGroup(mouthOffset, tongueCount, materialIdx++);
+        mouthOffset += tongueCount;
+        this.geometry.addGroup(mouthOffset, cavityCount, materialIdx++);
+      }
+    } else {
+      // No eyes — original layout
+      this.geometry.setIndex(new THREE.BufferAttribute(model.faces, 1));
+
+      let groupOffset = 0;
+      this.geometry.addGroup(groupOffset, originalFaceCount * 3, 0);
+      groupOffset += originalFaceCount * 3;
+
+      materialIdx = 1;
+      // Mouth material groups (1–4) if enabled
+      if (mouthGroups) {
+        const teethCount = mouthGroups.teeth.faceCount * 3;
+        const gumsCount = mouthGroups.gums.faceCount * 3;
+        const tongueCount = mouthGroups.tongue.faceCount * 3;
+        const cavityCount = mouthGroups.cavity.faceCount * 3;
+
+        this.geometry.addGroup(groupOffset, teethCount, materialIdx++);
+        groupOffset += teethCount;
+        this.geometry.addGroup(groupOffset, gumsCount, materialIdx++);
+        groupOffset += gumsCount;
+        this.geometry.addGroup(groupOffset, tongueCount, materialIdx++);
+        groupOffset += tongueCount;
+        this.geometry.addGroup(groupOffset, cavityCount, materialIdx++);
+      }
     }
 
     const positions = new Float32Array(model.n_vertices * 3);
@@ -88,7 +171,7 @@ export class FlameFaceMesh {
     this.geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
     this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    // 2. Create Materials — single skin material for face + eyes (FLAME albedo handles eye color)
+    // 2. Create Materials
     this.material = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.7,
@@ -96,6 +179,17 @@ export class FlameFaceMesh {
     });
 
     const materials: THREE.Material[] = [this.material];
+
+    // Eye materials (if enabled)
+    if (eyeGroups) {
+      const irisColor = getIrisColor(tickerId);
+      this.leftEyeMaterial = createEyeMaterial({ irisColor });
+      this.rightEyeMaterial = createEyeMaterial({ irisColor });
+      materials.push(this.leftEyeMaterial, this.rightEyeMaterial);
+
+      // Compute initial eye centers from template
+      this.updateEyeCenters(model.template);
+    }
 
     if (mouthGroups) {
       this.teethMaterial = createTeethMaterial();
@@ -142,8 +236,44 @@ export class FlameFaceMesh {
     const skinAge = params.skinAge ?? 0;
     this.material.roughness = 0.7 + skinAge * 0.15;  // range: [0.55, 0.85]
 
+    // Update eye material uniforms from deformed vertices + gaze
+    if (this.leftEyeMaterial && this.rightEyeMaterial && this.eyeGroups) {
+      this.updateEyeCenters(buffers.vertices);
+
+      // Gaze offset from pose
+      const leftGaze = pose.leftEye ?? [0, 0];
+      const rightGaze = pose.rightEye ?? [0, 0];
+      (this.leftEyeMaterial.uniforms.gazeOffset.value as THREE.Vector2).set(leftGaze[0], leftGaze[1]);
+      (this.rightEyeMaterial.uniforms.gazeOffset.value as THREE.Vector2).set(rightGaze[0], rightGaze[1]);
+    }
+
     // Ensure matrix world is updated for any dependent systems
     this.mesh.updateMatrixWorld();
+  }
+
+  /** Compute eye centers from vertex positions and update shader uniforms */
+  private updateEyeCenters(vertices: Float32Array): void {
+    if (!this.eyeGroups || !this.leftEyeMaterial || !this.rightEyeMaterial) return;
+
+    // Left eye center = mean of left eye vertex positions
+    let lx = 0, ly = 0, lz = 0;
+    for (const v of this.eyeGroups.leftEyeVertices) {
+      lx += vertices[v * 3];
+      ly += vertices[v * 3 + 1];
+      lz += vertices[v * 3 + 2];
+    }
+    const ln = this.eyeGroups.leftEyeVertices.length;
+    (this.leftEyeMaterial.uniforms.eyeCenter.value as THREE.Vector3).set(lx / ln, ly / ln, lz / ln);
+
+    // Right eye center = mean of right eye vertex positions
+    let rx = 0, ry = 0, rz = 0;
+    for (const v of this.eyeGroups.rightEyeVertices) {
+      rx += vertices[v * 3];
+      ry += vertices[v * 3 + 1];
+      rz += vertices[v * 3 + 2];
+    }
+    const rn = this.eyeGroups.rightEyeVertices.length;
+    (this.rightEyeMaterial.uniforms.eyeCenter.value as THREE.Vector3).set(rx / rn, ry / rn, rz / rn);
   }
 
   /**
@@ -331,20 +461,31 @@ export class FlameFaceMesh {
       this.material.opacity = 1.0;
       this.material.visible = true;
       this.interiorMaterial.visible = true;
+      if (this.leftEyeMaterial) this.leftEyeMaterial.visible = true;
+      if (this.rightEyeMaterial) this.rightEyeMaterial.visible = true;
     } else if (mode === 'skin_xray') {
       this.material.transparent = true;
       this.material.opacity = 0.3;
       this.material.depthWrite = false;
       this.material.visible = true;
-      this.interiorMaterial.visible = false; // hide black interior so we can see through
+      this.interiorMaterial.visible = false;
+      if (this.leftEyeMaterial) this.leftEyeMaterial.visible = true;
+      if (this.rightEyeMaterial) this.rightEyeMaterial.visible = true;
     } else if (mode === 'eyes_only') {
       this.material.visible = false;
       this.interiorMaterial.visible = false;
-      // Eye material (if present as separate group) stays visible by default
+      if (this.leftEyeMaterial) this.leftEyeMaterial.visible = true;
+      if (this.rightEyeMaterial) this.rightEyeMaterial.visible = true;
+      // Hide mouth materials
+      if (this.teethMaterial) this.teethMaterial.visible = false;
+      if (this.gumsMaterial) this.gumsMaterial.visible = false;
+      if (this.tongueMaterial) this.tongueMaterial.visible = false;
+      if (this.cavityMaterial) this.cavityMaterial.visible = false;
     } else if (mode === 'mouth_only') {
       this.material.visible = false;
       this.interiorMaterial.visible = false;
-      // Mouth materials stay visible
+      if (this.leftEyeMaterial) this.leftEyeMaterial.visible = false;
+      if (this.rightEyeMaterial) this.rightEyeMaterial.visible = false;
     }
   }
 
@@ -352,9 +493,21 @@ export class FlameFaceMesh {
     this.geometry.dispose();
     this.material.dispose();
     this.interiorMaterial.dispose();
+    this.leftEyeMaterial?.dispose();
+    this.rightEyeMaterial?.dispose();
     this.teethMaterial?.dispose();
     this.gumsMaterial?.dispose();
     this.tongueMaterial?.dispose();
     this.cavityMaterial?.dispose();
   }
+}
+
+/** Deterministic iris color from ticker ID hash — desaturated for natural look */
+function getIrisColor(tickerId: string): THREE.Color {
+  let seed = 0;
+  for (let i = 0; i < tickerId.length; i++) {
+    seed = (seed * 31 + tickerId.charCodeAt(i)) | 0;
+  }
+  const hue = ((seed >>> 0) % 360) / 360;
+  return new THREE.Color().setHSL(hue, 0.4, 0.32);
 }
