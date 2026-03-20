@@ -4,9 +4,9 @@
       "args": [
         "mcp-stdio",
         "--role",
-        "root",
+        "tl",
         "--name",
-        "root"
+        "circumplex"
       ],
       "command": "exomonad",
       "type": "stdio"

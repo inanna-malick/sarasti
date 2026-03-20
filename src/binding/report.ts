@@ -1,19 +1,19 @@
 /**
- * Binding Report — traces 3-axis expression + 1-axis shape activations.
+ * Binding Report — traces circumplex expression + stature shape activations.
  */
 
 import type { TickerConfig, TickerFrame, FaceParams } from '../types';
 import { N_SHAPE, N_EXPR } from '../constants';
-import { EXPR_AXES, SHAPE_AXES, applyMapping } from './axes';
+import { SHAPE_AXES, applyMapping } from './axes';
 import { hashToScalars } from './identity';
 import type { TextureAccumulator } from './texture/accumulator';
 import { accumulatorToTexture, createTextureAccumulator } from './texture/accumulator';
 import {
-  computeChordActivations,
+  computeCircumplex,
   resolveExpressionChords,
   resolveShapeChords,
 } from './chords';
-import type { ChordActivations } from './chords';
+import type { CircumplexActivations } from './chords';
 import type { DatasetStats } from '../data/stats';
 
 // ─── Types ──────────────────────────────────────────
@@ -68,7 +68,7 @@ export function generateReport(
   accumulator?: TextureAccumulator,
   stats?: DatasetStats,
 ): BindingReport {
-  const activations = computeChordActivations(frame, stats, ticker.id);
+  const activations = computeCircumplex(frame, stats, ticker.id);
   const chordResult = resolveExpressionChords(activations);
 
   return {
@@ -85,17 +85,17 @@ export function generateReport(
 
 // ─── Chord Tracing ───────────────────────────────────
 
-function traceChords(activations: ChordActivations): ChordEntry[] {
+function traceChords(activations: CircumplexActivations): ChordEntry[] {
   return [
     {
-      name: 'alarm',
-      rawActivation: activations.alarm,
-      sign: Math.sign(activations.alarm) || 1,
+      name: 'tension',
+      rawActivation: activations.tension,
+      sign: Math.sign(activations.tension) || 1,
     },
     {
-      name: 'fatigue',
-      rawActivation: activations.fatigue,
-      sign: Math.sign(activations.fatigue) || 1,
+      name: 'valence',
+      rawActivation: activations.valence,
+      sign: Math.sign(activations.valence) || 1,
     },
   ];
 }
@@ -104,16 +104,16 @@ function traceChords(activations: ChordActivations): ChordEntry[] {
 
 function traceShape(
   ticker: TickerConfig,
-  activations: ChordActivations,
+  activations: CircumplexActivations,
 ): BindingEntry[] {
   const sources: { name: string; vec: Float32Array; input: number }[] = [];
 
-  // Dominance
-  const domVec = new Float32Array(N_SHAPE);
-  for (const [idx, weight] of SHAPE_AXES.dominance) {
-    domVec[idx] = weight * activations.dominance;
+  // Stature
+  const statureVec = new Float32Array(N_SHAPE);
+  for (const [idx, weight] of SHAPE_AXES.stature) {
+    statureVec[idx] = weight * activations.stature;
   }
-  sources.push({ name: 'chord:dominance←momentum', vec: domVec, input: activations.dominance });
+  sources.push({ name: 'chord:stature', vec: statureVec, input: activations.stature });
 
   // Identity noise
   const identityVec = new Float32Array(N_SHAPE);

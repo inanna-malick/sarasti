@@ -11,7 +11,7 @@ import { ReportPanel } from './ReportPanel';
 import { useExplorerStore } from './store';
 import { loadDataset, getFrameIndexAtTime } from '../../../src/data/loader';
 import { resolve } from '../../../src/binding/resolve';
-import { computeMetaAxes, metaToChordActivations, computeChordActivations } from '../../../src/binding/chords';
+import { computeCircumplex } from '../../../src/binding/chords';
 import { computeDatasetStats } from '../../../src/data/stats';
 import { TICKERS, TICKER_MAP } from '../tickers';
 
@@ -48,13 +48,11 @@ async function loadDataMode(tickerId: string, timestamp: string) {
   store.setCurrentParams(faceParams);
 
   // Compute metadata for sidecar output
-  const meta = computeMetaAxes(tickerFrame, stats, tickerId, timestamp, ticker);
-  const activations = metaToChordActivations(meta, ticker);
+  const activations = computeCircumplex(tickerFrame, stats, tickerId);
 
   window.__RENDER_METADATA = {
     ticker: tickerId,
     timestamp: frame.timestamp,
-    metaAxes: meta,
     activations,
     rawSignals: {
       dev: tickerFrame.deviation,
@@ -134,28 +132,16 @@ function parseUrlParams() {
     if (flush) store.setFlush(parseFloat(flush));
     if (fatigueTex) store.setFatigueTex(parseFloat(fatigueTex));
   } else {
-    const alarm = params.get('alarm');
-    const fatigue = params.get('fatigue');
-    const aggression = params.get('aggression');
-    const dominance = params.get('dominance');
-    const maturity = params.get('maturity');
-    if (alarm) store.setAlarm(parseFloat(alarm));
-    if (fatigue) store.setFatigue(parseFloat(fatigue));
-    if (aggression) store.setAggression(parseFloat(aggression));
-    if (dominance) store.setDominance(parseFloat(dominance));
-    if (maturity) store.setMaturity(parseFloat(maturity));
-    const sharpness = params.get('sharpness');
-    if (sharpness) store.setSharpness(parseFloat(sharpness));
+    const tension = params.get('tension');
+    const valence = params.get('valence');
+    const stature = params.get('stature');
+    if (tension) store.setTension(parseFloat(tension));
+    if (valence) store.setValence(parseFloat(valence));
+    if (stature) store.setStature(parseFloat(stature));
 
-    // Semantic mode params
+    // Semantic mode uses same axes
     if (params.get('mode') === 'semantic') {
       store.setMode('semantic');
-      const distress = params.get('distress');
-      const vitality = params.get('vitality');
-      const metaAggression = params.get('metaAggression');
-      if (distress) store.setDistress(parseFloat(distress));
-      if (vitality) store.setVitality(parseFloat(vitality));
-      if (metaAggression) store.setMetaAggression(parseFloat(metaAggression));
     }
   }
 }
