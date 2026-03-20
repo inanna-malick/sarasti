@@ -88,13 +88,14 @@ export interface ChordActivations {
  * Fix: reduce jaw weight 1.5→1.0, boost eyes 3.0→3.5, add worried-brow ψ24 early.
  * Low alarm (0.3): tight lips + worried brow + wide eyes = "concerned"
  * Moderate alarm (0.6): brows high + eyes wide + slight tension = "worried"
- * High alarm (0.9+): jaw cracks open, full alarm = "shocked" */
+ * High alarm (0.9+): jaw cracks open showing teeth, full alarm = "shocked" */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
     [4, -4.0, 0.7],     // ψ4: brow RAISED — w21: EARLY onset. Visible worry at alarm=0.3
     [9, 4.0, 0.5],      // ψ9: eyes wide open — w21: EARLY onset. Eyes POP at low alarm
     [6, -0.8, 3.0],     // ψ6: rounded mouth — very late onset, minimal
-    [0, -1.5, 0.5],     // ψ0: mouth PURSED/TENSE — w21: tight-lipped alarm. Mouth CLOSED.
+    [0, -0.8, 0.5],     // ψ0: mouth tight/pursed — less aggressive pursing
+    [2, 1.5, 4.0],      // ψ2: jaw drop — cracks open showing teeth at EXTREME alarm (>0.9)
     [5, 1.5, 0.7],      // ψ5: upper lip snarl — nostril flare, early onset
     [20, -2.0],          // ψ20: visceral sneer — nasolabial crunch (boosted)
     [21, 2.5, 0.5],     // ψ21: alert/awake eyes — EARLY onset. Eyes snap alert
@@ -146,7 +147,7 @@ export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
     [6, 3.0, 1.5],   // ψ6: horizontal lip stretch — LATE: grimace only at high wired
     [3, -2.5, 1.5],  // ψ3: mouth WIDE — LATE: face-width change at high wired only
     [5, 2.0],        // ψ5: upper lip SNARL — nostril flare, linear
-    [0, -1.0],       // ψ0: mouth pursed/clenched — jaw tension
+    [0, 0.8],        // ψ0: lips pull back — CLENCHED/GRINDING teeth visible
     [20, -1.5, 1.5], // ψ20: nasolabial crunch — LATE
   ],
   pose: { pitch: -0.08 },
@@ -166,8 +167,8 @@ export const FATIGUE_WIRED_RECIPE: ExpressionChordRecipe = {
  * More head sag + list to reinforce "melting" rather than "reacting." */
 /** [w18] EXHAUSTED: jaw sag uses late onset, frown uses early onset.
  * Low exhaustion (0.3): droopy eyes + frown = "tired" — NO jaw opening
- * High exhaustion (0.8+): jaw sags open = "slack/unconscious"
- * ψ2(1.5, power=2.0): jaw only sags at high exhaustion (0.3→0.14, 0.7→0.74, 1.0→1.5)
+ * High exhaustion (0.8+): jaw sags open showing teeth = "slack/unconscious"
+ * ψ2(1.8, power=2.0): jaw sags to reveal teeth at high exhaustion
  * ψ7(-3.0, power=0.5): frown kicks in EARLY (0.3→-1.64) — "heavy face" before mouth opens
  * ψ9(-3.5, power=0.7): eyes close quickly — PRIMARY exhaustion signal at all levels */
 export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
@@ -175,7 +176,8 @@ export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
     [9, -2.5, 1.0],  // ψ9: eyes closing — w21: REDUCED 3.5→2.5, later onset. Let alarm eyes show through
     [7, -3.5, 0.5],  // ψ7: mouth corners DOWN — BOOSTED: PRIMARY exhaustion signal (frown, not eye closure)
     [21, -3.5],       // ψ21: sleepy/droopy — heavy, depleted
-    [0, -1.0, 0.5],  // ψ0: mouth pursed/CLOSED — EARLY. Keeps mouth shut during exhaustion
+    [0, 0.5, 2.0],   // ψ0: slack mouth — LATE onset. Works with jaw drop
+    [2, 1.8, 2.0],   // ψ2: jaw sags open showing teeth at high exhaustion
     [3, 1.5],         // ψ3: lip pucker forward — compressed tired mouth
     [25, 2.5],        // ψ25: relaxed/vacant — zero focus (BOOSTED: slack/vacant look)
     [24, -2.5, 0.5],  // ψ24: brow outer corners DOWN — EARLY: droopy brow is PRIMARY exhaustion signal
@@ -193,7 +195,7 @@ export const FATIGUE_EXHAUSTED_RECIPE: ExpressionChordRecipe = {
  * Wired already drives ψ6:3.0 + ψ3:-2.5 for mouth width. When both fire = ψ6:6.0 → grotesque.
  * Aggressive now: brow (ψ4), nose (ψ5,ψ20), chin (ψ26), squint (ψ9,ψ25) — no ψ6/ψ3.
  * The "predatory" look is brow V + sneer + jaw forward, not stretched grimace.
- * Added ψ7:-1.5 (tight-lipped frown) — controlled anger reads as compressed, not gaping. */
+ * With procedural teeth, anger reads best as a BARED TEETH snarl: lips pulled back (ψ0+) + slight jaw drop (ψ2+) + sneer (ψ5). */
 export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
   expression: [
     [4, 2.5],    // ψ4: brow FURROWED — corrugator, angry V-shape (PRIMARY)
@@ -204,7 +206,8 @@ export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
     [25, -1.5],  // ψ25: squint + focus — intense (boosted)
     [21, 2.5],   // ψ21: alert/awake eyes — prevents "fake shout"
     [7, -1.5],   // ψ7: mouth corners down — tight, compressed anger (NEW)
-    [0, -1.0],   // ψ0: mouth pursed/clenched — jaw tension
+    [0, 1.0],    // ψ0: mouth pulls back — exposes teeth for snarl
+    [2, 0.8, 2.0], // ψ2: slight jaw drop — teeth bared at high activation
     [16, 1.0],   // ψ16: mouth narrow — lip compression (reduced from 1.5)
   ],
   pose: { pitch: 0.05, yaw: -0.03 },  // slight head turn — predatory regard
