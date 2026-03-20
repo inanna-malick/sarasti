@@ -12,10 +12,10 @@ const HEAD_JOINT = 0;
 const JAW_JOINT = 2;
 
 // Recession depths as fractions of lipWidth
-const TEETH_RECESS = 0.1;
-const GUMS_RECESS = 0.3;
+const TEETH_RECESS = 0.15;
+const GUMS_RECESS = 0.35;
 const CAVITY_RECESS = 0.7;
-const TONGUE_RECESS = 0.35;
+const TONGUE_RECESS = 0.4;
 
 type SkinWeight = 'head' | 'jaw';
 
@@ -45,9 +45,10 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   const nOrig = model.n_vertices;
   const nOrigFaces = model.n_faces;
 
-  // Sort lip vertices into rings
-  const upperRing = sortVerticesIntoRing(model.template, m.upperLipVertices, m.upperLipCenter);
-  const lowerRing = sortVerticesIntoRing(model.template, m.lowerLipVertices, m.lowerLipCenter);
+  // Sort ALL lip vertices into one full ring around the mouth opening.
+  // Previous approach split upper/lower into half-rings and closed them,
+  // creating spiky artifacts at the corners. A full ring is a proper closed loop.
+  const fullLipRing = sortVerticesIntoRing(model.template, m.lipVertices, m.mouthCenter);
 
   // Accumulate new vertices
   const newPositions: number[] = [];
@@ -55,9 +56,15 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   const skinWeights: SkinWeight[] = [];
   const albedoColors: [number, number, number][] = [];
 
+  // Determine skin type from source vertex's jaw weight
+  function getSkinType(v: number): SkinWeight {
+    const jawWeight = model.weights[v * model.n_joints + JAW_JOINT];
+    return jawWeight < 0.5 ? 'head' : 'jaw';
+  }
+
   // Create a recession layer: duplicate ring vertices, offset into -Z
   function addLayer(
-    ring: number[], recess: number, skinType: SkinWeight, color: [number, number, number],
+    ring: number[], recess: number, color: [number, number, number],
   ): number[] {
     const newRing: number[] = [];
     for (const v of ring) {
@@ -69,7 +76,7 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
         model.template[v * 3 + 2] - recess * m.lipWidth,
       );
       sourceVertices.push(v);
-      skinWeights.push(skinType);
+      skinWeights.push(getSkinType(v));
       albedoColors.push(color);
     }
     return newRing;
@@ -94,38 +101,29 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
     return newIdx;
   }
 
-  // Upper mouth (skinned to head)
-  const upperTeeth = addLayer(upperRing, TEETH_RECESS, 'head', TEETH_BGR);
-  const upperGums = addLayer(upperRing, GUMS_RECESS, 'head', GUMS_BGR);
-  const upperCavityCenter = addCenter(upperRing, CAVITY_RECESS, 'head', CAVITY_BGR);
+  // Full-ring recession layers (per-vertex skinning from source jaw weight)
+  // The lip-inner ring sits just behind the lip surface to avoid z-fighting
+  // with skin faces at the lip boundary.
+  const LIP_INNER_RECESS = 0.04;
+  const lipInnerRing = addLayer(fullLipRing, LIP_INNER_RECESS, TEETH_BGR);
+  const teethRing = addLayer(fullLipRing, TEETH_RECESS, TEETH_BGR);
+  const gumsRing = addLayer(fullLipRing, GUMS_RECESS, GUMS_BGR);
+  const cavityCenter = addCenter(fullLipRing, CAVITY_RECESS, 'jaw', CAVITY_BGR);
 
-  // Lower mouth (skinned to jaw)
-  const lowerTeeth = addLayer(lowerRing, TEETH_RECESS, 'jaw', TEETH_BGR);
-  const lowerGums = addLayer(lowerRing, GUMS_RECESS, 'jaw', GUMS_BGR);
-  const lowerCavityCenter = addCenter(lowerRing, CAVITY_RECESS, 'jaw', CAVITY_BGR);
-
-  // Build faces by group
-  const teethFaces = [
-    ...buildRingStrip(upperRing, upperTeeth),
-    ...buildRingStrip(lowerRing, lowerTeeth),
-  ];
-  const gumsFaces = [
-    ...buildRingStrip(upperTeeth, upperGums),
-    ...buildRingStrip(lowerTeeth, lowerGums),
-  ];
-  const cavityFaces = [
-    ...buildRingCap(upperGums, upperCavityCenter),
-    ...buildRingCap(lowerGums, lowerCavityCenter),
-  ];
+  // Build faces: closed ring strips + fan cap
+  // lipInner→teeth is the gums strip just behind the lips
+  const teethFaces = buildRingStrip(lipInnerRing, teethRing);
+  const gumsFaces = buildRingStrip(teethRing, gumsRing);
+  const cavityFaces = buildRingCap(gumsRing, cavityCenter);
 
   // Tongue: procedural ellipsoid, positioned at gums depth
   const tongueGeo = createTongueGeometry(m);
   const tonguePosAttr = tongueGeo.getAttribute('position');
   const tongueStartIdx = nOrig + newPositions.length / 3;
   const tongueOffset = {
-    x: m.lowerLipCenter.x,
-    y: m.lowerLipCenter.y,
-    z: m.lowerLipCenter.z - TONGUE_RECESS * m.lipWidth,
+    x: m.mouthCenter.x,
+    y: m.mouthCenter.y,
+    z: m.mouthCenter.z - TONGUE_RECESS * m.lipWidth,
   };
   for (let i = 0; i < tonguePosAttr.count; i++) {
     newPositions.push(
@@ -133,7 +131,7 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
       tonguePosAttr.getY(i) + tongueOffset.y,
       tonguePosAttr.getZ(i) + tongueOffset.z,
     );
-    sourceVertices.push(m.lowerLipVertices[0]);
+    sourceVertices.push(m.lipVertices[0]);
     skinWeights.push('jaw');
     albedoColors.push(TONGUE_BGR);
   }

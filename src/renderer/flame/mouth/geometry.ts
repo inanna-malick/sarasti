@@ -2,21 +2,38 @@ import * as THREE from 'three';
 import type { MouthMeasurements } from './types';
 
 /**
- * Sort vertex indices into ring order by angle around centroid.
- * Uses atan2 in the XY plane for ring ordering around the lip boundary.
+ * Sort vertex indices into ring order via angular sort in the XY plane,
+ * then decimate to ~targetCount evenly-spaced vertices.
+ * The decimation removes the dense vertex clusters on the upper lip
+ * that cause nearest-neighbor and ring-strip artifacts.
  */
 export function sortVerticesIntoRing(
   template: Float32Array,
   indices: number[],
   centroid: THREE.Vector3,
+  targetCount = 24,
 ): number[] {
-  return [...indices].sort((a, b) => {
-    const ax = template[a * 3] - centroid.x;
-    const ay = template[a * 3 + 1] - centroid.y;
-    const bx = template[b * 3] - centroid.x;
-    const by = template[b * 3 + 1] - centroid.y;
-    return Math.atan2(ay, ax) - Math.atan2(by, bx);
+  if (indices.length <= 2) return [...indices];
+
+  const cx = centroid.x;
+  const cy = centroid.y;
+
+  // Sort by angle in XY plane around centroid
+  const sorted = [...indices].sort((a, b) => {
+    const angleA = Math.atan2(template[a * 3 + 1] - cy, template[a * 3] - cx);
+    const angleB = Math.atan2(template[b * 3 + 1] - cy, template[b * 3] - cx);
+    return angleA - angleB;
   });
+
+  // Decimate: pick ~targetCount evenly spaced vertices from the sorted ring
+  if (sorted.length <= targetCount) return sorted;
+
+  const step = sorted.length / targetCount;
+  const decimated: number[] = [];
+  for (let i = 0; i < targetCount; i++) {
+    decimated.push(sorted[Math.round(i * step) % sorted.length]);
+  }
+  return decimated;
 }
 
 /**
