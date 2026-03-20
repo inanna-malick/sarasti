@@ -83,28 +83,28 @@ export interface ChordActivations {
 // ─── Chord Recipes ───────────────────────────────────
 
 /** ALARM ALARMED (+): acute volatility × |velocity| snap response.
- * [w18] TENSION RAMP: use onset power curves to create "tense closed → shocked open" trajectory.
- * Low alarm (0.3): tight lips + wide eyes = "tense vigilance" — NO jaw drop
- * Moderate alarm (0.6): brows up + slight mouth open = "worried"
- * High alarm (0.9+): jaw drops, full shock = "alarmed"
- * The power parameter controls this: power<1 = early onset, power>1 = late onset.
- * ψ0(-1.0, power=0.5): mouth tenses EARLY (0.3→-0.55 contribution — tight-lipped)
- * ψ2(1.5, power=2.5): jaw opens LATE (0.3→0.05, 0.7→0.41, 1.0→1.5) */
+ * [w20] EYE-LED ALARM: shift primary signal from mouth→eyes/brow.
+ * Critics flagged "mouth-dominance" — all alarmed faces look the same (gaping).
+ * Fix: reduce jaw weight 1.5→1.0, boost eyes 3.0→3.5, add worried-brow ψ24 early.
+ * Low alarm (0.3): tight lips + worried brow + wide eyes = "concerned"
+ * Moderate alarm (0.6): brows high + eyes wide + slight tension = "worried"
+ * High alarm (0.9+): jaw cracks open, full alarm = "shocked" */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
     [4, -3.5],          // ψ4: brow RAISED — PRIMARY alarm (linear)
-    [9, 3.0],           // ψ9: eyes wide open — sclera visible (linear)
-    [2, 1.5, 2.5],      // ψ2: jaw drop — LATE ONSET: barely opens below 0.6, full at 1.0
-    [6, -1.0, 2.0],     // ψ6: rounded mouth — also late onset, subtle "Oh"
+    [9, 3.5],           // ψ9: eyes wide open — BOOSTED (was 3.0), sclera visible
+    [2, 1.0, 3.0],      // ψ2: jaw drop — REDUCED weight 1.5→1.0, LATER onset 2.5→3.0
+    [6, -1.0, 2.0],     // ψ6: rounded mouth — late onset (unchanged)
     [0, -1.2, 0.5],     // ψ0: mouth PURSED/TENSE — EARLY ONSET: tight-lipped at low alarm
     [5, 1.2],           // ψ5: upper lip snarl — nostril flare
     [20, -1.5],         // ψ20: visceral sneer — nasolabial crunch
-    [21, 1.5],          // ψ21: alert/awake eyes
+    [21, 2.0],          // ψ21: alert/awake eyes — BOOSTED (was 1.5)
     [16, 1.0, 0.5],     // ψ16: lip COMPRESSION — EARLY ONSET: tense at low alarm
+    [24, -1.5, 0.7],    // ψ24: brow outer corners DOWN — EARLY worried-brow (new w20)
   ],
   pose: {},
   gaze: {},
-  texture: { flush: -0.5 },
+  texture: { flush: -0.7 },  // w20: boost pallor -0.5→-0.7 for color differentiation
 };
 
 /** ALARM EUPHORIC (−): positive deviation, low volatility → warm glow, smile.
@@ -219,15 +219,17 @@ export const AGGRESSION_AGGRESSIVE_RECIPE: ExpressionChordRecipe = {
  * This is a binary thumbnail signal (dark eye area vs light sclera in other expressions).
  * Differentiated from exhausted by: raised brows (not drooped), head tilt (not sag),
  * pursed mouth (not slack), and maximum pallor (not gray fatigue). */
+/** w19: yielding eye closure power curves. Low yielding = wince (partial closure),
+ * high yielding = full shutdown. Prevents yielding ψ9 from overpowering alarm ψ9. */
 export const AGGRESSION_YIELDING_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [9, -3.5],   // ψ9: eyes CLOSED — PRIMARY: "I can't look" / wincing / flinch
-    [4, -3.0],   // ψ4: brows RAISED high — scared/vulnerable (flinch = raised brows + shut eyes)
-    [7, -3.0],   // ψ7: mouth corners DOWN — pained frown
-    [24, -2.0],  // ψ24: brow outer corners DOWN — worried, about-to-cry tilt
-    [0, -1.0],   // ψ0: mouth pursed/small — tight-lipped, withdrawn
-    [21, -2.0],  // ψ21: heavy lids — reinforces eye closure (boosted)
-    [26, -1.5],  // ψ26: chin RETRACTED — pulling back, submission
+    [9, -3.5, 1.5],   // ψ9: eyes CLOSED — LATE ONSET: wince before shutdown
+    [4, -3.0],        // ψ4: brows RAISED — scared/vulnerable (linear, immediate)
+    [7, -3.0],        // ψ7: mouth corners DOWN — pained frown
+    [24, -2.0, 0.7],  // ψ24: brow outer corners DOWN — EARLY onset (worry before flinch)
+    [0, -1.0],        // ψ0: mouth pursed/small — tight-lipped, withdrawn
+    [21, -2.0, 1.5],  // ψ21: heavy lids — LATE ONSET: matches ψ9 progression
+    [26, -1.5],       // ψ26: chin RETRACTED — pulling back, submission
   ],
   pose: { yaw: 0.06, pitch: 0.05, roll: -0.12 },  // head cocked sideways — submission
   gaze: { gazeH: -0.20, gazeV: -0.25 },  // eyes averted (visible when partially open at low activation)
@@ -325,6 +327,19 @@ export function symmetricSigmoid(x: number, steepness: number): number {
  * Preserves sign and endpoints (0→0, ±1→±1). */
 function activationCurve(x: number, power: number): number {
   return Math.sign(x) * Math.pow(Math.abs(x), power);
+}
+
+/** w19: Soft-clip extreme activations to preserve facial nuance.
+ * Below knee, passthrough. Above knee, smoothly compress toward 1.0.
+ * Prevents "frozen panic" look where all components are maxed. */
+function softClip(x: number, knee = 0.85): number {
+  const ax = Math.abs(x);
+  if (ax <= knee) return x;
+  // Compress [knee, inf) → [knee, 1.0) using exponential decay
+  const overshoot = ax - knee;
+  const headroom = 1.0 - knee;
+  const compressed = knee + headroom * (1 - Math.exp(-overshoot / headroom));
+  return Math.sign(x) * compressed;
 }
 
 /** Z-score normalize a value against its ticker's history, clamped to ±3. */
@@ -445,7 +460,8 @@ export function resolveExpressionChords(activations: ChordActivations): ChordRes
   // Front-load activation curves: low axis values still produce visible expression.
   // power=0.6 maps: 0.2→0.38, 0.4→0.57, 0.7→0.79, 1.0→1.0
   const EXPR_CURVE = 0.6;
-  const alarmMag = activationCurve(activations.alarm, EXPR_CURVE);
+  // w19: soft-clip alarm to prevent "frozen panic" at extreme activations
+  const alarmMag = softClip(activationCurve(activations.alarm, EXPR_CURVE));
   const fatigueMag = activationCurve(activations.fatigue, EXPR_CURVE);
 
   // ALARM (alarmed ↔ euphoric)
@@ -548,9 +564,12 @@ export interface MetaAxes {
  * - Aggression fatigue 0.2→0.3 (wired-grimace reinforces upper face)
  * - Aggression low-level 0.9→0.7 (reduce yielding eye-closure overpowering alarm)
  */
+/** w19: vitality→alarm -0.4→-0.15 (depletion shouldn't spike alarm on calm days).
+ * VIX calm had alarm=0.79 from vitality=-0.83 contributing +0.33.
+ * With -0.15 it contributes +0.12 → alarm drops from 0.79 to ~0.57. */
 export const META_MIXING: Record<keyof MetaAxes, Record<string, number>> = {
   distress:   { alarm: 1.1, fatigue: 0.15, aggression: 0, sharpness: 0.6 },
-  vitality:   { alarm: -0.4, fatigue: 0.7, dominance: 0.2, sharpness: -0.15 },
+  vitality:   { alarm: -0.15, fatigue: 0.7, dominance: 0.2, sharpness: -0.15 },
   aggression: { alarm: 0.15, fatigue: 0.15, aggression: 0.9, dominance: 0.2, sharpness: 0.4 },
 };
 
@@ -575,10 +594,10 @@ export function computeMetaAxes(
   const mr_z = ts ? zScore(frame.mean_reversion_z, ts.mean_reversion_z) : frame.mean_reversion_z;
 
   // DISTRESS: |velocity| + |mean_reversion| + drawdown contribution
-  // Velocity and mean_reversion carry the crisis signal in this dataset
-  // (volatility is pre-normalized and nearly constant across the timeline).
+  // w19: threshold raised from -0.5 to -0.8 — calm days with moderate velocity
+  // (VIX vel=-0.7, BRENT vel=0.47) no longer register as distressed.
   const distress = symmetricSigmoid(
-    Math.max(Math.abs(vel_z), Math.abs(mr_z)) + 0.3 * Math.abs(dd_z) - 0.5,
+    Math.max(Math.abs(vel_z), Math.abs(mr_z)) + 0.3 * Math.abs(dd_z) - 0.8,
     1.0,
   );
 
