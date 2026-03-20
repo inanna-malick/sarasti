@@ -99,8 +99,8 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       // Apply limbal darkness (properly centered on the edge)
       color = mix(color, vec3(0.0), limbalDarkness);
 
-      // Simple lighting based on normal (applied before specular)
-      float l = max(0.3, dot(vNormal, normalize(vec3(0.5, 0.5, 1.0))));
+      // Lighting: key light direction matches scene key light at (-2, 3, 4)
+      float l = max(0.5, dot(vNormal, normalize(vec3(-2.0, 3.0, 4.0))));
       color *= l;
 
       // Specular highlight AFTER lighting so it stays bright

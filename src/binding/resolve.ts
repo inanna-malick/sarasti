@@ -118,6 +118,9 @@ export function resolve(
  * Shape EMA smoothing preserved (α=0.03).
  */
 const SHAPE_SMOOTHING_ALPHA = 0.03;
+/** Expression EMA: faces morph between states rather than snapping.
+ * α=0.15 → ~5 frames to 50% transition (narrative-readable at 1x–8x speed). */
+const EXPR_SMOOTHING_ALPHA = 0.15;
 
 export function createResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
@@ -127,6 +130,7 @@ export function createResolver(
   const gazeResolver = createGazeResolver(config.gazeConfig);
   const accumulatorMap = new Map<string, TextureAccumulator>();
   const shapeStateMap = new Map<string, Float32Array>();
+  const exprStateMap = new Map<string, Float32Array>();
 
   /** Compute blended fatigue: exchange time-of-day + chord texture fatigue. */
   function blendFatigue(
@@ -162,7 +166,9 @@ export function createResolver(
     addIdentityNoise(shapeResult.shape, ticker.id);
 
     let shape: Float32Array;
+    let expression: Float32Array;
     if (accumulate) {
+      // Shape EMA (very slow α=0.03 — identity morphs glacially)
       let prevShape = shapeStateMap.get(ticker.id);
       if (!prevShape) {
         prevShape = new Float32Array(shapeResult.shape);
@@ -175,9 +181,25 @@ export function createResolver(
         }
       }
       shape = new Float32Array(prevShape);
+
+      // Expression EMA (faster α=0.15 — narrative-speed transitions)
+      let prevExpr = exprStateMap.get(ticker.id);
+      if (!prevExpr) {
+        prevExpr = new Float32Array(chordResult.expression);
+        exprStateMap.set(ticker.id, prevExpr);
+      } else {
+        const a = EXPR_SMOOTHING_ALPHA;
+        const b = 1 - a;
+        for (let i = 0; i < prevExpr.length; i++) {
+          prevExpr[i] = a * chordResult.expression[i] + b * prevExpr[i];
+        }
+      }
+      expression = new Float32Array(prevExpr);
     } else {
       shape = shapeStateMap.get(ticker.id) ?? shapeResult.shape;
       shape = new Float32Array(shape);
+      expression = exprStateMap.get(ticker.id) ?? chordResult.expression;
+      expression = new Float32Array(expression);
     }
 
     // Texture accumulation
@@ -220,7 +242,7 @@ export function createResolver(
 
     return {
       shape,
-      expression: chordResult.expression,
+      expression,
       pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
       flush: Math.max(-1, Math.min(1, flush)),
       fatigue: Math.max(-1, Math.min(1, fatigue)),
@@ -240,6 +262,7 @@ export function createResolver(
     resetAccumulators(): void {
       accumulatorMap.clear();
       shapeStateMap.clear();
+      exprStateMap.clear();
       poseResolver.reset();
       gazeResolver.reset();
     },

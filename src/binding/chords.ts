@@ -91,16 +91,16 @@ export interface ChordActivations {
  * High alarm (0.9+): jaw cracks open showing teeth, full alarm = "shocked" */
 export const ALARM_ALARMED_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [4, -4.0, 0.7],     // ψ4: brow RAISED — w21: EARLY onset. Visible worry at alarm=0.3
-    [9, 4.0, 0.5],      // ψ9: eyes wide open — w21: EARLY onset. Eyes POP at low alarm
-    [6, -0.8, 3.0],     // ψ6: rounded mouth — very late onset, minimal
-    [0, -0.8, 0.5],     // ψ0: mouth tight/pursed — less aggressive pursing
-    [2, 1.5, 4.0],      // ψ2: jaw drop — cracks open showing teeth at EXTREME alarm (>0.9)
+    [4, -4.0, 0.7],     // ψ4: brow RAISED — EARLY onset. Visible worry at alarm=0.3
+    [9, 4.0, 0.5],      // ψ9: eyes wide open — EARLY onset. Eyes POP at low alarm
+    [2, 1.5, 4.0],      // ψ2: jaw drop — teeth visible at EXTREME alarm (>0.9)
     [5, 1.5, 0.7],      // ψ5: upper lip snarl — nostril flare, early onset
-    [20, -2.0],          // ψ20: visceral sneer — nasolabial crunch (boosted)
+    [20, -2.0],          // ψ20: visceral sneer — nasolabial crunch
     [21, 2.5, 0.5],     // ψ21: alert/awake eyes — EARLY onset. Eyes snap alert
-    [16, 1.2, 0.5],     // ψ16: lip COMPRESSION — EARLY ONSET: tense at low alarm (boosted)
-    [24, -2.0, 0.5],    // ψ24: brow outer corners DOWN — w21: EARLY + stronger worried-brow
+    [24, -2.0, 0.5],    // ψ24: brow outer corners DOWN — EARLY worried-brow
+    // w22: mouth ownership removed (ψ0, ψ6, ψ16 deleted). Alarm = pure eyes/brow.
+    // Pursing was a pre-teeth hack to hide the black mouth void.
+    // Fatigue + aggression axes now own mouth shape exclusively.
   ],
   pose: {},
   gaze: {},
