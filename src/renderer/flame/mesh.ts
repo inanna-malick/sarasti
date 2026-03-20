@@ -502,12 +502,12 @@ export class FlameFaceMesh {
   }
 }
 
-/** Deterministic iris color from ticker ID hash */
+/** Deterministic iris color from ticker ID hash — desaturated for natural look */
 function getIrisColor(tickerId: string): THREE.Color {
   let seed = 0;
   for (let i = 0; i < tickerId.length; i++) {
     seed = (seed * 31 + tickerId.charCodeAt(i)) | 0;
   }
   const hue = ((seed >>> 0) % 360) / 360;
-  return new THREE.Color().setHSL(hue, 0.6, 0.35);
+  return new THREE.Color().setHSL(hue, 0.4, 0.32);
 }

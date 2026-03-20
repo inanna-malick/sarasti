@@ -2,8 +2,8 @@ import * as THREE from 'three';
 
 export interface EyeMaterialOptions {
   irisColor: THREE.Color;    // deterministic from ticker hash
-  irisRadius?: number;       // default 0.14
-  pupilRadius?: number;      // default 0.055
+  irisRadius?: number;       // default 0.45
+  pupilRadius?: number;      // default 0.18
 }
 
 export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMaterial {
@@ -78,14 +78,14 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       
       // Iris
       if (dist < irisRadius) {
-        // Radial pattern for iris
+        // Soft radial pattern — reduced contrast for small-scale readability
         float angle = atan(shiftedUV.y, shiftedUV.x);
-        float radial = 0.5 + 0.5 * sin(angle * 20.0 + noise(vLocalPos * 10.0) * 5.0);
-        vec3 irisBase = mix(irisColor * 0.6, irisColor, radial);
-        
+        float radial = 0.7 + 0.3 * sin(angle * 12.0 + noise(vLocalPos * 8.0) * 3.0);
+        vec3 irisBase = mix(irisColor * 0.7, irisColor, radial);
+
         // Darken towards pupil (inner iris)
-        irisBase *= (0.8 + 0.2 * smoothstep(pupilRadius, irisRadius, dist));
-        
+        irisBase *= (0.75 + 0.25 * smoothstep(pupilRadius, irisRadius, dist));
+
         float irisBlend = 1.0 - smoothstep(irisRadius - 0.03, irisRadius, dist);
         color = mix(color, irisBase, irisBlend);
       }
