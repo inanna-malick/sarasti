@@ -11,7 +11,7 @@ Then spawn_worker agents to read the PNGs and write bestiary entries.
 import json
 import os
 
-RENDERS_DIR = "tools/eval/data/renders/census"
+RENDERS_DIR = "tools/eval/data/renders/census-w23"
 
 def census_configs(multiangle=False):
     """Generate render configs for ψ0-ψ29 and β0-β29.
@@ -26,10 +26,10 @@ def census_configs(multiangle=False):
             comp = f"{param_prefix}{i}"
 
             # Full sweep × all cameras
-            for val in [-3.0, -1.5, 0.0, 1.5, 3.0]:
+            for val in [-2.0, -1.0, 0.0, 1.0, 2.0]:
                 val_str = f"{val:+.1f}"
                 for camera in cameras:
-                    params = {"mode": "raw", comp: str(val)}
+                    params = {"mode": "raw", comp: str(val), "enable_mouth": "true", "enable_eyes": "true"}
                     if camera != "front":
                         params["camera"] = camera
                     configs.append({
@@ -41,7 +41,7 @@ def census_configs(multiangle=False):
             if not multiangle:
                 for camera in ["left34", "right34"]:
                     configs.append({
-                        "params": {"mode": "raw", comp: "2.0", "camera": camera},
+                        "params": {"mode": "raw", comp: "2.0", "camera": camera, "enable_mouth": "true", "enable_eyes": "true"},
                         "output": f"{RENDERS_DIR}/{prefix}/{comp}_+2.0_{camera}.png",
                     })
 
