@@ -21,11 +21,11 @@ export interface ExpressionResolver {
 
 /** Accessor-based axes configuration for the library API */
 export interface AxesConfig<T extends FaceDatum = FaceDatum> {
-  // Expression axes (2-axis: alarmed↔euphoric, wired↔exhausted)
-  alarm?: Accessor<T>;
-  fatigue?: Accessor<T>;
+  // Expression axes (circumplex: tension × valence)
+  tension?: Accessor<T>;
+  valence?: Accessor<T>;
   // Shape axis
-  dominance?: Accessor<T>;
+  stature?: Accessor<T>;
   // Pose axes
   pitch?: Accessor<T>;
   yaw?: Accessor<T>;

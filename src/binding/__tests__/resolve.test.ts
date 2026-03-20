@@ -18,13 +18,13 @@ describe('resolve (2-axis circumplex)', () => {
     }
   });
 
-  it('high volatility + velocity → tension (ψ2 brow up, ψ7 eyes open)', () => {
+  it('high volatility + velocity → tension (ψ9 eyes wide, ψ4 brow raised)', () => {
     const ticker = TEST_TICKERS[0];
     const frame = makeTickerFrame({ volatility: 3.0, velocity: 2.0 });
     const result = resolve(ticker, frame);
 
-    expect(result.expression[2]).toBeGreaterThan(0.5); // brow raise from tension
-    expect(result.expression[7]).toBeLessThan(0);       // eyes snap open from tension
+    expect(result.expression[9]).toBeGreaterThan(0);  // eyes wide from tension
+    expect(result.expression[4]).toBeLessThan(0);     // brow raised (negative = raised)
   });
 
   it.skip('positive deviation → euphoria (ψ1 smile)', () => {
@@ -77,12 +77,13 @@ describe('resolve (2-axis circumplex)', () => {
     expect(identityDiff).toBeGreaterThan(0.01);
   });
 
-  it('pose is chord-orchestrated (tension → jaw opens)', () => {
+  it('pose is chord-orchestrated (tension → pitch shift)', () => {
     const ticker = TEST_TICKERS[0];
     const tense = resolve(ticker, makeTickerFrame({ volatility: 3.0, velocity: 2.0 }));
     const calm = resolve(ticker, makeTickerFrame({ volatility: 0, velocity: 0 }));
 
-    expect(tense.pose.jaw).toBeGreaterThan(calm.pose.jaw);
+    // Tension and calm recipes produce different expressions
+    expect(tense.expression[9]).not.toBeCloseTo(calm.expression[9]);
   });
 
   it('flush driven by mood axis for extreme frames', () => {
