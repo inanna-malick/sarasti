@@ -50,25 +50,30 @@ export class FlameFaceMesh {
     this.geometry = new THREE.BufferGeometry();
 
     const originalFaceCount = mouthGroups ? mouthGroups.teeth.faceStart : model.n_faces;
+    const skinFaceCount = pipeline.filteredFaceCount ?? originalFaceCount;
 
     // Build face index buffer: reorder so eye faces are in contiguous groups
     let materialIdx = 0;
     if (eyeGroups) {
-      // Build set of eye face indices for fast lookup
-      const eyeFaceSet = new Set<number>();
-      for (const f of eyeGroups.leftEyeFaces) eyeFaceSet.add(f);
-      for (const f of eyeGroups.rightEyeFaces) eyeFaceSet.add(f);
+      // Build set of eye face vertices for fast lookup
+      const isEyeVertex = new Set<number>();
+      for (const v of eyeGroups.leftEyeVertices) isEyeVertex.add(v);
+      for (const v of eyeGroups.rightEyeVertices) isEyeVertex.add(v);
 
       // Reorder: skin faces first, then left eye, then right eye
-      const reorderedIndices = new Uint32Array(model.faces.length);
+      const reorderedIndices = new Uint32Array(model.faces.length); // keeping this large enough
       let writeIdx = 0;
 
-      // Skin faces (non-eye original faces)
-      for (let f = 0; f < originalFaceCount; f++) {
-        if (!eyeFaceSet.has(f)) {
-          reorderedIndices[writeIdx++] = model.faces[f * 3];
-          reorderedIndices[writeIdx++] = model.faces[f * 3 + 1];
-          reorderedIndices[writeIdx++] = model.faces[f * 3 + 2];
+      // Skin faces (non-eye original faces, filtered)
+      const skinFaces = pipeline.filteredFaces ?? model.faces;
+      for (let f = 0; f < skinFaceCount; f++) {
+        const v0 = skinFaces[f * 3];
+        const v1 = skinFaces[f * 3 + 1];
+        const v2 = skinFaces[f * 3 + 2];
+        if (!(isEyeVertex.has(v0) && isEyeVertex.has(v1) && isEyeVertex.has(v2))) {
+          reorderedIndices[writeIdx++] = v0;
+          reorderedIndices[writeIdx++] = v1;
+          reorderedIndices[writeIdx++] = v2;
         }
       }
       const skinIndexCount = writeIdx;
@@ -125,12 +130,23 @@ export class FlameFaceMesh {
         this.geometry.addGroup(mouthOffset, cavityCount, materialIdx++);
       }
     } else {
-      // No eyes — original layout
-      this.geometry.setIndex(new THREE.BufferAttribute(model.faces, 1));
+      // No eyes — original layout (but filtered for neck)
+      const skinFaces = pipeline.filteredFaces ?? model.faces;
+      if (mouthGroups && pipeline.filteredFaces) {
+        // Construct combined array: filtered skin faces + original mouth faces
+        const mouthFaceCount = model.n_faces - originalFaceCount;
+        const reorderedIndices = new Uint32Array(skinFaceCount * 3 + mouthFaceCount * 3);
+        reorderedIndices.set(pipeline.filteredFaces.subarray(0, skinFaceCount * 3), 0);
+        const mouthStart = mouthGroups.teeth.faceStart * 3;
+        reorderedIndices.set(model.faces.subarray(mouthStart), skinFaceCount * 3);
+        this.geometry.setIndex(new THREE.BufferAttribute(reorderedIndices, 1));
+      } else {
+        this.geometry.setIndex(new THREE.BufferAttribute(skinFaces, 1));
+      }
 
       let groupOffset = 0;
-      this.geometry.addGroup(groupOffset, originalFaceCount * 3, 0);
-      groupOffset += originalFaceCount * 3;
+      this.geometry.addGroup(groupOffset, skinFaceCount * 3, 0);
+      groupOffset += skinFaceCount * 3;
 
       materialIdx = 1;
       // Mouth material groups (1–4) if enabled
@@ -220,7 +236,7 @@ export class FlameFaceMesh {
     interiorGeometry.setAttribute('normal', this.geometry.getAttribute('normal'));
     // setDrawRange excludes mouth faces from the single-material interior mesh
     // (addGroup only works with multi-material meshes)
-    interiorGeometry.setDrawRange(0, originalFaceCount * 3);
+    interiorGeometry.setDrawRange(0, skinFaceCount * 3);
     this.mesh.add(new THREE.Mesh(interiorGeometry, this.interiorMaterial));
   }
 
