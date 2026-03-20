@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createFlamePipeline } from '../../../src/renderer/flame/pipeline';
+import type { PipelineOptions } from '../../../src/renderer/flame/pipeline';
 import { FlameFaceMesh } from '../../../src/renderer/flame/mesh';
 import { FLAME_DATA_BASE } from '../../../src/renderer/constants';
 import { useExplorerStore } from './store';
+import type { DebugMaterial } from './store';
 import type { CameraPreset } from './ExplorerPane';
 
 declare global {
@@ -14,11 +16,12 @@ declare global {
 }
 
 const CAMERA_PRESETS: Record<CameraPreset, [number, number, number]> = {
-  front:       [0,     0,    0.6],
-  left34:      [-0.25, 0.05, 0.53],
-  right34:     [0.25,  0.05, 0.53],
-  closeup:     [0,    -0.01, 0.32],
-  closeup_eyes:[0,     0.01, 0.22],
+  front:        [0,     0,    0.6],
+  left34:       [-0.25, 0.05, 0.53],
+  right34:      [0.25,  0.05, 0.53],
+  closeup:      [0,    -0.01, 0.32],
+  closeup_eyes: [0,     0.01, 0.22],
+  closeup_mouth:[0,    -0.04, 0.22],
 };
 
 interface ExplorerRendererProps {
@@ -43,7 +46,13 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
       if (!containerRef.current) return;
 
       try {
-        const pipeline = await createFlamePipeline(FLAME_DATA_BASE);
+        // Read pipeline feature flags from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const pipelineOpts: PipelineOptions = {
+          enableMouth: urlParams.get('enable_mouth') === 'true',
+          enableEyes: urlParams.get('enable_eyes') === 'true',
+        };
+        const pipeline = await createFlamePipeline(FLAME_DATA_BASE, pipelineOpts);
 
         if (disposed) return;
 
@@ -105,6 +114,12 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
         mesh.mesh.scale.setScalar(1);
         mesh.mesh.position.set(0, 0, 0);
         scene.add(mesh.mesh);
+
+        // Apply debug material mode if set
+        const debugMat = useExplorerStore.getState().debugMaterial;
+        if (debugMat !== 'normal') {
+          mesh.setDebugMaterial(debugMat);
+        }
 
         if (!headless) {
           resizeObserver = new ResizeObserver((entries) => {

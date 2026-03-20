@@ -318,6 +318,36 @@ export class FlameFaceMesh {
   }
 
 
+  /**
+   * Apply a debug material mode for isolating eyes/mouth during iteration.
+   * - 'normal': all opaque (default)
+   * - 'skin_xray': skin at 30% opacity, mouth/eyes opaque (see through skin)
+   * - 'eyes_only': hide skin + mouth, show only eye material
+   * - 'mouth_only': hide skin + eyes, show only mouth geometry
+   */
+  public setDebugMaterial(mode: 'normal' | 'skin_xray' | 'eyes_only' | 'mouth_only'): void {
+    if (mode === 'normal') {
+      this.material.transparent = false;
+      this.material.opacity = 1.0;
+      this.material.visible = true;
+      this.interiorMaterial.visible = true;
+    } else if (mode === 'skin_xray') {
+      this.material.transparent = true;
+      this.material.opacity = 0.3;
+      this.material.depthWrite = false;
+      this.material.visible = true;
+      this.interiorMaterial.visible = false; // hide black interior so we can see through
+    } else if (mode === 'eyes_only') {
+      this.material.visible = false;
+      this.interiorMaterial.visible = false;
+      // Eye material (if present as separate group) stays visible by default
+    } else if (mode === 'mouth_only') {
+      this.material.visible = false;
+      this.interiorMaterial.visible = false;
+      // Mouth materials stay visible
+    }
+  }
+
   public dispose(): void {
     this.geometry.dispose();
     this.material.dispose();

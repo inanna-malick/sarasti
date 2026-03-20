@@ -21,9 +21,11 @@ import {
 } from '../../../src/binding/chords';
 
 type ExplorerMode = 'highlevel' | 'semantic' | 'raw' | 'data';
+export type DebugMaterial = 'normal' | 'skin_xray' | 'eyes_only' | 'mouth_only';
 
 interface ExplorerState {
   mode: ExplorerMode;
+  debugMaterial: DebugMaterial;
 
   // High-level: 6 axes (pose/gaze/texture computed from chord recipes)
   alarm: number;
@@ -79,6 +81,7 @@ interface ExplorerState {
   setRawShape: (index: number, value: number) => void;
   setRawExpression: (index: number, value: number) => void;
   setCurrentParams: (params: FaceParams) => void;
+  setDebugMaterial: (v: DebugMaterial) => void;
   recompute: () => void;
 }
 
@@ -285,6 +288,7 @@ function update(set: any, get: any, patch: Partial<ExplorerState>) {
 
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
+  debugMaterial: 'normal' as DebugMaterial,
 
   alarm: 0,
   fatigue: 0,
@@ -335,6 +339,7 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   setFatigueTex: (v) => update(set, get, { fatigueTex: v }),
 
   setCurrentParams: (params) => set({ currentParams: params }),
+  setDebugMaterial: (v) => set({ debugMaterial: v }),
 
   setRawShape: (index, value) => {
     const arr = new Float32Array(get().rawShape);

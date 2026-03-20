@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-export type CameraPreset = 'front' | 'left34' | 'right34' | 'closeup' | 'closeup_eyes';
+export type CameraPreset = 'front' | 'left34' | 'right34' | 'closeup' | 'closeup_eyes' | 'closeup_mouth';
 
 async function loadDataMode(tickerId: string, timestamp: string) {
   const store = useExplorerStore.getState();
@@ -79,6 +79,12 @@ async function loadDataMode(tickerId: string, timestamp: string) {
 function parseUrlParams() {
   const params = new URLSearchParams(window.location.search);
   const store = useExplorerStore.getState();
+
+  // Debug material mode
+  const debugMat = params.get('debug_material');
+  if (debugMat === 'skin_xray' || debugMat === 'eyes_only' || debugMat === 'mouth_only') {
+    store.setDebugMaterial(debugMat);
+  }
 
   if (params.get('mode') === 'data') {
     store.setMode('data');
@@ -157,7 +163,7 @@ function parseUrlParams() {
 function getCameraPreset(): CameraPreset {
   const params = new URLSearchParams(window.location.search);
   const camera = params.get('camera');
-  if (camera === 'left34' || camera === 'right34' || camera === 'closeup' || camera === 'closeup_eyes') return camera;
+  if (camera === 'left34' || camera === 'right34' || camera === 'closeup' || camera === 'closeup_eyes' || camera === 'closeup_mouth') return camera;
   return 'front';
 }
 
