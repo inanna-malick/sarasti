@@ -31,9 +31,11 @@ export interface PipelineOptions {
 function computeNeckMask(weights: Float32Array, nVertices: number, nJoints: number, template: Float32Array): Uint8Array {
   const mask = new Uint8Array(nVertices);
   for (let v = 0; v < nVertices; v++) {
-    const neckWeight = weights[v * nJoints + 1];
+    // Joint 0 = root/torso (266 vertices), Joint 1 = head (3345 vertices).
+    // Remove vertices dominated by root joint (torso/neck geometry).
+    const rootWeight = weights[v * nJoints + 0];
     const y = template[v * 3 + 1];
-    if (neckWeight > 0.25 || y < -0.055) {
+    if (rootWeight > 0.5 || y < -0.08) {
       mask[v] = 0; // removed
     } else {
       mask[v] = 1; // kept
