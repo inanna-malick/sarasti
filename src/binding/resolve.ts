@@ -28,6 +28,7 @@ import {
   computeCircumplex,
   resolveExpressionChords,
   resolveShapeChords,
+  type CircumplexActivations,
 } from './chords';
 import { computeExchangeFatigue } from './exchange';
 import type { Exchange } from '../types';
@@ -37,23 +38,53 @@ import type { Exchange } from '../types';
 const noiseCache = new Map<string, Float32Array>();
 
 /**
- * Add small deterministic noise on unused β components (β33-β41).
- * Gives each ticker a unique face fingerprint without affecting axis-controlled components.
+ * Identity fingerprint — high-impact β components for per-ticker visual diversity.
+ *
+ * Two tiers of noise:
+ *   PRIMARY (±1.5): β1(face width), β11(nose/midface), β20(cheekbone), β14(jaw profile), β5(jaw squareness)
+ *     These create immediately visible "different person" silhouettes. Selected by beta scout (w23 wave 1)
+ *     to avoid overlap with stature recipe (β0,2,3,4,7,9,10,13,18,22,23,27,28).
+ *   SECONDARY (±0.8): β15(eye depth), β17(eye spacing), β25(jawline), β30(nose bridge)
+ *     Subtle refinements for face variety.
+ *   TERTIARY (±0.5): β33-β41 — micro-perturbation as before.
  */
+const IDENTITY_PRIMARY: readonly [number, number][] = [
+  [1, 1.5],   // face width / build — most visible identity component
+  [11, 1.5],  // nose & midface character
+  [20, 1.5],  // cheekbone prominence
+  [14, 1.2],  // jaw projection / profile
+  [5, 1.0],   // jaw squareness
+];
+
+const IDENTITY_SECONDARY: readonly [number, number][] = [
+  [15, 0.8],  // eye & brow prominence
+  [17, 0.6],  // interocular distance
+  [25, 0.8],  // jawline definition
+  [30, 0.6],  // nose bridge refinement
+];
+
 function addIdentityNoise(shape: Float32Array, tickerId: string): void {
   let noise = noiseCache.get(tickerId);
   if (!noise) {
-    const scalars = hashToScalars(tickerId, 9);
+    const totalSlots = IDENTITY_PRIMARY.length + IDENTITY_SECONDARY.length + 9; // +9 for β33-41
+    const scalars = hashToScalars(tickerId, totalSlots);
     noise = new Float32Array(N_SHAPE);
+    let si = 0;
+    for (const [idx, scale] of IDENTITY_PRIMARY) {
+      noise[idx] = scalars[si++] * 2 * scale; // scalars are [-0.5,0.5], ×2 → [-1,1], ×scale
+    }
+    for (const [idx, scale] of IDENTITY_SECONDARY) {
+      noise[idx] = scalars[si++] * 2 * scale;
+    }
     for (let i = 0; i < 9; i++) {
-      noise[33 + i] = scalars[i] * 0.5; // small perturbation
+      noise[33 + i] = scalars[si++] * 0.5; // tertiary micro-perturbation
     }
     noiseCache.set(tickerId, noise);
   }
 
-  for (let i = 33; i < 42; i++) {
-    shape[i] += noise[i];
-  }
+  for (const [idx] of IDENTITY_PRIMARY) shape[idx] += noise[idx];
+  for (const [idx] of IDENTITY_SECONDARY) shape[idx] += noise[idx];
+  for (let i = 33; i < 42; i++) shape[i] += noise[i];
 }
 
 // ─── Unified Resolver ───────────────────────────────
@@ -112,9 +143,19 @@ export function resolve(
  * Shape EMA smoothing preserved (α=0.03).
  */
 const SHAPE_SMOOTHING_ALPHA = 0.03;
-/** Expression EMA: faces morph between states rather than snapping.
- * α=0.15 → ~5 frames to 50% transition (narrative-readable at 1x–8x speed). */
-const EXPR_SMOOTHING_ALPHA = 0.15;
+/** Per-asset-class expression EMA alpha — drives wave propagation.
+ * Higher α = faster reaction. Fear/VIX snaps first, equities follow, commodities lag.
+ * This creates visible "wave" across the face field during a crash.
+ * α=0.30 → ~2 frames to 50%, α=0.10 → ~7 frames to 50%. */
+const EXPR_ALPHA_BY_CLASS: Record<string, number> = {
+  fear:      0.30,  // VIX, gold — instant reactor (sentinel)
+  equity:    0.20,  // SPY, QQQ — fast follower
+  currency:  0.15,  // forex — moderate
+  energy:    0.12,  // oil, natgas — deliberate
+  commodity: 0.10,  // metals, ags — laggard
+  media:     0.15,  // news — moderate
+};
+const EXPR_SMOOTHING_ALPHA_DEFAULT = 0.15;
 
 export function createResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
@@ -175,13 +216,13 @@ export function createResolver(
       }
       shape = new Float32Array(prevShape);
 
-      // Expression EMA (faster α=0.15 — narrative-speed transitions)
+      // Expression EMA — per-class alpha for wave propagation
       let prevExpr = exprStateMap.get(ticker.id);
       if (!prevExpr) {
         prevExpr = new Float32Array(chordResult.expression);
         exprStateMap.set(ticker.id, prevExpr);
       } else {
-        const a = EXPR_SMOOTHING_ALPHA;
+        const a = EXPR_ALPHA_BY_CLASS[ticker.class] ?? EXPR_SMOOTHING_ALPHA_DEFAULT;
         const b = 1 - a;
         for (let i = 0; i < prevExpr.length; i++) {
           prevExpr[i] = a * chordResult.expression[i] + b * prevExpr[i];
@@ -207,7 +248,7 @@ export function createResolver(
       accumulatorMap.set(ticker.id, acc);
       const tex = accumulatorToTexture(acc);
       // Blend chord texture with EMA texture
-      flush = tex.flush * 0.4 + chordResult.flush;
+      flush = tex.flush * 0.2 + chordResult.flush;
       fatigue = blendFatigue(tex.fatigue + chordResult.fatigue, ticker.exchange, timestamp);
     } else {
       const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
@@ -333,6 +374,77 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
     pose,
     flush: values.flush ?? 0,
     fatigue: 0,
+    skinAge: 0,
+  };
+}
+
+// ─── Scenario API ────────────────────────────────────
+
+/** Override fields for scenario-driven resolution */
+export interface CircumplexOverrides {
+  flush?: number;
+  fatigue?: number;
+  gazeH?: number;
+  gazeV?: number;
+  /** Additive pose overrides (on top of chord-derived pose) */
+  pitch?: number;
+  yaw?: number;
+  roll?: number;
+}
+
+/**
+ * Resolve circumplex activations → full FaceParams via chord recipes.
+ * Used by scenario driver: takes pre-authored {tension, valence, stature}
+ * and produces the same rich output as the market data path (pose, gaze,
+ * flush, fatigue from recipes + identity noise).
+ *
+ * Optional overrides: flush, fatigue, gazeH/gazeV, pitch/yaw/roll.
+ * Pose overrides are additive on chord pose. Fatigue/flush replace chord values when set.
+ */
+export function resolveFromCircumplex(
+  activations: CircumplexActivations,
+  faceId: string,
+  overrides?: CircumplexOverrides,
+): FaceParams {
+  const chordResult = resolveExpressionChords(activations);
+  const shapeResult = resolveShapeChords(activations);
+  addIdentityNoise(shapeResult.shape, faceId);
+
+  const poseResolver = createPoseResolver();
+  const gazeResolver = createGazeResolver();
+
+  // Combine expression chord pose + shape identity pose + scenario pose overrides
+  const combinedPose = {
+    pitch: chordResult.pose.pitch + shapeResult.pose.pitch + (overrides?.pitch ?? 0),
+    yaw: chordResult.pose.yaw + shapeResult.pose.yaw + (overrides?.yaw ?? 0),
+    roll: chordResult.pose.roll + shapeResult.pose.roll + (overrides?.roll ?? 0),
+    jaw: chordResult.pose.jaw,
+  };
+  const poseResult = poseResolver.resolve(faceId, combinedPose);
+
+  // Gaze: use override (from gaze tracking) or chord gaze
+  const gazeInput = {
+    gazeH: overrides?.gazeH ?? chordResult.gaze.gazeH,
+    gazeV: overrides?.gazeV ?? chordResult.gaze.gazeV,
+  };
+  const gazeResult = gazeResolver.resolve(faceId, gazeInput);
+
+  // Flush: override if provided (scenario-authored), else from chord recipe
+  const flush = overrides?.flush !== undefined
+    ? Math.max(-1, Math.min(1, overrides.flush))
+    : Math.max(-1, Math.min(1, chordResult.flush));
+
+  // Fatigue: override if provided, else from chord recipe
+  const fatigue = overrides?.fatigue !== undefined
+    ? Math.max(-1, Math.min(1, overrides.fatigue))
+    : chordResult.fatigue;
+
+  return {
+    shape: shapeResult.shape,
+    expression: chordResult.expression,
+    pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
+    flush,
+    fatigue,
     skinAge: 0,
   };
 }
