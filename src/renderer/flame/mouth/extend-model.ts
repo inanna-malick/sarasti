@@ -148,17 +148,30 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   tongueGeo.dispose();
 
   // Teeth arcs: volumetric U-shaped strips facing the camera
-  // Upper teeth anchored to head joint, lower teeth to jaw joint
+  // Upper teeth anchored to head joint, lower teeth to jaw joint.
+  // Each arc vertex maps to its nearest lip vertex for deformation.
   const teethArcFaces: number[] = [];
   for (const which of ['upper', 'lower'] as const) {
     const arc = createTeethArcGeometry(m, which);
     const arcStartIdx = nOrig + newPositions.length / 3;
-    const sourceV = which === 'upper' ? m.upperLipVertices[0] : m.lowerLipVertices[0];
     const skin: SkinWeight = which === 'upper' ? 'head' : 'jaw';
+    const srcVerts = which === 'upper' ? m.upperLipVertices : m.lowerLipVertices;
 
     for (let i = 0; i < arc.positions.length; i += 3) {
-      newPositions.push(arc.positions[i], arc.positions[i + 1], arc.positions[i + 2]);
-      sourceVertices.push(sourceV);
+      const px = arc.positions[i], py = arc.positions[i + 1], pz = arc.positions[i + 2];
+      newPositions.push(px, py, pz);
+
+      // Find nearest source lip vertex for this arc vertex
+      let bestV = srcVerts[0];
+      let bestDist = Infinity;
+      for (const v of srcVerts) {
+        const dx = model.template[v * 3] - px;
+        const dy = model.template[v * 3 + 1] - py;
+        const dz = model.template[v * 3 + 2] - pz;
+        const d = dx * dx + dy * dy + dz * dz;
+        if (d < bestDist) { bestDist = d; bestV = v; }
+      }
+      sourceVertices.push(bestV);
       skinWeights.push(skin);
       albedoColors.push(TEETH_BGR);
     }

@@ -78,9 +78,9 @@ export function createTeethArcGeometry(
   which: 'upper' | 'lower',
 ): { positions: number[]; normals: number[]; indices: number[] } {
   const segs = 10;
-  const arcWidth = m.lipWidth * 0.65;    // narrower than lips
-  const teethHeight = m.lipHeight * 0.18; // thin teeth strip
-  const recess = m.lipWidth * 0.04;       // just behind lip surface
+  const arcWidth = m.lipWidth * 0.55;     // well within lip edges
+  const teethHeight = m.lipHeight * 0.15; // thin teeth strip
+  const recess = m.lipWidth * 0.08;       // deeper behind lip surface to avoid poke-through
 
   const positions: number[] = [];
   const normals: number[] = [];
