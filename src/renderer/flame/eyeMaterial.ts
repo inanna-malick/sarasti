@@ -99,14 +99,17 @@ export function createEyeMaterial(options: EyeMaterialOptions): THREE.ShaderMate
       // Apply limbal darkness (properly centered on the edge)
       color = mix(color, vec3(0.0), limbalDarkness);
 
-      // Fake specular highlight (upper-left, sized for visible impact)
-      vec2 specPos = vec2(-0.12, 0.12) + gazeOffset * 0.12;
-      float spec = smoothstep(0.06, 0.0, length(vEyeUV - specPos));
-      color += spec * 0.6;
-
-      // Simple lighting based on normal
+      // Simple lighting based on normal (applied before specular)
       float l = max(0.3, dot(vNormal, normalize(vec3(0.5, 0.5, 1.0))));
       color *= l;
+
+      // Specular highlight AFTER lighting so it stays bright
+      // Two catchlights: primary (upper-left, key light) + secondary (upper-right, fill)
+      vec2 specPos1 = vec2(-0.12, 0.14) + gazeOffset * 0.12;
+      float spec1 = smoothstep(0.07, 0.0, length(vEyeUV - specPos1));
+      vec2 specPos2 = vec2(0.08, 0.10) + gazeOffset * 0.12;
+      float spec2 = smoothstep(0.04, 0.0, length(vEyeUV - specPos2));
+      color += spec1 * 0.8 + spec2 * 0.3;
 
       gl_FragColor = vec4(color, 1.0);
     }
