@@ -3,8 +3,8 @@ import { useStore } from '../../../src/store';
 import { getTickerTimeseries } from '../../../src/data/loader';
 import type { TickerFrame } from '../../../src/types';
 import { computeDatasetStats, type DatasetStats, type TickerStats } from '../../../src/data/stats';
-import { computeMetaAxes, metaToChordActivations } from '../../../src/binding/chords';
-import type { ChordActivations, MetaAxes } from '../../../src/binding/chords';
+import { computeCircumplex } from '../../../src/binding/chords';
+import type { CircumplexActivations } from '../../../src/binding/chords';
 
 /**
  * Detail panel: click face → side panel with full decode.
@@ -145,22 +145,18 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
   const stats = getStats();
   const instances = useStore.getState().instances;
   const ticker = instances.find(i => i.id === tickerId)?.ticker;
-  const meta = computeMetaAxes(frame, stats ?? undefined, tickerId, undefined, ticker);
-  const activations = metaToChordActivations(meta, ticker);
+  const activations = computeCircumplex(frame, stats ?? undefined, tickerId);
 
-  const metaAxes: { name: string; value: number; labels: [string, string] }[] = [
-    { name: 'distress', value: meta.distress, labels: ['crisis', 'calm'] },
-    { name: 'vitality', value: meta.vitality, labels: ['surging', 'depleted'] },
-    { name: 'aggression', value: meta.aggression, labels: ['attacking', 'yielding'] },
+  const circumplexAxes: { name: string; value: number }[] = [
+    { name: 'tension', value: activations.tension },
+    { name: 'valence', value: activations.valence },
+    { name: 'stature', value: activations.stature },
   ];
-
-  const exprAxes: (keyof ChordActivations)[] = ['alarm', 'fatigue', 'aggression'];
-  const shapeAxes: (keyof ChordActivations)[] = ['dominance', 'maturity', 'sharpness'];
 
   return (
     <>
-      <Section title="meta-axes">
-        {metaAxes.map(({ name, value, labels }) => (
+      <Section title="circumplex">
+        {circumplexAxes.map(({ name, value }) => (
           <ChordBar
             key={name}
             name={name}
@@ -168,30 +164,6 @@ function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: stri
             rawActivation={value}
             sign={Math.sign(value) || 1}
             isWinner={Math.abs(value) > 0.5}
-          />
-        ))}
-      </Section>
-      <Section title="expression axes">
-        {exprAxes.map(name => (
-          <ChordBar
-            key={name}
-            name={name}
-            weight={Math.abs(activations[name])}
-            rawActivation={activations[name]}
-            sign={Math.sign(activations[name]) || 1}
-            isWinner={false}
-          />
-        ))}
-      </Section>
-      <Section title="shape axes">
-        {shapeAxes.map(name => (
-          <ChordBar
-            key={name}
-            name={name}
-            weight={Math.abs(activations[name])}
-            rawActivation={activations[name]}
-            sign={Math.sign(activations[name]) || 1}
-            isWinner={false}
           />
         ))}
       </Section>
@@ -224,14 +196,9 @@ function ChordBar({
       : 'rgba(255, 100, 100, 0.6)';
 
   const signLabels: Record<string, [string, string]> = {
-    alarm: ['alarmed', 'euphoric'],
-    fatigue: ['wired', 'exhausted'],
-    aggression: ['aggressive', 'yielding'],
-    dominance: ['chad', 'soyboi'],
-    maturity: ['weathered', 'youthful'],
-    sharpness: ['sharp', 'puffy'],
-    distress: ['crisis', 'calm'],
-    vitality: ['surging', 'depleted'],
+    tension: ['tense', 'calm'],
+    valence: ['good', 'bad'],
+    stature: ['titan', 'sprite'],
   };
   const pair = signLabels[name];
   const signLabel = pair ? ` (${sign > 0 ? pair[0] : pair[1]})` : '';

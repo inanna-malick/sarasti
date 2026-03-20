@@ -5,19 +5,13 @@ import { N_SHAPE, N_EXPR, PSI7_CLAMP, BETA3_CLAMP, BETA_GENERAL_CLAMP, MAX_NECK_
 import { SHAPE_AXES, applyMapping } from '../../../src/binding/axes';
 import type { ExprAxis, ShapeAxis } from '../../../src/binding/axes';
 import {
-  ALARM_ALARMED_RECIPE,
-  ALARM_EUPHORIC_RECIPE,
-  FATIGUE_WIRED_RECIPE,
-  FATIGUE_EXHAUSTED_RECIPE,
-  AGGRESSION_AGGRESSIVE_RECIPE,
-  AGGRESSION_YIELDING_RECIPE,
-  DOMINANCE_RECIPE,
-  MATURITY_RECIPE,
-  SHARPNESS_RECIPE,
-  META_MIXING,
+  TENSION_TENSE_RECIPE,
+  TENSION_CALM_RECIPE,
+  VALENCE_GOOD_RECIPE,
+  VALENCE_BAD_RECIPE,
+  STATURE_RECIPE,
   type ExpressionChordRecipe,
   type ShapeChordRecipe,
-  type MetaAxes,
 } from '../../../src/binding/chords';
 
 type ExplorerMode = 'highlevel' | 'semantic' | 'raw' | 'data';
@@ -27,18 +21,10 @@ interface ExplorerState {
   mode: ExplorerMode;
   debugMaterial: DebugMaterial;
 
-  // High-level: 6 axes (pose/gaze/texture computed from chord recipes)
-  alarm: number;
-  fatigue: number;
-  aggression: number;
-  dominance: number;
-  maturity: number;
-  sharpness: number;
-
-  // Semantic: 3 meta-axes
-  distress: number;
-  vitality: number;
-  metaAggression: number;
+  // High-level: circumplex expression (2 axes) + shape (1 axis)
+  tension: number;
+  valence: number;
+  stature: number;
 
   // Raw mode: manual overrides
   poseOverride: boolean;
@@ -59,15 +45,9 @@ interface ExplorerState {
 
   // Actions
   setMode: (mode: ExplorerMode) => void;
-  setAlarm: (v: number) => void;
-  setFatigue: (v: number) => void;
-  setAggression: (v: number) => void;
-  setDominance: (v: number) => void;
-  setMaturity: (v: number) => void;
-  setSharpness: (v: number) => void;
-  setDistress: (v: number) => void;
-  setVitality: (v: number) => void;
-  setMetaAggression: (v: number) => void;
+  setTension: (v: number) => void;
+  setValence: (v: number) => void;
+  setStature: (v: number) => void;
   setPoseOverride: (v: boolean) => void;
   setPitch: (v: number) => void;
   setYaw: (v: number) => void;
@@ -105,12 +85,11 @@ function applyExprRecipePoseGazeTexture(
 function applyShapeRecipePoseTexture(
   recipe: ShapeChordRecipe,
   value: number,
-  out: { pitch: number; yaw: number; roll: number; skinAge: number },
+  out: { pitch: number; yaw: number; roll: number },
 ) {
   if (recipe.pose?.pitch) out.pitch += recipe.pose.pitch * value;
   if (recipe.pose?.yaw) out.yaw += recipe.pose.yaw * value;
   if (recipe.pose?.roll) out.roll += recipe.pose.roll * value;
-  if (recipe.texture?.skinAge) out.skinAge += recipe.texture.skinAge * value;
 }
 
 function clamp(v: number, min: number, max: number): number {
@@ -138,42 +117,14 @@ function applyFullExprRecipe(
 
 function recomputeParams(state: ExplorerState): { currentParams: FaceParams | null } {
   if (state.mode === 'data') {
-    // Data mode: params set externally via setCurrentParams, no recompute needed
     return { currentParams: state.currentParams };
   }
 
   if (state.mode === 'semantic') {
-    // Semantic mode: 3 meta-axes → mixing matrix → 6 low-level activations → recipes
-    const meta: MetaAxes = {
-      distress: state.distress,
-      vitality: state.vitality,
-      aggression: state.metaAggression,
-    };
-
-    // Apply mixing matrix
-    const low: Record<string, number> = {
-      alarm: 0, fatigue: 0, aggression: 0, dominance: 0, sharpness: 0,
-    };
-    for (const [metaKey, weights] of Object.entries(META_MIXING)) {
-      const metaVal = meta[metaKey as keyof MetaAxes];
-      for (const [lowKey, weight] of Object.entries(weights)) {
-        low[lowKey] += metaVal * weight;
-      }
-    }
-    for (const key of Object.keys(low)) {
-      low[key] = clamp(low[key], -1, 1);
-    }
-
-    // Now use the same recipe-application path as highlevel mode
+    // Semantic mode is now identical to highlevel (no mixing matrix)
     const semanticState: ExplorerState = {
       ...state,
       mode: 'highlevel',
-      alarm: low.alarm,
-      fatigue: low.fatigue,
-      aggression: low.aggression,
-      dominance: low.dominance,
-      sharpness: low.sharpness,
-      maturity: state.maturity,
     };
     return recomputeParams(semanticState);
   }
@@ -191,51 +142,40 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams | nu
     return { currentParams: params };
   }
 
-  // High-level mode: 6 axes drive everything via full chord recipes
+  // High-level mode: circumplex — tension + valence drive expression, stature drives shape
   const shape = new Float32Array(N_SHAPE);
   const expression = new Float32Array(N_EXPR);
   const pgt = { pitch: 0, yaw: 0, roll: 0, jaw: 0, gazeH: 0, gazeV: 0, flush: 0, fatigue: 0 };
 
-  // Alarm → alarmed (+) / euphoric (−)
-  if (state.alarm >= 0) {
-    applyFullExprRecipe(ALARM_ALARMED_RECIPE, state.alarm, expression, pgt);
+  // Tension → tense (+) / calm (−) — upper face only
+  if (state.tension >= 0) {
+    applyFullExprRecipe(TENSION_TENSE_RECIPE, state.tension, expression, pgt);
   } else {
-    applyFullExprRecipe(ALARM_EUPHORIC_RECIPE, Math.abs(state.alarm), expression, pgt);
+    applyFullExprRecipe(TENSION_CALM_RECIPE, Math.abs(state.tension), expression, pgt);
   }
 
-  // Fatigue → full bipolar recipe (ψ + pose + gaze + texture)
-  if (state.fatigue >= 0) {
-    applyFullExprRecipe(FATIGUE_WIRED_RECIPE, state.fatigue, expression, pgt);
+  // Valence → good (+) / bad (−) — lower face only
+  if (state.valence >= 0) {
+    applyFullExprRecipe(VALENCE_GOOD_RECIPE, state.valence, expression, pgt);
   } else {
-    applyFullExprRecipe(FATIGUE_EXHAUSTED_RECIPE, Math.abs(state.fatigue), expression, pgt);
-  }
-
-  // Aggression → aggressive (+) / yielding (−)
-  if (state.aggression >= 0) {
-    applyFullExprRecipe(AGGRESSION_AGGRESSIVE_RECIPE, state.aggression, expression, pgt);
-  } else {
-    applyFullExprRecipe(AGGRESSION_YIELDING_RECIPE, Math.abs(state.aggression), expression, pgt);
+    applyFullExprRecipe(VALENCE_BAD_RECIPE, Math.abs(state.valence), expression, pgt);
   }
 
   // ψ7 safety clamp
   expression[7] = clamp(expression[7], -PSI7_CLAMP, PSI7_CLAMP);
 
-  // Shape β components — dominance + maturity + sharpness
-  applyMapping(shape, SHAPE_AXES.dominance, state.dominance);
-  applyMapping(shape, SHAPE_AXES.maturity, state.maturity);
-  applyMapping(shape, SHAPE_AXES.sharpness, state.sharpness);
+  // Shape β components — stature only
+  applyMapping(shape, SHAPE_AXES.stature, state.stature);
 
-  // Shape safety clamps — prevents mesh breakage at extreme slider values
+  // Shape safety clamps
   shape[3] = clamp(shape[3], -BETA3_CLAMP, BETA3_CLAMP);
   for (let i = 0; i < N_SHAPE; i++) {
     if (i !== 3) shape[i] = clamp(shape[i], -BETA_GENERAL_CLAMP, BETA_GENERAL_CLAMP);
   }
 
-  // Shape → identity pose + texture
-  const spt = { pitch: 0, yaw: 0, roll: 0, skinAge: 0 };
-  applyShapeRecipePoseTexture(DOMINANCE_RECIPE, state.dominance, spt);
-  applyShapeRecipePoseTexture(MATURITY_RECIPE, state.maturity, spt);
-  applyShapeRecipePoseTexture(SHARPNESS_RECIPE, state.sharpness, spt);
+  // Shape → identity pose
+  const spt = { pitch: 0, yaw: 0, roll: 0 };
+  applyShapeRecipePoseTexture(STATURE_RECIPE, state.stature, spt);
 
   const params: FaceParams = {
     shape,
@@ -258,7 +198,7 @@ function recomputeParams(state: ExplorerState): { currentParams: FaceParams | nu
     },
     flush: clamp(pgt.flush, -1, 1),
     fatigue: clamp(pgt.fatigue, -1, 1),
-    skinAge: clamp(spt.skinAge, -1, 1),
+    skinAge: 0,
   };
 
   return { currentParams: params };
@@ -290,16 +230,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   mode: 'highlevel',
   debugMaterial: 'normal' as DebugMaterial,
 
-  alarm: 0,
-  fatigue: 0,
-  aggression: 0,
-  dominance: 0,
-  maturity: 0,
-  sharpness: 0,
-
-  distress: 0,
-  vitality: 0,
-  metaAggression: 0,
+  tension: 0,
+  valence: 0,
+  stature: 0,
 
   poseOverride: false,
   pitch: 0,
@@ -318,15 +251,9 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   currentParams: null,
 
   setMode: (v) => update(set, get, { mode: v }),
-  setAlarm: (v) => update(set, get, { alarm: v }),
-  setFatigue: (v) => update(set, get, { fatigue: v }),
-  setAggression: (v) => update(set, get, { aggression: v }),
-  setDominance: (v) => update(set, get, { dominance: v }),
-  setMaturity: (v) => update(set, get, { maturity: v }),
-  setSharpness: (v) => update(set, get, { sharpness: v }),
-  setDistress: (v) => update(set, get, { distress: v }),
-  setVitality: (v) => update(set, get, { vitality: v }),
-  setMetaAggression: (v) => update(set, get, { metaAggression: v }),
+  setTension: (v) => update(set, get, { tension: v }),
+  setValence: (v) => update(set, get, { valence: v }),
+  setStature: (v) => update(set, get, { stature: v }),
   setPoseOverride: (v) => update(set, get, { poseOverride: v }),
   setPitch: (v) => update(set, get, { pitch: v }),
   setYaw: (v) => update(set, get, { yaw: v }),

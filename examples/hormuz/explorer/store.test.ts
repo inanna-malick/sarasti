@@ -4,8 +4,8 @@ import { useExplorerStore } from './store';
 beforeEach(() => {
   useExplorerStore.setState({
     mode: 'highlevel',
-    alarm: 0, fatigue: 0,
-    dominance: 0,
+    tension: 0, valence: 0,
+    stature: 0,
     poseOverride: false, pitch: 0, yaw: 0, roll: 0, jawOpen: 0,
     gazeOverride: false, gazeHorizontal: 0, gazeVertical: 0,
     flush: 0, fatigueTex: 0,
@@ -15,7 +15,7 @@ beforeEach(() => {
   });
 });
 
-describe('ExplorerStore (6-axis high-level)', () => {
+describe('ExplorerStore (circumplex)', () => {
   it('produces valid FaceParams after recompute', () => {
     useExplorerStore.getState().recompute();
     const { currentParams } = useExplorerStore.getState();
@@ -27,32 +27,27 @@ describe('ExplorerStore (6-axis high-level)', () => {
     expect(currentParams!.pose.neck).toHaveLength(3);
   });
 
-  it('alarm drives gaze up (scanning)', () => {
-    useExplorerStore.getState().setAlarm(2.0);
+  it('tension drives upper face only (ψ9 eyes wide, no ψ7 change)', () => {
+    useExplorerStore.getState().setTension(0.8);
     const p = useExplorerStore.getState().currentParams!;
-    expect(p.pose.leftEye[1]).toBeGreaterThan(0);  // gaze up
+    expect(p.expression[9]).toBeGreaterThan(0);  // eyes wide
+    expect(p.expression[7]).toBe(0);  // ψ7 not owned by tension
   });
 
-  it('alarm euphoric drives flush negative (pallid)', () => {
-    useExplorerStore.getState().setAlarm(-3.0);
+  it('valence good drives warm flush', () => {
+    useExplorerStore.getState().setValence(0.8);
+    const p = useExplorerStore.getState().currentParams!;
+    expect(p.flush).toBeGreaterThan(0);
+  });
+
+  it('valence bad drives pallor', () => {
+    useExplorerStore.getState().setValence(-0.8);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.flush).toBeLessThan(0);
   });
 
-  it('fatigue wired drives fatigue texture negative', () => {
-    useExplorerStore.getState().setFatigue(2.0);
-    const p = useExplorerStore.getState().currentParams!;
-    expect(p.fatigue).toBeLessThan(0);  // wired
-  });
-
-  it('wired fatigue drives gaze lateral', () => {
-    useExplorerStore.getState().setFatigue(2.0);
-    const p = useExplorerStore.getState().currentParams!;
-    expect(p.pose.leftEye[0]).toBeGreaterThan(0);  // tracking lateral
-  });
-
-  it('dominance drives β components', () => {
-    useExplorerStore.getState().setDominance(3.0);
+  it('stature drives β components', () => {
+    useExplorerStore.getState().setStature(0.8);
     const p = useExplorerStore.getState().currentParams!;
     expect(p.shape[3]).toBeGreaterThan(0);  // jaw width
   });
@@ -65,10 +60,29 @@ describe('ExplorerStore (6-axis high-level)', () => {
     expect(state.currentParams!.expression.every(v => v === 0)).toBe(true);
   });
 
-  it('ψ7 is clamped in high-level mode', () => {
-    useExplorerStore.getState().setAlarm(3.0);
+  it('tension does NOT affect valence-owned ψ components', () => {
+    useExplorerStore.getState().setTension(1.0);
     const expr = useExplorerStore.getState().currentParams!.expression;
-    expect(expr[7]).toBeLessThanOrEqual(4.0);
-    expect(expr[7]).toBeGreaterThanOrEqual(-4.0);
+    // Valence-owned: ψ0, ψ2, ψ3, ψ6, ψ7, ψ16, ψ26
+    expect(expr[0]).toBe(0);
+    expect(expr[2]).toBe(0);
+    expect(expr[3]).toBe(0);
+    expect(expr[6]).toBe(0);
+    expect(expr[7]).toBe(0);
+    expect(expr[16]).toBe(0);
+    expect(expr[26]).toBe(0);
+  });
+
+  it('valence does NOT affect tension-owned ψ components', () => {
+    useExplorerStore.getState().setValence(1.0);
+    const expr = useExplorerStore.getState().currentParams!.expression;
+    // Tension-owned: ψ4, ψ5, ψ9, ψ20, ψ21, ψ24, ψ25
+    expect(expr[4]).toBe(0);
+    expect(expr[5]).toBe(0);
+    expect(expr[9]).toBe(0);
+    expect(expr[20]).toBe(0);
+    expect(expr[21]).toBe(0);
+    expect(expr[24]).toBe(0);
+    expect(expr[25]).toBe(0);
   });
 });

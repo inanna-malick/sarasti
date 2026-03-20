@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { computeChordActivations, resolveShapeChords } from '../../chords';
+import { computeCircumplex, resolveShapeChords } from '../../chords';
 import { N_SHAPE } from '../../../constants';
 import { makeTickerFrame } from '../../../../test-utils/fixtures';
 
-describe('Shape resolution (chord-based)', () => {
+describe('Shape resolution (circumplex stature)', () => {
   function resolveShape(frameOverrides: Parameters<typeof makeTickerFrame>[0]) {
     const frame = makeTickerFrame(frameOverrides);
-    const activations = computeChordActivations(frame);
+    const activations = computeCircumplex(frame);
     return resolveShapeChords(activations);
   }
 
@@ -20,8 +20,8 @@ describe('Shape resolution (chord-based)', () => {
 
   it('deterministic: same frame → same shape', () => {
     const frame = makeTickerFrame({ momentum: 1.5, beta: 0.5 });
-    const actA = computeChordActivations(frame);
-    const actB = computeChordActivations(frame);
+    const actA = computeCircumplex(frame);
+    const actB = computeCircumplex(frame);
     const a = resolveShapeChords(actA);
     const b = resolveShapeChords(actB);
     for (let i = 0; i < N_SHAPE; i++) {
@@ -29,28 +29,25 @@ describe('Shape resolution (chord-based)', () => {
     }
   });
 
-  it('momentum drives chad axis (mass + jaw + eyes)', () => {
-    const rising = resolveShape({ momentum: 2.0 });
-    const falling = resolveShape({ momentum: -2.0 });
+  it('stature drives titan shape (jaw width + bone structure)', () => {
+    const titan = resolveShape({ momentum: 2.0, mean_reversion_z: 2.0 });
+    const sprite = resolveShape({ momentum: -2.0, mean_reversion_z: -2.0 });
 
-    // β0 (thick↔elfin) should be positive for chad, negative for soyboi
-    expect(rising.shape[0]).toBeGreaterThan(0);
-    expect(falling.shape[0]).toBeLessThan(0);
-    // β16 (defined jaw↔soft)
-    expect(rising.shape[16]).toBeGreaterThan(0);
-    expect(falling.shape[16]).toBeLessThan(0);
-    // β19 (inverted: jutting chin at negative)
-    expect(rising.shape[19]).toBeLessThan(0);
-    expect(falling.shape[19]).toBeGreaterThan(0);
-    // β7 (intent eyes)
-    expect(rising.shape[7]).toBeGreaterThan(0);
-    expect(falling.shape[7]).toBeLessThan(0);
+    // β0 (neck thickness) should be positive for titan, negative for sprite
+    expect(titan.shape[0]).toBeGreaterThan(0);
+    expect(sprite.shape[0]).toBeLessThan(0);
+    // β3 (jaw width)
+    expect(titan.shape[3]).toBeGreaterThan(0);
+    expect(sprite.shape[3]).toBeLessThan(0);
+    // β7 (mid-face width)
+    expect(titan.shape[7]).toBeGreaterThan(0);
+    expect(sprite.shape[7]).toBeLessThan(0);
   });
 
   it('shape values stay within reasonable bounds (±10)', () => {
     const results = [
-      resolveShape({ momentum: 3, beta: 3 }),
-      resolveShape({ momentum: -3, beta: -1 }),
+      resolveShape({ momentum: 3, mean_reversion_z: 3 }),
+      resolveShape({ momentum: -3, mean_reversion_z: -3 }),
     ];
     for (const { shape } of results) {
       for (let i = 0; i < N_SHAPE; i++) {
@@ -59,11 +56,8 @@ describe('Shape resolution (chord-based)', () => {
     }
   });
 
-  it('chad is shape-only (no pose link)', () => {
-    const chad = resolveShape({ momentum: 2.0 });
-    const soyboi = resolveShape({ momentum: -2.0 });
-
-    expect(Math.abs(chad.pose.pitch)).toBeLessThan(0.1);
-    expect(Math.abs(soyboi.pose.pitch)).toBeLessThan(0.1);
+  it('skinAge is always 0 (dropped)', () => {
+    const { skinAge } = resolveShape({ momentum: 2.0 });
+    expect(skinAge).toBe(0);
   });
 });

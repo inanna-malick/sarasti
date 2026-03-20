@@ -25,14 +25,10 @@ import {
 import { hashToScalars } from './identity';
 import type { DatasetStats } from '../data/stats';
 import {
-  computeChordActivations,
-  computeMetaAxes,
-  metaToChordActivations,
-  computeExchangeFatigueForTension,
+  computeCircumplex,
   resolveExpressionChords,
   resolveShapeChords,
 } from './chords';
-import type { ChordActivations } from './chords';
 import { computeExchangeFatigue } from './exchange';
 import type { Exchange } from '../types';
 
@@ -43,7 +39,6 @@ const noiseCache = new Map<string, Float32Array>();
 /**
  * Add small deterministic noise on unused β components (β33-β41).
  * Gives each ticker a unique face fingerprint without affecting axis-controlled components.
- * Dominance uses β{0,2,3,4,7,13,16,18,19,23,48}. Stature uses β{1,5,6,8,15,32,49}.
  */
 function addIdentityNoise(shape: Float32Array, tickerId: string): void {
   let noise = noiseCache.get(tickerId);
@@ -65,7 +60,7 @@ function addIdentityNoise(shape: Float32Array, tickerId: string): void {
 
 /**
  * One-shot resolve: TickerConfig + TickerFrame → FaceParams.
- * Uses chord architecture for all binding.
+ * Uses circumplex architecture for all binding.
  */
 export function resolve(
   ticker: TickerConfig,
@@ -84,8 +79,7 @@ export function resolve(
     };
   }
 
-  const meta = computeMetaAxes(frame, stats, ticker.id, undefined, ticker);
-  const activations = metaToChordActivations(meta, ticker);
+  const activations = computeCircumplex(frame, stats, ticker.id);
   const chordResult = resolveExpressionChords(activations);
   const shapeResult = resolveShapeChords(activations);
   addIdentityNoise(shapeResult.shape, ticker.id);
@@ -107,9 +101,9 @@ export function resolve(
     shape: shapeResult.shape,
     expression: chordResult.expression,
     pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
-    flush: Math.max(-1, Math.min(1, chordResult.flush + meta.distress * -0.35 + meta.vitality * 0.3)),
+    flush: Math.max(-1, Math.min(1, chordResult.flush)),
     fatigue: chordResult.fatigue,
-    skinAge: shapeResult.skinAge,
+    skinAge: 0,
   };
 }
 
@@ -156,9 +150,8 @@ export function createResolver(
       };
     }
 
-    // Compute meta-axes → mixing matrix → chord activations
-    const meta = computeMetaAxes(frame, stats, ticker.id, timestamp, ticker);
-    const activations = metaToChordActivations(meta, ticker);
+    // Compute circumplex activations directly from market data
+    const activations = computeCircumplex(frame, stats, ticker.id);
     const chordResult = resolveExpressionChords(activations);
 
     // Shape with EMA smoothing
@@ -214,7 +207,6 @@ export function createResolver(
       accumulatorMap.set(ticker.id, acc);
       const tex = accumulatorToTexture(acc);
       // Blend chord texture with EMA texture
-      // w21: EMA flush scaled down to prevent blue/yellow saturation stacking
       flush = tex.flush * 0.4 + chordResult.flush;
       fatigue = blendFatigue(tex.fatigue + chordResult.fatigue, ticker.exchange, timestamp);
     } else {
@@ -223,12 +215,6 @@ export function createResolver(
       flush = tex.flush + chordResult.flush;
       fatigue = blendFatigue(tex.fatigue + chordResult.fatigue, ticker.exchange, timestamp);
     }
-
-    // Meta-level flush boost for thumbnail readability.
-    // Distress → pallor, vitality → warmth — on top of recipe contributions.
-    // w21: reduced from -0.5/0.4 to -0.3/0.25 to prevent blue/yellow saturation
-    // when stacking with EMA accumulator + chord recipe flush.
-    flush += meta.distress * -0.35 + meta.vitality * 0.3;
 
     // Combine expression chord pose + shape identity pose
     const combinedPose = {
@@ -246,7 +232,7 @@ export function createResolver(
       pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
       flush: Math.max(-1, Math.min(1, flush)),
       fatigue: Math.max(-1, Math.min(1, fatigue)),
-      skinAge: shapeResult.skinAge,
+      skinAge: 0,
     };
   }
 
@@ -278,11 +264,11 @@ export function createResolver(
 
 /** Pre-extracted axis values — all optional, unset = 0 */
 export interface AxisValues {
-  // Expression axes (2-axis)
-  alarm?: number;
-  fatigue?: number;
+  // Expression axes (circumplex)
+  tension?: number;
+  valence?: number;
   // Shape
-  dominance?: number;
+  stature?: number;
   // Pose
   pitch?: number;
   yaw?: number;
@@ -304,12 +290,12 @@ export function resolveFromAxes(values: AxisValues, datumId: string): FaceParams
   const expression = emptyExpression();
   const shape = emptyShape();
 
-  // Expression axes (2-axis)
-  if (values.alarm !== undefined) applyMapping(expression, EXPR_AXES.alarm, values.alarm);
-  if (values.fatigue !== undefined) applyMapping(expression, EXPR_AXES.fatigue, values.fatigue);
+  // Expression axes (circumplex)
+  if (values.tension !== undefined) applyMapping(expression, EXPR_AXES.tension, values.tension);
+  if (values.valence !== undefined) applyMapping(expression, EXPR_AXES.valence, values.valence);
 
   // Shape axes
-  if (values.dominance !== undefined) applyMapping(shape, SHAPE_AXES.dominance, values.dominance);
+  if (values.stature !== undefined) applyMapping(shape, SHAPE_AXES.stature, values.stature);
 
   // Identity noise on unused shape components
   addIdentityNoise(shape, datumId);
