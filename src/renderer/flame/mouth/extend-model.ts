@@ -6,6 +6,7 @@ import {
   buildRingStrip,
   buildRingCap,
   createTongueGeometry,
+  createTeethArcGeometry,
 } from './geometry';
 
 const HEAD_JOINT = 0;
@@ -146,10 +147,32 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   }
   tongueGeo.dispose();
 
+  // Teeth arcs: volumetric U-shaped strips facing the camera
+  // Upper teeth anchored to head joint, lower teeth to jaw joint
+  const teethArcFaces: number[] = [];
+  for (const which of ['upper', 'lower'] as const) {
+    const arc = createTeethArcGeometry(m, which);
+    const arcStartIdx = nOrig + newPositions.length / 3;
+    const sourceV = which === 'upper' ? m.upperLipVertices[0] : m.lowerLipVertices[0];
+    const skin: SkinWeight = which === 'upper' ? 'head' : 'jaw';
+
+    for (let i = 0; i < arc.positions.length; i += 3) {
+      newPositions.push(arc.positions[i], arc.positions[i + 1], arc.positions[i + 2]);
+      sourceVertices.push(sourceV);
+      skinWeights.push(skin);
+      albedoColors.push(TEETH_BGR);
+    }
+    for (const idx of arc.indices) {
+      teethArcFaces.push(idx + arcStartIdx);
+    }
+  }
+
   // Assemble face indices in group order: teeth, gums, tongue, cavity
-  const allFaceIndices: number[] = [...teethFaces, ...gumsFaces, ...tongueFaces, ...cavityFaces];
+  // Teeth group includes both the ring-strip rim AND the volumetric arcs
+  const allTeethFaces = [...teethFaces, ...teethArcFaces];
+  const allFaceIndices: number[] = [...allTeethFaces, ...gumsFaces, ...tongueFaces, ...cavityFaces];
   const groupFaceCounts = {
-    teeth: teethFaces.length / 3,
+    teeth: allTeethFaces.length / 3,
     gums: gumsFaces.length / 3,
     tongue: tongueFaces.length / 3,
     cavity: cavityFaces.length / 3,
