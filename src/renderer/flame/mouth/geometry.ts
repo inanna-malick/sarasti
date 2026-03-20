@@ -76,14 +76,13 @@ export function buildRingCap(ring: number[], centerIdx: number): number[] {
 export function createTeethArcGeometry(
   m: MouthMeasurements,
   which: 'upper' | 'lower',
-): { positions: number[]; normals: number[]; indices: number[] } {
+): { positions: number[]; indices: number[] } {
   const segs = 10;
   const arcWidth = m.lipWidth * 0.55;     // well within lip edges
   const teethHeight = m.lipHeight * 0.15; // thin teeth strip
   const recess = m.lipWidth * 0.08;       // deeper behind lip surface to avoid poke-through
 
   const positions: number[] = [];
-  const normals: number[] = [];
   const indices: number[] = [];
 
   const cx = m.mouthCenter.x;
@@ -111,13 +110,11 @@ export function createTeethArcGeometry(
     // Front edge (closer to viewer, at lip Z)
     const frontZ = cz + Math.abs(curvature) * recess * 0.3;
     positions.push(x, baseY, frontZ);
-    normals.push(0, 0, 1); // faces viewer
 
     // Back edge (recessed, shifted vertically into mouth)
     const backY = baseY + heightDir * teethHeight * Math.abs(curvature);
     const backZ = cz - recess * 0.5;
     positions.push(x, backY, backZ);
-    normals.push(0, heightDir * 0.3, 0.95); // mostly faces viewer
   }
 
   // Build quad strip between front/back rows
@@ -137,7 +134,7 @@ export function createTeethArcGeometry(
     }
   }
 
-  return { positions, normals, indices };
+  return { positions, indices };
 }
 
 /**

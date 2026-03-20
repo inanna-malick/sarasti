@@ -97,8 +97,17 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
     }
     const n = ring.length;
     const newIdx = nOrig + newPositions.length / 3;
-    newPositions.push(cx / n, cy / n, cz / n - recess * m.lipWidth);
-    sourceVertices.push(ring[0]); // approximate for deformation
+    const centerX = cx / n, centerY = cy / n;
+    newPositions.push(centerX, centerY, cz / n - recess * m.lipWidth);
+    // Find nearest ring vertex to center for consistent deformation
+    let bestV = ring[0], bestD = Infinity;
+    for (const v of ring) {
+      const dx = model.template[v * 3] - centerX;
+      const dy = model.template[v * 3 + 1] - centerY;
+      const d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; bestV = v; }
+    }
+    sourceVertices.push(bestV);
     skinWeights.push(skinType);
     albedoColors.push(color);
     return newIdx;
@@ -134,7 +143,7 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
       tonguePosAttr.getY(i) + tongueOffset.y,
       tonguePosAttr.getZ(i) + tongueOffset.z,
     );
-    sourceVertices.push(m.lipVertices[0]);
+    sourceVertices.push(m.lowerLipVertices[0]);
     skinWeights.push('jaw');
     albedoColors.push(TONGUE_BGR);
   }

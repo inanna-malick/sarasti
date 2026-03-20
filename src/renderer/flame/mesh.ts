@@ -124,7 +124,9 @@ export class FlameFaceMesh {
     interiorGeometry.setIndex(this.geometry.getIndex()!);
     interiorGeometry.setAttribute('position', this.geometry.getAttribute('position'));
     interiorGeometry.setAttribute('normal', this.geometry.getAttribute('normal'));
-    interiorGeometry.addGroup(0, originalFaceCount * 3, 0);
+    // setDrawRange excludes mouth faces from the single-material interior mesh
+    // (addGroup only works with multi-material meshes)
+    interiorGeometry.setDrawRange(0, originalFaceCount * 3);
     this.mesh.add(new THREE.Mesh(interiorGeometry, this.interiorMaterial));
   }
 
