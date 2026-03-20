@@ -17,12 +17,46 @@ import { identifyEyeVertices, type EyeVertexGroups } from './eyes';
 export interface FlamePipeline {
   readonly model: ExtendedFlameModel;
   readonly eyeGroups: EyeVertexGroups | null;
+  readonly neckMask: Uint8Array | null;
+  readonly filteredFaces: Uint32Array | null;
+  readonly filteredFaceCount: number | null;
   deformFace(params: FaceParams): FlameBuffers;
 }
 
 export interface PipelineOptions {
   enableMouth?: boolean;  // default false
   enableEyes?: boolean;   // default false
+}
+
+function computeNeckMask(weights: Float32Array, nVertices: number, nJoints: number, template: Float32Array): Uint8Array {
+  const mask = new Uint8Array(nVertices);
+  for (let v = 0; v < nVertices; v++) {
+    const neckWeight = weights[v * nJoints + 1];
+    const y = template[v * 3 + 1];
+    if (neckWeight > 0.25 || y < -0.055) {
+      mask[v] = 0; // removed
+    } else {
+      mask[v] = 1; // kept
+    }
+  }
+  return mask;
+}
+
+function filterFaces(faces: Uint32Array, nFaces: number, mask: Uint8Array): { filteredFaces: Uint32Array, filteredFaceCount: number } {
+  const filteredFaces = new Uint32Array(nFaces * 3);
+  let filteredFaceCount = 0;
+  for (let f = 0; f < nFaces; f++) {
+    const v0 = faces[f * 3];
+    const v1 = faces[f * 3 + 1];
+    const v2 = faces[f * 3 + 2];
+    if (mask[v0] === 1 && mask[v1] === 1 && mask[v2] === 1) {
+      filteredFaces[filteredFaceCount * 3] = v0;
+      filteredFaces[filteredFaceCount * 3 + 1] = v1;
+      filteredFaces[filteredFaceCount * 3 + 2] = v2;
+      filteredFaceCount++;
+    }
+  }
+  return { filteredFaces, filteredFaceCount };
 }
 
 export async function createFlamePipeline(basePath: string, options: PipelineOptions = {}): Promise<FlamePipeline> {
@@ -32,9 +66,15 @@ export async function createFlamePipeline(basePath: string, options: PipelineOpt
   const model = enableMouth ? extendModelWithMouth(rawModel) : { ...rawModel, mouthGroups: null, originalVertexCount: rawModel.n_vertices };
   const eyeGroups = enableEyes ? identifyEyeVertices(rawModel.weights, rawModel.faces, rawModel.n_vertices, rawModel.n_joints) : null;
 
+  const neckMask = computeNeckMask(rawModel.weights, rawModel.n_vertices, rawModel.n_joints, rawModel.template);
+  const { filteredFaces, filteredFaceCount } = filterFaces(rawModel.faces, rawModel.n_faces, neckMask);
+
   return {
     model,
     eyeGroups,
+    neckMask,
+    filteredFaces,
+    filteredFaceCount,
     deformFace(params: FaceParams): FlameBuffers {
       try {
         const shaped = deform(model, params.shape, params.expression);

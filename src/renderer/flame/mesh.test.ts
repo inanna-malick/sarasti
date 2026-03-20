@@ -33,6 +33,9 @@ describe('FlameFaceMesh', () => {
   const mockPipeline: FlamePipeline = {
     model: mockModel,
     eyeGroups: null,
+    neckMask: null,
+    filteredFaces: null,
+    filteredFaceCount: null,
     deformFace: vi.fn((params: FaceParams): FlameBuffers => ({
       vertices: new Float32Array(params.shape.length > 0 && params.shape[0] === 1 ? [0, 0, 1, 1, 0, 1, 0, 1, 1] : [0, 0, 0, 1, 0, 0, 0, 1, 0]),
       normals: new Float32Array([0, 0, 1, 0, 0, 1, 0, 0, 1]),
