@@ -23,7 +23,7 @@ export async function createFlameSceneRenderer(
   } = options;
 
   // Load FLAME model
-  const pipeline = await createFlamePipeline(dataBasePath);
+  const pipeline = await createFlamePipeline(dataBasePath, { enableEyes: true, enableMouth: true });
 
   // These are initialized in init()
   let renderer: THREE.WebGLRenderer;

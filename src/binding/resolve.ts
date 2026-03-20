@@ -107,7 +107,7 @@ export function resolve(
     shape: shapeResult.shape,
     expression: chordResult.expression,
     pose: { ...poseResult, leftEye: gazeResult.leftEye, rightEye: gazeResult.rightEye },
-    flush: Math.max(-1, Math.min(1, chordResult.flush + meta.distress * -0.5 + meta.vitality * 0.4)),
+    flush: Math.max(-1, Math.min(1, chordResult.flush + meta.distress * -0.35 + meta.vitality * 0.3)),
     fatigue: chordResult.fatigue,
     skinAge: shapeResult.skinAge,
   };
@@ -192,7 +192,8 @@ export function createResolver(
       accumulatorMap.set(ticker.id, acc);
       const tex = accumulatorToTexture(acc);
       // Blend chord texture with EMA texture
-      flush = tex.flush + chordResult.flush;
+      // w21: EMA flush scaled down to prevent blue/yellow saturation stacking
+      flush = tex.flush * 0.4 + chordResult.flush;
       fatigue = blendFatigue(tex.fatigue + chordResult.fatigue, ticker.exchange, timestamp);
     } else {
       const acc = accumulatorMap.get(ticker.id) ?? createTextureAccumulator();
@@ -203,8 +204,9 @@ export function createResolver(
 
     // Meta-level flush boost for thumbnail readability.
     // Distress → pallor, vitality → warmth — on top of recipe contributions.
-    // Amplified to survive at 80-150px face scale in the Hormuz grid.
-    flush += meta.distress * -0.5 + meta.vitality * 0.4;
+    // w21: reduced from -0.5/0.4 to -0.3/0.25 to prevent blue/yellow saturation
+    // when stacking with EMA accumulator + chord recipe flush.
+    flush += meta.distress * -0.35 + meta.vitality * 0.3;
 
     // Combine expression chord pose + shape identity pose
     const combinedPose = {
