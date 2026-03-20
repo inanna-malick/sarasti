@@ -11,11 +11,13 @@ import {
 const HEAD_JOINT = 0;
 const JAW_JOINT = 2;
 
-// Recession depths as fractions of lipWidth
-const TEETH_RECESS = 0.15;
-const GUMS_RECESS = 0.35;
-const CAVITY_RECESS = 0.7;
-const TONGUE_RECESS = 0.4;
+// Recession depths as fractions of lipWidth (~0.104)
+// Teeth need to be close to lip surface to catch light and be visible.
+// The teeth strip spans lipInner (0.02) → teeth (0.12), ~10mm wide.
+const TEETH_RECESS = 0.12;
+const GUMS_RECESS = 0.25;
+const CAVITY_RECESS = 0.50;
+const TONGUE_RECESS = 0.30;
 
 type SkinWeight = 'head' | 'jaw';
 
@@ -104,7 +106,7 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   // Full-ring recession layers (per-vertex skinning from source jaw weight)
   // The lip-inner ring sits just behind the lip surface to avoid z-fighting
   // with skin faces at the lip boundary.
-  const LIP_INNER_RECESS = 0.04;
+  const LIP_INNER_RECESS = 0.02;
   const lipInnerRing = addLayer(fullLipRing, LIP_INNER_RECESS, TEETH_BGR);
   const teethRing = addLayer(fullLipRing, TEETH_RECESS, TEETH_BGR);
   const gumsRing = addLayer(fullLipRing, GUMS_RECESS, GUMS_BGR);

@@ -5,12 +5,11 @@ import * as THREE from 'three';
  */
 export function createTeethMaterial(): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({
-    color: 0xF0E8D8,
-    roughness: 0.2,
-    metalness: 0.05,
-    emissive: 0x201810,
-    emissiveIntensity: 0.15,
-    transparent: true,
+    color: 0xF5F0E8,
+    roughness: 0.3,
+    metalness: 0.0,
+    emissive: 0xF0E8D8,
+    emissiveIntensity: 0.3,
   });
 }
 
@@ -20,9 +19,10 @@ export function createTeethMaterial(): THREE.MeshStandardMaterial {
 export function createGumsMaterial(): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({
     color: 0x8B5E6B,
-    roughness: 0.3,
+    roughness: 0.4,
     metalness: 0.0,
-    transparent: true,
+    emissive: 0x3A2530,
+    emissiveIntensity: 0.2,
   });
 }
 
@@ -32,9 +32,10 @@ export function createGumsMaterial(): THREE.MeshStandardMaterial {
 export function createTongueMaterial(): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({
     color: 0x7B4B5A,
-    roughness: 0.4,
+    roughness: 0.5,
     metalness: 0.0,
-    transparent: true,
+    emissive: 0x2A1520,
+    emissiveIntensity: 0.15,
   });
 }
 
@@ -44,6 +45,5 @@ export function createTongueMaterial(): THREE.MeshStandardMaterial {
 export function createCavityMaterial(): THREE.MeshBasicMaterial {
   return new THREE.MeshBasicMaterial({
     color: 0x1A0F0A,
-    transparent: true,
   });
 }
