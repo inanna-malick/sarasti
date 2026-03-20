@@ -23,6 +23,13 @@ const SCENARIOS = [
   FALSE_CALM_SCENARIO,
 ];
 
+const SCENARIO_MAP: Record<string, Scenario> = {
+  crash: CRASH_SCENARIO,
+  bleed: BLEED_SCENARIO,
+  divergence: DIVERGENCE_SCENARIO,
+  'false-calm': FALSE_CALM_SCENARIO,
+};
+
 type Mode = 'selector' | 'scenario';
 
 export function App() {
@@ -39,6 +46,9 @@ export function App() {
   const params = new URLSearchParams(window.location.search);
   const isExplorer = params.get('explorer') === 'true';
   const isRefine = params.get('refine') === 'true';
+  const headlessScenario = params.get('scenario');
+  const headlessTime = parseFloat(params.get('t') ?? '0');
+  const isHeadless = params.get('headless') === 'true';
 
   // Sync scenario playback state to React for smooth UI updates
   useEffect(() => {
@@ -89,8 +99,50 @@ export function App() {
     setMode('selector');
   };
 
+  // Headless scenario mode: ?scenario=crash&t=15&headless=true
+  // Auto-launch scenario, seek to time, signal ready for screenshot
+  useEffect(() => {
+    if (!headlessScenario || !isHeadless) return;
+    const scenario = SCENARIO_MAP[headlessScenario];
+    if (!scenario) {
+      console.error(`Unknown scenario: ${headlessScenario}`);
+      return;
+    }
+
+    (async () => {
+      try {
+        const renderer = await createFlameSceneRenderer();
+        await renderer.init(containerRef.current!);
+        rendererRef.current = renderer;
+
+        const driver = new ScenarioDriver(scenario, renderer);
+        scenarioDriverRef.current = driver;
+
+        // Seek to requested time
+        const frac = Math.max(0, Math.min(1, headlessTime / scenario.duration));
+        driver.seekNormalized(frac);
+
+        // Wait two frames for render to settle
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        (window as any).__SCENARIO_READY = true;
+      } catch (err) {
+        console.error('Headless scenario error:', err);
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (isExplorer) return <ExplorerPane />;
   if (isRefine) return <RefineHarness />;
+
+  // Headless scenario: just the viewport, no UI chrome
+  if (headlessScenario && isHeadless) {
+    return (
+      <div id="app" style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
+        <div id="viewport" ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      </div>
+    );
+  }
 
   return (
     <div id="app" style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>

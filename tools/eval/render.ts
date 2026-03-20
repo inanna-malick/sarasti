@@ -32,10 +32,11 @@ interface RenderConfig {
 
 function buildUrl(baseUrl: string, params: Record<string, string>): string {
   const isHormuz = params.hormuz === 'true';
+  const isScenario = !!params.scenario;
   const { hormuz, ...rest } = params;
   const merged: Record<string, string> = {
     headless: 'true',
-    ...(isHormuz ? {} : { explorer: 'true' }),
+    ...(isHormuz || isScenario ? {} : { explorer: 'true' }),
     ...rest,
   };
   const qs = new URLSearchParams(merged).toString();
@@ -44,14 +45,15 @@ function buildUrl(baseUrl: string, params: Record<string, string>): string {
 
 async function renderOne(page: any, baseUrl: string, config: RenderConfig): Promise<string> {
   const isHormuz = config.params.hormuz === 'true';
+  const isScenario = !!config.params.scenario;
   const url = buildUrl(baseUrl, config.params);
   const outPath = resolve(config.output);
 
   // Ensure output directory exists
   mkdirSync(dirname(outPath), { recursive: true });
 
-  // Hormuz needs wider viewport to fit 25 faces
-  if (isHormuz) {
+  // Scenario and Hormuz need wider viewport
+  if (isHormuz || isScenario) {
     await page.setViewportSize({ width: 1920, height: 1080 });
   } else {
     await page.setViewportSize({ width: 512, height: 512 });
@@ -60,7 +62,7 @@ async function renderOne(page: any, baseUrl: string, config: RenderConfig): Prom
   await page.goto(url, { waitUntil: 'networkidle' });
 
   // Wait for ready signal
-  const readyFlag = isHormuz ? '__HORMUZ_READY' : '__EXPLORER_READY';
+  const readyFlag = isScenario ? '__SCENARIO_READY' : isHormuz ? '__HORMUZ_READY' : '__EXPLORER_READY';
   await page.waitForFunction(
     (flag: string) => (window as any)[flag] === true,
     readyFlag,
