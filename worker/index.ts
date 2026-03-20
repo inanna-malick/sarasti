@@ -18,11 +18,29 @@ export default {
     // SPA Fallback: if 404 and doesn't look like a static asset file,
     // serve index.html
     const isAssetFile = url.pathname.split('/').pop()?.includes('.');
+    let isSpaFallback = false;
     if (response.status === 404 && !isAssetFile) {
       const indexRequest = new Request(new URL('/index.html', request.url));
       response = await env.ASSETS.fetch(indexRequest);
+      isSpaFallback = true;
     }
 
-    return response;
+    const newHeaders = new Headers(response.headers);
+
+    if (url.pathname === '/' || url.pathname.endsWith('.html') || isSpaFallback) {
+      newHeaders.set('Cache-Control', 'no-cache');
+    } else if (url.pathname.startsWith('/assets/') && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+      newHeaders.set('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (url.pathname.startsWith('/data/') && (url.pathname.endsWith('.json') || url.pathname.endsWith('.bin'))) {
+      newHeaders.set('Cache-Control', 'public, max-age=60');
+    } else {
+      newHeaders.set('Cache-Control', 'public, max-age=300');
+    }
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: newHeaders,
+    });
   },
 };
