@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Scenario } from '../../../src/scenario/types';
+import { sol, theme } from '../theme';
 
 interface Props {
   scenarios: Scenario[];
@@ -12,7 +13,7 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
       style={{
         position: 'absolute',
         inset: 0,
-        background: '#0a0a0a',
+        background: theme.bg,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -24,7 +25,7 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
     >
       <h1
         style={{
-          color: '#fff',
+          color: theme.textBright,
           fontSize: '24px',
           letterSpacing: '4px',
           marginBottom: '48px',
@@ -52,8 +53,8 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
             onClick={() => onSelect(scenario)}
             className="scenario-card"
             style={{
-              background: '#151515',
-              border: '1px solid #222',
+              background: theme.bgPanel,
+              border: `1px solid ${theme.border}`,
               borderRadius: '8px',
               padding: '32px',
               cursor: 'pointer',
@@ -65,7 +66,7 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
           >
             <h2
               style={{
-                color: '#fff',
+                color: theme.textBright,
                 fontSize: '20px',
                 margin: '0 0 12px 0',
                 fontWeight: 500,
@@ -75,7 +76,7 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
             </h2>
             <p
               style={{
-                color: '#888',
+                color: theme.textMuted,
                 fontSize: '14px',
                 margin: '0 0 24px 0',
                 lineHeight: '1.5',
@@ -85,7 +86,8 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
             </p>
             <div
               style={{
-                color: '#555',
+                color: theme.textMuted,
+                opacity: 0.7,
                 fontSize: '12px',
                 marginTop: 'auto',
               }}
@@ -98,10 +100,10 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
 
       <style>{`
         .scenario-card:hover {
-          border-color: #333 !important;
-          background: #1a1a1a !important;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
-          transform: translateY(-2px);
+          border-color: ${theme.border} !important;
+          background: ${theme.hoverBg} !important;
+          box-shadow: 0 0 20px rgba(42, 161, 152, 0.05);
+          transform: translateY(-1px);
         }
       `}</style>
     </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { sol, theme } from '../theme';
 
 interface Props {
   title: string;
@@ -82,9 +83,9 @@ export function ScenarioOverlay({
           top: '20px',
           left: '20px',
           background: 'none',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          border: `1px solid ${theme.border}`,
           borderRadius: '4px',
-          color: '#888',
+          color: theme.textMuted,
           fontSize: '18px',
           padding: '8px 12px',
           cursor: 'pointer',
@@ -110,7 +111,7 @@ export function ScenarioOverlay({
       >
         <h1
           style={{
-            color: '#fff',
+            color: theme.textBright,
             fontSize: '32px',
             letterSpacing: '8px',
             margin: '0 0 16px 0',
@@ -122,7 +123,7 @@ export function ScenarioOverlay({
         </h1>
         <p
           style={{
-            color: '#888',
+            color: theme.textMuted,
             fontSize: '14px',
             letterSpacing: '2px',
             margin: 0,
@@ -159,10 +160,10 @@ export function ScenarioOverlay({
                 key={s}
                 onClick={() => onSetSpeed(s)}
                 style={{
-                  background: speed === s ? 'rgba(255, 180, 50, 0.2)' : 'none',
-                  border: speed === s ? '1px solid rgba(255, 180, 50, 0.5)' : '1px solid rgba(255, 255, 255, 0.15)',
+                  background: speed === s ? 'rgba(181, 137, 0, 0.2)' : 'none',
+                  border: speed === s ? '1px solid rgba(181, 137, 0, 0.5)' : `1px solid ${theme.borderSubtle}`,
                   borderRadius: '3px',
-                  color: speed === s ? '#ffb432' : '#666',
+                  color: speed === s ? sol.yellow : theme.textMuted,
                   fontSize: '10px',
                   padding: '2px 6px',
                   cursor: 'pointer',
@@ -176,24 +177,24 @@ export function ScenarioOverlay({
           </div>
 
           {/* Time readout */}
-          <span style={{ color: '#777', fontSize: '11px', letterSpacing: '1px' }}>
+          <span style={{ color: theme.textMuted, fontSize: '11px', letterSpacing: '1px', fontVariantNumeric: 'tabular-nums' }}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
 
           {/* Loop toggle + pause hint */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {!isPlaying && (
-              <span style={{ color: '#555', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+              <span style={{ color: theme.textMuted, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase' }}>
                 Paused
               </span>
             )}
             <button
               onClick={() => onSetLoop(!looping)}
               style={{
-                background: looping ? 'rgba(255, 180, 50, 0.2)' : 'none',
-                border: looping ? '1px solid rgba(255, 180, 50, 0.5)' : '1px solid rgba(255, 255, 255, 0.15)',
+                background: looping ? 'rgba(181, 137, 0, 0.2)' : 'none',
+                border: looping ? '1px solid rgba(181, 137, 0, 0.5)' : `1px solid ${theme.borderSubtle}`,
                 borderRadius: '3px',
-                color: looping ? '#ffb432' : '#666',
+                color: looping ? sol.yellow : theme.textMuted,
                 fontSize: '10px',
                 padding: '2px 6px',
                 cursor: 'pointer',
@@ -212,7 +213,7 @@ export function ScenarioOverlay({
           onClick={handleScrubberClick}
           style={{
             height: '4px',
-            background: '#222',
+            background: theme.bgPanel,
             cursor: 'pointer',
             position: 'relative',
           }}
@@ -221,7 +222,7 @@ export function ScenarioOverlay({
             style={{
               height: '100%',
               width: `${progress * 100}%`,
-              background: '#fff',
+              background: theme.textBright,
               transition: isPlaying ? 'none' : 'width 0.1s ease-out',
             }}
           />
@@ -235,7 +236,7 @@ export function ScenarioOverlay({
               width: '10px',
               height: '10px',
               borderRadius: '50%',
-              background: '#ffb432',
+              background: sol.yellow,
               opacity: 0.8,
               pointerEvents: 'none',
             }}
@@ -245,12 +246,12 @@ export function ScenarioOverlay({
 
       <style>{`
         button:hover {
-          color: #fff !important;
-          border-color: #fff !important;
-          background: rgba(255, 255, 255, 0.05) !important;
+          color: ${theme.textBright} !important;
+          border-color: ${theme.accent} !important;
+          background: ${theme.hoverBg} !important;
         }
         .scenario-scrubber:hover {
-          height: 8px !important;
+          height: 6px !important;
         }
       `}</style>
     </div>
