@@ -1,4 +1,5 @@
 import React from 'react';
+import { sol } from '../../theme';
 
 interface SliderRowProps {
   label: string;
@@ -16,7 +17,7 @@ const defaultFormat = (v: number) => v.toFixed(3);
 export function SliderRow({ label, value, min, max, step, onChange, format = defaultFormat }: SliderRowProps) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
-      <span style={{ width: 90, fontSize: 11, color: '#aaa', flexShrink: 0, fontFamily: 'monospace' }}>
+      <span style={{ width: 90, fontSize: 11, color: sol.base0, flexShrink: 0, fontFamily: 'monospace' }}>
         {label}
       </span>
       <input
@@ -26,9 +27,9 @@ export function SliderRow({ label, value, min, max, step, onChange, format = def
         step={step}
         value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
-        style={{ flex: 1, accentColor: '#6cf' }}
+        style={{ flex: 1, accentColor: sol.cyan }}
       />
-      <span style={{ width: 55, fontSize: 11, color: '#ccc', fontFamily: 'monospace', textAlign: 'right' }}>
+      <span style={{ width: 55, fontSize: 11, color: sol.base1, fontFamily: 'monospace', textAlign: 'right' }}>
         {format(value)}
       </span>
     </label>
