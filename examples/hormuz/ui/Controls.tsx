@@ -1,5 +1,6 @@
 import React from 'react';
 import { useStore } from '../../../src/store';
+import { sol, theme } from '../theme';
 
 /**
  * Small floating control panel, top-right corner.
@@ -21,13 +22,13 @@ export function Controls({ onLoopChange }: ControlsProps) {
         position: 'absolute',
         top: 12,
         right: 12,
-        background: 'rgba(10, 10, 10, 0.85)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: theme.bgPanelAlpha,
+        border: `1px solid ${theme.borderSubtle}`,
         borderRadius: 6,
         padding: '8px 10px',
         fontFamily: 'monospace',
         fontSize: 11,
-        color: '#999',
+        color: theme.text,
         display: 'flex',
         flexDirection: 'column',
         gap: 6,
@@ -42,7 +43,7 @@ export function Controls({ onLoopChange }: ControlsProps) {
             alignItems: 'center',
             gap: 6,
             cursor: 'pointer',
-            color: '#777',
+            color: theme.textMuted,
             fontSize: 10,
           }}
         >
@@ -50,7 +51,7 @@ export function Controls({ onLoopChange }: ControlsProps) {
             type="checkbox"
             checked={loop}
             onChange={(e) => onLoopChange(e.target.checked)}
-            style={{ accentColor: '#888', margin: 0 }}
+            style={{ accentColor: sol.cyan, margin: 0 }}
           />
           loop
         </label>
@@ -60,7 +61,7 @@ export function Controls({ onLoopChange }: ControlsProps) {
           style={{
             background: 'none',
             border: 'none',
-            color: '#555',
+            color: theme.textMuted,
             cursor: 'pointer',
             fontSize: 10,
             padding: '2px 4px',
@@ -74,7 +75,7 @@ export function Controls({ onLoopChange }: ControlsProps) {
       <a
         href="?explorer=true"
         style={{
-          color: '#6cf',
+          color: sol.cyan,
           fontSize: 10,
           textDecoration: 'none',
           opacity: 0.7,

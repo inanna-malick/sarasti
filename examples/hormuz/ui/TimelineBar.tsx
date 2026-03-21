@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useStore } from '../../../src/store';
+import { sol, theme } from '../theme';
 
 /**
  * Bottom-of-viewport timeline bar.
@@ -79,11 +80,12 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
       const avg = count > 0 ? sum / count : 0;
       // Map avg deviation (approx 0-2.0 range) to color
       const t = Math.min(1, avg / 1.5);
-      // calm=cool (40,80,120), crisis=warm (200,80,40)
-      const r = Math.round(40 + t * 160);
-      const b = Math.round(120 - t * 80);
+      // calm=base03 (0,43,54), crisis=orange (203,75,22)
+      const r = Math.round(0 + t * 203);
+      const g = Math.round(43 + t * 32);
+      const b = Math.round(54 - t * 32);
       const alpha = 0.15 + t * 0.25;
-      stops.push(`rgba(${r}, 80, ${b}, ${alpha}) ${(i / (n - 1)) * 100}%`);
+      stops.push(`rgba(${r}, ${g}, ${b}, ${alpha}) ${(i / (n - 1)) * 100}%`);
     }
     return `linear-gradient(to right, ${stops.join(', ')})`;
   }, [dataset]);
@@ -96,15 +98,15 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
         left: 0,
         right: 0,
         height: 56,
-        background: 'rgba(10, 10, 10, 0.92)',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
+        background: theme.bgPanelAlpha,
+        borderTop: `1px solid ${theme.borderSubtle}`,
         display: 'flex',
         alignItems: 'center',
         padding: '0 16px',
         gap: 12,
         fontFamily: 'monospace',
         fontSize: 12,
-        color: '#ccc',
+        color: theme.text,
         zIndex: 50,
       }}
     >
@@ -113,9 +115,9 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
         onClick={onTogglePlay}
         style={{
           background: 'none',
-          border: '1px solid rgba(255,255,255,0.2)',
+          border: `1px solid ${theme.border}`,
           borderRadius: 4,
-          color: '#ccc',
+          color: theme.text,
           cursor: 'pointer',
           padding: '4px 10px',
           fontSize: 14,
@@ -130,10 +132,10 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
         value={speed}
         onChange={(e) => onSpeedChange(Number(e.target.value))}
         style={{
-          background: '#1a1a1a',
-          border: '1px solid rgba(255,255,255,0.15)',
+          background: theme.bgPanel,
+          border: `1px solid ${theme.borderSubtle}`,
           borderRadius: 4,
-          color: '#ccc',
+          color: theme.text,
           fontSize: 11,
           padding: '3px 4px',
         }}
@@ -156,7 +158,7 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
           cursor: 'pointer',
           position: 'relative',
           overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.04)',
+          border: `1px solid ${theme.borderSubtle}`,
         }}
       >
         {/* Progress fill */}
@@ -167,7 +169,7 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
             top: 0,
             bottom: 0,
             width: `${progress * 100}%`,
-            background: 'rgba(255,255,255,0.15)',
+            background: 'rgba(42,161,152,0.2)',
             borderRadius: 3,
             transition: 'width 0.1s linear',
           }}
@@ -180,7 +182,7 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
             top: 0,
             bottom: 0,
             width: 2,
-            background: 'rgba(255,200,100,0.8)',
+            background: 'rgba(181,137,0,0.8)',
           }}
         />
         {/* Key event tick marks */}
@@ -198,7 +200,7 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
                   top: 0,
                   bottom: 0,
                   width: 1,
-                  background: 'rgba(255,100,100,0.3)',
+                  background: 'rgba(220,50,47,0.3)',
                 }}
               />
             );
@@ -206,9 +208,9 @@ export function TimelineBar({ onTogglePlay, onSeek, onSpeedChange }: TimelineBar
       </div>
 
       {/* Timestamp display */}
-      <div style={{ minWidth: 180, textAlign: 'right', fontSize: 11, color: '#888' }}>
+      <div style={{ minWidth: 180, textAlign: 'right', fontSize: 11, color: theme.textMuted, fontVariantNumeric: 'tabular-nums' }}>
         <div>{timestamp ? formatTimestamp(timestamp) : '--'}</div>
-        <div style={{ color: '#555', fontSize: 10 }}>{dayLabel}</div>
+        <div style={{ color: theme.textMuted, fontSize: 10, fontVariantNumeric: 'tabular-nums' }}>{dayLabel}</div>
       </div>
     </div>
   );
