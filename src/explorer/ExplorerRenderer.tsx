@@ -37,16 +37,16 @@ export function ExplorerRenderer() {
         // 2. Setup Three.js Scene
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setClearColor(0x1a1a1a);
+        renderer.setClearColor(0x002b36);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.4;
+        renderer.toneMappingExposure = 1.3;
         if (containerRef.current) {
           containerRef.current.appendChild(renderer.domElement);
         }
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
+        scene.background = new THREE.Color(0x002b36);
 
         // Lights (matching RefineHarness)
         const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.8);

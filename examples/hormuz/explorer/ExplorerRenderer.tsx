@@ -73,14 +73,14 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
           renderer.setSize(rect.width, rect.height);
         }
 
-        renderer.setClearColor(0x1a1a1a);
+        renderer.setClearColor(0x002b36);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.4;
+        renderer.toneMappingExposure = 1.3;
         container.appendChild(renderer.domElement);
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
+        scene.background = new THREE.Color(0x002b36);
 
         const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.8);
         keyLight.position.set(-2, 3, 4);
