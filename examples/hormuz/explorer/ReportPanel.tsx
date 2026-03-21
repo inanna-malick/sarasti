@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sol, theme } from '../theme';
 import { useExplorerStore } from './store';
 import { EXPR_AXES, SHAPE_AXES } from '../../../src/binding/axes';
 
@@ -12,7 +13,7 @@ function ArraySection({ title, prefix, data }: { title: string; prefix: string; 
       <button
         onClick={() => setOpen(!open)}
         style={{
-          background: 'none', border: 'none', color: '#6cf', cursor: 'pointer',
+          background: 'none', border: 'none', color: sol.cyan, cursor: 'pointer',
           fontSize: 11, fontFamily: 'monospace', padding: '4px 0', textAlign: 'left',
           width: '100%', fontWeight: 'bold',
         }}
@@ -23,7 +24,7 @@ function ArraySection({ title, prefix, data }: { title: string; prefix: string; 
         <div style={{ paddingLeft: 8 }}>
           {Array.from(data).map((v, i) =>
             Math.abs(v) > 0.001 ? (
-              <div key={i} style={{ fontSize: 10, color: '#bbb', fontFamily: 'monospace', lineHeight: 1.6 }}>
+              <div key={i} style={{ fontSize: 10, color: theme.text, fontFamily: 'monospace', lineHeight: 1.6 }}>
                 {prefix}{i} = {v.toFixed(4)}
               </div>
             ) : null,
@@ -42,19 +43,19 @@ export function ReportPanel() {
 
   return (
     <div style={{ padding: 8, overflowY: 'auto', maxHeight: 400 }}>
-      <div style={{ fontSize: 12, color: '#6cf', fontFamily: 'monospace', marginBottom: 8, fontWeight: 'bold' }}>
+      <div style={{ fontSize: 12, color: sol.cyan, fontFamily: 'monospace', marginBottom: 8, fontWeight: 'bold' }}>
         Params Inspector
       </div>
 
       {mode === 'highlevel' && (
-        <div style={{ marginBottom: 8, fontSize: 10, color: '#777', fontFamily: 'monospace' }}>
-          <div style={{ color: '#888', marginBottom: 2 }}>Expression chord mappings:</div>
+        <div style={{ marginBottom: 8, fontSize: 10, color: theme.textMuted, fontFamily: 'monospace' }}>
+          <div style={{ color: theme.textMuted, marginBottom: 2 }}>Expression chord mappings:</div>
           {Object.entries(EXPR_AXES).map(([axis, mapping]) => (
             <div key={axis} style={{ paddingLeft: 8 }}>
               {axis}: {mapping.map(([i, w]: readonly [number, number]) => `\u03C8${i}\u00D7${w}`).join(', ')}
             </div>
           ))}
-          <div style={{ color: '#888', marginTop: 4, marginBottom: 2 }}>Shape mappings:</div>
+          <div style={{ color: theme.textMuted, marginTop: 4, marginBottom: 2 }}>Shape mappings:</div>
           {Object.entries(SHAPE_AXES).map(([axis, mapping]) => (
             <div key={axis} style={{ paddingLeft: 8 }}>
               {axis}: {mapping.map(([i, w]: readonly [number, number]) => `\u03B2${i}\u00D7${w}`).join(', ')}
@@ -66,8 +67,8 @@ export function ReportPanel() {
       <ArraySection title="Shape" prefix={'\u03B2'} data={params.shape} />
       <ArraySection title="Expression" prefix={'\u03C8'} data={params.expression} />
 
-      <div style={{ fontSize: 10, color: '#bbb', fontFamily: 'monospace', marginTop: 8 }}>
-        <div style={{ color: '#6cf', fontWeight: 'bold', marginBottom: 4 }}>Pose</div>
+      <div style={{ fontSize: 10, color: theme.text, fontFamily: 'monospace', marginTop: 8 }}>
+        <div style={{ color: sol.cyan, fontWeight: 'bold', marginBottom: 4 }}>Pose</div>
         <div>pitch: {params.pose.neck[0].toFixed(4)}</div>
         <div>yaw: {params.pose.neck[1].toFixed(4)}</div>
         <div>roll: {params.pose.neck[2].toFixed(4)}</div>
@@ -76,8 +77,8 @@ export function ReportPanel() {
         <div>gaze R: [{params.pose.rightEye.map(v => v.toFixed(3)).join(', ')}]</div>
       </div>
 
-      <div style={{ fontSize: 10, color: '#bbb', fontFamily: 'monospace', marginTop: 8 }}>
-        <div style={{ color: '#6cf', fontWeight: 'bold', marginBottom: 4 }}>Texture</div>
+      <div style={{ fontSize: 10, color: theme.text, fontFamily: 'monospace', marginTop: 8 }}>
+        <div style={{ color: sol.cyan, fontWeight: 'bold', marginBottom: 4 }}>Texture</div>
         <div>flush: {params.flush.toFixed(3)}</div>
         <div>fatigue: {params.fatigue.toFixed(3)}</div>
       </div>

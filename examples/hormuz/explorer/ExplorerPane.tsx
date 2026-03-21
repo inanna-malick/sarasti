@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { sol, theme } from '../theme';
 import { ExplorerRenderer } from './ExplorerRenderer';
 import { ExpressionSliders } from './sliders/ExpressionSliders';
 import { SemanticSliders } from './sliders/SemanticSliders';
@@ -177,8 +178,8 @@ function ExplorerPaneUI() {
       display: 'flex',
       width: '100vw',
       height: '100vh',
-      background: '#111',
-      color: '#ccc',
+      background: theme.bg,
+      color: theme.text,
       fontFamily: 'monospace',
     }}>
       {/* Left: 3D Canvas */}
@@ -192,33 +193,33 @@ function ExplorerPaneUI() {
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
-        borderLeft: '1px solid #333',
-        background: '#1a1a1a',
+        borderLeft: `1px solid ${theme.border}`,
+        background: theme.bgPanel,
       }}>
         {/* Mode toggle */}
         <div style={{
           padding: '8px 12px',
-          borderBottom: '1px solid #333',
+          borderBottom: `1px solid ${theme.border}`,
           display: 'flex',
           gap: 8,
           alignItems: 'center',
         }}>
           <a
             href="/"
-            style={{ fontSize: 10, color: '#888', textDecoration: 'none' }}
-            onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#ccc'; }}
-            onMouseLeave={(e) => { (e.target as HTMLElement).style.color = '#888'; }}
+            style={{ fontSize: 10, color: theme.textMuted, textDecoration: 'none' }}
+            onMouseEnter={(e) => { (e.target as HTMLElement).style.color = theme.text; }}
+            onMouseLeave={(e) => { (e.target as HTMLElement).style.color = theme.textMuted; }}
           >
             Back
           </a>
-          <span style={{ fontSize: 12, color: '#6cf', fontWeight: 'bold' }}>Explorer</span>
+          <span style={{ fontSize: 12, color: sol.cyan, fontWeight: 'bold' }}>Explorer</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
             <button
               onClick={() => setMode('highlevel')}
               style={{
-                background: mode === 'highlevel' ? '#334' : 'transparent',
-                border: `1px solid ${mode === 'highlevel' ? '#6cf' : '#444'}`,
-                color: mode === 'highlevel' ? '#6cf' : '#888',
+                background: mode === 'highlevel' ? 'rgba(42,161,152,0.15)' : 'transparent',
+                border: `1px solid ${mode === 'highlevel' ? sol.cyan : theme.border}`,
+                color: mode === 'highlevel' ? sol.cyan : theme.textMuted,
                 borderRadius: 3, padding: '2px 8px', fontSize: 10,
                 fontFamily: 'monospace', cursor: 'pointer',
               }}
@@ -228,9 +229,9 @@ function ExplorerPaneUI() {
             <button
               onClick={() => setMode('semantic')}
               style={{
-                background: mode === 'semantic' ? '#334' : 'transparent',
-                border: `1px solid ${mode === 'semantic' ? '#6cf' : '#444'}`,
-                color: mode === 'semantic' ? '#6cf' : '#888',
+                background: mode === 'semantic' ? 'rgba(42,161,152,0.15)' : 'transparent',
+                border: `1px solid ${mode === 'semantic' ? sol.cyan : theme.border}`,
+                color: mode === 'semantic' ? sol.cyan : theme.textMuted,
                 borderRadius: 3, padding: '2px 8px', fontSize: 10,
                 fontFamily: 'monospace', cursor: 'pointer',
               }}
@@ -240,9 +241,9 @@ function ExplorerPaneUI() {
             <button
               onClick={() => setMode('raw')}
               style={{
-                background: mode === 'raw' ? '#334' : 'transparent',
-                border: `1px solid ${mode === 'raw' ? '#6cf' : '#444'}`,
-                color: mode === 'raw' ? '#6cf' : '#888',
+                background: mode === 'raw' ? 'rgba(42,161,152,0.15)' : 'transparent',
+                border: `1px solid ${mode === 'raw' ? sol.cyan : theme.border}`,
+                color: mode === 'raw' ? sol.cyan : theme.textMuted,
                 borderRadius: 3, padding: '2px 8px', fontSize: 10,
                 fontFamily: 'monospace', cursor: 'pointer',
               }}
