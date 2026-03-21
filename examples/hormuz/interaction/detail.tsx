@@ -5,6 +5,7 @@ import type { TickerFrame } from '../../../src/types';
 import { computeDatasetStats, type DatasetStats, type TickerStats } from '../../../src/data/stats';
 import { computeCircumplex } from '../../../src/binding/chords';
 import type { CircumplexActivations } from '../../../src/binding/chords';
+import { sol, theme } from '../theme';
 
 /**
  * Detail panel: click face → side panel with full decode.
@@ -44,10 +45,10 @@ export function DetailPanel(): React.ReactElement | null {
         top: 0,
         bottom: 0,
         width: 320,
-        background: 'rgba(10, 10, 10, 0.95)',
-        borderLeft: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(0,43,54,0.95)',
+        borderLeft: `1px solid ${theme.border}`,
         padding: '16px',
-        color: '#e0e0e0',
+        color: theme.textBright,
         fontFamily: 'monospace',
         fontSize: 12,
         lineHeight: 1.6,
@@ -58,10 +59,10 @@ export function DetailPanel(): React.ReactElement | null {
       {/* Header */}
       <div style={{ marginBottom: 12 }}>
         <div style={{ fontSize: 15, fontWeight: 'bold' }}>{ticker.name}</div>
-        <div style={{ color: '#888' }}>
+        <div style={{ color: theme.textMuted }}>
           {ticker.id} · {ticker.class} · {ticker.family}
         </div>
-        <div style={{ color: '#666' }}>
+        <div style={{ color: theme.textMuted }}>
           age {ticker.age}
           {ticker.tenor_months != null ? ` · tenor ${ticker.tenor_months}M` : ''}
         </div>
@@ -75,9 +76,9 @@ export function DetailPanel(): React.ReactElement | null {
           top: 12,
           right: 12,
           background: 'none',
-          border: '1px solid rgba(255,255,255,0.2)',
+          border: `1px solid ${theme.border}`,
           borderRadius: 4,
-          color: '#888',
+          color: theme.textMuted,
           cursor: 'pointer',
           padding: '2px 8px',
           fontSize: 12,
@@ -88,7 +89,7 @@ export function DetailPanel(): React.ReactElement | null {
 
       {/* Sparkline */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ color: '#666', marginBottom: 4 }}>deviation over time</div>
+        <div style={{ color: theme.textMuted, marginBottom: 4 }}>deviation over time</div>
         <Sparkline
           data={timeseries.map((f) => f?.deviation ?? 0)}
           currentIndex={currentIndex}
@@ -102,7 +103,7 @@ export function DetailPanel(): React.ReactElement | null {
 
       {/* Expression decode */}
       <Section title="market dynamics">
-        <div style={{ color: '#aaa' }}>
+        <div style={{ color: theme.text }}>
           {describeExpression(frame.deviation, frame.velocity, frame.volatility)}
         </div>
       </Section>
@@ -115,9 +116,9 @@ export function DetailPanel(): React.ReactElement | null {
         <Section title={`family: ${ticker.family}`}>
           {familyMembers.map((m) => (
             <div key={m.id} style={{ marginBottom: 4 }}>
-              <span style={{ color: '#ccc' }}>{m.ticker.name}</span>
-              <span style={{ color: '#666' }}> age {m.ticker.age}</span>
-              <span style={{ color: m.frame.deviation < -0.05 ? '#ff6b6b' : '#888' }}>
+              <span style={{ color: theme.text }}>{m.ticker.name}</span>
+              <span style={{ color: theme.textMuted }}> age {m.ticker.age}</span>
+              <span style={{ color: m.frame.deviation < -0.05 ? sol.red : theme.textMuted }}>
                 {' '}{m.frame.deviation >= 0 ? '+' : ''}
                 {(m.frame.deviation * 100).toFixed(1)}%
               </span>
@@ -190,10 +191,10 @@ function ChordBar({
   const fillWidth = Math.min(1, weight) * barWidth;
 
   const color = isWinner
-    ? 'rgba(255, 200, 80, 0.9)'
+    ? 'rgba(181,137,0,0.9)'
     : sign > 0
-      ? 'rgba(100, 200, 255, 0.6)'
-      : 'rgba(255, 100, 100, 0.6)';
+      ? 'rgba(42,161,152,0.6)'
+      : 'rgba(220,50,47,0.6)';
 
   const signLabels: Record<string, [string, string]> = {
     tension: ['tense', 'calm'],
@@ -206,7 +207,7 @@ function ChordBar({
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
       <span style={{
-        color: isWinner ? '#ffc850' : '#888',
+        color: isWinner ? sol.yellow : theme.textMuted,
         width: 72,
         flexShrink: 0,
         fontSize: 11,
@@ -215,13 +216,13 @@ function ChordBar({
         {name}
       </span>
       <svg width={barWidth} height={barHeight} style={{ flexShrink: 0 }}>
-        <rect width={barWidth} height={barHeight} fill="rgba(255,255,255,0.05)" rx={2} />
+        <rect width={barWidth} height={barHeight} fill="rgba(88,110,117,0.1)" rx={2} />
         <rect width={fillWidth} height={barHeight} fill={color} rx={2} />
       </svg>
-      <span style={{ color: '#ccc', fontSize: 10, flexShrink: 0, width: 32, textAlign: 'right' }}>
+      <span style={{ color: theme.text, fontSize: 10, flexShrink: 0, width: 32, textAlign: 'right' }}>
         {(weight * 100).toFixed(0)}%
       </span>
-      <span style={{ color: '#555', fontSize: 9, flexShrink: 0 }}>
+      <span style={{ color: theme.textMuted, fontSize: 9, flexShrink: 0 }}>
         {signLabel}
       </span>
     </div>
@@ -239,7 +240,7 @@ function RawSignalsSection({ frame }: { frame: TickerFrame }) {
         style={{
           background: 'none',
           border: 'none',
-          color: '#555',
+          color: theme.textMuted,
           cursor: 'pointer',
           fontSize: 10,
           textTransform: 'uppercase',
@@ -299,7 +300,7 @@ function Sparkline({
       <polyline
         points={points}
         fill="none"
-        stroke="rgba(255,255,255,0.3)"
+        stroke="rgba(131,148,150,0.4)"
         strokeWidth="1"
       />
       {/* Zero line */}
@@ -308,7 +309,7 @@ function Sparkline({
         y1={height - ((0 - min) / range) * height}
         x2={width}
         y2={height - ((0 - min) / range) * height}
-        stroke="rgba(255,255,255,0.1)"
+        stroke="rgba(88,110,117,0.2)"
         strokeWidth="1"
         strokeDasharray="2,2"
       />
@@ -318,7 +319,7 @@ function Sparkline({
         y1={0}
         x2={cursorX}
         y2={height}
-        stroke="rgba(255,200,100,0.6)"
+        stroke="rgba(181,137,0,0.6)"
         strokeWidth="1"
       />
     </svg>
@@ -330,12 +331,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <div style={{ marginBottom: 14 }}>
       <div
         style={{
-          color: '#555',
+          color: theme.textMuted,
           fontSize: 10,
           textTransform: 'uppercase',
           letterSpacing: 1,
           marginBottom: 4,
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: `1px solid ${theme.borderSubtle}`,
           paddingBottom: 2,
         }}
       >
@@ -349,8 +350,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function KV({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-      <span style={{ color: '#666' }}>{label}</span>
-      <span style={{ color: '#ccc' }}>{value}</span>
+      <span style={{ color: theme.textMuted }}>{label}</span>
+      <span style={{ color: theme.text, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
     </div>
   );
 }

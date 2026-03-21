@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../../../src/store';
 import { getTooltipPosition } from './hover';
+import { sol, theme } from '../theme';
 
 /**
  * Tooltip overlay: shows when a face is hovered.
@@ -51,11 +52,11 @@ export function Tooltip(): React.ReactElement | null {
         left,
         top,
         width: tooltipWidth,
-        background: 'rgba(10, 10, 10, 0.92)',
-        border: '1px solid rgba(255,255,255,0.15)',
+        background: theme.bgPanelAlpha,
+        border: `1px solid ${theme.border}`,
         borderRadius: 6,
         padding: '10px 12px',
-        color: '#e0e0e0',
+        color: theme.textBright,
         fontFamily: 'monospace',
         fontSize: 12,
         lineHeight: 1.5,
@@ -66,15 +67,15 @@ export function Tooltip(): React.ReactElement | null {
       <div style={{ fontWeight: 'bold', fontSize: 13, marginBottom: 4 }}>
         {ticker.name}
       </div>
-      <div style={{ color: '#888', marginBottom: 6 }}>
+      <div style={{ color: theme.textMuted, marginBottom: 6 }}>
         {ticker.id} · {ticker.class} · {ticker.family}
         {ticker.tenor_months != null ? ` · ${ticker.tenor_months}M` : ''}
         {' · age '}{ticker.age}
       </div>
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6 }}>
+      <div style={{ borderTop: `1px solid ${theme.borderSubtle}`, paddingTop: 6 }}>
         <Row label="close" value={frame.close.toFixed(2)} />
         <Row label="deviation" value={`${devSign}${devPercent}%`}
-          color={frame.deviation < -0.05 ? '#ff6b6b' : frame.deviation > 0.05 ? '#51cf66' : '#888'} />
+          color={frame.deviation < -0.05 ? sol.red : frame.deviation > 0.05 ? sol.green : theme.textMuted} />
         <Row label="velocity" value={frame.velocity.toFixed(3)} />
         <Row label="volatility" value={frame.volatility.toFixed(3)} />
       </div>
@@ -85,8 +86,8 @@ export function Tooltip(): React.ReactElement | null {
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-      <span style={{ color: '#666' }}>{label}</span>
-      <span style={{ color: color || '#ccc' }}>{value}</span>
+      <span style={{ color: theme.textMuted }}>{label}</span>
+      <span style={{ color: color || theme.text }}>{value}</span>
     </div>
   );
 }
