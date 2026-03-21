@@ -59,14 +59,14 @@ export function RefineHarness() {
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
         renderer.setPixelRatio(1); // Force pixel ratio 1 for deterministic screenshots
         renderer.setSize(size, size);
-        renderer.setClearColor(0x1a1a1a);
+        renderer.setClearColor(0x002b36);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.4;
+        renderer.toneMappingExposure = 1.3;
         containerRef.current.appendChild(renderer.domElement);
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
+        scene.background = new THREE.Color(0x002b36);
 
         const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.8);
         keyLight.position.set(-2, 3, 4);
@@ -205,7 +205,7 @@ export function RefineHarness() {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#000' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#002b36' }}>
       <div ref={containerRef} style={{ width: 512, height: 512 }} />
     </div>
   );
