@@ -1,5 +1,6 @@
 import React from 'react';
 import { useStore } from '../../../src/store';
+import { theme } from '../theme';
 
 /**
  * Landing overlay: shown before playback starts.
@@ -35,7 +36,7 @@ export function Landing({ onStart }: LandingProps) {
       style={{
         position: 'absolute',
         inset: 0,
-        background: 'rgba(10, 10, 10, 0.85)',
+        background: theme.bgPanelAlpha,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -48,7 +49,7 @@ export function Landing({ onStart }: LandingProps) {
     >
       <h1
         style={{
-          color: '#e0e0e0',
+          color: theme.textBright,
           fontSize: 32,
           fontWeight: 400,
           letterSpacing: 8,
@@ -60,7 +61,7 @@ export function Landing({ onStart }: LandingProps) {
 
       <p
         style={{
-          color: '#888',
+          color: theme.textMuted,
           fontSize: 12,
           maxWidth: 450,
           textAlign: 'center',
@@ -77,7 +78,7 @@ export function Landing({ onStart }: LandingProps) {
 
       <div
         style={{
-          color: '#666',
+          color: theme.textMuted,
           fontSize: 11,
           letterSpacing: 3,
           textTransform: 'uppercase',
