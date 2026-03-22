@@ -77,15 +77,10 @@ export function FaceHud({
     });
   }, [signals, outerRadius, strokeWidth, ringGap, selected, selectedColor]);
 
-  // Margin for label and annotations
-  const margin = 20;
-  const totalSize = outerRadius + margin;
-
   return (
     <svg
       width={0}
       height={0}
-      viewBox={`${-totalSize} ${-totalSize} ${totalSize * 2} ${totalSize * 2}`}
       style={{ overflow: 'visible', opacity: 0.75 }}
       aria-label="Face HUD"
     >
