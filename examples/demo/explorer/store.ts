@@ -40,11 +40,18 @@ interface ExplorerState {
   rawShape: Float32Array;
   rawExpression: Float32Array;
 
+  // Data mode context for HUD
+  dataModeTickerId: string | null;
+  dataModeFrame: import('../../../src/types').TickerFrame | null;
+  dataModeTicker: import('../../../src/types').TickerConfig | null;
+  dataModeStats: import('../../../src/data/stats').DatasetStats | null;
+
   // Computed
   currentParams: FaceParams | null;
 
   // Actions
   setMode: (mode: ExplorerMode) => void;
+  setDataModeContext: (tickerId: string, frame: import('../../../src/types').TickerFrame, ticker: import('../../../src/types').TickerConfig, stats: import('../../../src/data/stats').DatasetStats) => void;
   setTension: (v: number) => void;
   setValence: (v: number) => void;
   setStature: (v: number) => void;
@@ -248,8 +255,14 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   rawShape: new Float32Array(N_SHAPE),
   rawExpression: new Float32Array(N_EXPR),
 
+  dataModeTickerId: null,
+  dataModeFrame: null,
+  dataModeTicker: null,
+  dataModeStats: null,
+
   currentParams: null,
 
+  setDataModeContext: (tickerId, frame, ticker, stats) => set({ dataModeTickerId: tickerId, dataModeFrame: frame, dataModeTicker: ticker, dataModeStats: stats }),
   setMode: (v) => update(set, get, { mode: v }),
   setTension: (v) => update(set, get, { tension: v }),
   setValence: (v) => update(set, get, { valence: v }),

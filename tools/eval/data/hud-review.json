@@ -1,0 +1,18 @@
+[
+  {
+    "params": { "mode": "data", "ticker": "^VIX", "t": "2026-03-15T14:00:00Z", "hud": "true" },
+    "output": "tools/eval/data/renders/hud-review/vix_panic.png"
+  },
+  {
+    "params": { "mode": "data", "ticker": "SPY", "t": "2026-02-25T00:00:00Z", "hud": "true" },
+    "output": "tools/eval/data/renders/hud-review/spy_content.png"
+  },
+  {
+    "params": { "mode": "data", "ticker": "GC=F", "t": "2026-03-11T14:00:00Z", "hud": "true" },
+    "output": "tools/eval/data/renders/hud-review/gold_manic.png"
+  },
+  {
+    "params": { "mode": "data", "ticker": "BRENT", "t": "2026-03-05T08:00:00Z", "hud": "true" },
+    "output": "tools/eval/data/renders/hud-review/brent_tense.png"
+  }
+]

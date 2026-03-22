@@ -15,6 +15,8 @@ import { resolve } from '../../../src/binding/resolve';
 import { computeCircumplex } from '../../../src/binding/chords';
 import { computeDatasetStats } from '../../../src/data/stats';
 import { TICKERS, TICKER_MAP } from '../tickers';
+import { FaceHud as LibFaceHud } from '../../../src/ui';
+import type { RingSignal, HudLabel, HudAnnotation } from '../../../src/ui';
 
 declare global {
   interface Window {
@@ -47,6 +49,7 @@ async function loadDataMode(tickerId: string, timestamp: string) {
 
   const faceParams = resolve(ticker, tickerFrame, undefined, stats);
   store.setCurrentParams(faceParams);
+  store.setDataModeContext(tickerId, tickerFrame, ticker, stats);
 
   // Compute metadata for sidecar output
   const activations = computeCircumplex(tickerFrame, stats, tickerId);
@@ -154,16 +157,117 @@ function getCameraPreset(): CameraPreset {
   return 'front';
 }
 
+function clamp1(x: number): number {
+  return Math.max(-1, Math.min(1, x));
+}
+
+const CLASS_COLORS: Record<string, string> = {
+  energy: sol.orange,
+  equity: sol.blue,
+  fear: sol.red,
+  currency: sol.violet,
+  commodity: sol.green,
+  media: sol.magenta,
+};
+
+function ExplorerHud() {
+  const tickerId = useExplorerStore(s => s.dataModeTickerId);
+  const frame = useExplorerStore(s => s.dataModeFrame);
+  const ticker = useExplorerStore(s => s.dataModeTicker);
+  if (!tickerId || !frame || !ticker) return null;
+
+  const signals: RingSignal[] = [
+    {
+      name: 'deviation',
+      value: clamp1(frame.deviation * 3),
+      negativeColor: 'rgb(220, 50, 47)',
+      positiveColor: 'rgb(133, 153, 0)',
+      maxOpacity: 0.65,
+    },
+    {
+      name: 'tension',
+      value: clamp1(frame.volatility * Math.abs(frame.velocity) - 0.3),
+      negativeColor: 'rgb(42, 161, 152)',
+      positiveColor: 'rgb(181, 137, 0)',
+      maxOpacity: 0.70,
+    },
+    {
+      name: 'valence',
+      value: clamp1(frame.deviation + 0.5 * frame.momentum),
+      negativeColor: 'rgb(220, 50, 47)',
+      positiveColor: 'rgb(133, 153, 0)',
+      maxOpacity: 0.75,
+    },
+  ];
+
+  const devPercent = (frame.deviation * 100).toFixed(1);
+  const devSign = frame.deviation >= 0 ? '+' : '';
+  const devColor = frame.deviation >= 0 ? sol.green : sol.red;
+
+  const label: HudLabel = {
+    text: ticker.id,
+    color: '#fdf6e3',
+    accentColor: CLASS_COLORS[ticker.class] ?? sol.cyan,
+  };
+
+  const velLabel = frame.velocity >= 0 ? `+${frame.velocity.toFixed(2)}` : frame.velocity.toFixed(2);
+  const closeLabel = frame.close != null ? frame.close.toFixed(2) : '';
+
+  const annotations: HudAnnotation[] = [
+    { text: `${devSign}${devPercent}%`, angleDeg: 315, color: devColor, fontSize: 14, align: 'left', ringIndex: 0 },
+    { text: `vel ${velLabel}`, angleDeg: 225, color: '#657b83', fontSize: 10, align: 'left', ringIndex: 2 },
+  ];
+  if (closeLabel) {
+    annotations.push({ text: closeLabel, angleDeg: 290, color: '#93a1a1', fontSize: 10, align: 'left', ringIndex: 0 });
+  }
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      pointerEvents: 'none',
+      zIndex: 10,
+      transform: 'translate(-50%, -50%)',
+      width: 440,
+      height: 440,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <LibFaceHud
+        signals={signals}
+        label={label}
+        annotations={annotations}
+        sizing={{ outerRadius: 170, strokeWidth: 6, ringGap: 18 }}
+        theme={{
+          labelColor: '#93a1a1',
+          labelShadow: '0 1px 4px rgba(0,0,0,0.9)',
+          fontFamily: 'monospace',
+        }}
+      />
+    </div>
+  );
+}
+
 export function ExplorerPane() {
   const params = new URLSearchParams(window.location.search);
   const headless = params.get('headless') === 'true';
+  const showHud = params.get('hud') === 'true';
 
   useEffect(() => {
     parseUrlParams();
   }, []);
 
   if (headless) {
-    return <ExplorerRenderer headless camera={getCameraPreset()} />;
+    return (
+      <div style={{ position: 'relative', width: 512, height: 512 }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 512, height: 512, zIndex: 0 }}>
+          <ExplorerRenderer headless camera={getCameraPreset()} />
+        </div>
+        {showHud && <ExplorerHud />}
+      </div>
+    );
   }
 
   return <ExplorerPaneUI />;
