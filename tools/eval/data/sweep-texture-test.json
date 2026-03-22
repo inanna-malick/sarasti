@@ -1,0 +1,10 @@
+[
+  {"params": {"mode": "raw", "flush": "1.0"}, "output": "tools/eval/data/renders/texture-test/flush_max_warm.png"},
+  {"params": {"mode": "raw", "flush": "-1.0"}, "output": "tools/eval/data/renders/texture-test/flush_max_cold.png"},
+  {"params": {"mode": "raw", "fatigueTex": "1.0"}, "output": "tools/eval/data/renders/texture-test/fatigue_max_tired.png"},
+  {"params": {"mode": "raw", "fatigueTex": "-1.0"}, "output": "tools/eval/data/renders/texture-test/fatigue_max_fresh.png"},
+  {"params": {"mode": "raw"}, "output": "tools/eval/data/renders/texture-test/baseline.png"},
+  {"params": {"mode": "raw", "flush": "1.0", "fatigueTex": "1.0"}, "output": "tools/eval/data/renders/texture-test/flush_warm_fatigued.png"},
+  {"params": {"mode": "raw", "flush": "-1.0", "fatigueTex": "-1.0"}, "output": "tools/eval/data/renders/texture-test/flush_cold_fresh.png"},
+  {"params": {"mode": "raw", "flush": "0.5", "fatigueTex": "0.5"}, "output": "tools/eval/data/renders/texture-test/flush_mild_warm_mild_tired.png"}
+]

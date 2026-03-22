@@ -5,8 +5,8 @@
  * Shape: Stature (sprite↔titan).
  *
  * CRITICAL INVARIANT: Zero ψ overlap between Tension and Valence.
- *   TENSION owns: ψ4, ψ5, ψ9, ψ20, ψ21, ψ24, ψ25
- *   VALENCE owns: ψ0, ψ2, ψ3, ψ6, ψ7, ψ16, ψ26
+ *   TENSION owns: ψ2, ψ4, ψ5, ψ9, ψ20, ψ21, ψ24, ψ25, ψ28  (jaw is URGENCY)
+ *   VALENCE owns: ψ0, ψ3, ψ6, ψ7, ψ16, ψ26, ψ45
  *
  * Quadrants emerge from composition:
  *   Tense + Good = MANIC   (wide eyes + smile)
@@ -77,66 +77,78 @@ export interface CircumplexActivations {
 // ─── Expression Recipes (face-region ownership) ─────
 
 /** TENSION TENSE (+) — upper face: wide eyes, raised brow, alert, nose flare.
- * ψ components: 9(eyes), 21(alertness), 4(brow), 24(brow outer), 25(focus), 5(nose), 20(sneer) */
+ * ψ components: 9(eyes), 21(alertness), 4(brow), 24(brow outer), 25(focus), 5(nose), 20(sneer), 28(Duchenne squint)
+ * w2: expanded pose (chin DOWN = Kubrick stare), added ψ28, reduced ψ4 to avoid "startled" read */
 export const TENSION_TENSE_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [9, 2.5, 0.5],    // ψ9: eyes wide open — EARLY
-    [21, 2.5, 0.5],   // ψ21: alert/awake — EARLY
-    [4, -2.5, 0.7],   // ψ4: brow RAISED — moderately early
-    [24, -2.0, 0.5],  // ψ24: brow outer corners DOWN — worried
-    [25, -1.5],        // ψ25: squint+focus intensity
-    [5, 1.5, 0.7],    // ψ5: upper lip snarl/nostril flare
-    [20, -1.5],        // ψ20: visceral sneer — nasolabial
+    [2, 3.5, 1.5],    // ψ2: jaw OPENS with tension — late onset prevents pop
+    [9, 5.0, 0.4],    // ψ9: eyes wide open — softened onset (was 0.3, eye "pop" at t=0.3)
+    [21, 5.0, 0.4],   // ψ21: alert/awake — matched to ψ9 onset
+    [4, -3.5, 0.6],   // ψ4: brow RAISED — split the difference for panic readability
+    [24, -3.0, 0.5],  // ψ24: brow outer corners DOWN — worried
+    [25, -2.5],        // ψ25: squint+focus intensity
+    [5, 2.0, 0.7],    // ψ5: upper lip snarl/nostril flare
+    [20, -2.0],        // ψ20: visceral sneer — nasolabial
+    [28, 1.5, 0.5],   // ψ28: Duchenne squint — focus intensity, prevents "vacant stare"
   ],
-  pose: {},
-  gaze: {},
-  texture: {},
+  pose: { pitch: -0.20, yaw: 0.05 },  // w3: reduced from -0.30 (too menacing, F regression)
+  gaze: { gazeV: 0.20 },              // w3: matched to pitch reduction
+  texture: { fatigue: -0.5 },
 };
 
-/** TENSION CALM (−) — upper face: soft eyes, relaxed brow, sleepy. */
+/** TENSION CALM (−) — upper face: soft eyes, relaxed brow, sleepy.
+ * w2: dramatically expanded — calm was invisible in blind test (B,G,K,O all read as neutral).
+ * Bold pose (head sagging), more fatigue texture, ψ28 for eye weight. */
 export const TENSION_CALM_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [9, -2.0, 1.0],   // ψ9: eyes closing
-    [21, -2.5],        // ψ21: sleepy/droopy lids
-    [4, 1.5],          // ψ4: brow slightly furrowed (relaxed, not angry)
-    [24, 1.5],         // ψ24: brow outer corners UP — relaxed
-    [25, 2.0],         // ψ25: relaxed/soft — zero focus
+    [2, -1.0, 0.5],   // ψ2: jaw CLENCHED — early onset for calm-end payoff
+    [9, -4.5, 0.5],   // ψ9: eyes closing — heavy (was -4.0)
+    [21, -5.0],        // ψ21: sleepy/droopy lids — deepened (was -4.5)
+    [4, 2.5],          // ψ4: brow heavy/furrowed (was 2.0)
+    [24, 2.5],         // ψ24: brow outer corners UP — relaxed (was 2.0)
+    [25, 3.0],         // ψ25: relaxed/soft — zero focus (was 2.5)
+    [28, -1.5],        // ψ28: wide flat eyes — "blank" resignation (new)
   ],
-  pose: { pitch: 0.05 },
-  gaze: { gazeV: -0.15 },
-  texture: {},
+  pose: { pitch: 0.25, roll: 0.08 },  // w3: reduced from 0.35 (up-the-nose at high calm)
+  gaze: { gazeV: -0.45 },             // w2: eyes looking down (was -0.40)
+  texture: { fatigue: 1.0 },           // w2: max fatigue wash (was 0.8)
 };
 
 /** VALENCE GOOD (+) — lower face: smile, teeth, corners up, warm flush.
  * ψ components: 0(smile), 7(corners), 2(jaw), 3(mouth width), 6(mouth shape), 26(chin) */
+/** w3: boosted early-onset smile for mild positive valence visibility.
+ * J (t=0.70, v=0.30) was reading as negative — tension cues overwhelm weak smile.
+ * Early-onset ψ7 ensures mouth corners UP is visible even at v=0.30. */
 export const VALENCE_GOOD_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [0, 2.0],          // ψ0: broad smile (Duchenne)
-    [7, 2.5],          // ψ7: mouth corners UP
-    [2, 0.5, 2.0],     // ψ2: slight jaw drop — teeth visible at high good
-    [3, -1.0],          // ψ3: mouth widens
-    [6, -0.5],          // ψ6: slight horizontal stretch
-    [26, 0.5],          // ψ26: chin slightly forward — confident
+    [0, 3.0, 0.7],     // ψ0: broad smile — slightly early onset (was linear)
+    [7, 4.0, 0.5],     // ψ7: mouth corners UP — early onset, boosted (was 3.5 linear)
+    [3, -1.5],          // ψ3: mouth widens
+    [6, -1.0],          // ψ6: horizontal stretch
+    [26, 1.0],          // ψ26: chin forward — confident
   ],
-  pose: { pitch: -0.03 },
+  pose: { pitch: -0.04 },
   gaze: {},
-  texture: { flush: 0.6 },
+  texture: { flush: 0.30 },  // w3: slightly more warmth (was 0.25)
 };
 
-/** VALENCE BAD (−) — lower face: frown, slack jaw, corners down, pallor. */
+/** VALENCE BAD (−) — lower face: frown, slack jaw, corners down, pallor.
+ * w2: boosted moderate-level frown visibility. Moderate negative valence (-0.25 to -0.61)
+ * was reading as neutral in blind test. Added ψ45 (mentalis chin pout) for emotional weight,
+ * early-onset frown (power 0.5), stronger pallor. */
 export const VALENCE_BAD_RECIPE: ExpressionChordRecipe = {
   expression: [
-    [7, -2.5],          // ψ7: mouth corners DOWN — frown
-    [2, 1.5, 2.0],      // ψ2: jaw sags — late onset
-    [0, 0.5, 2.0],      // ψ0: slack mouth — late
+    [7, -4.0, 0.5],     // ψ7: mouth corners DOWN — early onset, deep frown (was -3.5, linear)
+    [0, 1.0, 1.5],      // ψ0: slack mouth — late onset
     [3, 1.5],            // ψ3: lip pucker/compress
     [6, 1.5],            // ψ6: rounded mouth shape
     [16, 1.0],           // ψ16: mouth narrow
-    [26, -1.5],          // ψ26: chin retracted
+    [26, -2.5],          // ψ26: chin retracted — deep
+    [45, 2.0, 0.5],     // ψ45: mentalis chin pout — grief weight, early onset (new)
   ],
-  pose: { pitch: 0.06, roll: 0.05 },
-  gaze: { gazeV: -0.20 },
-  texture: { flush: -0.6 },
+  pose: { pitch: 0.08, roll: 0.06 },  // w2: slightly more head tilt
+  gaze: { gazeV: -0.25 },             // w2: looking down more (was -0.20)
+  texture: { flush: -0.55 },           // w2: stronger pallor (was -0.45)
 };
 
 // ─── Shape Recipe ───────────────────────────────────
@@ -146,19 +158,19 @@ export const VALENCE_BAD_RECIPE: ExpressionChordRecipe = {
  * Sprite(−): narrow jaw, soft cheeks, rounded, smooth. */
 export const STATURE_RECIPE: ShapeChordRecipe = {
   shape: [
-    [3, 2.0],   // β3: jaw width
-    [2, 1.5],   // β2: chin projection
-    [0, 1.0],   // β0: neck thickness
-    [28, -2.0], // β28: jaw angularity
-    [27, -1.5], // β27: deep-set eyes
-    [10, -1.5], // β10: V-shape lean skull
-    [22, 1.5],  // β22: chin angularity
-    [9, -1.5],  // β9: lip thinning
-    [4, 1.0],   // β4: brow ridge
-    [7, 0.8],   // β7: mid-face width
-    [18, 1.5],  // β18: structure
-    [23, 1.5],  // β23: bone structure
-    [13, 1.2],  // β13: facial structure
+    [3, 3.0],   // β3: jaw width (×1.5)
+    [2, 2.25],  // β2: chin projection (×1.5)
+    [0, 1.5],   // β0: neck thickness (×1.5)
+    [28, -3.0], // β28: jaw angularity (×1.5)
+    [27, -2.25],// β27: deep-set eyes (×1.5)
+    [10, -2.25],// β10: V-shape lean skull (×1.5)
+    [22, 2.25], // β22: chin angularity (×1.5)
+    [9, -2.25], // β9: lip thinning (×1.5)
+    [4, 1.5],   // β4: brow ridge (×1.5)
+    [7, 1.2],   // β7: mid-face width (×1.5)
+    [18, 2.25], // β18: structure (×1.5)
+    [23, 2.25], // β23: bone structure (×1.5)
+    [13, 1.8],  // β13: facial structure (×1.5)
   ],
   pose: {},
 };

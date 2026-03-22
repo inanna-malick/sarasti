@@ -1,13 +1,13 @@
 import React from 'react';
-import type { Scenario } from '../../../src/scenario/types';
+import type { Episode } from '../../../src/episode/types';
 import { sol, theme } from '../theme';
 
 interface Props {
-  scenarios: Scenario[];
-  onSelect: (scenario: Scenario) => void;
+  episodes: Episode[];
+  onSelect: (episode: Episode) => void;
 }
 
-export function ScenarioSelector({ scenarios, onSelect }: Props) {
+export function ScenarioSelector({ episodes, onSelect }: Props) {
   return (
     <div
       style={{
@@ -33,7 +33,7 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
           textTransform: 'uppercase',
         }}
       >
-        Select Scenario
+        Select Episode
       </h1>
 
       <div
@@ -47,10 +47,10 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
           aspectRatio: '16/9',
         }}
       >
-        {scenarios.map((scenario) => (
+        {episodes.map((episode) => (
           <div
-            key={scenario.id}
-            onClick={() => onSelect(scenario)}
+            key={episode.id}
+            onClick={() => onSelect(episode)}
             className="scenario-card"
             style={{
               background: theme.bgPanel,
@@ -72,28 +72,18 @@ export function ScenarioSelector({ scenarios, onSelect }: Props) {
                 fontWeight: 500,
               }}
             >
-              {scenario.title}
+              {episode.title}
             </h2>
             <p
               style={{
                 color: theme.textMuted,
                 fontSize: '14px',
-                margin: '0 0 24px 0',
+                margin: '0',
                 lineHeight: '1.5',
               }}
             >
-              {scenario.subtitle}
+              {episode.subtitle}
             </p>
-            <div
-              style={{
-                color: theme.textMuted,
-                opacity: 0.7,
-                fontSize: '12px',
-                marginTop: 'auto',
-              }}
-            >
-              DURATION: {Math.floor(scenario.duration)}s
-            </div>
           </div>
         ))}
       </div>

@@ -1,0 +1,63 @@
+[
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16f/neutral_front.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/neutral_left34.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/neutral_closeup.png"},
+
+  {"params":{"alarm":"1.0"},"output":"tools/eval/data/renders/wave16f/alarmed_1.0_front.png"},
+  {"params":{"alarm":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/alarmed_1.0_left34.png"},
+  {"params":{"alarm":"1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/alarmed_1.0_closeup.png"},
+
+  {"params":{"alarm":"-1.0"},"output":"tools/eval/data/renders/wave16f/euphoric_1.0_front.png"},
+  {"params":{"alarm":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/euphoric_1.0_left34.png"},
+  {"params":{"alarm":"-1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/euphoric_1.0_closeup.png"},
+
+  {"params":{"fatigue":"1.0"},"output":"tools/eval/data/renders/wave16f/wired_1.0_front.png"},
+  {"params":{"fatigue":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/wired_1.0_left34.png"},
+  {"params":{"fatigue":"1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/wired_1.0_closeup.png"},
+
+  {"params":{"fatigue":"-1.0"},"output":"tools/eval/data/renders/wave16f/exhausted_1.0_front.png"},
+  {"params":{"fatigue":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/exhausted_1.0_left34.png"},
+  {"params":{"fatigue":"-1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/exhausted_1.0_closeup.png"},
+
+  {"params":{"aggression":"1.0"},"output":"tools/eval/data/renders/wave16f/aggressive_1.0_front.png"},
+  {"params":{"aggression":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/aggressive_1.0_left34.png"},
+  {"params":{"aggression":"1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/aggressive_1.0_closeup.png"},
+
+  {"params":{"aggression":"-1.0"},"output":"tools/eval/data/renders/wave16f/yielding_1.0_front.png"},
+  {"params":{"aggression":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/yielding_1.0_left34.png"},
+  {"params":{"aggression":"-1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/yielding_1.0_closeup.png"},
+
+  {"params":{"smirk":"1.0"},"output":"tools/eval/data/renders/wave16f/smirk_1.0_front.png"},
+  {"params":{"smirk":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/smirk_1.0_left34.png"},
+  {"params":{"smirk":"1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16f/smirk_1.0_closeup.png"},
+
+  {"params":{"alarm":"1.0","fatigue":"-1.0","aggression":"1.0"},"output":"tools/eval/data/renders/wave16f/combo_crisis_front.png"},
+  {"params":{"alarm":"1.0","fatigue":"-1.0","aggression":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/combo_crisis_left34.png"},
+  {"params":{"alarm":"-1.0","fatigue":"1.0","aggression":"-1.0"},"output":"tools/eval/data/renders/wave16f/combo_calm_front.png"},
+  {"params":{"alarm":"-1.0","fatigue":"1.0","aggression":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/combo_calm_left34.png"},
+
+  {"params":{"dominance":"1.0"},"output":"tools/eval/data/renders/wave16f/shape_chad_front.png"},
+  {"params":{"dominance":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_chad_left34.png"},
+  {"params":{"dominance":"-1.0"},"output":"tools/eval/data/renders/wave16f/shape_soyboi_front.png"},
+  {"params":{"dominance":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_soyboi_left34.png"},
+
+  {"params":{"sharpness":"1.0"},"output":"tools/eval/data/renders/wave16f/shape_sharp_front.png"},
+  {"params":{"sharpness":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_sharp_left34.png"},
+  {"params":{"sharpness":"-1.0"},"output":"tools/eval/data/renders/wave16f/shape_puffy_front.png"},
+  {"params":{"sharpness":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_puffy_left34.png"},
+
+  {"params":{"maturity":"1.0"},"output":"tools/eval/data/renders/wave16f/shape_old_front.png"},
+  {"params":{"maturity":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_old_left34.png"},
+  {"params":{"maturity":"-1.0"},"output":"tools/eval/data/renders/wave16f/shape_young_front.png"},
+  {"params":{"maturity":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_young_left34.png"},
+
+  {"params":{"dominance":"1.0","sharpness":"1.0","maturity":"1.0"},"output":"tools/eval/data/renders/wave16f/shape_sharp-chad-old_front.png"},
+  {"params":{"dominance":"1.0","sharpness":"1.0","maturity":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_sharp-chad-old_left34.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","maturity":"-1.0"},"output":"tools/eval/data/renders/wave16f/shape_puffy-soyboi-young_front.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","maturity":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/shape_puffy-soyboi-young_left34.png"},
+
+  {"params":{"dominance":"1.0","sharpness":"1.0","alarm":"1.0","aggression":"1.0"},"output":"tools/eval/data/renders/wave16f/full_sharp-chad-crisis_front.png"},
+  {"params":{"dominance":"1.0","sharpness":"1.0","alarm":"1.0","aggression":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/full_sharp-chad-crisis_left34.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","alarm":"-1.0","aggression":"-1.0"},"output":"tools/eval/data/renders/wave16f/full_puffy-soyboi-calm_front.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","alarm":"-1.0","aggression":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16f/full_puffy-soyboi-calm_left34.png"}
+]

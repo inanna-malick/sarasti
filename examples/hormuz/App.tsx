@@ -14,6 +14,8 @@ import { ScenarioOverlay } from './ui/ScenarioOverlay';
 import { Tooltip } from './interaction/Tooltip';
 import { DetailPanel } from './interaction/detail';
 import { TickerList } from './interaction/TickerList';
+import { FaceOverlay } from './interaction/FaceOverlay';
+import { FaceHud } from './interaction/FaceHud';
 import { setupHoverInteraction, setupClickInteraction } from './interaction/hover';
 import { useStore } from '../../src/store';
 
@@ -147,6 +149,18 @@ export function App() {
       setStatus('');
       setReady(true);
       driver.play();
+
+      // Select an initial face after first frame renders — gives the view a focal point
+      requestAnimationFrame(() => {
+        const instances = useStore.getState().instances;
+        if (instances.length > 0) {
+          // Prefer a fear-class ticker (sentinel) as initial focus, else first
+          const sentinel = instances.find((i) => i.ticker.class === 'fear');
+          const target = sentinel || instances[0];
+          useStore.getState().setSelectedId(target.id);
+          renderer.selectInstance(target.id);
+        }
+      });
     } catch (err) {
       setStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
       console.error(err);
@@ -215,6 +229,14 @@ export function App() {
             }}
             onSetLoop={(l) => driverRef.current?.setLoop(l)}
             onBack={handleBackToSelector}
+          />
+        )}
+
+        {/* Face HUD overlays */}
+        {showSidebars && rendererRef.current && (
+          <FaceOverlay
+            renderer={rendererRef.current}
+            renderHud={(instance) => <FaceHud instance={instance} />}
           />
         )}
 

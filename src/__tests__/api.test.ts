@@ -15,6 +15,7 @@ function createMockRenderer(): FaceRenderer {
     selectInstance: vi.fn(),
     getInstanceAtScreenPos: vi.fn().mockReturnValue(null),
     setCameraTarget: vi.fn(),
+    projectToScreen: vi.fn().mockReturnValue(null),
     dispose: vi.fn(),
   };
 }

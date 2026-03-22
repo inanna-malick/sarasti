@@ -1,0 +1,41 @@
+[
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/neutral_front.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/neutral_left34.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/neutral_closeup.png"},
+
+  {"params":{"alarm":"1.0","fatigue":"0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/alarmed_1.0_front.png"},
+  {"params":{"alarm":"1.0","fatigue":"0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/alarmed_1.0_left34.png"},
+  {"params":{"alarm":"1.0","fatigue":"0","aggression":"0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/alarmed_1.0_closeup.png"},
+
+  {"params":{"alarm":"-1.0","fatigue":"0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/euphoric_1.0_front.png"},
+  {"params":{"alarm":"-1.0","fatigue":"0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/euphoric_1.0_left34.png"},
+  {"params":{"alarm":"-1.0","fatigue":"0","aggression":"0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/euphoric_1.0_closeup.png"},
+
+  {"params":{"alarm":"0","fatigue":"1.0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/wired_1.0_front.png"},
+  {"params":{"alarm":"0","fatigue":"1.0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/wired_1.0_left34.png"},
+  {"params":{"alarm":"0","fatigue":"1.0","aggression":"0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/wired_1.0_closeup.png"},
+
+  {"params":{"alarm":"0","fatigue":"-1.0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/exhausted_1.0_front.png"},
+  {"params":{"alarm":"0","fatigue":"-1.0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/exhausted_1.0_left34.png"},
+  {"params":{"alarm":"0","fatigue":"-1.0","aggression":"0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/exhausted_1.0_closeup.png"},
+
+  {"params":{"alarm":"0","fatigue":"0","aggression":"1.0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/aggressive_1.0_front.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"1.0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/aggressive_1.0_left34.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"1.0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/aggressive_1.0_closeup.png"},
+
+  {"params":{"alarm":"0","fatigue":"0","aggression":"-1.0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/yielding_1.0_front.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"-1.0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/yielding_1.0_left34.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"-1.0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/yielding_1.0_closeup.png"},
+
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"1.0"},"output":"tools/eval/data/renders/wave16e/smirk_1.0_front.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/smirk_1.0_left34.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/smirk_1.0_closeup.png"},
+
+  {"params":{"alarm":"1.0","fatigue":"-1.0","aggression":"1.0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/combo_crisis_front.png"},
+  {"params":{"alarm":"1.0","fatigue":"-1.0","aggression":"1.0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/combo_crisis_closeup.png"},
+  {"params":{"alarm":"1.0","fatigue":"-1.0","aggression":"1.0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/combo_crisis_left34.png"},
+
+  {"params":{"alarm":"-1.0","fatigue":"1.0","aggression":"-1.0","smirk":"0"},"output":"tools/eval/data/renders/wave16e/combo_calm_front.png"},
+  {"params":{"alarm":"-1.0","fatigue":"1.0","aggression":"-1.0","smirk":"0","camera":"closeup"},"output":"tools/eval/data/renders/wave16e/combo_calm_closeup.png"},
+  {"params":{"alarm":"-1.0","fatigue":"1.0","aggression":"-1.0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16e/combo_calm_left34.png"}
+]

@@ -1,0 +1,3062 @@
+[
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi0": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi0_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi1": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi1_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi2": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi2_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi3": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi3_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi4": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi4_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi5": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi5_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi6": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi6_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi7": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi7_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi8": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi8_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi9": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi9_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi10": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi10_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi11": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi11_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi12": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi12_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi13": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi13_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi14": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi14_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi15": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi15_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi16": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi16_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi17": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi17_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi18": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi18_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi19": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi19_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi20": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi20_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi21": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi21_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi22": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi22_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi23": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi23_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi24": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi24_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi25": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi25_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi26": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi26_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi27": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi27_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi28": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi28_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "psi29": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/psi/psi29_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta0": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta0_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta1": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta1_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta2": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta2_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta3": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta3_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta4": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta4_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta5": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta5_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta6": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta6_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta7": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta7_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta8": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta8_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta9": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta9_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta10": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta10_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta11": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta11_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta12": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta12_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta13": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta13_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta14": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta14_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta15": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta15_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta16": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta16_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta17": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta17_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta18": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta18_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta19": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta19_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta20": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta20_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta21": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta21_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta22": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta22_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta23": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta23_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta24": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta24_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta25": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta25_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta26": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta26_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta27": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta27_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta28": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta28_+2.0_right34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "-3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_-3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "-1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_-1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "0.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_+0.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "1.5"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_+1.5_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "3.0"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_+3.0_front.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "2.0",
+      "camera": "left34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_+2.0_left34.png"
+  },
+  {
+    "params": {
+      "mode": "raw",
+      "beta29": "2.0",
+      "camera": "right34"
+    },
+    "output": "tools/eval/data/renders/census/beta/beta29_+2.0_right34.png"
+  }
+]

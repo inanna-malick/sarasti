@@ -1,0 +1,986 @@
+[
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-1.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_00_t-1.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.75",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_01_t-0.75.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.5",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_02_t-0.50.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.25",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_03_t-0.25.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_04_t+0.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.25",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_05_t+0.25.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.5",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_06_t+0.50.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.75",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_07_t+0.75.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "1.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/tension_08_t+1.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "-1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_00_v-1.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "-0.75",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_01_v-0.75.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "-0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_02_v-0.50.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "-0.25",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_03_v-0.25.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_04_v+0.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.25",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_05_v+0.25.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_06_v+0.50.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.75",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_07_v+0.75.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/valence_08_v+1.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "-1.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_00_s-1.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "-0.75",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_01_s-0.75.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_02_s-0.50.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "-0.25",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_03_s-0.25.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_04_s+0.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.25",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_05_s+0.25.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_06_s+0.50.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.75",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_07_s+0.75.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "1.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/stature_08_s+1.00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.8",
+      "valence": "-0.3",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/diag_calm_v-0.3.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.8",
+      "valence": "-0.3",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/diag_tense_v-0.3.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.8",
+      "valence": "-0.6",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/diag_calm_v-0.6.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.8",
+      "valence": "-0.6",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/diag_tense_v-0.6.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.8",
+      "valence": "-0.9",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/diag_calm_v-0.9.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.8",
+      "valence": "-0.9",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/diag_tense_v-0.9.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.28",
+      "valence": "-0.95",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_A.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.51",
+      "valence": "-0.72",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_B.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.35",
+      "valence": "0.78",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_C.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.18",
+      "valence": "-0.94",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_D.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.56",
+      "valence": "0.01",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_E.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.12",
+      "valence": "0.43",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_F.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.09",
+      "valence": "-0.56",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_G.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.44",
+      "valence": "0.74",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_H.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.4",
+      "valence": "-0.32",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_I.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.57",
+      "valence": "0.53",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_J.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.81",
+      "valence": "-0.81",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_K.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.21",
+      "valence": "0.61",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_L.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.08",
+      "valence": "-0.75",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_M.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.84",
+      "valence": "-0.41",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_N.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.24",
+      "valence": "0.72",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_O.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.62",
+      "valence": "-0.86",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_P.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.54",
+      "valence": "-0.42",
+      "stature": "-0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_Q.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.71",
+      "valence": "0.73",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_R.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.44",
+      "valence": "0.27",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_S.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.67",
+      "valence": "-0.29",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_T.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.47",
+      "valence": "0.87",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_U.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.86",
+      "valence": "0.27",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_V.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.46",
+      "valence": "-0.67",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_W.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.46",
+      "valence": "0.85",
+      "stature": "0.5",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/blind_X.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-1.0",
+      "valence": "-1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn10_vn10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-1.0",
+      "valence": "-0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn10_vn05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-1.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn10_vp00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-1.0",
+      "valence": "0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn10_vp05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-1.0",
+      "valence": "1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn10_vp10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.5",
+      "valence": "-1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn05_vn10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.5",
+      "valence": "-0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn05_vn05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.5",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn05_vp00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.5",
+      "valence": "0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn05_vp05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "-0.5",
+      "valence": "1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tn05_vp10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "-1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp00_vn10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "-0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp00_vn05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp00_vp00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp00_vp05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.0",
+      "valence": "1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp00_vp10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.5",
+      "valence": "-1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp05_vn10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.5",
+      "valence": "-0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp05_vn05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.5",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp05_vp00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.5",
+      "valence": "0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp05_vp05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "0.5",
+      "valence": "1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp05_vp10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "1.0",
+      "valence": "-1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp10_vn10.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "1.0",
+      "valence": "-0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp10_vn05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "1.0",
+      "valence": "0.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp10_vp00.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "1.0",
+      "valence": "0.5",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp10_vp05.png"
+  },
+  {
+    "params": {
+      "mode": "semantic",
+      "tension": "1.0",
+      "valence": "1.0",
+      "stature": "0.0",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/axes-v2/grid_tp10_vp10.png"
+  }
+]

@@ -46,36 +46,52 @@ public/data/        — baked data files (.bin, .json)
 
 ## Binding Architecture — 2-Axis Expression Circumplex
 
-Expression uses the Russell circumplex: **Tension** (tense↔placid) × **Mood** (euphoric↔grief).
-Shape uses two additive axes: **Dominance** (soyboi↔chad) × **Stature** (heavy↔gaunt).
-No softmax — the two expression axes are orthogonal. Component overlap produces natural blending.
+Expression uses the Russell circumplex: **Tension** (tense↔placid) × **Valence** (good↔bad).
+Shape uses a single axis: **Stature** (sprite↔titan).
+No softmax — the two expression axes are orthogonal. Zero ψ component overlap.
 
-### Tension (tense ↔ placid)
-- **Input:** `0.6 × sigmoid(vol_z × |vel_z| - 0.5) + 0.4 × sigmoid(-(dd_z + exchFatigue))`
-- **Tense (+):** ψ2×2.5, ψ0×1.0, ψ8×1.5, ψ7×-1.5, ψ5×0.8, ψ4×-0.5 + jaw + gaze up
-- **Placid (−):** ψ2×-2.0, ψ7×2.0, ψ3×0.8, ψ4×0.5 + gaze down
-- **Texture ownership:** fatigue (tense = wired −0.3, placid = exhausted +0.5)
+### Tension (tense ↔ calm) — upper face + JAW
+- **Input:** `symmetricSigmoid(vol_z × |vel_z| + |dd_z| - 0.8, 1.0)`
+- **Tense (+):** ψ2×3.5@1.5(jaw opens late), ψ9×5.0@0.4(eyes wide), ψ21×5.0@0.4(alert), ψ4×-3.5@0.6(brow raised), ψ24×-3.0@0.5, ψ25×-2.5, ψ5×2.0@0.7(nostril flare), ψ20×-2.0(sneer), ψ28×1.5@0.5(Duchenne squint) + pitch -0.20, yaw 0.05 + gaze up 0.20
+- **Calm (−):** ψ2×-1.0@0.5(jaw clench early), ψ9×-4.5@0.5(eyes closing), ψ21×-5.0(droopy), ψ4×2.5(brow heavy), ψ24×2.5, ψ25×3.0, ψ28×-1.5(blank eyes) + pitch +0.25, roll 0.08 + gaze down -0.45
+- **Texture ownership:** fatigue (tense = wired −0.5, calm = exhausted +1.0)
+- **KEY: Jaw is URGENCY signal.** Open mouth = active/fighting, closed mouth = frozen/resigned.
 
-### Mood (euphoric ↔ grief)
-- **Input:** `sigmoid(deviation_z)`
-- **Euphoric (+):** ψ5×2.0 (bilateral smile), ψ4×-1.0 (mouth widens), ψ9×3.0, ψ0×1.0, ψ7×1.5, ψ8×0.5 + chin up + gaze right
-- **Grief (−):** ψ3×2.0, ψ6×2.5, ψ7×1.0, ψ4×0.8 + head tilt + gaze down
-- **Texture ownership:** flush (euphoric = warm +0.3, grief = pallid −0.2)
+### Valence (good ↔ bad) — lower face (NO jaw)
+- **Input:** `symmetricSigmoid(dev_z + 0.5 × mom_z, 1.5)`
+- **Good (+):** ψ0×3.0@0.7(smile early onset), ψ7×4.0@0.5(corners up early), ψ3×-1.5(mouth widens), ψ6×-1.0(horizontal stretch), ψ26×1.0(chin forward) + flush +0.30
+- **Bad (−):** ψ7×-4.0@0.5(corners down early), ψ0×1.0@1.5(slack late), ψ3×1.5(pucker), ψ6×1.5(rounded), ψ16×1.0(narrow), ψ26×-2.5(chin retracted), ψ45×2.0@0.5(mentalis grief) + flush -0.55
+- **Texture ownership:** flush (good = warm, bad = pallid)
 
 ### Circumplex Quadrants
-- Tense + Euphoric = **MANIC** (wide eyes + smile + flushed)
-- Tense + Grief = **PANICKED** (wide eyes + furrowed + pallid)
-- Placid + Euphoric = **CONTENT** (soft eyes + smile + warm)
-- Placid + Grief = **DEPRESSED** (droopy + frown + pale)
+- Tense + Good = **MANIC** (wide eyes + jaw open + smile + flushed)
+- Tense + Bad = **PANICKED** (wide eyes + jaw open + frown + pallid)
+- Calm + Good = **CONTENT** (soft eyes + jaw closed + smile + warm)
+- Calm + Bad = **DEPRESSED** (droopy eyes + jaw closed + frown + pale)
 
-### Shape Axes
-- **Dominance** (β0,β2,β3,β4,β7,β13,β18,β23,β48) ← momentum. Pose: chin forward (+dom) / chin tucked (-dom)
-- **Stature** (β1,β5,β6,β8,β15,β32,β49) ← |1-beta| with sign from deviation
-- Zero component overlap between axes ✓
+### Shape Axis
+- **Stature** (β0,β2,β3,β4,β7,β9,β10,β13,β18,β22,β23,β27,β28) ← momentum + vol regime
+- Titan(+): wide jaw, sharp cheeks, bony. Sprite(−): narrow jaw, soft cheeks, rounded.
+
+### Identity Noise (per-ticker visual diversity)
+- **Primary (±1.5):** β1(face width), β11(nose/midface), β20(cheekbone), β14(jaw profile), β5(jaw squareness)
+- **Secondary (±0.8):** β15(eye depth), β17(eye spacing), β25(jawline), β30(nose bridge)
+- **Tertiary (±0.5):** β33–β41 (micro-perturbation)
+- Zero overlap with stature axis. Deterministic per ticker-id via hash.
+
+### Per-Class Expression EMA (wave propagation)
+- fear(VIX,gold): α=0.30 — instant reactor (sentinel)
+- equity(SPY,QQQ): α=0.20 — fast follower
+- currency(forex): α=0.15 — moderate
+- energy(oil,natgas): α=0.12 — deliberate
+- commodity(metals,ags): α=0.10 — laggard
+- Shape EMA: α=0.03 (glacial identity morph)
 
 ### Component Inventory
-- **Expression (10 of 100 ψ used):** ψ0–ψ9 (ψ1 banned — asymmetric)
-- **Shape (16 of 100 β used):** 9 dominance + 7 stature, zero overlap
+- **Expression (17 of 100 ψ used):** ψ0,ψ2–ψ7,ψ9,ψ16,ψ20,ψ21,ψ24,ψ25,ψ26,ψ28,ψ45 (ψ1 banned — asymmetric)
+- **TENSION owns:** ψ2,ψ4,ψ5,ψ9,ψ20,ψ21,ψ24,ψ25,ψ28 (eyes/brow/jaw)
+- **VALENCE owns:** ψ0,ψ3,ψ6,ψ7,ψ16,ψ26,ψ45 (mouth shape/chin)
+- **Shape (13+9 of 100 β used):** 13 stature axis + 9 identity noise, zero overlap
 
 ## FLAME Expression Components (ψ0–ψ9)
 Official FLAME 2023 PCA ordering. Bilateral symmetry verified via vertex mirror map (tools/compute_mirror.py):

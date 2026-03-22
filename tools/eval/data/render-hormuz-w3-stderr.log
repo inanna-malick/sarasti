@@ -1,0 +1,153 @@
+Vite dev server at http://localhost:5173
+[browser debug] [vite] connecting...
+[browser debug] [vite] connected.
+[browser info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[browser error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser error] [hormuz debug] targetTime: 2026-02-25T00:00:00Z, initialIndex: 0
+[browser error] [meta BRENT] z: vol=0.883 vel=-0.446 dev=-1.915 dd=1.023 mom=-0.474 mr=-1.893 | meta: D=1.000 V=-1.000 A=-0.890 | hasStats=true
+[browser error] [meta WTI] z: vol=0.883 vel=0.390 dev=-0.962 dd=1.038 mom=-0.576 mr=-0.956 | meta: D=0.998 V=-0.999 A=0.939 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.883 vel=-1.277 dev=-0.977 dd=1.046 mom=-0.201 mr=-0.974 | meta: D=1.000 V=-0.997 A=-0.539 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.883 vel=0.532 dev=1.647 dd=2.063 mom=0.398 mr=1.637 | meta: D=1.000 V=1.000 A=-0.832 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.883 vel=0.129 dev=1.388 dd=2.287 mom=0.489 mr=1.388 | meta: D=1.000 V=1.000 A=-0.899 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.883 vel=1.054 dev=-0.033 dd=1.449 mom=0.122 mr=-0.029 | meta: D=0.999 V=0.084 A=-0.349 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.883 vel=-1.016 dev=0.304 dd=1.869 mom=-0.258 mr=0.301 | meta: D=1.000 V=0.482 A=-0.649 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.883 vel=-1.522 dev=-1.400 dd=0.796 mom=-0.782 mr=-1.390 | meta: D=1.000 V=-1.000 A=-0.982 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.883 vel=-1.426 dev=0.452 dd=1.399 mom=-0.534 mr=0.471 | meta: D=1.000 V=0.505 A=-0.922 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.883 vel=-1.057 dev=1.433 dd=1.693 mom=-0.122 mr=1.438 | meta: D=1.000 V=0.999 A=-0.350 | hasStats=true
+[browser error] [meta XLE] z: vol=0.883 vel=-0.472 dev=-1.274 dd=0.897 mom=-0.786 mr=-1.262 | meta: D=1.000 V=-1.000 A=-0.982 | hasStats=true
+[browser error] [meta SPY] z: vol=0.883 vel=-0.678 dev=2.066 dd=2.363 mom=-0.019 mr=2.065 | meta: D=1.000 V=1.000 A=-0.056 | hasStats=true
+[browser error] [meta CF] z: vol=0.883 vel=0.501 dev=2.129 dd=2.373 mom=0.365 mr=2.133 | meta: D=1.000 V=1.000 A=-0.799 | hasStats=true
+[browser warning] [.WebGL-0x2cc40011aa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[browser warning] [.WebGL-0x2cc40011aa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[browser warning] [.WebGL-0x2cc40011aa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[browser warning] [.WebGL-0x2cc40011aa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[browser debug] [vite] connecting...
+[browser debug] [vite] connected.
+[browser info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser error] [hormuz debug] targetTime: 2026-03-05T08:00:00Z, initialIndex: 200
+[browser error] [meta BRENT] z: vol=0.552 vel=0.070 dev=0.192 dd=0.626 mom=0.164 mr=0.146 | meta: D=0.667 V=0.676 A=-0.457 | hasStats=true
+[browser error] [meta WTI] z: vol=0.552 vel=1.179 dev=-0.350 dd=0.984 mom=-0.093 mr=-0.365 | meta: D=0.993 V=-0.830 A=0.271 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.552 vel=-1.087 dev=0.867 dd=0.546 mom=-0.553 mr=0.837 | meta: D=0.980 V=0.944 A=-0.930 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.552 vel=-2.203 dev=-0.224 dd=-0.226 mom=-1.265 mr=-0.177 | meta: D=0.998 V=-0.988 A=-0.999 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.552 vel=-0.762 dev=0.012 dd=-0.011 mom=-0.800 mr=0.047 | meta: D=0.849 V=-0.823 A=-0.984 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.552 vel=0.879 dev=0.541 dd=0.491 mom=0.186 mr=0.528 | meta: D=0.956 V=0.956 A=-0.507 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.552 vel=0.753 dev=-0.439 dd=-0.622 mom=-1.181 mr=-0.416 | meta: D=0.597 V=-0.996 A=0.998 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.552 vel=1.460 dev=-0.349 dd=1.163 mom=0.802 mr=-0.374 | meta: D=0.998 V=0.155 A=-0.984 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.552 vel=0.028 dev=0.882 dd=1.472 mom=2.562 mr=0.890 | meta: D=0.993 V=1.000 A=-1.000 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.552 vel=-0.752 dev=-0.720 dd=-0.718 mom=-0.049 mr=-0.663 | meta: D=0.537 V=-0.977 A=-0.146 | hasStats=true
+[browser error] [meta XLE] z: vol=0.552 vel=0.862 dev=-1.012 dd=-2.055 mom=-1.347 mr=-1.009 | meta: D=-0.177 V=-1.000 A=0.999 | hasStats=true
+[browser error] [meta SPY] z: vol=0.552 vel=1.203 dev=1.633 dd=1.628 mom=0.867 mr=1.644 | meta: D=1.000 V=1.000 A=-0.989 | hasStats=true
+[browser error] [meta CF] z: vol=0.552 vel=-1.055 dev=-0.631 dd=-0.628 mom=1.263 mr=-0.571 | meta: D=0.828 V=0.003 A=0.999 | hasStats=true
+[browser error] [meta BRENT] z: vol=0.552 vel=0.070 dev=0.192 dd=0.626 mom=0.164 mr=0.146 | meta: D=0.667 V=0.676 A=-0.457 | hasStats=true
+[browser error] [meta WTI] z: vol=0.552 vel=1.179 dev=-0.350 dd=0.984 mom=-0.093 mr=-0.365 | meta: D=0.993 V=-0.830 A=0.271 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.552 vel=-1.087 dev=0.867 dd=0.546 mom=-0.553 mr=0.837 | meta: D=0.980 V=0.944 A=-0.930 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.552 vel=-2.203 dev=-0.224 dd=-0.226 mom=-1.265 mr=-0.177 | meta: D=0.998 V=-0.988 A=-0.999 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.552 vel=-0.762 dev=0.012 dd=-0.011 mom=-0.800 mr=0.047 | meta: D=0.849 V=-0.823 A=-0.984 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.552 vel=0.879 dev=0.541 dd=0.491 mom=0.186 mr=0.528 | meta: D=0.956 V=0.956 A=-0.507 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.552 vel=0.753 dev=-0.439 dd=-0.622 mom=-1.181 mr=-0.416 | meta: D=0.597 V=-0.996 A=0.998 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.552 vel=1.460 dev=-0.349 dd=1.163 mom=0.802 mr=-0.374 | meta: D=0.998 V=0.155 A=-0.984 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.552 vel=0.028 dev=0.882 dd=1.472 mom=2.562 mr=0.890 | meta: D=0.993 V=1.000 A=-1.000 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.552 vel=-0.752 dev=-0.720 dd=-0.718 mom=-0.049 mr=-0.663 | meta: D=0.537 V=-0.977 A=-0.146 | hasStats=true
+[browser error] [meta XLE] z: vol=0.552 vel=0.862 dev=-1.012 dd=-2.055 mom=-1.347 mr=-1.009 | meta: D=-0.177 V=-1.000 A=0.999 | hasStats=true
+[browser error] [meta SPY] z: vol=0.552 vel=1.203 dev=1.633 dd=1.628 mom=0.867 mr=1.644 | meta: D=1.000 V=1.000 A=-0.989 | hasStats=true
+[browser error] [meta CF] z: vol=0.552 vel=-1.055 dev=-0.631 dd=-0.628 mom=1.263 mr=-0.571 | meta: D=0.828 V=0.003 A=0.999 | hasStats=true
+[browser debug] [vite] connecting...
+[browser debug] [vite] connected.
+[browser info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser error] [hormuz debug] targetTime: 2026-03-11T14:00:00Z, initialIndex: 350
+[browser error] [meta BRENT] z: vol=0.595 vel=1.517 dev=1.851 dd=1.129 mom=2.168 mr=1.747 | meta: D=0.999 V=1.000 A=-1.000 | hasStats=true
+[browser error] [meta WTI] z: vol=0.595 vel=-1.757 dev=0.639 dd=-0.045 mom=0.548 mr=0.588 | meta: D=0.996 V=0.992 A=0.928 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.595 vel=0.295 dev=-0.463 dd=-0.623 mom=-0.357 mr=-0.470 | meta: D=0.272 V=-0.958 A=0.790 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.595 vel=1.006 dev=-0.686 dd=-0.685 mom=1.257 mr=-0.621 | meta: D=0.827 V=-0.171 A=-0.999 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.595 vel=2.421 dev=-0.692 dd=-0.684 mom=0.963 mr=-0.635 | meta: D=0.999 V=-0.559 A=-0.994 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.595 vel=-0.978 dev=0.826 dd=0.846 mom=1.252 mr=0.803 | meta: D=0.987 V=1.000 A=0.999 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.595 vel=-1.747 dev=-1.291 dd=-1.225 mom=-1.048 mr=-1.233 | meta: D=0.965 V=-1.000 A=-0.996 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.595 vel=-0.701 dev=0.154 dd=-2.357 mom=-1.673 mr=0.110 | meta: D=-0.702 V=-0.967 A=-1.000 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.595 vel=1.446 dev=1.140 dd=0.532 mom=0.025 mr=1.144 | meta: D=0.996 V=0.998 A=-0.075 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.595 vel=1.103 dev=1.057 dd=1.021 mom=0.384 mr=1.069 | meta: D=0.994 V=0.999 A=-0.819 | hasStats=true
+[browser error] [meta XLE] z: vol=0.595 vel=1.578 dev=0.729 dd=-0.041 mom=-0.190 mr=0.672 | meta: D=0.992 V=0.956 A=0.516 | hasStats=true
+[browser error] [meta SPY] z: vol=0.595 vel=1.358 dev=-0.755 dd=-0.755 mom=1.272 mr=-0.674 | meta: D=0.941 V=-0.343 A=-0.999 | hasStats=true
+[browser error] [meta CF] z: vol=0.595 vel=-0.014 dev=1.151 dd=1.119 mom=1.360 mr=1.177 | meta: D=0.996 V=1.000 A=0.999 | hasStats=true
+[browser error] [meta BRENT] z: vol=0.595 vel=1.517 dev=1.851 dd=1.129 mom=2.168 mr=1.747 | meta: D=0.999 V=1.000 A=-1.000 | hasStats=true
+[browser error] [meta WTI] z: vol=0.595 vel=-1.757 dev=0.639 dd=-0.045 mom=0.548 mr=0.588 | meta: D=0.996 V=0.992 A=0.928 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.595 vel=0.295 dev=-0.463 dd=-0.623 mom=-0.357 mr=-0.470 | meta: D=0.272 V=-0.958 A=0.790 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.595 vel=1.006 dev=-0.686 dd=-0.685 mom=1.257 mr=-0.621 | meta: D=0.827 V=-0.171 A=-0.999 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.595 vel=2.421 dev=-0.692 dd=-0.684 mom=0.963 mr=-0.635 | meta: D=0.999 V=-0.559 A=-0.994 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.595 vel=-0.978 dev=0.826 dd=0.846 mom=1.252 mr=0.803 | meta: D=0.987 V=1.000 A=0.999 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.595 vel=-1.747 dev=-1.291 dd=-1.225 mom=-1.048 mr=-1.233 | meta: D=0.965 V=-1.000 A=-0.996 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.595 vel=-0.701 dev=0.154 dd=-2.357 mom=-1.673 mr=0.110 | meta: D=-0.702 V=-0.967 A=-1.000 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.595 vel=1.446 dev=1.140 dd=0.532 mom=0.025 mr=1.144 | meta: D=0.996 V=0.998 A=-0.075 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.595 vel=1.103 dev=1.057 dd=1.021 mom=0.384 mr=1.069 | meta: D=0.994 V=0.999 A=-0.819 | hasStats=true
+[browser error] [meta XLE] z: vol=0.595 vel=1.578 dev=0.729 dd=-0.041 mom=-0.190 mr=0.672 | meta: D=0.992 V=0.956 A=0.516 | hasStats=true
+[browser error] [meta SPY] z: vol=0.595 vel=1.358 dev=-0.755 dd=-0.755 mom=1.272 mr=-0.674 | meta: D=0.941 V=-0.343 A=-0.999 | hasStats=true
+[browser error] [meta CF] z: vol=0.595 vel=-0.014 dev=1.151 dd=1.119 mom=1.360 mr=1.177 | meta: D=0.996 V=1.000 A=0.999 | hasStats=true
+[browser debug] [vite] connecting...
+[browser debug] [vite] connected.
+[browser info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser error] [hormuz debug] targetTime: 2026-03-15T14:00:00Z, initialIndex: 446
+[browser error] [meta BRENT] z: vol=0.563 vel=0.218 dev=0.219 dd=-2.906 mom=-2.068 mr=0.171 | meta: D=-0.978 V=-0.985 A=1.000 | hasStats=true
+[browser error] [meta WTI] z: vol=0.563 vel=2.414 dev=2.062 dd=0.861 mom=0.454 mr=1.962 | meta: D=1.000 V=1.000 A=-0.877 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.563 vel=-1.463 dev=-3.000 dd=-2.962 mom=-3.000 mr=-3.000 | meta: D=0.984 V=-1.000 A=-1.000 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.563 vel=1.001 dev=0.112 dd=0.109 mom=1.062 mr=0.150 | meta: D=0.946 V=0.959 A=-0.997 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.563 vel=-1.441 dev=-1.424 dd=-1.385 mom=-0.465 mr=-1.349 | meta: D=0.830 V=-1.000 A=-0.884 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.563 vel=-0.573 dev=2.155 dd=0.931 mom=0.910 mr=2.089 | meta: D=1.000 V=1.000 A=0.992 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.563 vel=0.725 dev=-1.090 dd=-1.082 mom=-1.382 mr=-1.042 | meta: D=0.656 V=-1.000 A=0.999 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.563 vel=0.808 dev=1.203 dd=0.179 mom=0.525 mr=1.126 | meta: D=0.968 V=1.000 A=-0.918 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.563 vel=0.717 dev=-0.246 dd=-0.959 mom=0.313 mr=-0.221 | meta: D=0.334 V=-0.263 A=-0.735 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.563 vel=0.457 dev=-1.543 dd=-1.540 mom=-0.298 mr=-1.463 | meta: D=0.795 V=-1.000 A=0.714 | hasStats=true
+[browser error] [meta XLE] z: vol=0.563 vel=0.281 dev=1.734 dd=0.319 mom=-0.253 mr=1.645 | meta: D=0.996 V=1.000 A=0.641 | hasStats=true
+[browser error] [meta SPY] z: vol=0.563 vel=1.123 dev=0.477 dd=0.474 mom=1.000 mr=0.520 | meta: D=0.981 V=0.994 A=-0.995 | hasStats=true
+[browser error] [meta CF] z: vol=0.563 vel=0.199 dev=-0.435 dd=-0.436 mom=-0.675 mr=-0.378 | meta: D=0.241 V=-0.981 A=0.966 | hasStats=true
+[browser error] [meta BRENT] z: vol=0.563 vel=0.218 dev=0.219 dd=-2.906 mom=-2.068 mr=0.171 | meta: D=-0.978 V=-0.985 A=1.000 | hasStats=true
+[browser error] [meta WTI] z: vol=0.563 vel=2.414 dev=2.062 dd=0.861 mom=0.454 mr=1.962 | meta: D=1.000 V=1.000 A=-0.877 | hasStats=true
+[browser error] [meta NG=F] z: vol=0.563 vel=-1.463 dev=-3.000 dd=-2.962 mom=-3.000 mr=-3.000 | meta: D=0.984 V=-1.000 A=-1.000 | hasStats=true
+[browser error] [meta HO=F] z: vol=0.563 vel=1.001 dev=0.112 dd=0.109 mom=1.062 mr=0.150 | meta: D=0.946 V=0.959 A=-0.997 | hasStats=true
+[browser error] [meta RB=F] z: vol=0.563 vel=-1.441 dev=-1.424 dd=-1.385 mom=-0.465 mr=-1.349 | meta: D=0.830 V=-1.000 A=-0.884 | hasStats=true
+[browser error] [meta ALI=F] z: vol=0.563 vel=-0.573 dev=2.155 dd=0.931 mom=0.910 mr=2.089 | meta: D=1.000 V=1.000 A=0.992 | hasStats=true
+[browser error] [meta ^VIX] z: vol=0.563 vel=0.725 dev=-1.090 dd=-1.082 mom=-1.382 mr=-1.042 | meta: D=0.656 V=-1.000 A=0.999 | hasStats=true
+[browser error] [meta GC=F] z: vol=0.563 vel=0.808 dev=1.203 dd=0.179 mom=0.525 mr=1.126 | meta: D=0.968 V=1.000 A=-0.918 | hasStats=true
+[browser error] [meta DX=F] z: vol=0.563 vel=0.717 dev=-0.246 dd=-0.959 mom=0.313 mr=-0.221 | meta: D=0.334 V=-0.263 A=-0.735 | hasStats=true
+[browser error] [meta ^TNX] z: vol=0.563 vel=0.457 dev=-1.543 dd=-1.540 mom=-0.298 mr=-1.463 | meta: D=0.795 V=-1.000 A=0.714 | hasStats=true
+[browser error] [meta XLE] z: vol=0.563 vel=0.281 dev=1.734 dd=0.319 mom=-0.253 mr=1.645 | meta: D=0.996 V=1.000 A=0.641 | hasStats=true
+[browser error] [meta SPY] z: vol=0.563 vel=1.123 dev=0.477 dd=0.474 mom=1.000 mr=0.520 | meta: D=0.981 V=0.994 A=-0.995 | hasStats=true
+[browser error] [meta CF] z: vol=0.563 vel=0.199 dev=-0.435 dd=-0.436 mom=-0.675 mr=-0.378 | meta: D=0.241 V=-0.981 A=0.966 | hasStats=true
+[browser debug] [vite] connecting...
+[browser debug] [vite] connected.
+[browser info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser warning] Ticker data mismatch: GDELT:iran in expected list but missing from frame data.
+[browser error] [hormuz debug] targetTime: 2026-03-16T00:00:00Z, initialIndex: 456
+[browser error] [meta BRENT] z: vol=1.038 vel=-0.685 dev=0.022 dd=-3.000 mom=-2.019 mr=-0.049 | meta: D=-0.514 V=-0.995 A=-1.000 | hasStats=true
+[browser error] [meta WTI] z: vol=1.038 vel=0.123 dev=2.181 dd=1.038 mom=0.584 mr=2.027 | meta: D=1.000 V=1.000 A=-0.942 | hasStats=true
+[browser error] [meta NG=F] z: vol=1.038 vel=0.576 dev=-3.000 dd=-3.000 mom=-2.348 mr=-3.000 | meta: D=1.000 V=-1.000 A=1.000 | hasStats=true
+[browser error] [meta HO=F] z: vol=1.038 vel=-0.444 dev=0.632 dd=0.626 mom=2.006 mr=0.668 | meta: D=0.990 V=1.000 A=1.000 | hasStats=true
+[browser error] [meta RB=F] z: vol=1.038 vel=-0.859 dev=-1.787 dd=-1.732 mom=-1.171 mr=-1.653 | meta: D=0.998 V=-1.000 A=-0.998 | hasStats=true
+[browser error] [meta ALI=F] z: vol=1.038 vel=1.736 dev=2.603 dd=1.449 mom=1.450 mr=2.478 | meta: D=1.000 V=1.000 A=-1.000 | hasStats=true
+[browser error] [meta ^VIX] z: vol=1.038 vel=-0.200 dev=-0.541 dd=-0.694 mom=-0.384 mr=-0.497 | meta: D=0.727 V=-0.976 A=-0.818 | hasStats=true
+[browser error] [meta GC=F] z: vol=1.038 vel=0.117 dev=1.658 dd=1.037 mom=1.282 mr=1.520 | meta: D=1.000 V=1.000 A=-0.999 | hasStats=true
+[browser error] [meta DX=F] z: vol=1.038 vel=-1.766 dev=-0.037 dd=-0.733 mom=0.265 mr=0.000 | meta: D=1.000 V=0.280 A=0.661 | hasStats=true
+[browser error] [meta ^TNX] z: vol=1.038 vel=-0.523 dev=-2.010 dd=-2.000 mom=-0.862 mr=-1.860 | meta: D=0.999 V=-1.000 A=-0.989 | hasStats=true
+[browser error] [meta XLE] z: vol=1.038 vel=0.413 dev=1.775 dd=0.451 mom=-0.277 mr=1.637 | meta: D=1.000 V=1.000 A=0.681 | hasStats=true
+[browser error] [meta SPY] z: vol=1.038 vel=-0.926 dev=0.491 dd=0.488 mom=0.727 mr=0.560 | meta: D=0.997 V=0.988 A=0.975 | hasStats=true
+[browser error] [meta CF] z: vol=1.038 vel=-0.526 dev=-0.409 dd=-0.410 mom=-0.272 mr=-0.313 | meta: D=0.853 V=-0.927 A=-0.673 | hasStats=true
+[browser error] [meta BRENT] z: vol=1.038 vel=-0.685 dev=0.022 dd=-3.000 mom=-2.019 mr=-0.049 | meta: D=-0.514 V=-0.995 A=-1.000 | hasStats=true
+[browser error] [meta WTI] z: vol=1.038 vel=0.123 dev=2.181 dd=1.038 mom=0.584 mr=2.027 | meta: D=1.000 V=1.000 A=-0.942 | hasStats=true
+[browser error] [meta NG=F] z: vol=1.038 vel=0.576 dev=-3.000 dd=-3.000 mom=-2.348 mr=-3.000 | meta: D=1.000 V=-1.000 A=1.000 | hasStats=true
+[browser error] [meta HO=F] z: vol=1.038 vel=-0.444 dev=0.632 dd=0.626 mom=2.006 mr=0.668 | meta: D=0.990 V=1.000 A=1.000 | hasStats=true
+[browser error] [meta RB=F] z: vol=1.038 vel=-0.859 dev=-1.787 dd=-1.732 mom=-1.171 mr=-1.653 | meta: D=0.998 V=-1.000 A=-0.998 | hasStats=true
+[browser error] [meta ALI=F] z: vol=1.038 vel=1.736 dev=2.603 dd=1.449 mom=1.450 mr=2.478 | meta: D=1.000 V=1.000 A=-1.000 | hasStats=true
+[browser error] [meta ^VIX] z: vol=1.038 vel=-0.200 dev=-0.541 dd=-0.694 mom=-0.384 mr=-0.497 | meta: D=0.727 V=-0.976 A=-0.818 | hasStats=true
+[browser error] [meta GC=F] z: vol=1.038 vel=0.117 dev=1.658 dd=1.037 mom=1.282 mr=1.520 | meta: D=1.000 V=1.000 A=-0.999 | hasStats=true
+[browser error] [meta DX=F] z: vol=1.038 vel=-1.766 dev=-0.037 dd=-0.733 mom=0.265 mr=0.000 | meta: D=1.000 V=0.280 A=0.661 | hasStats=true
+[browser error] [meta ^TNX] z: vol=1.038 vel=-0.523 dev=-2.010 dd=-2.000 mom=-0.862 mr=-1.860 | meta: D=0.999 V=-1.000 A=-0.989 | hasStats=true
+[browser error] [meta XLE] z: vol=1.038 vel=0.413 dev=1.775 dd=0.451 mom=-0.277 mr=1.637 | meta: D=1.000 V=1.000 A=0.681 | hasStats=true
+[browser error] [meta SPY] z: vol=1.038 vel=-0.926 dev=0.491 dd=0.488 mom=0.727 mr=0.560 | meta: D=0.997 V=0.988 A=0.975 | hasStats=true
+[browser error] [meta CF] z: vol=1.038 vel=-0.526 dev=-0.409 dd=-0.410 mom=-0.272 mr=-0.313 | meta: D=0.853 V=-0.927 A=-0.673 | hasStats=true

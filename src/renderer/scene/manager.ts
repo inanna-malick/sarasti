@@ -7,6 +7,9 @@ import { SceneCompositor } from './compositor';
 import { CameraController } from './camera';
 import { FacePicker } from './picking';
 
+// Reusable vector for projectToScreen — avoids allocation per call
+const _projectVec = new THREE.Vector3();
+
 /**
  * Creates a FLAME-based FaceRenderer that composes
  * SceneCompositor + CameraController + FacePicker.
@@ -143,6 +146,34 @@ export async function createFlameSceneRenderer(
 
     setCameraTarget(pos: [number, number, number]): void {
       cameraController.flyTo(pos);
+    },
+
+    projectToScreen(worldPos: [number, number, number]): { x: number; y: number; scale: number } | null {
+      if (!container || !cameraController) return null;
+      const cam = cameraController.camera;
+
+      // Compute distance from camera to point (for scale)
+      _projectVec.set(worldPos[0], worldPos[1], worldPos[2]);
+      const distance = cam.position.distanceTo(_projectVec);
+      if (distance < 0.001) return null;
+
+      // Project to NDC
+      _projectVec.project(cam);
+      // Behind camera
+      if (_projectVec.z > 1) return null;
+
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+
+      // Pixels-per-world-unit at this depth
+      const fovRad = (cam.fov * Math.PI) / 180;
+      const scale = (h / 2) / (distance * Math.tan(fovRad / 2));
+
+      return {
+        x: (_projectVec.x * 0.5 + 0.5) * w,
+        y: (-_projectVec.y * 0.5 + 0.5) * h,
+        scale,
+      };
     },
 
     dispose(): void {

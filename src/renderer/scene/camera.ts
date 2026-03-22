@@ -78,7 +78,15 @@ export class CameraController {
     const padding = 1.3;
     const distance = Math.max(distH, distW, 5) * padding;
 
-    this.camera.position.set(center.x, center.y, center.z + distance);
+    // Slight high-right vantage: looking down ~15° and offset right ~10°
+    // Gives depth to the face-field, not a flat grid stare
+    const elevAngle = 0.26; // ~15° above horizontal
+    const azimAngle = 0.17; // ~10° from right
+    this.camera.position.set(
+      center.x + distance * Math.sin(azimAngle),
+      center.y + distance * Math.sin(elevAngle),
+      center.z + distance * Math.cos(elevAngle) * Math.cos(azimAngle),
+    );
     this.controls.target.copy(center);
     this.camera.lookAt(center);
     this.camera.updateProjectionMatrix();

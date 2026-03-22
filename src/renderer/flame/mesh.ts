@@ -196,7 +196,6 @@ export class FlameFaceMesh {
 
     const materials: THREE.Material[] = [this.material];
 
-    // Eye materials (if enabled)
     if (eyeGroups) {
       const irisColor = getIrisColor(tickerId);
       this.leftEyeMaterial = createEyeMaterial({ irisColor });
@@ -213,10 +212,6 @@ export class FlameFaceMesh {
       this.tongueMaterial = createTongueMaterial();
       this.cavityMaterial = createCavityMaterial();
 
-      for (const mat of [this.teethMaterial, this.gumsMaterial, this.tongueMaterial, this.cavityMaterial] as THREE.Material[]) {
-        mat.side = THREE.DoubleSide;
-      }
-
       materials.push(this.teethMaterial, this.gumsMaterial, this.tongueMaterial, this.cavityMaterial);
     }
 
@@ -230,6 +225,7 @@ export class FlameFaceMesh {
       color: 0x000000,
       side: THREE.BackSide,
     });
+
     const interiorGeometry = new THREE.BufferGeometry();
     interiorGeometry.setIndex(this.geometry.getIndex()!);
     interiorGeometry.setAttribute('position', this.geometry.getAttribute('position'));

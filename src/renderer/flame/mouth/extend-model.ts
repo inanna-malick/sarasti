@@ -6,7 +6,6 @@ import {
   buildRingStrip,
   buildRingCap,
   createTongueGeometry,
-  createTeethArcGeometry,
 } from './geometry';
 
 const HEAD_JOINT = 0;
@@ -15,10 +14,10 @@ const JAW_JOINT = 2;
 // Recession depths as fractions of lipWidth (~0.104)
 // Teeth need to be close to lip surface to catch light and be visible.
 // The teeth strip spans lipInner (0.02) → teeth (0.12), ~10mm wide.
-const TEETH_RECESS = 0.12;
-const GUMS_RECESS = 0.25;
-const CAVITY_RECESS = 0.50;
-const TONGUE_RECESS = 0.30;
+const TEETH_RECESS = 0.25;
+const GUMS_RECESS = 0.40;
+const CAVITY_RECESS = 0.60;
+const TONGUE_RECESS = 0.45;
 
 type SkinWeight = 'head' | 'jaw';
 
@@ -27,6 +26,7 @@ const TEETH_BGR: [number, number, number] = [0.847, 0.910, 0.941];
 const GUMS_BGR: [number, number, number] = [0.420, 0.369, 0.545];
 const TONGUE_BGR: [number, number, number] = [0.353, 0.294, 0.482];
 const CAVITY_BGR: [number, number, number] = [0.039, 0.059, 0.102];
+
 
 /**
  * Extend a FlameModel with mouth interior vertices derived from lip boundary.
@@ -49,8 +49,6 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   const nOrigFaces = model.n_faces;
 
   // Sort ALL lip vertices into one full ring around the mouth opening.
-  // Previous approach split upper/lower into half-rings and closed them,
-  // creating spiky artifacts at the corners. A full ring is a proper closed loop.
   const fullLipRing = sortVerticesIntoRing(model.template, m.lipVertices, m.mouthCenter);
 
   // Accumulate new vertices
@@ -113,19 +111,23 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
     return newIdx;
   }
 
-  // Full-ring recession layers (per-vertex skinning from source jaw weight)
-  // The lip-inner ring sits just behind the lip surface to avoid z-fighting
-  // with skin faces at the lip boundary.
+  // Full-ring recession layers (per-vertex skinning from source jaw weight).
+  // Recession follows per-vertex inward normals — keeps interior behind skin
+  // surface at all poses/expressions.
   const LIP_INNER_RECESS = 0.02;
-  const lipInnerRing = addLayer(fullLipRing, LIP_INNER_RECESS, TEETH_BGR);
-  const teethRing = addLayer(fullLipRing, TEETH_RECESS, TEETH_BGR);
+  // Recession rings use gums color (dark), not teeth-white.
+  const lipInnerRing = addLayer(fullLipRing, LIP_INNER_RECESS, GUMS_BGR);
+  const teethRing = addLayer(fullLipRing, TEETH_RECESS, GUMS_BGR);
   const gumsRing = addLayer(fullLipRing, GUMS_RECESS, GUMS_BGR);
   const cavityCenter = addCenter(fullLipRing, CAVITY_RECESS, 'jaw', CAVITY_BGR);
 
   // Build faces: closed ring strips + fan cap
-  // lipInner→teeth is the gums strip just behind the lips
-  const teethFaces = buildRingStrip(lipInnerRing, teethRing);
-  const gumsFaces = buildRingStrip(teethRing, gumsRing);
+  // All recession rings use gums material (dark, non-reflective).
+  // Visible teeth come from the camera-facing strips below.
+  const recessionFaces = [
+    ...buildRingStrip(lipInnerRing, teethRing),
+    ...buildRingStrip(teethRing, gumsRing),
+  ];
   const cavityFaces = buildRingCap(gumsRing, cavityCenter);
 
   // Tongue: procedural ellipsoid, positioned at gums depth
@@ -156,46 +158,67 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
   }
   tongueGeo.dispose();
 
-  // Teeth arcs: volumetric U-shaped strips facing the camera
-  // Upper teeth anchored to head joint, lower teeth to jaw joint.
-  // Each arc vertex maps to its nearest lip vertex for deformation.
-  const teethArcFaces: number[] = [];
-  for (const which of ['upper', 'lower'] as const) {
-    const arc = createTeethArcGeometry(m, which);
-    const arcStartIdx = nOrig + newPositions.length / 3;
-    const skin: SkinWeight = which === 'upper' ? 'head' : 'jaw';
-    const srcVerts = which === 'upper' ? m.upperLipVertices : m.lowerLipVertices;
+  // Visible teeth: billboard quads behind lip surface.
+  // With stencil clipping, teeth inherit ALL deltas (shape + expression + pose)
+  // from source lip vertices — stencil guarantees they only render through the
+  // mouth opening, never through skin.
+  const teethStripFaces: number[] = [];
+  const TEETH_Z_RECESS = 0.12;   // fraction of lipWidth behind lip surface
+  const TEETH_HEIGHT = 0.08;     // fraction of lipHeight into mouth opening
+  const TEETH_WIDTH = 0.30;      // fraction of lipWidth for teeth span
 
-    for (let i = 0; i < arc.positions.length; i += 3) {
-      const px = arc.positions[i], py = arc.positions[i + 1], pz = arc.positions[i + 2];
-      newPositions.push(px, py, pz);
+  const teethWidth = TEETH_WIDTH * m.lipWidth;
+  const teethHeight = TEETH_HEIGHT * m.lipHeight;
+  const teethZ = m.mouthCenter.z - TEETH_Z_RECESS * m.lipWidth;
 
-      // Find nearest source lip vertex for this arc vertex
-      let bestV = srcVerts[0];
-      let bestDist = Infinity;
-      for (const v of srcVerts) {
-        const dx = model.template[v * 3] - px;
-        const dy = model.template[v * 3 + 1] - py;
-        const dz = model.template[v * 3 + 2] - pz;
-        const d = dx * dx + dy * dy + dz * dz;
-        if (d < bestDist) { bestDist = d; bestV = v; }
-      }
-      sourceVertices.push(bestV);
-      skinWeights.push(skin);
-      albedoColors.push(TEETH_BGR);
-    }
-    for (const idx of arc.indices) {
-      teethArcFaces.push(idx + arcStartIdx);
-    }
+  // Find nearest lip vertex for source mapping (used only for position, not deformation)
+  const nearestUpperLip = m.upperLipVertices[0];
+
+  // Upper teeth: 4 vertices forming a quad, rigid to head joint
+  {
+    const y = m.upperLipCenter.y;
+    const cx = m.mouthCenter.x;
+    const halfW = teethWidth / 2;
+    // top-left, top-right, bottom-left, bottom-right
+    const tl = nOrig + newPositions.length / 3;
+    newPositions.push(cx - halfW, y, teethZ);
+    sourceVertices.push(nearestUpperLip);
+    skinWeights.push('head');
+    albedoColors.push(TEETH_BGR);
+
+    const tr = nOrig + newPositions.length / 3;
+    newPositions.push(cx + halfW, y, teethZ);
+    sourceVertices.push(nearestUpperLip);
+    skinWeights.push('head');
+    albedoColors.push(TEETH_BGR);
+
+    const bl = nOrig + newPositions.length / 3;
+    newPositions.push(cx - halfW, y - teethHeight, teethZ);
+    sourceVertices.push(nearestUpperLip);
+    skinWeights.push('head');
+    albedoColors.push(TEETH_BGR);
+
+    const br = nOrig + newPositions.length / 3;
+    newPositions.push(cx + halfW, y - teethHeight, teethZ);
+    sourceVertices.push(nearestUpperLip);
+    skinWeights.push('head');
+    albedoColors.push(TEETH_BGR);
+
+    // Two triangles facing +Z (toward camera)
+    teethStripFaces.push(tl, bl, tr);
+    teethStripFaces.push(tr, bl, br);
   }
 
+  // Lower teeth omitted: jaw joint drops them below chin at extreme expressions.
+  // Upper teeth alone provide the key visual signal (flash of white behind upper lip).
+
   // Assemble face indices in group order: teeth, gums, tongue, cavity
-  // Teeth group includes both the ring-strip rim AND the volumetric arcs
-  const allTeethFaces = [...teethFaces, ...teethArcFaces];
-  const allFaceIndices: number[] = [...allTeethFaces, ...gumsFaces, ...tongueFaces, ...cavityFaces];
+  // Teeth = only the camera-facing strips. Recession rings → gums group (dark).
+  const allGumsFaces = [...recessionFaces];
+  const allFaceIndices: number[] = [...teethStripFaces, ...allGumsFaces, ...tongueFaces, ...cavityFaces];
   const groupFaceCounts = {
-    teeth: allTeethFaces.length / 3,
-    gums: gumsFaces.length / 3,
+    teeth: teethStripFaces.length / 3,
+    gums: allGumsFaces.length / 3,
     tongue: tongueFaces.length / 3,
     cavity: cavityFaces.length / 3,
   };
@@ -211,7 +234,8 @@ export function extendModelWithMouth(model: FlameModel): ExtendedFlameModel {
     nearestVertex[i] = sourceVertices[i];
   }
 
-  // Build extended arrays
+  // Build extended arrays — all mouth vertices inherit full deltas from source lip vertices.
+  // Stencil clipping guarantees containment, so no need for rigid vertex exceptions.
   const newTemplate = extendTemplate(model.template, newPositions, nOrig, nMouth);
   const newFaces = extendFaces(model.faces, allFaceIndices, nOrigFaces, nMouthFaces);
   const newShapedirs = extendPerComponentArray(model.shapedirs, model.n_shape, nOrig, nNew, nMouth, nearestVertex);

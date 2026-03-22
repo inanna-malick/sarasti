@@ -1,0 +1,82 @@
+{
+  "A": {
+    "tension": 0.28,
+    "valence": -0.95
+  },
+  "B": {
+    "tension": -0.45,
+    "valence": -0.55
+  },
+  "C": {
+    "tension": 0.47,
+    "valence": 0.35
+  },
+  "D": {
+    "tension": 0.78,
+    "valence": -0.83
+  },
+  "E": {
+    "tension": -0.16,
+    "valence": -0.94
+  },
+  "F": {
+    "tension": -0.56,
+    "valence": 0.01
+  },
+  "G": {
+    "tension": -0.95,
+    "valence": -0.6
+  },
+  "H": {
+    "tension": 0.3,
+    "valence": 0.09
+  },
+  "I": {
+    "tension": -0.56,
+    "valence": 0.18
+  },
+  "J": {
+    "tension": 0.62,
+    "valence": -0.99
+  },
+  "K": {
+    "tension": 0.61,
+    "valence": 0.4
+  },
+  "L": {
+    "tension": -0.32,
+    "valence": -0.69
+  },
+  "M": {
+    "tension": 0.91,
+    "valence": -0.33
+  },
+  "N": {
+    "tension": -0.81,
+    "valence": -0.81
+  },
+  "O": {
+    "tension": 0.69,
+    "valence": 0.21
+  },
+  "P": {
+    "tension": 0.61,
+    "valence": 0.46
+  },
+  "Q": {
+    "tension": 0.07,
+    "valence": 0.95
+  },
+  "R": {
+    "tension": -0.24,
+    "valence": 0.1
+  },
+  "S": {
+    "tension": 0.66,
+    "valence": 0.24
+  },
+  "T": {
+    "tension": 0.72,
+    "valence": 0.15
+  }
+}

@@ -31,6 +31,7 @@ describe('interaction/hover.ts', () => {
       selectInstance: vi.fn(),
       getInstanceAtScreenPos: vi.fn(),
       setCameraTarget: vi.fn(),
+      projectToScreen: vi.fn().mockReturnValue(null),
       dispose: vi.fn(),
     };
 

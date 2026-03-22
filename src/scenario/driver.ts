@@ -13,6 +13,7 @@
 import type { FaceRenderer, FaceInstance, FaceParams, TickerConfig } from '../types';
 import type { Scenario, ScenarioFace, InterpolatedState } from './types';
 import { interpolateKeyframes } from './interpolate';
+import { applyMicroLife } from './noise';
 import { resolveFromCircumplex } from '../binding/resolve';
 import { TimelineEngine } from '../timeline/engine';
 import { FACE_SPACING } from '../constants';
@@ -132,6 +133,12 @@ export class ScenarioDriver {
         continue;
       }
       states.set(face.id, interpolateKeyframes(keyframes, t));
+    }
+
+    // Apply micro-life noise to each face's interpolated state
+    for (const face of this.scenario.faces) {
+      const raw = states.get(face.id)!;
+      states.set(face.id, applyMicroLife(face.id, t, raw));
     }
 
     // Second pass: resolve to FaceParams with gaze tracking

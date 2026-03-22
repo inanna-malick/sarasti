@@ -1,0 +1,33 @@
+[
+  {"params": {"scenario": "crash", "t": "0"}, "output": "tools/eval/data/renders/scenarios/crash_t00.png"},
+  {"params": {"scenario": "crash", "t": "5"}, "output": "tools/eval/data/renders/scenarios/crash_t05.png"},
+  {"params": {"scenario": "crash", "t": "12"}, "output": "tools/eval/data/renders/scenarios/crash_t12.png"},
+  {"params": {"scenario": "crash", "t": "18"}, "output": "tools/eval/data/renders/scenarios/crash_t18.png"},
+  {"params": {"scenario": "crash", "t": "25"}, "output": "tools/eval/data/renders/scenarios/crash_t25.png"},
+  {"params": {"scenario": "crash", "t": "35"}, "output": "tools/eval/data/renders/scenarios/crash_t35.png"},
+  {"params": {"scenario": "crash", "t": "45"}, "output": "tools/eval/data/renders/scenarios/crash_t45.png"},
+  {"params": {"scenario": "crash", "t": "55"}, "output": "tools/eval/data/renders/scenarios/crash_t55.png"},
+
+  {"params": {"scenario": "bleed", "t": "0"}, "output": "tools/eval/data/renders/scenarios/bleed_t00.png"},
+  {"params": {"scenario": "bleed", "t": "15"}, "output": "tools/eval/data/renders/scenarios/bleed_t15.png"},
+  {"params": {"scenario": "bleed", "t": "30"}, "output": "tools/eval/data/renders/scenarios/bleed_t30.png"},
+  {"params": {"scenario": "bleed", "t": "45"}, "output": "tools/eval/data/renders/scenarios/bleed_t45.png"},
+  {"params": {"scenario": "bleed", "t": "60"}, "output": "tools/eval/data/renders/scenarios/bleed_t60.png"},
+  {"params": {"scenario": "bleed", "t": "75"}, "output": "tools/eval/data/renders/scenarios/bleed_t75.png"},
+  {"params": {"scenario": "bleed", "t": "88"}, "output": "tools/eval/data/renders/scenarios/bleed_t88.png"},
+
+  {"params": {"scenario": "divergence", "t": "0"}, "output": "tools/eval/data/renders/scenarios/divergence_t00.png"},
+  {"params": {"scenario": "divergence", "t": "10"}, "output": "tools/eval/data/renders/scenarios/divergence_t10.png"},
+  {"params": {"scenario": "divergence", "t": "20"}, "output": "tools/eval/data/renders/scenarios/divergence_t20.png"},
+  {"params": {"scenario": "divergence", "t": "30"}, "output": "tools/eval/data/renders/scenarios/divergence_t30.png"},
+  {"params": {"scenario": "divergence", "t": "40"}, "output": "tools/eval/data/renders/scenarios/divergence_t40.png"},
+  {"params": {"scenario": "divergence", "t": "44"}, "output": "tools/eval/data/renders/scenarios/divergence_t44.png"},
+
+  {"params": {"scenario": "false-calm", "t": "0"}, "output": "tools/eval/data/renders/scenarios/false-calm_t00.png"},
+  {"params": {"scenario": "false-calm", "t": "10"}, "output": "tools/eval/data/renders/scenarios/false-calm_t10.png"},
+  {"params": {"scenario": "false-calm", "t": "20"}, "output": "tools/eval/data/renders/scenarios/false-calm_t20.png"},
+  {"params": {"scenario": "false-calm", "t": "24"}, "output": "tools/eval/data/renders/scenarios/false-calm_t24.png"},
+  {"params": {"scenario": "false-calm", "t": "25.5"}, "output": "tools/eval/data/renders/scenarios/false-calm_t25.5.png"},
+  {"params": {"scenario": "false-calm", "t": "27"}, "output": "tools/eval/data/renders/scenarios/false-calm_t27.png"},
+  {"params": {"scenario": "false-calm", "t": "29"}, "output": "tools/eval/data/renders/scenarios/false-calm_t29.png"}
+]

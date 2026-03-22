@@ -49,7 +49,7 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
         // Read pipeline feature flags from URL params
         const urlParams = new URLSearchParams(window.location.search);
         const pipelineOpts: PipelineOptions = {
-          enableMouth: urlParams.get('enable_mouth') !== 'false',
+          enableMouth: false,
           enableEyes: urlParams.get('enable_eyes') !== 'false',
         };
         const pipeline = await createFlamePipeline(FLAME_DATA_BASE, pipelineOpts);

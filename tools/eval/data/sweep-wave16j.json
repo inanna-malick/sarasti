@@ -1,0 +1,50 @@
+[
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0"},"output":"tools/eval/data/renders/wave16j/neutral_front.png"},
+  {"params":{"alarm":"0","fatigue":"0","aggression":"0","smirk":"0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/neutral_left34.png"},
+
+  {"params":{"dominance":"1.0"},"output":"tools/eval/data/renders/wave16j/shape_chad_front.png"},
+  {"params":{"dominance":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/shape_chad_left34.png"},
+  {"params":{"dominance":"-1.0"},"output":"tools/eval/data/renders/wave16j/shape_soyboi_front.png"},
+  {"params":{"dominance":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/shape_soyboi_left34.png"},
+  {"params":{"dominance":"0.5"},"output":"tools/eval/data/renders/wave16j/shape_chad_0.5_front.png"},
+  {"params":{"dominance":"-0.5"},"output":"tools/eval/data/renders/wave16j/shape_soyboi_0.5_front.png"},
+
+  {"params":{"maturity":"1.0"},"output":"tools/eval/data/renders/wave16j/shape_old_front.png"},
+  {"params":{"maturity":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/shape_old_left34.png"},
+  {"params":{"maturity":"1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16j/shape_old_closeup.png"},
+  {"params":{"maturity":"-1.0"},"output":"tools/eval/data/renders/wave16j/shape_young_front.png"},
+  {"params":{"maturity":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/shape_young_left34.png"},
+  {"params":{"maturity":"-1.0","camera":"closeup"},"output":"tools/eval/data/renders/wave16j/shape_young_closeup.png"},
+  {"params":{"maturity":"0.5"},"output":"tools/eval/data/renders/wave16j/shape_old_0.5_front.png"},
+  {"params":{"maturity":"-0.5"},"output":"tools/eval/data/renders/wave16j/shape_young_0.5_front.png"},
+
+  {"params":{"sharpness":"1.0"},"output":"tools/eval/data/renders/wave16j/shape_sharp_front.png"},
+  {"params":{"sharpness":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/shape_sharp_left34.png"},
+  {"params":{"sharpness":"-1.0"},"output":"tools/eval/data/renders/wave16j/shape_puffy_front.png"},
+  {"params":{"sharpness":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/shape_puffy_left34.png"},
+  {"params":{"sharpness":"0.5"},"output":"tools/eval/data/renders/wave16j/shape_sharp_0.5_front.png"},
+  {"params":{"sharpness":"-0.5"},"output":"tools/eval/data/renders/wave16j/shape_puffy_0.5_front.png"},
+
+  {"params":{"dominance":"1.0","sharpness":"1.0"},"output":"tools/eval/data/renders/wave16j/combo_sharp-chad_front.png"},
+  {"params":{"dominance":"1.0","sharpness":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/combo_sharp-chad_left34.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0"},"output":"tools/eval/data/renders/wave16j/combo_puffy-soyboi_front.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/combo_puffy-soyboi_left34.png"},
+
+  {"params":{"dominance":"1.0","maturity":"1.0"},"output":"tools/eval/data/renders/wave16j/combo_old-chad_front.png"},
+  {"params":{"dominance":"1.0","maturity":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/combo_old-chad_left34.png"},
+  {"params":{"dominance":"-1.0","maturity":"-1.0"},"output":"tools/eval/data/renders/wave16j/combo_young-soyboi_front.png"},
+  {"params":{"dominance":"-1.0","maturity":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/combo_young-soyboi_left34.png"},
+
+  {"params":{"maturity":"1.0","sharpness":"1.0"},"output":"tools/eval/data/renders/wave16j/combo_old-sharp_front.png"},
+  {"params":{"maturity":"1.0","sharpness":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/combo_old-sharp_left34.png"},
+  {"params":{"maturity":"-1.0","sharpness":"-1.0"},"output":"tools/eval/data/renders/wave16j/combo_young-puffy_front.png"},
+  {"params":{"maturity":"-1.0","sharpness":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/combo_young-puffy_left34.png"},
+
+  {"params":{"dominance":"1.0","sharpness":"1.0","maturity":"1.0"},"output":"tools/eval/data/renders/wave16j/full_sharp-chad-old_front.png"},
+  {"params":{"dominance":"1.0","sharpness":"1.0","maturity":"1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/full_sharp-chad-old_left34.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","maturity":"-1.0"},"output":"tools/eval/data/renders/wave16j/full_puffy-soyboi-young_front.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","maturity":"-1.0","camera":"left34"},"output":"tools/eval/data/renders/wave16j/full_puffy-soyboi-young_left34.png"},
+
+  {"params":{"dominance":"1.0","sharpness":"1.0","maturity":"1.0","alarm":"1.0","aggression":"1.0"},"output":"tools/eval/data/renders/wave16j/full_sharp-chad-old-crisis_front.png"},
+  {"params":{"dominance":"-1.0","sharpness":"-1.0","maturity":"-1.0","alarm":"-1.0","aggression":"-1.0"},"output":"tools/eval/data/renders/wave16j/full_puffy-soyboi-young-calm_front.png"}
+]

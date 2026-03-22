@@ -1,0 +1,15 @@
+[
+  { "params": { "mode": "semantic", "distress": "0.3", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_distress_0.3.png" },
+  { "params": { "mode": "semantic", "distress": "0.6", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_distress_0.6.png" },
+  { "params": { "mode": "semantic", "distress": "1.0", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_distress_1.0.png" },
+  { "params": { "mode": "semantic", "distress": "-0.5", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_distress_-0.5.png" },
+  { "params": { "mode": "semantic", "distress": "-1.0", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_distress_-1.0.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0.5", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_vitality_0.5.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "1.0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_vitality_1.0.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "-0.5", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_vitality_-0.5.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "-1.0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/grad_vitality_-1.0.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "0.5" }, "output": "tools/eval/data/renders/meta-w4/grad_aggression_0.5.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "1.0" }, "output": "tools/eval/data/renders/meta-w4/grad_aggression_1.0.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "-0.5" }, "output": "tools/eval/data/renders/meta-w4/grad_aggression_-0.5.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "-1.0" }, "output": "tools/eval/data/renders/meta-w4/grad_aggression_-1.0.png" }
+]

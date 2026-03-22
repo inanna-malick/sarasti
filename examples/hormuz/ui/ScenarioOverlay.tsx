@@ -5,11 +5,13 @@ interface Props {
   title: string;
   subtitle: string;
   progress: number; // [0, 1]
-  currentTime: number; // seconds
+  currentTime: number; // seconds or frame index
   duration: number;
   isPlaying: boolean;
   speed: number;
   looping: boolean;
+  /** Optional timestamp string to display instead of numeric time */
+  timestamp?: string;
   onTogglePlay: () => void;
   onSeek: (fraction: number) => void;
   onSetSpeed: (multiplier: number) => void;
@@ -23,6 +25,15 @@ function formatTime(s: number): string {
   return s.toFixed(1) + 's';
 }
 
+function formatDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return iso;
+  }
+}
+
 export function ScenarioOverlay({
   title,
   subtitle,
@@ -32,6 +43,7 @@ export function ScenarioOverlay({
   isPlaying,
   speed,
   looping,
+  timestamp,
   onTogglePlay,
   onSeek,
   onSetSpeed,
@@ -52,32 +64,16 @@ export function ScenarioOverlay({
   }, [title]);
 
   const handleScrubberClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
     const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     onSeek(frac);
   };
 
-  const handleBackClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    onBack();
-  };
-
   return (
-    <div
-      onClick={onTogglePlay}
-      style={{
-        position: 'absolute',
-        inset: 0,
-        zIndex: 400,
-        cursor: 'pointer',
-        fontFamily: 'monospace',
-        userSelect: 'none',
-      }}
-    >
-      {/* Back button */}
+    <>
+      {/* Back button — top-left, self-contained */}
       <button
-        onClick={handleBackClick}
+        onClick={onBack}
         style={{
           position: 'absolute',
           top: '20px',
@@ -91,12 +87,37 @@ export function ScenarioOverlay({
           cursor: 'pointer',
           zIndex: 410,
           transition: 'all 0.2s',
+          fontFamily: 'monospace',
         }}
       >
         &#x2715;
       </button>
 
-      {/* Center titles */}
+      {/* Play/pause button — top-right */}
+      <button
+        onClick={onTogglePlay}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          background: 'none',
+          border: `1px solid ${theme.border}`,
+          borderRadius: '4px',
+          color: theme.textMuted,
+          fontSize: '12px',
+          padding: '8px 12px',
+          cursor: 'pointer',
+          zIndex: 410,
+          transition: 'all 0.2s',
+          fontFamily: 'monospace',
+          letterSpacing: '1px',
+          textTransform: 'uppercase',
+        }}
+      >
+        {isPlaying ? 'pause' : 'play'}
+      </button>
+
+      {/* Center titles — non-interactive, fades out */}
       <div
         style={{
           position: 'absolute',
@@ -107,6 +128,8 @@ export function ScenarioOverlay({
           pointerEvents: 'none',
           opacity: showTitles ? 1 : 0,
           transition: 'opacity 1s ease-in-out',
+          zIndex: 400,
+          fontFamily: 'monospace',
         }}
       >
         <h1
@@ -141,11 +164,12 @@ export function ScenarioOverlay({
           left: 0,
           right: 0,
           zIndex: 410,
+          fontFamily: 'monospace',
+          userSelect: 'none',
         }}
       >
         {/* Controls row: speed + time + loop */}
         <div
-          onClick={(e) => e.stopPropagation()}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -178,7 +202,7 @@ export function ScenarioOverlay({
 
           {/* Time readout */}
           <span style={{ color: theme.textMuted, fontSize: '11px', letterSpacing: '1px', fontVariantNumeric: 'tabular-nums' }}>
-            {formatTime(currentTime)} / {formatTime(duration)}
+            {timestamp ? formatDate(timestamp) : `${formatTime(currentTime)} / ${formatTime(duration)}`}
           </span>
 
           {/* Loop toggle + pause hint */}
@@ -254,6 +278,6 @@ export function ScenarioOverlay({
           height: 6px !important;
         }
       `}</style>
-    </div>
+    </>
   );
 }

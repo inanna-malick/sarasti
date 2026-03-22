@@ -1,0 +1,28 @@
+[
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/meta-w4/neutral_front.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "0", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/neutral_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "1", "metaAggression": "1" }, "output": "tools/eval/data/renders/meta-w4/DVA_ppp_front.png" },
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "1", "metaAggression": "1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_ppp_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "1", "metaAggression": "-1" }, "output": "tools/eval/data/renders/meta-w4/DVA_ppn_front.png" },
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "1", "metaAggression": "-1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_ppn_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "-1", "metaAggression": "1" }, "output": "tools/eval/data/renders/meta-w4/DVA_pnp_front.png" },
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "-1", "metaAggression": "1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_pnp_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "-1", "metaAggression": "-1" }, "output": "tools/eval/data/renders/meta-w4/DVA_pnn_front.png" },
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "-1", "metaAggression": "-1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_pnn_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "1", "metaAggression": "1" }, "output": "tools/eval/data/renders/meta-w4/DVA_npp_front.png" },
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "1", "metaAggression": "1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_npp_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "1", "metaAggression": "-1" }, "output": "tools/eval/data/renders/meta-w4/DVA_npn_front.png" },
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "1", "metaAggression": "-1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_npn_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "-1", "metaAggression": "1" }, "output": "tools/eval/data/renders/meta-w4/DVA_nnp_front.png" },
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "-1", "metaAggression": "1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_nnp_left34.png" },
+
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "-1", "metaAggression": "-1" }, "output": "tools/eval/data/renders/meta-w4/DVA_nnn_front.png" },
+  { "params": { "mode": "semantic", "distress": "-1", "vitality": "-1", "metaAggression": "-1", "camera": "left34" }, "output": "tools/eval/data/renders/meta-w4/DVA_nnn_left34.png" }
+]

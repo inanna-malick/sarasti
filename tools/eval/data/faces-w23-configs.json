@@ -1,0 +1,574 @@
+[
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "BRENT",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/BRENT.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "WTI",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/WTI.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "NG=F",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/NGF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "HO=F",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/HOF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "RB=F",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/RBF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "ALI=F",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/ALIF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^VIX",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/VIX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "GC=F",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/GCF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "DX=F",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/DXF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^TNX",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/TNX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "XLE",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/XLE.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "SPY",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/SPY.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "CF",
+      "t": "2026-02-25T00:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/baseline/CF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "BRENT",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/BRENT.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "WTI",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/WTI.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "NG=F",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/NGF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "HO=F",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/HOF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "RB=F",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/RBF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "ALI=F",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/ALIF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^VIX",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/VIX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "GC=F",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/GCF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "DX=F",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/DXF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^TNX",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/TNX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "XLE",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/XLE.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "SPY",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/SPY.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "CF",
+      "t": "2026-02-25T11:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/tremor/CF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "BRENT",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/BRENT.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "WTI",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/WTI.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "NG=F",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/NGF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "HO=F",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/HOF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "RB=F",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/RBF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "ALI=F",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/ALIF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^VIX",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/VIX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "GC=F",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/GCF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "DX=F",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/DXF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^TNX",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/TNX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "XLE",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/XLE.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "SPY",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/SPY.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "CF",
+      "t": "2026-03-04T04:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/peak/CF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "BRENT",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/BRENT.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "WTI",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/WTI.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "NG=F",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/NGF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "HO=F",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/HOF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "RB=F",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/RBF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "ALI=F",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/ALIF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^VIX",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/VIX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "GC=F",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/GCF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "DX=F",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/DXF.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "^TNX",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/TNX.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "XLE",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/XLE.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "SPY",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/SPY.png"
+  },
+  {
+    "params": {
+      "mode": "data",
+      "ticker": "CF",
+      "t": "2026-03-10T15:00:00Z",
+      "camera": "front",
+      "enable_mouth": "true",
+      "enable_eyes": "true"
+    },
+    "output": "tools/eval/data/renders/faces-w23/drawdown/CF.png"
+  }
+]

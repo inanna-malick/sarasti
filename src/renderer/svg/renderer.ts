@@ -133,6 +133,10 @@ export function createSvgRenderer(options?: SvgRendererOptions): FaceRenderer {
       // SVG renderer doesn't have a camera — this is a no-op
     },
 
+    projectToScreen(_worldPos: [number, number, number]) {
+      return null; // SVG renderer doesn't have a 3D camera
+    },
+
     dispose() {
       if (svgRoot && container) {
         container.removeChild(svgRoot);

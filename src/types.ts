@@ -92,6 +92,9 @@ export interface FaceRenderer {
   selectInstance(id: string | null): void;
   getInstanceAtScreenPos(x: number, y: number): string | null;
   setCameraTarget(pos: [number, number, number]): void;
+  /** Project a world position to screen coordinates. Returns null if behind camera or no 3D context.
+   *  `scale` is pixels-per-world-unit at that depth — use to size HUD elements relative to face. */
+  projectToScreen(worldPos: [number, number, number]): { x: number; y: number; scale: number } | null;
   dispose(): void;
 }
 

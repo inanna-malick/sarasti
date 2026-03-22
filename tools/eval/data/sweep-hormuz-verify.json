@@ -1,0 +1,6 @@
+[
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "-1", "metaAggression": "-0.9" }, "output": "tools/eval/data/renders/hormuz-verify/frame0_brent.png" },
+  { "params": { "mode": "semantic", "distress": "0.67", "vitality": "0.68", "metaAggression": "-0.46" }, "output": "tools/eval/data/renders/hormuz-verify/frame200_brent.png" },
+  { "params": { "mode": "semantic", "distress": "1", "vitality": "1", "metaAggression": "-1" }, "output": "tools/eval/data/renders/hormuz-verify/frame350_brent.png" },
+  { "params": { "mode": "semantic", "distress": "0", "vitality": "0", "metaAggression": "0" }, "output": "tools/eval/data/renders/hormuz-verify/neutral.png" }
+]

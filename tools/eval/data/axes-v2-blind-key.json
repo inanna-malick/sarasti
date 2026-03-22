@@ -1,0 +1,122 @@
+{
+  "A": {
+    "tension": 0.28,
+    "valence": -0.95,
+    "stature": 0.0
+  },
+  "B": {
+    "tension": -0.51,
+    "valence": -0.72,
+    "stature": -0.5
+  },
+  "C": {
+    "tension": 0.35,
+    "valence": 0.78,
+    "stature": -0.5
+  },
+  "D": {
+    "tension": 0.18,
+    "valence": -0.94,
+    "stature": -0.5
+  },
+  "E": {
+    "tension": -0.56,
+    "valence": 0.01,
+    "stature": -0.5
+  },
+  "F": {
+    "tension": 0.12,
+    "valence": 0.43,
+    "stature": 0.5
+  },
+  "G": {
+    "tension": 0.09,
+    "valence": -0.56,
+    "stature": 0.5
+  },
+  "H": {
+    "tension": -0.44,
+    "valence": 0.74,
+    "stature": -0.5
+  },
+  "I": {
+    "tension": 0.4,
+    "valence": -0.32,
+    "stature": -0.5
+  },
+  "J": {
+    "tension": -0.57,
+    "valence": 0.53,
+    "stature": -0.5
+  },
+  "K": {
+    "tension": -0.81,
+    "valence": -0.81,
+    "stature": 0.0
+  },
+  "L": {
+    "tension": 0.21,
+    "valence": 0.61,
+    "stature": 0.5
+  },
+  "M": {
+    "tension": -0.08,
+    "valence": -0.75,
+    "stature": 0.0
+  },
+  "N": {
+    "tension": -0.84,
+    "valence": -0.41,
+    "stature": 0.5
+  },
+  "O": {
+    "tension": 0.24,
+    "valence": 0.72,
+    "stature": 0.5
+  },
+  "P": {
+    "tension": -0.62,
+    "valence": -0.86,
+    "stature": 0.5
+  },
+  "Q": {
+    "tension": -0.54,
+    "valence": -0.42,
+    "stature": -0.5
+  },
+  "R": {
+    "tension": 0.71,
+    "valence": 0.73,
+    "stature": 0.0
+  },
+  "S": {
+    "tension": -0.44,
+    "valence": 0.27,
+    "stature": 0.0
+  },
+  "T": {
+    "tension": -0.67,
+    "valence": -0.29,
+    "stature": 0.5
+  },
+  "U": {
+    "tension": -0.47,
+    "valence": 0.87,
+    "stature": 0.5
+  },
+  "V": {
+    "tension": -0.86,
+    "valence": 0.27,
+    "stature": 0.5
+  },
+  "W": {
+    "tension": 0.46,
+    "valence": -0.67,
+    "stature": 0.0
+  },
+  "X": {
+    "tension": -0.46,
+    "valence": 0.85,
+    "stature": 0.5
+  }
+}

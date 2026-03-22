@@ -31,14 +31,18 @@ export interface PipelineOptions {
 function computeNeckMask(weights: Float32Array, nVertices: number, nJoints: number, template: Float32Array): Uint8Array {
   const mask = new Uint8Array(nVertices);
   for (let v = 0; v < nVertices; v++) {
-    // Joint 0 = root/torso (266 vertices), Joint 1 = head (3345 vertices).
-    // Remove vertices dominated by root joint (torso/neck geometry).
+    // Joint 0 = root/torso, Joint 2 = jaw.
+    // Strategy: root-weight filter removes torso, Y threshold cuts mid-neck,
+    // but jaw-influenced vertices are always protected (chin moves with jaw).
     const rootWeight = weights[v * nJoints + 0];
+    const jawWeight = nJoints > 2 ? weights[v * nJoints + 2] : 0;
     const y = template[v * 3 + 1];
-    if (rootWeight > 0.5 || y < -0.08) {
-      mask[v] = 0; // removed
+    if (jawWeight > 0.15) {
+      mask[v] = 1; // chin/jaw — always keep
+    } else if (rootWeight > 0.3 || y < -0.10) {
+      mask[v] = 0; // torso or below mid-neck
     } else {
-      mask[v] = 1; // kept
+      mask[v] = 1;
     }
   }
   return mask;

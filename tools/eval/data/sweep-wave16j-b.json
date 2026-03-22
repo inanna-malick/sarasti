@@ -1,0 +1,22 @@
+[
+  { "params": {}, "output": "tools/eval/data/renders/wave16j-b/neutral.png" },
+
+  { "params": { "sharpness": "1.0" }, "output": "tools/eval/data/renders/wave16j-b/shape_sharp_front.png" },
+  { "params": { "sharpness": "1.0", "camera": "left34" }, "output": "tools/eval/data/renders/wave16j-b/shape_sharp_left34.png" },
+  { "params": { "sharpness": "-1.0" }, "output": "tools/eval/data/renders/wave16j-b/shape_puffy_front.png" },
+  { "params": { "sharpness": "-1.0", "camera": "left34" }, "output": "tools/eval/data/renders/wave16j-b/shape_puffy_left34.png" },
+
+  { "params": { "sharpness": "0.5" }, "output": "tools/eval/data/renders/wave16j-b/shape_sharp_0.5_front.png" },
+  { "params": { "sharpness": "-0.5" }, "output": "tools/eval/data/renders/wave16j-b/shape_puffy_0.5_front.png" },
+
+  { "params": { "sharpness": "1.0", "dominance": "1.0" }, "output": "tools/eval/data/renders/wave16j-b/combo_sharp-chad_front.png" },
+  { "params": { "sharpness": "1.0", "dominance": "1.0", "camera": "left34" }, "output": "tools/eval/data/renders/wave16j-b/combo_sharp-chad_left34.png" },
+  { "params": { "sharpness": "-1.0", "dominance": "-1.0" }, "output": "tools/eval/data/renders/wave16j-b/combo_puffy-soyboi_front.png" },
+  { "params": { "sharpness": "-1.0", "dominance": "-1.0", "camera": "left34" }, "output": "tools/eval/data/renders/wave16j-b/combo_puffy-soyboi_left34.png" },
+
+  { "params": { "sharpness": "1.0", "maturity": "1.0" }, "output": "tools/eval/data/renders/wave16j-b/combo_old-sharp_front.png" },
+  { "params": { "sharpness": "-1.0", "maturity": "-1.0" }, "output": "tools/eval/data/renders/wave16j-b/combo_young-puffy_front.png" },
+
+  { "params": { "sharpness": "1.0", "dominance": "1.0", "maturity": "1.0" }, "output": "tools/eval/data/renders/wave16j-b/full_sharp-chad-old_front.png" },
+  { "params": { "sharpness": "-1.0", "dominance": "-1.0", "maturity": "-1.0" }, "output": "tools/eval/data/renders/wave16j-b/full_puffy-soyboi-young_front.png" }
+]
