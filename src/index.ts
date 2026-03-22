@@ -32,3 +32,9 @@ export type { GridLayoutOptions } from './spatial/layout';
 
 // Renderer (advanced usage)
 export { createFlameSceneRenderer } from './renderer';
+
+// UI components
+export { FaceHud } from './ui/FaceHud';
+export { FaceOverlay } from './ui/FaceOverlay';
+export type { OverlayInstance } from './ui/FaceOverlay';
+export type { RingSignal, HudLabel, HudAnnotation, HudTheme, HudSizing } from './ui/types';
