@@ -48,6 +48,7 @@ describe('FrameDriver', () => {
       init: vi.fn().mockResolvedValue(undefined),
       setInstances: vi.fn(),
       highlightInstance: vi.fn(),
+      selectInstance: vi.fn(),
       getInstanceAtScreenPos: vi.fn(),
       setCameraTarget: vi.fn(),
       dispose: vi.fn(),

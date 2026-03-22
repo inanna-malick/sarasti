@@ -46,6 +46,10 @@ export interface UISlice {
   /** Current timestamp string (from dataset, for display). */
   currentTimestamp: string;
   setCurrentTimestamp: (ts: string) => void;
+
+  /** Callback to fly camera to a face position. Set by App after renderer init. */
+  flyToFace: ((id: string) => void) | null;
+  setFlyToFace: (fn: ((id: string) => void) | null) => void;
 }
 
 // ─── Scene slice ───────────────────────────────────
@@ -92,6 +96,8 @@ export const useStore = create<AppStore>((set) => ({
   setShowLanding: (show) => set({ showLanding: show }),
   currentTimestamp: '',
   setCurrentTimestamp: (ts) => set({ currentTimestamp: ts }),
+  flyToFace: null,
+  setFlyToFace: (fn) => set({ flyToFace: fn }),
 
   // Scene
   instances: [],

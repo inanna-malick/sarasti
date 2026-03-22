@@ -89,6 +89,7 @@ export interface FaceRenderer {
   init(container: HTMLElement): Promise<void>;
   setInstances(instances: FaceInstance[]): void;
   highlightInstance(id: string | null): void;
+  selectInstance(id: string | null): void;
   getInstanceAtScreenPos(x: number, y: number): string | null;
   setCameraTarget(pos: [number, number, number]): void;
   dispose(): void;

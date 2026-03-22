@@ -23,7 +23,7 @@ export async function createFlameSceneRenderer(
   } = options;
 
   // Load FLAME model
-  const pipeline = await createFlamePipeline(dataBasePath, { enableEyes: true, enableMouth: true });
+  const pipeline = await createFlamePipeline(dataBasePath, { enableEyes: true, enableMouth: false });
 
   // These are initialized in init()
   let renderer: THREE.WebGLRenderer;
@@ -35,6 +35,8 @@ export async function createFlameSceneRenderer(
   let animationFrameId: number | null = null;
   let lastTime = 0;
   let hasFramedCamera = false;
+  let resizeObserver: ResizeObserver | null = null;
+  let lastPositions: [number, number, number][] = [];
 
   function animate(time: number) {
     const dt = lastTime > 0 ? (time - lastTime) / 1000 : 0;
@@ -51,6 +53,11 @@ export async function createFlameSceneRenderer(
     renderer.setSize(w, h);
     cameraController.handleResize();
     picker.setSize(w, h);
+
+    // Re-frame camera to fit new aspect ratio
+    if (hasFramedCamera && lastPositions.length > 0) {
+      cameraController.frameAll(lastPositions);
+    }
   }
 
   const faceRenderer: FaceRenderer = {
@@ -102,7 +109,9 @@ export async function createFlameSceneRenderer(
         el.clientHeight,
       );
 
-      // Resize observer
+      // Resize handling — ResizeObserver catches container layout changes (e.g. sidebars)
+      resizeObserver = new ResizeObserver(onResize);
+      resizeObserver.observe(el);
       window.addEventListener('resize', onResize);
 
       // Start render loop
@@ -114,14 +123,18 @@ export async function createFlameSceneRenderer(
 
       // Frame camera once on first data, then let user control it
       if (!hasFramedCamera && instances.length > 0) {
-        const positions = instances.map(i => i.position);
-        cameraController.frameAll(positions);
+        lastPositions = instances.map(i => i.position);
+        cameraController.frameAll(lastPositions);
         hasFramedCamera = true;
       }
     },
 
     highlightInstance(id: string | null): void {
       picker.highlightInstance(id);
+    },
+
+    selectInstance(id: string | null): void {
+      picker.selectInstance(id);
     },
 
     getInstanceAtScreenPos(x: number, y: number): string | null {
@@ -136,6 +149,8 @@ export async function createFlameSceneRenderer(
       if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
       }
+      resizeObserver?.disconnect();
+      resizeObserver = null;
       window.removeEventListener('resize', onResize);
       picker.dispose();
       compositor.dispose();

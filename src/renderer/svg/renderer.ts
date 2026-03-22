@@ -125,6 +125,10 @@ export function createSvgRenderer(options?: SvgRendererOptions): FaceRenderer {
       return null;
     },
 
+    selectInstance(_id: string | null) {
+      // SVG renderer doesn't support selection ring — no-op
+    },
+
     setCameraTarget(_pos: [number, number, number]) {
       // SVG renderer doesn't have a camera — this is a no-op
     },

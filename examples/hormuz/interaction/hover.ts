@@ -97,8 +97,10 @@ export function setupClickInteraction(
     if (id === store.selectedId) {
       // Deselect
       store.setSelectedId(null);
+      renderer.selectInstance(null);
     } else {
       store.setSelectedId(id);
+      renderer.selectInstance(id);
       if (id) {
         // Find instance position and fly camera to it
         const instance = store.instances.find((inst) => inst.id === id);

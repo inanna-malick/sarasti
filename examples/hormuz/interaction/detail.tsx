@@ -22,10 +22,30 @@ export function DetailPanel(): React.ReactElement | null {
   const dataset = useStore((s) => s.dataset);
   const currentIndex = useStore((s) => s.playback.current_index);
 
-  if (!selectedId || !dataset) return null;
+  const panelStyle: React.CSSProperties = {
+    width: 320,
+    flexShrink: 0,
+    background: theme.bg,
+    borderLeft: `1px solid ${theme.border}`,
+    padding: '16px',
+    color: theme.textBright,
+    fontFamily: 'monospace',
+    fontSize: 12,
+    lineHeight: 1.6,
+    overflowY: 'auto',
+  };
 
-  const instance = instances.find((i) => i.id === selectedId);
-  if (!instance) return null;
+  const instance = selectedId ? instances.find((i) => i.id === selectedId) : null;
+
+  if (!instance || !dataset) {
+    return (
+      <div style={panelStyle}>
+        <div style={{ color: theme.textMuted, marginTop: 32, textAlign: 'center', fontSize: 11 }}>
+          click a face to inspect
+        </div>
+      </div>
+    );
+  }
 
   const { ticker, frame } = instance;
 
@@ -38,24 +58,7 @@ export function DetailPanel(): React.ReactElement | null {
   );
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        bottom: 0,
-        width: 320,
-        background: 'rgba(0,43,54,0.95)',
-        borderLeft: `1px solid ${theme.border}`,
-        padding: '16px',
-        color: theme.textBright,
-        fontFamily: 'monospace',
-        fontSize: 12,
-        lineHeight: 1.6,
-        overflowY: 'auto',
-        zIndex: 100,
-      }}
-    >
+    <div style={panelStyle}>
       {/* Header */}
       <div style={{ marginBottom: 12 }}>
         <div style={{ fontSize: 15, fontWeight: 'bold' }}>{ticker.name}</div>

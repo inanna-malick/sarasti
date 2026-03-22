@@ -4,81 +4,145 @@ import { createFlameSceneRenderer } from '../../src/renderer';
 import { RefineHarness } from './refine/RefineHarness';
 import { ExplorerPane } from './explorer/ExplorerPane';
 
-// Scenario imports
-import type { Scenario } from '../../src/scenario/types';
-import { ScenarioDriver } from '../../src/scenario/driver';
+// Episode imports
+import type { Episode } from '../../src/episode/types';
+import { EPISODES, EPISODE_MAP } from '../../src/episode/episodes';
+import { loadDataset } from '../../src/data/loader';
+import { FrameDriver } from '../../src/timeline/driver';
 import { ScenarioSelector } from './ui/ScenarioSelector';
 import { ScenarioOverlay } from './ui/ScenarioOverlay';
-import {
-  CRASH_SCENARIO,
-  BLEED_SCENARIO,
-  DIVERGENCE_SCENARIO,
-  FALSE_CALM_SCENARIO,
-} from '../../src/scenario/scenarios';
+import { Tooltip } from './interaction/Tooltip';
+import { DetailPanel } from './interaction/detail';
+import { TickerList } from './interaction/TickerList';
+import { setupHoverInteraction, setupClickInteraction } from './interaction/hover';
+import { useStore } from '../../src/store';
 
-const SCENARIOS = [
-  CRASH_SCENARIO,
-  BLEED_SCENARIO,
-  DIVERGENCE_SCENARIO,
-  FALSE_CALM_SCENARIO,
-];
-
-const SCENARIO_MAP: Record<string, Scenario> = {
-  crash: CRASH_SCENARIO,
-  bleed: BLEED_SCENARIO,
-  divergence: DIVERGENCE_SCENARIO,
-  'false-calm': FALSE_CALM_SCENARIO,
-};
-
-type Mode = 'selector' | 'scenario';
+type Mode = 'selector' | 'episode';
 
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<FaceRenderer | null>(null);
-  const scenarioDriverRef = useRef<ScenarioDriver | null>(null);
+  const driverRef = useRef<FrameDriver | null>(null);
+  const interactionRef = useRef<{ dispose: () => void }[]>([]);
 
-  const [mode, setMode] = useState<Mode>('selector');
-  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  // Derive initial mode from URL hash: #/episode/<id>
+  const parseHash = (): { mode: Mode; episodeId: string | null } => {
+    const match = window.location.hash.match(/^#\/episode\/(.+)$/);
+    if (match && EPISODE_MAP[match[1]]) {
+      return { mode: 'episode', episodeId: match[1] };
+    }
+    return { mode: 'selector', episodeId: null };
+  };
+
+  const initial = parseHash();
+  const [mode, setMode] = useState<Mode>(initial.mode);
+  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(
+    initial.episodeId ? EPISODE_MAP[initial.episodeId] : null,
+  );
   const [status, setStatus] = useState<string>('');
   const [ready, setReady] = useState(false);
-  const [playbackUpdate, setPlaybackUpdate] = useState(0);
+  const [speedMultiplier, setSpeedMultiplier] = useState(1);
+
+  // Read playback state from store (FrameDriver syncs to store)
+  const playing = useStore(s => s.playback.playing);
+  const loop = useStore(s => s.playback.loop);
+  const currentIndex = useStore(s => s.playback.current_index);
+  const frameCount = useStore(s => s.frameCount);
+  const currentTimestamp = useStore(s => s.currentTimestamp);
 
   const params = new URLSearchParams(window.location.search);
   const isExplorer = params.get('explorer') === 'true';
   const isRefine = params.get('refine') === 'true';
-  const headlessScenario = params.get('scenario');
-  const headlessTime = parseFloat(params.get('t') ?? '0');
-  const isHeadless = params.get('headless') === 'true';
 
-  // Sync scenario playback state to React for smooth UI updates
+  // Handle browser back/forward via popstate
   useEffect(() => {
-    if (mode !== 'scenario') return;
-    let rafId: number;
-    const loop = () => {
-      if (scenarioDriverRef.current?.isPlaying) {
-        setPlaybackUpdate(u => u + 1);
+    const onPopState = () => {
+      const { mode: hashMode, episodeId } = parseHash();
+      if (hashMode === 'selector' && mode === 'episode') {
+        tearDown();
+        setMode('selector');
+      } else if (hashMode === 'episode' && episodeId && mode === 'selector') {
+        handleSelectEpisode(EPISODE_MAP[episodeId]);
       }
-      rafId = requestAnimationFrame(loop);
     };
-    loop();
-    return () => cancelAnimationFrame(rafId);
-  }, [mode]);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }); // intentionally no deps — reads current mode via closure
 
-  // Scenario selection handler
-  const handleSelectScenario = async (scenario: Scenario) => {
-    setSelectedScenario(scenario);
-    setStatus('Initializing scenario...');
-    setMode('scenario');
+  // Auto-launch episode from initial hash (e.g. direct link to #/episode/covid-crash)
+  const initialLaunched = useRef(false);
+  useEffect(() => {
+    if (initialLaunched.current) return;
+    if (initial.mode === 'episode' && initial.episodeId) {
+      initialLaunched.current = true;
+      handleSelectEpisode(EPISODE_MAP[initial.episodeId]!);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const tearDown = () => {
+    // Dispose interactions
+    for (const i of interactionRef.current) i.dispose();
+    interactionRef.current = [];
+
+    driverRef.current?.dispose();
+    driverRef.current = null;
+    rendererRef.current?.dispose();
+    rendererRef.current = null;
+    setReady(false);
+    setSelectedEpisode(null);
+
+    // Clear store state
+    useStore.getState().setHoveredId(null);
+    useStore.getState().setSelectedId(null);
+    useStore.getState().setFlyToFace(null);
+  };
+
+  // Episode selection handler
+  const handleSelectEpisode = async (episode: Episode) => {
+    setSelectedEpisode(episode);
+    setStatus('Loading episode data...');
+    setMode('episode');
+
+    // Push hash so browser back returns to selector
+    const hashPath = `#/episode/${episode.id}`;
+    if (window.location.hash !== hashPath) {
+      history.pushState(null, '', hashPath);
+    }
 
     try {
-      const renderer = await createFlameSceneRenderer();
+      // Load dataset and renderer in parallel
+      const [dataset, renderer] = await Promise.all([
+        loadDataset(episode.dataUrl, episode.tickers),
+        createFlameSceneRenderer(),
+      ]);
+
       await renderer.init(containerRef.current!);
       rendererRef.current = renderer;
 
-      const driver = new ScenarioDriver(scenario, renderer);
-      scenarioDriverRef.current = driver;
+      // Store dataset for detail panel sparklines
+      useStore.getState().setDataset(dataset);
 
-      driver.onEvent(() => setPlaybackUpdate(u => u + 1));
+      const driver = new FrameDriver(dataset, renderer);
+      driverRef.current = driver;
+
+      // Set up hover + click interactions on the viewport
+      const container = containerRef.current!;
+      const hover = setupHoverInteraction(container, renderer);
+      const click = setupClickInteraction(container, renderer);
+      interactionRef.current = [hover, click];
+
+      // Wire flyToFace callback for TickerList
+      useStore.getState().setFlyToFace((id: string) => {
+        const inst = useStore.getState().instances.find((i) => i.id === id);
+        if (inst) {
+          renderer.setCameraTarget(inst.position);
+          renderer.selectInstance(id);
+        }
+      });
+
+      // Default playback: 4 frames/sec base (= 1 day/sec with 4 frames/day)
+      driver.setSpeed(4);
+      driver.setLoop(true);
 
       setStatus('');
       setReady(true);
@@ -90,120 +154,92 @@ export function App() {
   };
 
   const handleBackToSelector = () => {
-    scenarioDriverRef.current?.dispose();
-    scenarioDriverRef.current = null;
-    rendererRef.current?.dispose();
-    rendererRef.current = null;
-    setReady(false);
-    setSelectedScenario(null);
+    tearDown();
     setMode('selector');
+
+    // Clear hash — use pushState so forward button works
+    if (window.location.hash) {
+      history.pushState(null, '', window.location.pathname + window.location.search);
+    }
   };
 
-  // Headless scenario mode: ?scenario=crash&t=15&headless=true
-  // Auto-launch scenario, seek to time, signal ready for screenshot
-  useEffect(() => {
-    if (!headlessScenario || !isHeadless) return;
-    const scenario = SCENARIO_MAP[headlessScenario];
-    if (!scenario) {
-      console.error(`Unknown scenario: ${headlessScenario}`);
-      return;
-    }
-
-    (async () => {
-      try {
-        const renderer = await createFlameSceneRenderer();
-        await renderer.init(containerRef.current!);
-        rendererRef.current = renderer;
-
-        const driver = new ScenarioDriver(scenario, renderer);
-        scenarioDriverRef.current = driver;
-
-        // Seek to requested time
-        const frac = Math.max(0, Math.min(1, headlessTime / scenario.duration));
-        driver.seekNormalized(frac);
-
-        // Wait two frames for render to settle
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-        (window as any).__SCENARIO_READY = true;
-      } catch (err) {
-        console.error('Headless scenario error:', err);
-      }
-    })();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Compute progress and duration from store state
+  const progress = frameCount > 1 ? currentIndex / (frameCount - 1) : 0;
+  const displayTime = currentIndex;
+  const displayDuration = frameCount > 0 ? frameCount - 1 : 0;
 
   if (isExplorer) return <ExplorerPane />;
   if (isRefine) return <RefineHarness />;
 
-  // Headless scenario: just the viewport, no UI chrome
-  if (headlessScenario && isHeadless) {
-    return (
-      <div id="app" style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
-        <div id="viewport" ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      </div>
-    );
-  }
+  const showSidebars = mode === 'episode' && ready;
 
   return (
-    <div id="app" style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
-      {/* 3D viewport */}
-      <div
-        id="viewport"
-        ref={containerRef}
-        style={{ width: '100%', height: '100%' }}
-      />
+    <div id="app" style={{ width: '100%', height: '100%', display: 'flex', background: '#002b36' }}>
+      {/* Left sidebar: ticker list */}
+      {showSidebars && <TickerList />}
 
-      {/* Scenario selector */}
-      {mode === 'selector' && (
-        <ScenarioSelector scenarios={SCENARIOS} onSelect={handleSelectScenario} />
-      )}
-
-      {/* Scenario playback */}
-      {mode === 'scenario' && scenarioDriverRef.current && selectedScenario && (
-        <ScenarioOverlay
-          title={selectedScenario.title}
-          subtitle={selectedScenario.subtitle}
-          progress={scenarioDriverRef.current.progress}
-          currentTime={scenarioDriverRef.current.currentTime}
-          duration={scenarioDriverRef.current.duration}
-          isPlaying={scenarioDriverRef.current.isPlaying}
-          speed={scenarioDriverRef.current.speed}
-          looping={scenarioDriverRef.current.looping}
-          onTogglePlay={() => {
-            scenarioDriverRef.current?.togglePlay();
-            setPlaybackUpdate(u => u + 1);
-          }}
-          onSeek={(frac) => {
-            scenarioDriverRef.current?.seekNormalized(frac);
-            setPlaybackUpdate(u => u + 1);
-          }}
-          onSetSpeed={(m) => {
-            scenarioDriverRef.current?.setSpeed(m);
-            setPlaybackUpdate(u => u + 1);
-          }}
-          onSetLoop={(l) => {
-            scenarioDriverRef.current?.setLoop(l);
-            setPlaybackUpdate(u => u + 1);
-          }}
-          onBack={handleBackToSelector}
+      {/* Center: viewport + overlays */}
+      <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
+        {/* 3D viewport */}
+        <div
+          id="viewport"
+          ref={containerRef}
+          style={{ width: '100%', height: '100%' }}
         />
-      )}
 
-      {/* Status display */}
-      {status && (
-        <div style={{
-          position: 'absolute',
-          top: 12,
-          left: 12,
-          color: '#888',
-          fontFamily: 'monospace',
-          fontSize: 13,
-          pointerEvents: 'none',
-          zIndex: 1000,
-        }}>
-          {status}
-        </div>
-      )}
+        {/* Episode selector */}
+        {mode === 'selector' && (
+          <ScenarioSelector episodes={EPISODES} onSelect={handleSelectEpisode} />
+        )}
+
+        {/* Episode playback controls — bottom bar only, no click interception */}
+        {mode === 'episode' && driverRef.current && selectedEpisode && (
+          <ScenarioOverlay
+            title={selectedEpisode.title}
+            subtitle={selectedEpisode.subtitle}
+            progress={progress}
+            currentTime={displayTime}
+            duration={displayDuration}
+            isPlaying={playing}
+            speed={speedMultiplier}
+            looping={loop}
+            timestamp={currentTimestamp}
+            onTogglePlay={() => driverRef.current?.togglePlay()}
+            onSeek={(frac) => {
+              const idx = Math.round(frac * (frameCount - 1));
+              driverRef.current?.seek(idx);
+            }}
+            onSetSpeed={(m) => {
+              setSpeedMultiplier(m);
+              driverRef.current?.setSpeed(4 * m);
+            }}
+            onSetLoop={(l) => driverRef.current?.setLoop(l)}
+            onBack={handleBackToSelector}
+          />
+        )}
+
+        {/* Hover tooltip */}
+        {showSidebars && <Tooltip />}
+
+        {/* Status display */}
+        {status && (
+          <div style={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            color: '#888',
+            fontFamily: 'monospace',
+            fontSize: 13,
+            pointerEvents: 'none',
+            zIndex: 1000,
+          }}>
+            {status}
+          </div>
+        )}
+      </div>
+
+      {/* Right sidebar: detail panel (always visible, shows empty state) */}
+      {showSidebars && <DetailPanel />}
     </div>
   );
 }
