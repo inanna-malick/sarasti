@@ -63,8 +63,6 @@ export class SceneCompositor {
     for (const instance of instances) {
       let fm = this.meshes.get(instance.id);
       if (!fm) {
-        // Ticker ID is typically from instance.id or instance.config.id.
-        // For this project, instance.id is the ticker symbol (e.g. "BTC", "AAPL").
         fm = new FlameFaceMesh(this.pipeline, instance.id);
         fm.mesh.scale.setScalar(FACE_MESH_SCALE);
         fm.mesh.userData.baseScale = FACE_MESH_SCALE;

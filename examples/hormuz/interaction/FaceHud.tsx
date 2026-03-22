@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { FaceInstance, AssetClass } from '../../../src/types';
-import { getTickerTimeseries } from '../../../src/data/loader';
 import { useStore } from '../../../src/store';
 import { sol, theme } from '../theme';
 
@@ -13,79 +12,88 @@ const CLASS_COLORS: Record<AssetClass, string> = {
   media: sol.magenta,
 };
 
-// Coarsen frame index to reduce sparkline recomputation (every 4 frames)
-const SPARKLINE_STRIDE = 4;
+// Ring radii — 3 concentric, non-overlapping with neighbors at 120px spacing
+const RING_OUTER = 56;   // deviation (headline)
+const RING_MID = 50;     // tension (arousal)
+const RING_INNER = 44;   // valence (good/bad)
+const RING_GAP = 6;      // visual separation
 
-// Arc sparkline geometry (math coords: 0° = right, CCW positive)
-const ARC_RADIUS = 65;
-const ARC_START_DEG = 210; // left side, below horizontal
-const ARC_END_DEG = 330;   // right side, below horizontal
-const LABEL_ANGLE_DEG = 160;  // ticker label position
-const DEV_ANGLE_DEG = 330;    // deviation % position
-const RADIAL_WOBBLE = 12;     // max px deviation from arc
+const DEV_ANGLE_DEG = 330;
 
 function polarToXY(angleDeg: number, radius: number): { x: number; y: number } {
   const rad = (angleDeg * Math.PI) / 180;
   return { x: radius * Math.cos(rad), y: -radius * Math.sin(rad) };
 }
 
+/** Clamp to [-1, 1] */
+function clamp1(x: number): number {
+  return Math.max(-1, Math.min(1, x));
+}
+
 /**
- * HUD ring rendered around each face.
- * Deviation sparkline traces a circular arc over the top of the face (210°→330° CCW).
- * Ticker label at 160°, deviation % at 330°.
+ * Map a signed value in [-1, 1] to a desaturated color between two poles.
+ * Returns an rgba string with low opacity for subtlety.
+ */
+function signalColor(value: number, negative: string, positive: string, baseOpacity: number): string {
+  const mag = Math.abs(value);
+  // At low magnitude, fade toward the muted base color
+  const opacity = 0.12 + mag * (baseOpacity - 0.12);
+  return value >= 0
+    ? positive.replace(')', `, ${opacity.toFixed(2)})`)
+    : negative.replace(')', `, ${opacity.toFixed(2)})`);
+}
+
+// Pre-computed rgba base strings (without alpha)
+const RED_RGB = 'rgba(220, 50, 47';    // sol.red desaturated
+const GREEN_RGB = 'rgba(133, 153, 0';  // sol.green desaturated
+const WARM_RGB = 'rgba(181, 137, 0';   // sol.yellow — tense/warm
+const COOL_RGB = 'rgba(42, 161, 152';  // sol.cyan — calm/cool
+
+/**
+ * HUD rendered around each face.
+ *
+ * 3 concentric stroke rings encoding binding inputs:
+ *   Inner: Valence (green = good position, red = bad)
+ *   Middle: Tension (warm = tense/volatile, cool = calm)
+ *   Outer: Deviation headline (green = positive, red = negative)
+ *
+ * Selected face: outer ring brightens to cyan.
+ * All rings are thin strokes — no fill, no colored-light bleed.
  */
 export function FaceHud({ instance }: { instance: FaceInstance }) {
-  const dataset = useStore((s) => s.dataset);
-  const coarseIndex = useStore((s) =>
-    Math.floor(s.playback.current_index / SPARKLINE_STRIDE) * SPARKLINE_STRIDE,
-  );
-
+  const selectedId = useStore((s) => s.selectedId);
   const { ticker, frame } = instance;
   const devPercent = (frame.deviation * 100).toFixed(1);
   const devSign = frame.deviation >= 0 ? '+' : '';
   const devColor = frame.deviation >= 0 ? sol.green : sol.red;
   const classColor = CLASS_COLORS[ticker.class] || sol.base0;
+  const isSelected = selectedId === instance.id;
 
-  // Build arc sparkline from deviation history
-  const arcData = useMemo(() => {
-    if (!dataset) return null;
-    const series = getTickerTimeseries(dataset, ticker.id);
-    const end = Math.min(coarseIndex + SPARKLINE_STRIDE, series.length);
-    const start = Math.max(0, end - 40);
-    const slice = series.slice(start, end);
-    if (slice.length < 2) return null;
+  // Simplified binding inputs (raw frame values, not z-scored — directionally correct)
+  const valenceRaw = clamp1(frame.deviation + 0.5 * frame.momentum);
+  const tensionRaw = clamp1(frame.volatility * Math.abs(frame.velocity) - 0.3);
+  const deviationSign = clamp1(frame.deviation * 3); // amplify for visibility
 
-    const devs = slice.map((f) => f?.deviation ?? 0);
-    const min = Math.min(...devs);
-    const max = Math.max(...devs);
-    const range = max - min || 0.001;
+  // Ring colors — desaturated, low opacity, signal-driven
+  const valenceColor = signalColor(valenceRaw, RED_RGB, GREEN_RGB, 0.45);
+  const tensionColor = signalColor(tensionRaw, COOL_RGB, WARM_RGB, 0.40);
+  const deviationColor = isSelected
+    ? `rgba(42, 161, 152, 0.55)` // cyan for selected
+    : signalColor(deviationSign, RED_RGB, GREEN_RGB, 0.35);
 
-    const arcSpan = ARC_END_DEG - ARC_START_DEG; // 120°
+  const devPos = polarToXY(DEV_ANGLE_DEG, RING_OUTER);
 
-    const points = devs.map((d, i) => {
-      const t = i / (devs.length - 1);
-      const angleDeg = ARC_START_DEG + t * arcSpan;
-      const normalized = (d - min) / range; // 0..1
-      const wobble = (normalized - 0.5) * 2 * RADIAL_WOBBLE; // -WOBBLE..+WOBBLE
-      const r = ARC_RADIUS + wobble;
-      const { x, y } = polarToXY(angleDeg, r);
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-
-    // Reference arc (perfect circle at ARC_RADIUS)
-    const refPoints = Array.from({ length: 61 }, (_, i) => {
-      const t = i / 60;
-      const angleDeg = ARC_START_DEG + t * arcSpan;
-      const { x, y } = polarToXY(angleDeg, ARC_RADIUS);
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-
-    return { path: points.join(' '), refPath: refPoints.join(' ') };
-  }, [dataset, ticker.id, coarseIndex]);
-
-  // Label positions
-  const labelPos = polarToXY(LABEL_ANGLE_DEG, ARC_RADIUS);
-  const devPos = polarToXY(DEV_ANGLE_DEG, ARC_RADIUS);
+  const ringStyle = (radius: number, color: string): React.CSSProperties => ({
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: radius * 2,
+    height: radius * 2,
+    borderRadius: '50%',
+    border: `1px solid ${color}`,
+    pointerEvents: 'none',
+  });
 
   return (
     <div
@@ -100,48 +108,21 @@ export function FaceHud({ instance }: { instance: FaceInstance }) {
         opacity: 0.75,
       }}
     >
-      <svg
-        width={200}
-        height={200}
-        viewBox="-100 -100 200 200"
-        style={{
-          position: 'absolute',
-          left: -100,
-          top: -100,
-          overflow: 'visible',
-          pointerEvents: 'none',
-        }}
-      >
-        {/* Reference arc */}
-        {arcData && (
-          <path
-            d={arcData.refPath}
-            fill="none"
-            stroke={theme.textMuted}
-            strokeWidth={0.8}
-            opacity={0.15}
-          />
-        )}
-        {/* Deviation trace arc */}
-        {arcData && (
-          <path
-            d={arcData.path}
-            fill="none"
-            stroke={devColor}
-            strokeWidth={1.2}
-            opacity={0.6}
-          />
-        )}
-      </svg>
+      {/* Inner: Valence */}
+      <div style={ringStyle(RING_INNER, valenceColor)} />
+      {/* Middle: Tension */}
+      <div style={ringStyle(RING_MID, tensionColor)} />
+      {/* Outer: Deviation headline */}
+      <div style={ringStyle(RING_OUTER, deviationColor)} />
 
-      {/* Ticker label at 160° — right-aligned */}
+      {/* Ticker label — centered above head */}
       <div
         style={{
           position: 'absolute',
-          left: labelPos.x,
-          top: labelPos.y,
-          transform: 'translate(-100%, -50%)',
-          textAlign: 'right',
+          left: '50%',
+          bottom: RING_OUTER + 4,
+          transform: 'translateX(-50%)',
+          textAlign: 'center',
         }}
       >
         <div

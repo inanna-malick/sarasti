@@ -21,7 +21,6 @@ export class FacePicker {
   private containerHeight: number;
   private highlightedId: string | null = null;
   private selectedId: string | null = null;
-  private selectionRing: THREE.Mesh | null = null;
 
   constructor(
     camera: THREE.Camera,
@@ -106,42 +105,9 @@ export class FacePicker {
   }
 
   /**
-   * Show a selection ring around a face. Pass null to clear.
-   * Ring is added as child of the face mesh so it tracks automatically.
+   * Track selected face id. Visual ring is handled by CSS HUD overlay.
    */
   selectInstance(id: string | null): void {
-    if (this.selectedId === id) return;
-
-    // Remove previous ring
-    if (this.selectionRing) {
-      this.selectionRing.removeFromParent();
-      this.selectionRing.geometry.dispose();
-      (this.selectionRing.material as THREE.Material).dispose();
-      this.selectionRing = null;
-    }
-
-    if (id !== null) {
-      const meshes = this.compositor.getMeshes();
-      for (const mesh of meshes) {
-        if (this.compositor.getIdForMesh(mesh) === id) {
-          const ringGeo = new THREE.RingGeometry(0.11, 0.115, 64);
-          const ringMat = new THREE.MeshBasicMaterial({
-            color: 0x2aa198,
-            side: THREE.DoubleSide,
-            depthTest: true,
-            depthWrite: false,
-            transparent: true,
-            opacity: 0.8,
-          });
-          const ring = new THREE.Mesh(ringGeo, ringMat);
-          ring.position.set(0, 0, 0.01);
-          mesh.add(ring);
-          this.selectionRing = ring;
-          break;
-        }
-      }
-    }
-
     this.selectedId = id;
   }
 
