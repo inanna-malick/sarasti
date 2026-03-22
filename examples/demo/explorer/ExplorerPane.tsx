@@ -174,35 +174,51 @@ function ExplorerHud() {
   const tickerId = useExplorerStore(s => s.dataModeTickerId);
   const frame = useExplorerStore(s => s.dataModeFrame);
   const ticker = useExplorerStore(s => s.dataModeTicker);
+  const stats = useExplorerStore(s => s.dataModeStats);
   if (!tickerId || !frame || !ticker) return null;
+
+  // Use same circumplex computation as face binding (z-scored, sigmoid-shaped)
+  const activations = computeCircumplex(frame, stats ?? undefined, tickerId);
 
   const signals: RingSignal[] = [
     {
-      name: 'deviation',
-      value: clamp1(frame.deviation * 3),
-      negativeColor: 'rgb(220, 50, 47)',
-      positiveColor: 'rgb(133, 153, 0)',
-      maxOpacity: 0.65,
-    },
-    {
       name: 'tension',
-      value: clamp1(frame.volatility * Math.abs(frame.velocity) - 0.3),
+      value: activations.tension,
       negativeColor: 'rgb(42, 161, 152)',
       positiveColor: 'rgb(181, 137, 0)',
-      maxOpacity: 0.70,
+      maxOpacity: 0.75,
     },
     {
       name: 'valence',
-      value: clamp1(frame.deviation + 0.5 * frame.momentum),
+      value: activations.valence,
       negativeColor: 'rgb(220, 50, 47)',
       positiveColor: 'rgb(133, 153, 0)',
       maxOpacity: 0.75,
+    },
+    {
+      name: 'stature',
+      value: activations.stature,
+      negativeColor: 'rgb(108, 113, 196)',
+      positiveColor: 'rgb(38, 139, 210)',
+      maxOpacity: 0.65,
     },
   ];
 
   const devPercent = (frame.deviation * 100).toFixed(1);
   const devSign = frame.deviation >= 0 ? '+' : '';
   const devColor = frame.deviation >= 0 ? sol.green : sol.red;
+
+  // Circumplex quadrant from actual sigmoid-shaped activations
+  const quadrant =
+    activations.tension > 0 && activations.valence < 0 ? 'PANIC' :
+    activations.tension > 0 && activations.valence >= 0 ? 'MANIC' :
+    activations.tension <= 0 && activations.valence >= 0 ? 'CONTENT' :
+    'DEPRESSED';
+  const quadrantColor =
+    quadrant === 'PANIC' ? sol.red :
+    quadrant === 'MANIC' ? sol.yellow :
+    quadrant === 'CONTENT' ? sol.cyan :
+    sol.violet;
 
   const label: HudLabel = {
     text: ticker.id,
@@ -213,12 +229,23 @@ function ExplorerHud() {
   const velLabel = frame.velocity >= 0 ? `+${frame.velocity.toFixed(2)}` : frame.velocity.toFixed(2);
   const closeLabel = frame.close != null ? frame.close.toFixed(2) : '';
 
+  // Format signal values for ring readouts
+  const fmtSig = (v: number) => (v >= 0 ? '+' : '') + v.toFixed(2);
+
   const annotations: HudAnnotation[] = [
-    { text: `${devSign}${devPercent}%`, angleDeg: 315, color: devColor, fontSize: 14, align: 'left', ringIndex: 0 },
+    // Primary: deviation % (lower right, outer ring)
+    { text: `${devSign}${devPercent}%`, angleDeg: 325, color: devColor, fontSize: 14, align: 'left', ringIndex: 0 },
+    // Per-ring activation readouts (staggered along left arc, right-aligned so text extends left)
+    { text: `ten ${fmtSig(activations.tension)}`, angleDeg: 155, color: '#657b83', fontSize: 8, align: 'right', ringIndex: 2 },
+    { text: `val ${fmtSig(activations.valence)}`, angleDeg: 170, color: '#657b83', fontSize: 8, align: 'right', ringIndex: 2 },
+    { text: `sta ${fmtSig(activations.stature)}`, angleDeg: 185, color: '#657b83', fontSize: 8, align: 'right', ringIndex: 2 },
+    // Velocity (lower left, inside inner ring)
     { text: `vel ${velLabel}`, angleDeg: 225, color: '#657b83', fontSize: 10, align: 'left', ringIndex: 2 },
+    // Quadrant state label (upper left)
+    { text: quadrant, angleDeg: 135, color: quadrantColor, fontSize: 10, align: 'right', ringIndex: 0 },
   ];
   if (closeLabel) {
-    annotations.push({ text: closeLabel, angleDeg: 290, color: '#93a1a1', fontSize: 10, align: 'left', ringIndex: 0 });
+    annotations.push({ text: closeLabel, angleDeg: 300, color: '#93a1a1', fontSize: 10, align: 'left', ringIndex: 1 });
   }
 
   return (
@@ -239,7 +266,7 @@ function ExplorerHud() {
         signals={signals}
         label={label}
         annotations={annotations}
-        sizing={{ outerRadius: 170, strokeWidth: 6, ringGap: 18 }}
+        sizing={{ outerRadius: 160, strokeWidth: 6, ringGap: 16 }}
         theme={{
           labelColor: '#93a1a1',
           labelShadow: '0 1px 4px rgba(0,0,0,0.9)',
