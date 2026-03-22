@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { arc as d3arc } from 'd3-shape';
-import { interpolateRgb } from 'd3-interpolate';
+import { interpolateHcl } from 'd3-interpolate';
 import type { RingSignal, HudLabel, HudAnnotation, HudTheme, HudSizing } from './types';
 
 const DEFAULT_OUTER_RADIUS = 56;
@@ -12,6 +12,9 @@ const DEFAULT_TRACK_OPACITY = 0.18;
 
 const TAU = 2 * Math.PI;
 const MIN_ARC_ANGLE = 0.15;
+
+// Threshold below which we skip expensive SVG filters
+const FILTER_MIN_RADIUS = 80;
 
 interface FaceHudProps {
   signals: RingSignal[];
@@ -26,6 +29,11 @@ interface FaceHudProps {
 function polarToXY(angleDeg: number, radius: number): { x: number; y: number } {
   const rad = (angleDeg * Math.PI) / 180;
   return { x: radius * Math.cos(rad), y: -radius * Math.sin(rad) };
+}
+
+/** Convert d3.arc angle (0 = 12 o'clock, clockwise) to cartesian for positioning */
+function arcAngleToXY(angle: number, radius: number): { x: number; y: number } {
+  return { x: radius * Math.sin(angle), y: -radius * Math.cos(angle) };
 }
 
 export function FaceHud({
@@ -44,27 +52,39 @@ export function FaceHud({
   const labelColor = theme?.labelColor ?? '#93a1a1';
   const labelShadow = theme?.labelShadow ?? '0 1px 4px rgba(0,0,0,0.9)';
 
+  // Skip expensive filters at small sizes (Hormuz field perf)
+  const useFilters = outerRadius >= FILTER_MIN_RADIUS;
+
   // Font sizing: scale relative to outerRadius
   const fontScale = outerRadius / DEFAULT_OUTER_RADIUS;
   const labelFontSize = Math.round(10 * fontScale);
 
-  // Build ring arcs — partial fill based on |value|
+  // Stable IDs for SVG defs (per-instance, stable across re-renders)
+  const instanceId = useMemo(() => Math.random().toString(36).slice(2, 8), []);
+
+  // Build ring arcs — directional fill: positive clockwise, negative counterclockwise
   const rings = useMemo(() => {
-    const arcGen = d3arc<unknown>();
+    const arcGen = d3arc<unknown>().cornerRadius(Math.max(1, strokeWidth * 0.6));
+    const trackArcGen = d3arc<unknown>();
+
     return signals.map((sig, i) => {
       const r = outerRadius - i * ringGap;
+      const midR = r - strokeWidth / 2;
       const mag = Math.abs(sig.value);
 
+      // Directional arc: positive sweeps clockwise from 12, negative counterclockwise
       const arcAngle = MIN_ARC_ANGLE + mag * (TAU - MIN_ARC_ANGLE);
+      const startAngle = sig.value >= 0 ? 0 : -arcAngle;
+      const endAngle = sig.value >= 0 ? arcAngle : 0;
 
       const signalPath = arcGen({
         innerRadius: r - strokeWidth,
         outerRadius: r,
-        startAngle: -arcAngle / 2,
-        endAngle: arcAngle / 2,
+        startAngle,
+        endAngle,
       })!;
 
-      const trackPath = arcGen({
+      const trackPath = trackArcGen({
         innerRadius: r - strokeWidth,
         outerRadius: r,
         startAngle: 0,
@@ -84,22 +104,28 @@ export function FaceHud({
         finalOpacity = 0.55;
       } else {
         const t = (sig.value + 1) / 2;
-        color = interpolateRgb(sig.negativeColor, sig.positiveColor)(t);
+        // HCL interpolation avoids muddy gray midpoints
+        color = interpolateHcl(sig.negativeColor, sig.positiveColor)(t);
         finalOpacity = opacity;
       }
 
-      return { signalPath, trackPath, color, opacity: finalOpacity, name: sig.name, radius: r, strokeWidth };
+      // Leading edge position (bright dot at arc tip)
+      const leadAngle = sig.value >= 0 ? endAngle : startAngle;
+      const leadPos = arcAngleToXY(leadAngle, midR);
+
+      return {
+        signalPath, trackPath, color, opacity: finalOpacity,
+        name: sig.name, radius: r, midR, strokeWidth, mag,
+        leadPos, index: i,
+      };
     });
   }, [signals, outerRadius, strokeWidth, ringGap, selected, selectedColor]);
 
-  // viewBox centered at origin — generous margin for labels + annotations
+  // viewBox centered at origin
   const margin = Math.round(Math.max(20 * fontScale, 40));
   const svgExtent = outerRadius + margin;
 
-  // Glow filter ID unique per instance (safe for multiple HUDs on page)
-  const filterId = useMemo(() => `hud-glow-${Math.random().toString(36).slice(2, 8)}`, []);
-
-  // Cardinal tick mark length (proportional to stroke width)
+  // Cardinal tick mark
   const tickLength = Math.max(4, strokeWidth * 2);
   const outerRingRadius = rings[0]?.radius ?? outerRadius;
 
@@ -112,11 +138,53 @@ export function FaceHud({
       aria-label="Face HUD"
     >
       <defs>
-        {/* Glow filter for signal arcs */}
-        <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(2, strokeWidth * 0.8)} result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
+        {useFilters && (
+          <>
+            {/* Stacked bloom glow — multiple blur passes at different radii */}
+            <filter id={`glow-${instanceId}`} x="-50%" y="-50%" width="200%" height="200%">
+              {/* Wide soft outer glow */}
+              <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(3, strokeWidth * 1.2)} result="blur1" />
+              {/* Tight bright inner glow */}
+              <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(1, strokeWidth * 0.3)} result="blur2" />
+              {/* Merge: outer glow (dim) + inner glow (bright) + original on top */}
+              <feMerge>
+                <feMergeNode in="blur1" />
+                <feMergeNode in="blur2" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            {/* Leading edge bloom — extra bright point glow */}
+            <filter id={`dot-glow-${instanceId}`} x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(2, strokeWidth * 0.5)} result="dotblur" />
+              <feMerge>
+                <feMergeNode in="dotblur" />
+                <feMergeNode in="dotblur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            {/* Subtle organic texture for track rings */}
+            <filter id={`track-tex-${instanceId}`} x="-10%" y="-10%" width="120%" height="120%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+              <feColorMatrix in="noise" type="saturate" values="0" result="grayNoise" />
+              <feComposite in="SourceGraphic" in2="grayNoise" operator="in" />
+            </filter>
+          </>
+        )}
+
+        {/* Per-ring comet tail gradients — fade from bright at leading edge to transparent */}
+        {rings.map((ring) => (
+          <radialGradient
+            key={`grad-${ring.name}`}
+            id={`grad-${ring.name}-${instanceId}`}
+            cx="50%" cy="50%" r="50%"
+          >
+            <stop offset="0%" stopColor={ring.color} stopOpacity={ring.opacity * 0.3} />
+            <stop offset="70%" stopColor={ring.color} stopOpacity={ring.opacity} />
+            <stop offset="100%" stopColor={ring.color} stopOpacity={ring.opacity} />
+          </radialGradient>
+        ))}
       </defs>
 
       {/* Cardinal tick marks on outer ring — N/E/S/W */}
@@ -139,22 +207,36 @@ export function FaceHud({
         );
       })}
 
-      {/* Ring tracks (dim reference circles) + glowing signal arcs */}
+      {/* Ring tracks + signal arcs + leading edge dots */}
       {rings.map((ring) => (
         <g key={ring.name}>
-          {/* Track — full circle, visible reference gauge */}
+          {/* Track — full circle, textured at large scale */}
           <path
             d={ring.trackPath}
             fill={ring.color}
             opacity={DEFAULT_TRACK_OPACITY}
+            filter={useFilters ? `url(#track-tex-${instanceId})` : undefined}
           />
-          {/* Signal arc — partial fill with glow */}
+
+          {/* Signal arc — partial fill with stacked bloom */}
           <path
             d={ring.signalPath}
             fill={ring.color}
             opacity={ring.opacity}
-            filter={`url(#${filterId})`}
+            filter={useFilters ? `url(#glow-${instanceId})` : undefined}
           />
+
+          {/* Leading edge dot — bright marker at arc tip */}
+          {ring.mag > 0.05 && (
+            <circle
+              cx={ring.leadPos.x}
+              cy={ring.leadPos.y}
+              r={Math.max(1.5, ring.strokeWidth * 0.5)}
+              fill="white"
+              opacity={0.4 + ring.mag * 0.5}
+              filter={useFilters ? `url(#dot-glow-${instanceId})` : undefined}
+            />
+          )}
         </g>
       ))}
 
