@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "dev:hormuz": "vite",
+    "dev:demo": "vite",
     "type-check": "tsc --noEmit",
     "build": "vite build",
     "build:lib": "vite build --config vite.lib.config.ts",

@@ -11,7 +11,7 @@
  */
 
 import { parseArgs } from 'node:util';
-import { TICKERS } from '../../examples/hormuz/tickers';
+import { TICKERS } from '../../examples/demo/tickers';
 
 interface RenderConfig {
   params: Record<string, string>;

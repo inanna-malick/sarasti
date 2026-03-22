@@ -3,7 +3,7 @@ import { parseDataset, getFrame, getFrameAtTime, getTickerTimeseries } from '../
 import { interpolateFrame } from '../interpolator';
 import type { RawMarketHistory } from '../schema';
 import fixture from '../../../test-utils/data-fixture-real.json';
-import { TICKERS } from '../../../examples/hormuz/tickers';
+import { TICKERS } from '../../../examples/demo/tickers';
 
 const raw = fixture as unknown as RawMarketHistory;
 

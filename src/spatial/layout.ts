@@ -116,9 +116,9 @@ function chooseGridCols(n: number, aspect: number): number {
   return finalCols;
 }
 
-// ─── Hormuz compat wrapper ──────────────────────────
+// ─── Demo compat wrapper ──────────────────────────
 
-/** Threat-proximity order (hormuz-specific) */
+/** Threat-proximity order (demo-specific) */
 const CLASS_ORDER = ['energy', 'commodity', 'fear', 'currency', 'equity', 'media'] as const;
 type AssetClass = (typeof CLASS_ORDER)[number];
 

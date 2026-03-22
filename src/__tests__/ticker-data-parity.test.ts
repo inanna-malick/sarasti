@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { TICKERS } from '../../examples/hormuz/tickers';
+import { TICKERS } from '../../examples/demo/tickers';
 
 describe('Ticker ID parity', () => {
   it.todo('every ticker ID in TICKERS must exist in market-data.json', () => {

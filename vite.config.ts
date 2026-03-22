@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  root: path.resolve(__dirname, 'examples/hormuz'),
+  root: path.resolve(__dirname, 'examples/demo'),
   plugins: [react()],
   resolve: {
     alias: {

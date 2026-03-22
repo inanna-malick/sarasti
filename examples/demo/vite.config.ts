@@ -16,7 +16,7 @@ export default defineConfig({
     port: 3001,
   },
   build: {
-    outDir: path.resolve(__dirname, '../../dist-hormuz'),
+    outDir: path.resolve(__dirname, '../../dist-demo'),
     sourcemap: true,
   },
   assetsInclude: ['**/*.bin'],

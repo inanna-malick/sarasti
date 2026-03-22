@@ -1,6 +1,6 @@
 
 import { parseDataset, getFrameAtTime } from './src/data/loader';
-import { TICKERS } from './examples/hormuz/tickers';
+import { TICKERS } from './examples/demo/tickers';
 import fs from 'fs';
 
 const raw = JSON.parse(fs.readFileSync('./public/data/market-data.json', 'utf8'));

@@ -6,7 +6,7 @@ import { parseDataset, getFrameAtTime } from '../data/loader';
 import { createResolver } from '../binding/resolve';
 import { computeLayout } from '../spatial/layout';
 import { N_SHAPE, N_EXPR } from '../constants';
-import { TICKERS } from '../../examples/hormuz/tickers';
+import { TICKERS } from '../../examples/demo/tickers';
 
 function loadRealDataset(): TimelineDataset {
   const raw = JSON.parse(

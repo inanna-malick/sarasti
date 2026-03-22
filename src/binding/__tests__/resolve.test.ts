@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { resolve, createResolver } from '../resolve';
 import { makeTickerFrame, TEST_TICKERS } from '../../../test-utils/fixtures';
 import { N_SHAPE, N_EXPR } from '../../constants';
-import { TICKERS } from '../../../examples/hormuz/tickers';
+import { TICKERS } from '../../../examples/demo/tickers';
 
 describe('resolve (2-axis circumplex)', () => {
   it('zero data → finite expression and shape', () => {

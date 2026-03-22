@@ -3,7 +3,7 @@
  * Usage: nix-shell --run "npx tsx tools/debug-expressions.ts"
  */
 import { readFileSync } from 'fs';
-import { TICKERS } from '../examples/hormuz/tickers';
+import { TICKERS } from '../examples/demo/tickers';
 import { parseDataset, getFrameAtTime } from '../src/data/loader';
 import { createResolver } from '../src/binding/resolve';
 
