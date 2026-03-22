@@ -48,8 +48,8 @@ export function FaceHud({
     return signals.map((sig, i) => {
       const r = outerRadius - i * ringGap;
       const path = arcGen({
-        innerRadius: r - strokeWidth / 2,
-        outerRadius: r + strokeWidth / 2,
+        innerRadius: r - strokeWidth,
+        outerRadius: r,
         startAngle: 0,
         endAngle: TAU,
       })!;
@@ -60,7 +60,7 @@ export function FaceHud({
       const opacity = minOp + mag * (maxOp - minOp);
 
       // Outermost ring (i=0) gets selection override
-      const isOutermost = i === signals.length - 1;
+      const isOutermost = i === 0;
       let color: string;
       let finalOpacity: number;
 
@@ -73,7 +73,7 @@ export function FaceHud({
         finalOpacity = opacity;
       }
 
-      return { path, color, opacity: finalOpacity, name: sig.name, radius: r };
+      return { path, color, opacity: finalOpacity, name: sig.name, radius: r, strokeWidth };
     });
   }, [signals, outerRadius, strokeWidth, ringGap, selected, selectedColor]);
 
@@ -94,9 +94,7 @@ export function FaceHud({
         <path
           key={ring.name}
           d={ring.path}
-          fill="none"
-          stroke={ring.color}
-          strokeWidth={strokeWidth}
+          fill={ring.color}
           opacity={ring.opacity}
         />
       ))}
@@ -134,7 +132,7 @@ export function FaceHud({
 
       {/* Annotations at polar positions */}
       {annotations?.map((ann, i) => {
-        const ringIdx = ann.ringIndex ?? signals.length - 1;
+        const ringIdx = ann.ringIndex ?? 0;
         const r = rings[ringIdx]?.radius ?? outerRadius;
         const pos = polarToXY(ann.angleDeg, r);
         const fontSize = ann.fontSize ?? 9;
