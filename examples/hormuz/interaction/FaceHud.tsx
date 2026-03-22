@@ -139,7 +139,7 @@ export function FaceHud({ instance }: { instance: FaceInstance }) {
         style={{
           position: 'absolute',
           left: labelPos.x,
-          top: -labelPos.y, // flip Y back to screen coords
+          top: labelPos.y,
           transform: 'translate(-100%, -50%)',
           textAlign: 'right',
         }}
@@ -171,7 +171,7 @@ export function FaceHud({ instance }: { instance: FaceInstance }) {
         style={{
           position: 'absolute',
           left: devPos.x,
-          top: -devPos.y,
+          top: devPos.y,
           transform: 'translate(0%, -50%)',
           color: devColor,
           fontVariantNumeric: 'tabular-nums',

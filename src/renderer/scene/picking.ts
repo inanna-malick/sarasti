@@ -128,12 +128,12 @@ export class FacePicker {
           const ringMat = new THREE.MeshBasicMaterial({
             color: 0x2aa198,
             side: THREE.DoubleSide,
-            depthTest: false,
+            depthTest: true,
+            depthWrite: false,
             transparent: true,
             opacity: 0.8,
           });
           const ring = new THREE.Mesh(ringGeo, ringMat);
-          ring.renderOrder = 999;
           ring.position.set(0, 0, 0.01);
           mesh.add(ring);
           this.selectionRing = ring;
