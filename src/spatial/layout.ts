@@ -44,7 +44,7 @@ export function gridLayout(
     }
   }
 
-  // Auto-layout the rest in a grid
+  // Auto-layout in a hex-packed honeycomb grid
   if (needsLayout.length > 0) {
     const n = needsLayout.length;
 
@@ -56,20 +56,36 @@ export function gridLayout(
       cols = n;
     }
 
-    const rows = Math.ceil(n / cols);
-    const gridH = (rows - 1) * spacing;
+    const rowStep = spacing * Math.sqrt(3) / 2;
 
-    needsLayout.forEach((item, i) => {
-      const row = Math.floor(i / cols);
-      const col = i % cols;
-      const itemsInRow = row < rows - 1 ? cols : n - row * cols;
+    // Simulate to count total rows
+    let totalRows = 0;
+    let remaining = n;
+    while (remaining > 0) {
+      const isOdd = totalRows % 2 === 1;
+      const rowSize = isOdd ? cols - 1 : cols;
+      remaining -= Math.min(rowSize, remaining);
+      totalRows++;
+    }
+
+    const totalGridH = (totalRows - 1) * rowStep;
+
+    // Place items row by row
+    let idx = 0;
+    for (let row = 0; row < totalRows && idx < n; row++) {
+      const isOdd = row % 2 === 1;
+      const maxInRow = isOdd ? cols - 1 : cols;
+      const itemsInRow = Math.min(maxInRow, n - idx);
       const rowW = (itemsInRow - 1) * spacing;
       const xOffset = -rowW / 2;
 
-      const x = xOffset + col * spacing;
-      const y = gridH / 2 - row * spacing;
-      positions.set(item.id, [x, y, 0]);
-    });
+      for (let col = 0; col < itemsInRow; col++) {
+        const x = xOffset + col * spacing;
+        const y = totalGridH / 2 - row * rowStep;
+        positions.set(needsLayout[idx].id, [x, y, 0]);
+        idx++;
+      }
+    }
   }
 
   return { positions };
