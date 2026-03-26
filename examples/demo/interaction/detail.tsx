@@ -3,8 +3,9 @@ import { useStore } from '../../../src/store';
 import { getTickerTimeseries } from '../../../src/data/loader';
 import type { TickerFrame } from '../../../src/types';
 import { computeDatasetStats, type DatasetStats, type TickerStats } from '../../../src/data/stats';
-import { computeCircumplex } from '../../../src/binding/chords';
+import { computeCircumplexDebug } from '../../../src/binding/chords';
 import type { CircumplexActivations } from '../../../src/binding/chords';
+import { SignalReadout } from '../../../src/ui';
 import { sol, theme } from '../theme';
 
 /**
@@ -21,6 +22,7 @@ export function DetailPanel(): React.ReactElement | null {
   const instances = useStore((s) => s.instances);
   const dataset = useStore((s) => s.dataset);
   const currentIndex = useStore((s) => s.playback.current_index);
+  const stats = useStore((s) => s.datasetStats);
 
   const panelStyle: React.CSSProperties = {
     width: 320,
@@ -56,6 +58,8 @@ export function DetailPanel(): React.ReactElement | null {
   const familyMembers = instances.filter(
     (i) => i.ticker.family === ticker.family && i.id !== ticker.id,
   );
+
+  const debug = computeCircumplexDebug(frame, stats ?? undefined, ticker.id);
 
   return (
     <div style={panelStyle}>
@@ -101,8 +105,10 @@ export function DetailPanel(): React.ReactElement | null {
         />
       </div>
 
-      {/* Chord bars */}
-      <ChordsSection frame={frame} tickerId={ticker.id} />
+      {/* Signal Readout */}
+      <div style={{ marginBottom: 16 }}>
+        <SignalReadout debug={debug} frame={frame} />
+      </div>
 
       {/* Expression decode */}
       <Section title="market dynamics">
@@ -134,104 +140,6 @@ export function DetailPanel(): React.ReactElement | null {
 }
 
 /** Cache dataset stats (computed once). */
-let cachedStats: DatasetStats | null = null;
-function getStats(): DatasetStats | null {
-  const dataset = useStore.getState().dataset;
-  if (!dataset) return null;
-  if (!cachedStats) {
-    cachedStats = computeDatasetStats(dataset);
-  }
-  return cachedStats;
-}
-
-/** Chord activation bars — meta-axes + low-level breakdown. */
-function ChordsSection({ frame, tickerId }: { frame: TickerFrame; tickerId: string }) {
-  const stats = getStats();
-  const instances = useStore.getState().instances;
-  const ticker = instances.find(i => i.id === tickerId)?.ticker;
-  const activations = computeCircumplex(frame, stats ?? undefined, tickerId);
-
-  const circumplexAxes: { name: string; value: number }[] = [
-    { name: 'tension', value: activations.tension },
-    { name: 'valence', value: activations.valence },
-    { name: 'stature', value: activations.stature },
-  ];
-
-  return (
-    <>
-      <Section title="circumplex">
-        {circumplexAxes.map(({ name, value }) => (
-          <ChordBar
-            key={name}
-            name={name}
-            weight={Math.abs(value)}
-            rawActivation={value}
-            sign={Math.sign(value) || 1}
-            isWinner={Math.abs(value) > 0.5}
-          />
-        ))}
-      </Section>
-    </>
-  );
-}
-
-/** Single chord bar with activation strength. */
-function ChordBar({
-  name,
-  weight,
-  rawActivation,
-  sign,
-  isWinner,
-}: {
-  name: string;
-  weight: number;
-  rawActivation: number;
-  sign: number;
-  isWinner: boolean;
-}) {
-  const barWidth = 120;
-  const barHeight = 8;
-  const fillWidth = Math.min(1, weight) * barWidth;
-
-  const color = isWinner
-    ? 'rgba(181,137,0,0.9)'
-    : sign > 0
-      ? 'rgba(42,161,152,0.6)'
-      : 'rgba(220,50,47,0.6)';
-
-  const signLabels: Record<string, [string, string]> = {
-    tension: ['tense', 'calm'],
-    valence: ['good', 'bad'],
-    stature: ['titan', 'sprite'],
-  };
-  const pair = signLabels[name];
-  const signLabel = pair ? ` (${sign > 0 ? pair[0] : pair[1]})` : '';
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-      <span style={{
-        color: isWinner ? sol.yellow : theme.textMuted,
-        width: 72,
-        flexShrink: 0,
-        fontSize: 11,
-        fontWeight: isWinner ? 'bold' : 'normal',
-      }}>
-        {name}
-      </span>
-      <svg width={barWidth} height={barHeight} style={{ flexShrink: 0 }}>
-        <rect width={barWidth} height={barHeight} fill="rgba(88,110,117,0.1)" rx={2} />
-        <rect width={fillWidth} height={barHeight} fill={color} rx={2} />
-      </svg>
-      <span style={{ color: theme.text, fontSize: 10, flexShrink: 0, width: 32, textAlign: 'right' }}>
-        {(weight * 100).toFixed(0)}%
-      </span>
-      <span style={{ color: theme.textMuted, fontSize: 9, flexShrink: 0 }}>
-        {signLabel}
-      </span>
-    </div>
-  );
-}
-
 /** Collapsible raw signals section. */
 function RawSignalsSection({ frame }: { frame: TickerFrame }) {
   const [open, setOpen] = useState(false);

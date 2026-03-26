@@ -26,6 +26,9 @@ export interface PlaybackSlice {
 export interface DataSlice {
   dataset: TimelineDataset | null;
   setDataset: (dataset: TimelineDataset) => void;
+  /** Global statistics for the entire dataset (computed on load). */
+  datasetStats: import('./data/stats').DatasetStats | null;
+  setDatasetStats: (stats: import('./data/stats').DatasetStats) => void;
 }
 
 // ─── UI slice ──────────────────────────────────────
@@ -86,6 +89,8 @@ export const useStore = create<AppStore>((set) => ({
   // Data
   dataset: null,
   setDataset: (dataset) => set({ dataset }),
+  datasetStats: null,
+  setDatasetStats: (datasetStats) => set({ datasetStats }),
 
   // UI
   hoveredId: null,
