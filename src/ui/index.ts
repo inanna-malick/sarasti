@@ -8,3 +8,5 @@ export type {
   HudTheme,
   HudSizing,
 } from './types';
+export { RING_META } from './ringMeta';
+export type { RingMeta } from './ringMeta';

@@ -258,6 +258,51 @@ export function computeExchangeFatigueForTension(
   return computeExchangeFatigue(exchange, utcHour);
 }
 
+// ─── Circumplex Debug (full signal pipeline) ─────────
+
+export interface CircumplexDebug extends CircumplexActivations {
+  zScores: {
+    vol_z: number; vel_z: number; dev_z: number;
+    dd_z: number; mom_z: number; mr_z: number;
+  };
+  inputs: {
+    tension: number;  // vol_z × |vel_z| + |dd_z| − 0.8
+    valence: number;  // dev_z + 0.5 × mom_z
+    stature: number;  // mom_z + |mr_z| − 0.3
+  };
+}
+
+/**
+ * Like computeCircumplex but returns full debug info:
+ * z-scores, raw inputs, and final sigmoid outputs.
+ */
+export function computeCircumplexDebug(
+  frame: TickerFrame,
+  stats?: DatasetStats,
+  tickerId?: string,
+): CircumplexDebug {
+  const ts: TickerStats | undefined = stats && tickerId ? stats.get(tickerId) : undefined;
+
+  const vol_z = ts ? zScore(frame.volatility, ts.volatility) : frame.volatility;
+  const vel_z = ts ? zScore(frame.velocity, ts.velocity) : frame.velocity;
+  const dev_z = ts ? zScore(frame.deviation, ts.deviation) : frame.deviation;
+  const dd_z = ts ? zScore(frame.drawdown, ts.drawdown) : frame.drawdown;
+  const mom_z = ts ? zScore(frame.momentum, ts.momentum) : frame.momentum;
+  const mr_z = ts ? zScore(frame.mean_reversion_z, ts.mean_reversion_z) : frame.mean_reversion_z;
+
+  const tensionInput = vol_z * Math.abs(vel_z) + Math.abs(dd_z) - 0.8;
+  const valenceInput = dev_z + 0.5 * mom_z;
+  const statureInput = mom_z + Math.abs(mr_z) - 0.3;
+
+  return {
+    tension: symmetricSigmoid(tensionInput, 1.0),
+    valence: symmetricSigmoid(valenceInput, 1.5),
+    stature: symmetricSigmoid(statureInput, 1.0),
+    zScores: { vol_z, vel_z, dev_z, dd_z, mom_z, mr_z },
+    inputs: { tension: tensionInput, valence: valenceInput, stature: statureInput },
+  };
+}
+
 // ─── Chord Resolution ────────────────────────────────
 
 export interface ChordResult {
