@@ -46,6 +46,7 @@ export async function createFlameSceneRenderer(
     lastTime = time;
 
     cameraController.update(dt);
+    compositor.tickHudRings();
     renderer.render(scene, cameraController.camera);
     animationFrameId = requestAnimationFrame(animate);
   }

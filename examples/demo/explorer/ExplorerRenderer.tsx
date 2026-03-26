@@ -8,6 +8,9 @@ import { FLAME_DATA_BASE } from '../../../src/renderer/constants';
 import { useExplorerStore } from './store';
 import type { DebugMaterial } from './store';
 import type { CameraPreset } from './ExplorerPane';
+import { HudRings3D } from '../../../src/ui/HudRings3D';
+import { computeCircumplex } from '../../../src/binding/chords';
+import type { RingSignal } from '../../../src/ui/types';
 
 declare global {
   interface Window {
@@ -38,6 +41,7 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
     let renderer: THREE.WebGLRenderer;
     let controls: OrbitControls | null = null;
     let mesh: FlameFaceMesh | null = null;
+    let hudRings: HudRings3D | null = null;
     let animationFrameId: number;
     let resizeObserver: ResizeObserver | null = null;
     let unsubscribe: (() => void) | null = null;
@@ -121,6 +125,21 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
           mesh.setDebugMaterial(debugMat);
         }
 
+        // 3D HUD rings — always on, orbital tori around the face
+        hudRings = new HudRings3D();
+        hudRings.group.position.set(0, 0.0325, 0.01);
+        scene.add(hudRings.group);
+
+        // Initialize rings with current slider values (subscriber only fires on change)
+        {
+          const s = useExplorerStore.getState();
+          hudRings.update([
+            { name: 'tension', value: s.tension, negativeColor: 'rgb(38, 139, 210)', positiveColor: 'rgb(203, 75, 22)', maxOpacity: 0.80 },
+            { name: 'valence', value: s.valence, negativeColor: 'rgb(108, 113, 196)', positiveColor: 'rgb(211, 54, 130)', maxOpacity: 0.80 },
+            { name: 'stature', value: s.stature, negativeColor: 'rgb(147, 161, 161)', positiveColor: 'rgb(42, 161, 152)', maxOpacity: 0.65 },
+          ]);
+        }
+
         if (!headless) {
           resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
@@ -139,6 +158,49 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
         unsubscribe = useExplorerStore.subscribe((state) => {
           if (state.currentParams && mesh) {
             mesh.updateFromParams(state.currentParams);
+          }
+          // Update 3D HUD rings — use data-mode circumplex or slider values
+          if (hudRings) {
+            let tension: number, valence: number, stature: number;
+            if (state.dataModeFrame && state.dataModeTickerId) {
+              const activations = computeCircumplex(
+                state.dataModeFrame,
+                state.dataModeStats ?? undefined,
+                state.dataModeTickerId,
+              );
+              tension = activations.tension;
+              valence = activations.valence;
+              stature = activations.stature;
+            } else {
+              // Slider-driven modes (highlevel, semantic, raw)
+              tension = state.tension;
+              valence = state.valence;
+              stature = state.stature;
+            }
+            const ringSignals: RingSignal[] = [
+              {
+                name: 'tension',
+                value: tension,
+                negativeColor: 'rgb(38, 139, 210)',
+                positiveColor: 'rgb(203, 75, 22)',
+                maxOpacity: 0.80,
+              },
+              {
+                name: 'valence',
+                value: valence,
+                negativeColor: 'rgb(108, 113, 196)',
+                positiveColor: 'rgb(211, 54, 130)',
+                maxOpacity: 0.80,
+              },
+              {
+                name: 'stature',
+                value: stature,
+                negativeColor: 'rgb(147, 161, 161)',
+                positiveColor: 'rgb(42, 161, 152)',
+                maxOpacity: 0.65,
+              },
+            ];
+            hudRings.update(ringSignals);
           }
         });
 
@@ -164,6 +226,7 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
           if (disposed) return;
           animationFrameId = requestAnimationFrame(renderLoop);
           controls?.update();
+          hudRings?.tick();
           renderer.render(scene, camObj);
         }
         renderLoop();
@@ -180,6 +243,7 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       unsubscribe?.();
       if (resizeObserver) resizeObserver.disconnect();
+      if (hudRings) hudRings.dispose();
       if (mesh) mesh.dispose();
       if (controls) controls.dispose();
       if (renderer) {

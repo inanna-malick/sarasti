@@ -15,8 +15,6 @@ import { resolve } from '../../../src/binding/resolve';
 import { computeCircumplex } from '../../../src/binding/chords';
 import { computeDatasetStats } from '../../../src/data/stats';
 import { TICKERS, TICKER_MAP } from '../tickers';
-import { FaceHud as LibFaceHud } from '../../../src/ui';
-import type { RingSignal, HudLabel, HudAnnotation } from '../../../src/ui';
 
 declare global {
   interface Window {
@@ -157,130 +155,9 @@ function getCameraPreset(): CameraPreset {
   return 'front';
 }
 
-function clamp1(x: number): number {
-  return Math.max(-1, Math.min(1, x));
-}
-
-const CLASS_COLORS: Record<string, string> = {
-  energy: sol.orange,
-  equity: sol.blue,
-  fear: sol.red,
-  currency: sol.violet,
-  commodity: sol.green,
-  media: sol.magenta,
-};
-
-function ExplorerHud() {
-  const tickerId = useExplorerStore(s => s.dataModeTickerId);
-  const frame = useExplorerStore(s => s.dataModeFrame);
-  const ticker = useExplorerStore(s => s.dataModeTicker);
-  const stats = useExplorerStore(s => s.dataModeStats);
-  if (!tickerId || !frame || !ticker) return null;
-
-  // Use same circumplex computation as face binding (z-scored, sigmoid-shaped)
-  const activations = computeCircumplex(frame, stats ?? undefined, tickerId);
-
-  const signals: RingSignal[] = [
-    {
-      name: 'tension',
-      value: activations.tension,
-      negativeColor: 'rgb(42, 161, 152)',
-      positiveColor: 'rgb(181, 137, 0)',
-      maxOpacity: 0.75,
-    },
-    {
-      name: 'valence',
-      value: activations.valence,
-      negativeColor: 'rgb(220, 50, 47)',
-      positiveColor: 'rgb(133, 153, 0)',
-      maxOpacity: 0.75,
-    },
-    {
-      name: 'stature',
-      value: activations.stature,
-      negativeColor: 'rgb(108, 113, 196)',
-      positiveColor: 'rgb(38, 139, 210)',
-      maxOpacity: 0.65,
-    },
-  ];
-
-  const devPercent = (frame.deviation * 100).toFixed(1);
-  const devSign = frame.deviation >= 0 ? '+' : '';
-  const devColor = frame.deviation >= 0 ? sol.green : sol.red;
-
-  // Circumplex quadrant from actual sigmoid-shaped activations
-  const quadrant =
-    activations.tension > 0 && activations.valence < 0 ? 'PANIC' :
-    activations.tension > 0 && activations.valence >= 0 ? 'MANIC' :
-    activations.tension <= 0 && activations.valence >= 0 ? 'CONTENT' :
-    'DEPRESSED';
-  const quadrantColor =
-    quadrant === 'PANIC' ? sol.red :
-    quadrant === 'MANIC' ? sol.yellow :
-    quadrant === 'CONTENT' ? sol.cyan :
-    sol.violet;
-
-  const label: HudLabel = {
-    text: ticker.id,
-    color: '#fdf6e3',
-    accentColor: CLASS_COLORS[ticker.class] ?? sol.cyan,
-  };
-
-  const velLabel = frame.velocity >= 0 ? `+${frame.velocity.toFixed(2)}` : frame.velocity.toFixed(2);
-  const closeLabel = frame.close != null ? frame.close.toFixed(2) : '';
-
-  // Format signal values for ring readouts
-  const fmtSig = (v: number) => (v >= 0 ? '+' : '') + v.toFixed(2);
-
-  const annotations: HudAnnotation[] = [
-    // Primary: deviation % (lower right, outer ring)
-    { text: `${devSign}${devPercent}%`, angleDeg: 325, color: devColor, fontSize: 14, align: 'left', ringIndex: 0 },
-    // Per-ring activation readouts (staggered along left arc, right-aligned so text extends left)
-    { text: `ten ${fmtSig(activations.tension)}`, angleDeg: 155, color: '#657b83', fontSize: 8, align: 'right', ringIndex: 2 },
-    { text: `val ${fmtSig(activations.valence)}`, angleDeg: 170, color: '#657b83', fontSize: 8, align: 'right', ringIndex: 2 },
-    { text: `sta ${fmtSig(activations.stature)}`, angleDeg: 185, color: '#657b83', fontSize: 8, align: 'right', ringIndex: 2 },
-    // Velocity (lower left, inside inner ring)
-    { text: `vel ${velLabel}`, angleDeg: 225, color: '#657b83', fontSize: 10, align: 'left', ringIndex: 2 },
-    // Quadrant state label (upper left)
-    { text: quadrant, angleDeg: 135, color: quadrantColor, fontSize: 10, align: 'right', ringIndex: 0 },
-  ];
-  if (closeLabel) {
-    annotations.push({ text: closeLabel, angleDeg: 300, color: '#93a1a1', fontSize: 10, align: 'left', ringIndex: 1 });
-  }
-
-  return (
-    <div style={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      pointerEvents: 'none',
-      zIndex: 10,
-      transform: 'translate(-50%, -50%)',
-      width: 440,
-      height: 440,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <LibFaceHud
-        signals={signals}
-        label={label}
-        annotations={annotations}
-        sizing={{ outerRadius: 160, strokeWidth: 6, ringGap: 16 }}
-        theme={{
-          labelColor: '#93a1a1',
-          labelShadow: '0 1px 4px rgba(0,0,0,0.9)',
-          fontFamily: 'monospace',
-        }}
-      />
-    </div>
-  );
-}
-
 export function ExplorerPane() {
   const params = new URLSearchParams(window.location.search);
   const headless = params.get('headless') === 'true';
-  const showHud = params.get('hud') === 'true';
 
   useEffect(() => {
     parseUrlParams();
@@ -289,10 +166,7 @@ export function ExplorerPane() {
   if (headless) {
     return (
       <div style={{ position: 'relative', width: 512, height: 512 }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: 512, height: 512, zIndex: 0 }}>
-          <ExplorerRenderer headless camera={getCameraPreset()} />
-        </div>
-        {showHud && <ExplorerHud />}
+        <ExplorerRenderer headless camera={getCameraPreset()} />
       </div>
     );
   }

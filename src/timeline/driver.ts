@@ -52,6 +52,9 @@ export class FrameDriver {
     const stats = computeDatasetStats(dataset);
     this.resolver = createResolver(undefined, stats);
 
+    // Persist stats to store for HUD ring signal computation
+    useStore.getState().setDatasetStats(stats);
+
     // Compute layout once (unified threat-field layout, aspect-aware)
     const aspect = typeof window !== 'undefined'
       ? window.innerWidth / Math.max(window.innerHeight, 1)
