@@ -8,6 +8,7 @@ import { PoseSliders } from './sliders/PoseSliders';
 import { GazeSliders } from './sliders/GazeSliders';
 import { TextureSliders } from './sliders/TextureSliders';
 import { RawSliders } from './sliders/RawSliders';
+import { HudConfigSliders } from './sliders/HudConfigSliders';
 import { ReportPanel } from './ReportPanel';
 import { useExplorerStore } from './store';
 import { loadDataset, getFrameIndexAtTime } from '../../../src/data/loader';
@@ -271,12 +272,14 @@ function ExplorerPaneUI() {
             <>
               <ExpressionSliders />
               <ShapeSliders />
+              <HudConfigSliders />
               <ReportPanel />
             </>
           ) : mode === 'semantic' ? (
             <>
               <SemanticSliders />
               <ShapeSliders />
+              <HudConfigSliders />
               <ReportPanel />
             </>
           ) : (
@@ -285,6 +288,7 @@ function ExplorerPaneUI() {
               <GazeSliders />
               <TextureSliders />
               <RawSliders />
+              <HudConfigSliders />
             </>
           )}
         </div>

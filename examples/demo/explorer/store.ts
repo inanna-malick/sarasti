@@ -46,6 +46,13 @@ interface ExplorerState {
   dataModeTicker: import('../../../src/types').TickerConfig | null;
   dataModeStats: import('../../../src/data/stats').DatasetStats | null;
 
+  // HUD geometry config (visual only — no recompute)
+  hudOuterRadius: number;
+  hudRingGap: number;
+  hudTubeRadius: number;
+  hudTiltOffsetDeg: number;
+  hudVerticalOffset: number;
+
   // Computed
   currentParams: FaceParams | null;
 
@@ -69,6 +76,11 @@ interface ExplorerState {
   setRawExpression: (index: number, value: number) => void;
   setCurrentParams: (params: FaceParams) => void;
   setDebugMaterial: (v: DebugMaterial) => void;
+  setHudOuterRadius: (v: number) => void;
+  setHudRingGap: (v: number) => void;
+  setHudTubeRadius: (v: number) => void;
+  setHudTiltOffsetDeg: (v: number) => void;
+  setHudVerticalOffset: (v: number) => void;
   recompute: () => void;
 }
 
@@ -260,6 +272,12 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   dataModeTicker: null,
   dataModeStats: null,
 
+  hudOuterRadius: 0.175,
+  hudRingGap: 0.0125,
+  hudTubeRadius: 0.005,
+  hudTiltOffsetDeg: 4,
+  hudVerticalOffset: 0.0325,
+
   currentParams: null,
 
   setDataModeContext: (tickerId, frame, ticker, stats) => set({ dataModeTickerId: tickerId, dataModeFrame: frame, dataModeTicker: ticker, dataModeStats: stats }),
@@ -280,6 +298,11 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
 
   setCurrentParams: (params) => set({ currentParams: params }),
   setDebugMaterial: (v) => set({ debugMaterial: v }),
+  setHudOuterRadius: (v) => set({ hudOuterRadius: v }),
+  setHudRingGap: (v) => set({ hudRingGap: v }),
+  setHudTubeRadius: (v) => set({ hudTubeRadius: v }),
+  setHudTiltOffsetDeg: (v) => set({ hudTiltOffsetDeg: v }),
+  setHudVerticalOffset: (v) => set({ hudVerticalOffset: v }),
 
   setRawShape: (index, value) => {
     const arr = new Float32Array(get().rawShape);

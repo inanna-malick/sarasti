@@ -9,8 +9,10 @@ import { useExplorerStore } from './store';
 import type { DebugMaterial } from './store';
 import type { CameraPreset } from './ExplorerPane';
 import { HudRings3D } from '../../../src/ui/HudRings3D';
+import type { HudRings3DConfig } from '../../../src/ui/HudRings3D';
 import { computeCircumplex } from '../../../src/binding/chords';
 import type { RingSignal } from '../../../src/ui/types';
+import { RING_META } from '../../../src/ui/ringMeta';
 
 declare global {
   interface Window {
@@ -126,18 +128,36 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
         }
 
         // 3D HUD rings — always on, orbital tori around the face
-        hudRings = new HudRings3D();
-        hudRings.group.position.set(0, 0.0325, 0.01);
+        // Track config for change detection
+        let prevHudConfig: HudRings3DConfig = {
+          outerRadius: useExplorerStore.getState().hudOuterRadius,
+          ringGap: useExplorerStore.getState().hudRingGap,
+          tubeRadius: useExplorerStore.getState().hudTubeRadius,
+          tiltOffsetDeg: useExplorerStore.getState().hudTiltOffsetDeg,
+        };
+        let prevVerticalOffset = useExplorerStore.getState().hudVerticalOffset;
+        let lastSignals: RingSignal[] = [];
+
+        hudRings = new HudRings3D(prevHudConfig);
+        hudRings.group.position.set(0, prevVerticalOffset, 0.01);
         scene.add(hudRings.group);
+
+        // Helper to build ring signals from circumplex values
+        function buildRingSignals(tension: number, valence: number, stature: number): RingSignal[] {
+          const values = { tension, valence, stature };
+          return RING_META.map((meta) => ({
+            name: meta.key,
+            negativeColor: meta.negativeColor,
+            positiveColor: meta.positiveColor,
+            value: values[meta.key],
+          }));
+        }
 
         // Initialize rings with current slider values (subscriber only fires on change)
         {
           const s = useExplorerStore.getState();
-          hudRings.update([
-            { name: 'tension', value: s.tension, negativeColor: 'rgb(38, 139, 210)', positiveColor: 'rgb(203, 75, 22)', maxOpacity: 0.80 },
-            { name: 'valence', value: s.valence, negativeColor: 'rgb(108, 113, 196)', positiveColor: 'rgb(211, 54, 130)', maxOpacity: 0.80 },
-            { name: 'stature', value: s.stature, negativeColor: 'rgb(147, 161, 161)', positiveColor: 'rgb(42, 161, 152)', maxOpacity: 0.65 },
-          ]);
+          lastSignals = buildRingSignals(s.tension, s.valence, s.stature);
+          hudRings.update(lastSignals);
         }
 
         if (!headless) {
@@ -161,6 +181,33 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
           }
           // Update 3D HUD rings — use data-mode circumplex or slider values
           if (hudRings) {
+            // Check for HUD geometry config changes
+            const newHudConfig: HudRings3DConfig = {
+              outerRadius: state.hudOuterRadius,
+              ringGap: state.hudRingGap,
+              tubeRadius: state.hudTubeRadius,
+              tiltOffsetDeg: state.hudTiltOffsetDeg,
+            };
+            const geometryChanged =
+              newHudConfig.outerRadius !== prevHudConfig.outerRadius ||
+              newHudConfig.ringGap !== prevHudConfig.ringGap ||
+              newHudConfig.tubeRadius !== prevHudConfig.tubeRadius ||
+              newHudConfig.tiltOffsetDeg !== prevHudConfig.tiltOffsetDeg;
+
+            if (geometryChanged) {
+              hudRings.dispose();
+              scene.remove(hudRings.group);
+              hudRings = new HudRings3D(newHudConfig);
+              hudRings.group.position.set(0, state.hudVerticalOffset, 0.01);
+              scene.add(hudRings.group);
+              if (lastSignals.length > 0) hudRings.update(lastSignals);
+              prevHudConfig = newHudConfig;
+              prevVerticalOffset = state.hudVerticalOffset;
+            } else if (state.hudVerticalOffset !== prevVerticalOffset) {
+              hudRings.group.position.y = state.hudVerticalOffset;
+              prevVerticalOffset = state.hudVerticalOffset;
+            }
+
             let tension: number, valence: number, stature: number;
             if (state.dataModeFrame && state.dataModeTickerId) {
               const activations = computeCircumplex(
@@ -172,35 +219,12 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
               valence = activations.valence;
               stature = activations.stature;
             } else {
-              // Slider-driven modes (highlevel, semantic, raw)
               tension = state.tension;
               valence = state.valence;
               stature = state.stature;
             }
-            const ringSignals: RingSignal[] = [
-              {
-                name: 'tension',
-                value: tension,
-                negativeColor: 'rgb(38, 139, 210)',
-                positiveColor: 'rgb(203, 75, 22)',
-                maxOpacity: 0.80,
-              },
-              {
-                name: 'valence',
-                value: valence,
-                negativeColor: 'rgb(108, 113, 196)',
-                positiveColor: 'rgb(211, 54, 130)',
-                maxOpacity: 0.80,
-              },
-              {
-                name: 'stature',
-                value: stature,
-                negativeColor: 'rgb(147, 161, 161)',
-                positiveColor: 'rgb(42, 161, 152)',
-                maxOpacity: 0.65,
-              },
-            ];
-            hudRings.update(ringSignals);
+            lastSignals = buildRingSignals(tension, valence, stature);
+            hudRings.update(lastSignals);
           }
         });
 
