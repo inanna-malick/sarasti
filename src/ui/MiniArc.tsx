@@ -1,10 +1,11 @@
 import { interpolateHcl } from 'd3-interpolate';
-import { sol } from '../../examples/demo/theme';
 
 interface MiniArcProps {
   value: number;
   negativeColor: string;
   positiveColor: string;
+  /** Background color for track darkening. Default: solarized base03 */
+  trackBase?: string;
   size?: number;
 }
 
@@ -18,14 +19,14 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
   return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} ${sweep} ${x2} ${y2}`;
 }
 
-export function MiniArc({ value, negativeColor, positiveColor, size = 24 }: MiniArcProps) {
+export function MiniArc({ value, negativeColor, positiveColor, trackBase = '#002b36', size = 24 }: MiniArcProps) {
   const r_out = size / 2 - 1;
   const r_in = r_out - 3;
   const center = size / 2;
 
   const color = value >= 0 ? positiveColor : negativeColor;
-  const trackColor = interpolateHcl(sol.base03, color)(0.2);
-  const signalColor = interpolateHcl(sol.base03, color)(Math.min(1, Math.abs(value)));
+  const trackColor = interpolateHcl(trackBase, color)(0.2);
+  const signalColor = interpolateHcl(trackBase, color)(Math.min(1, Math.abs(value)));
 
   const absVal = Math.abs(value);
   const arcLen = (0.12 + absVal * 0.88) * 2 * Math.PI;

@@ -14,4 +14,5 @@ export type { RingMeta } from './ringMeta';
 export { MiniArc } from './MiniArc';
 export { ZScoreRow } from './ZScoreRow';
 export { RingCard } from './RingCard';
+export type { RingCardTheme } from './RingCard';
 export { SignalReadout } from './SignalReadout';

@@ -1,5 +1,3 @@
-import { sol } from '../../examples/demo/theme';
-
 interface ZScoreRowProps {
   label: string;
   raw: number;
@@ -7,15 +5,19 @@ interface ZScoreRowProps {
   zPositiveColor?: string;
   zNegativeColor?: string;
   zMutedColor?: string;
+  textColor?: string;
+  labelColor?: string;
 }
 
 export function ZScoreRow({
   label,
   raw,
   z,
-  zPositiveColor = sol.cyan,
-  zNegativeColor = sol.red,
-  zMutedColor = sol.base01
+  zPositiveColor = '#2aa198',
+  zNegativeColor = '#dc322f',
+  zMutedColor = '#586e75',
+  textColor = '#839496',
+  labelColor = '#586e75',
 }: ZScoreRowProps) {
   let zColor = zMutedColor;
   if (Math.abs(z) >= 0.3) {
@@ -32,40 +34,23 @@ export function ZScoreRow({
     fontVariantNumeric: 'tabular-nums',
     fontSize: '11px',
     height: '18px',
-    color: sol.base0,
+    color: textColor,
   };
 
   const labelStyle: React.CSSProperties = {
     width: '36px',
-    color: sol.base01,
+    color: labelColor,
     textTransform: 'uppercase',
     letterSpacing: '1px',
     fontSize: '10px',
   };
 
-  const rawStyle: React.CSSProperties = {
-    width: '72px',
-    textAlign: 'right',
-  };
-
-  const zLabelStyle: React.CSSProperties = {
-    width: '12px',
-    textAlign: 'center',
-    color: sol.base01,
-  };
-
-  const zScoreStyle: React.CSSProperties = {
-    width: '48px',
-    textAlign: 'right',
-    color: zColor,
-  };
-
   return (
     <div style={containerStyle}>
       <span style={labelStyle}>{label}</span>
-      <span style={rawStyle}>{formatRaw(raw)}</span>
-      <span style={zLabelStyle}>z</span>
-      <span style={zScoreStyle}>{formatZ(z)}</span>
+      <span style={{ width: '72px', textAlign: 'right' }}>{formatRaw(raw)}</span>
+      <span style={{ width: '12px', textAlign: 'center', color: labelColor }}>z</span>
+      <span style={{ width: '48px', textAlign: 'right', color: zColor }}>{formatZ(z)}</span>
     </div>
   );
 }
