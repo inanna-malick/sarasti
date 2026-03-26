@@ -139,7 +139,7 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
         let lastSignals: RingSignal[] = [];
 
         hudRings = new HudRings3D(prevHudConfig);
-        hudRings.group.position.set(0, prevVerticalOffset, 0.01);
+        hudRings.group.position.set(0, prevVerticalOffset, -0.05);
         scene.add(hudRings.group);
 
         // Helper to build ring signals from circumplex values
@@ -198,7 +198,7 @@ export function ExplorerRenderer({ headless = false, camera = 'front' }: Explore
               hudRings.dispose();
               scene.remove(hudRings.group);
               hudRings = new HudRings3D(newHudConfig);
-              hudRings.group.position.set(0, state.hudVerticalOffset, 0.01);
+              hudRings.group.position.set(0, state.hudVerticalOffset, -0.05);
               scene.add(hudRings.group);
               if (lastSignals.length > 0) hudRings.update(lastSignals);
               prevHudConfig = newHudConfig;

@@ -109,7 +109,7 @@ export class SceneCompositor {
         hud = new HudRings3D();
         hud.group.scale.setScalar(FACE_MESH_SCALE);
         // Halo center — raised half radius from previous drop
-        hud.group.position.set(0, 0.0325 * FACE_MESH_SCALE, 0.01 * FACE_MESH_SCALE);
+        hud.group.position.set(0, 0.0325 * FACE_MESH_SCALE, -0.05 * FACE_MESH_SCALE);
         group.add(hud.group);
 
         this.faceGroups.set(instance.id, group);

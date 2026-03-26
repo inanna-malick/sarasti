@@ -39,7 +39,10 @@ const TICK_ANGLES_DEG = [90, 180, 270, 360];
 const LABEL_SIZE = 0.016;
 
 // Track darkening — sol.base03 tinted toward signal color
-const TRACK_DARKEN = 0.20;  // 20% signal color, 80% base03
+const TRACK_DARKEN = 0.12;  // 12% signal color, 88% base03
+
+// Signal darkening — mute signal colors toward base03 for dark solarized look
+const SIGNAL_DARKEN = 0.45;  // 45% signal color, 55% base03
 
 export interface HudRings3DConfig {
   outerRadius: number;
@@ -79,6 +82,11 @@ function parseColor(css: string): THREE.Color {
 /** Mix signal color with base03 for a dark track background */
 function makeTrackColor(signalColor: THREE.Color): THREE.Color {
   return new THREE.Color().copy(BASE03).lerp(signalColor, TRACK_DARKEN);
+}
+
+/** Darken signal color toward base03 for muted dark-solarized appearance */
+function makeDarkSignalColor(signalColor: THREE.Color): THREE.Color {
+  return new THREE.Color().copy(BASE03).lerp(signalColor, SIGNAL_DARKEN);
 }
 
 /** Flat opaque MeshBasicMaterial — no lighting interaction, pure d3 color */
@@ -242,14 +250,15 @@ export class HudRings3D {
 
         const t = (sig.value + 1) / 2;
         const colorStr = interpolateHcl(sig.negativeColor, sig.positiveColor)(t);
-        const color = parseColor(colorStr);
+        const rawColor = parseColor(colorStr);
+        const color = makeDarkSignalColor(rawColor);
 
         this.ringStates.push({
           currentArcFrac: arcFrac,
           targetArcFrac: arcFrac,
           value: sig.value,
           color,
-          trackColor: makeTrackColor(color),
+          trackColor: makeTrackColor(rawColor),
           radius,
           tiltRad,
           label: RING_LABELS[i] ?? '',
@@ -271,8 +280,9 @@ export class HudRings3D {
 
       const t = (sig.value + 1) / 2;
       const colorStr = interpolateHcl(sig.negativeColor, sig.positiveColor)(t);
-      state.color = parseColor(colorStr);
-      state.trackColor = makeTrackColor(state.color);
+      const rawColor = parseColor(colorStr);
+      state.color = makeDarkSignalColor(rawColor);
+      state.trackColor = makeTrackColor(rawColor);
     }
 
     // Snap for static renders
