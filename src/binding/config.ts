@@ -57,3 +57,14 @@ export const TEXTURE_CONFIG = {
     sigmoid_range: [0.5, 2.0] as [number, number],
   },
 };
+
+export const SHAPE_SMOOTHING_ALPHA = 0.03;
+export const EXPR_SMOOTHING_ALPHA_DEFAULT = 0.15;
+export const EXPR_ALPHA_BY_CLASS: Record<string, number> = {
+  fear: 0.30,
+  equity: 0.20,
+  currency: 0.15,
+  energy: 0.12,
+  commodity: 0.10,
+  media: 0.15,
+};
