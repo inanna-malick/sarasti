@@ -17,8 +17,6 @@
 
 import type { TickerFrame } from '../types';
 import type { DatasetStats, TickerStats, SignalStats } from '../data/stats';
-import { computeExchangeFatigue } from './exchange';
-import type { Exchange } from '../types';
 import { PSI7_CLAMP, BETA3_CLAMP, BETA_GENERAL_CLAMP, N_EXPR, N_SHAPE } from '../constants';
 
 // ─── Types ───────────────────────────────────────────
@@ -244,18 +242,6 @@ export function computeCircumplex(
   const stature = symmetricSigmoid(mom_z + Math.abs(mr_z) - 0.3, 1.0);
 
   return { tension, valence, stature };
-}
-
-/**
- * Compute exchange fatigue for tension chord input.
- */
-export function computeExchangeFatigueForTension(
-  exchange: Exchange | undefined,
-  timestamp: string | undefined,
-): number {
-  if (!exchange || !timestamp) return 0;
-  const utcHour = new Date(timestamp).getUTCHours() + new Date(timestamp).getUTCMinutes() / 60;
-  return computeExchangeFatigue(exchange, utcHour);
 }
 
 // ─── Circumplex Debug (full signal pipeline) ─────────

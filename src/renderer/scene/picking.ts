@@ -78,7 +78,7 @@ export class FacePicker {
       for (const mesh of meshes) {
         const baseScale = mesh.userData.baseScale ?? 1;
         mesh.scale.setScalar(baseScale);
-        const mat = mesh.material as THREE.MeshMatcapMaterial;
+        const mat = mesh.material as THREE.MeshStandardMaterial;
         mat.opacity = 1;
         mat.transparent = false;
       }
@@ -86,7 +86,7 @@ export class FacePicker {
       // Apply highlight and dim others — preserve existing base scale
       for (const mesh of meshes) {
         const meshId = this.compositor.getIdForMesh(mesh);
-        const mat = mesh.material as THREE.MeshMatcapMaterial;
+        const mat = mesh.material as THREE.MeshStandardMaterial;
         const baseScale = mesh.userData.baseScale ?? 1;
 
         if (meshId === id) {

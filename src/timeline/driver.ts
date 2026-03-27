@@ -43,6 +43,8 @@ export class FrameDriver {
   private renderer: FaceRenderer;
   private resolver;
   private positions: Map<string, [number, number, number]>;
+  /** Pre-allocated lerp output buffer per ticker — avoids per-frame allocation */
+  private lerpBuffers: Map<string, FaceParams> = new Map();
 
   constructor(dataset: TimelineDataset, renderer: FaceRenderer, initialIndex: number = 0) {
     this.dataset = dataset;
@@ -143,9 +145,14 @@ export class FrameDriver {
       if (t > 0 && tickerFrameB && indexA !== indexB) {
         // resolveNoAccumulate: get expression for frame B without advancing EMA
         const paramsB = this.resolver.resolveNoAccumulate(ticker, tickerFrameB, frameB.timestamp);
-        // Allocate output buffer for interpolation
-        params = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0, skinAge: 0 };
-        this.lerpParams(paramsA, paramsB, t, params);
+        // Reuse pre-allocated lerp buffer
+        let buf = this.lerpBuffers.get(ticker.id);
+        if (!buf) {
+          buf = { shape: new Float32Array(paramsA.shape.length), expression: new Float32Array(paramsA.expression.length), pose: zeroPose(), flush: 0, fatigue: 0, skinAge: 0 };
+          this.lerpBuffers.set(ticker.id, buf);
+        }
+        this.lerpParams(paramsA, paramsB, t, buf);
+        params = buf;
         // Lerp the scalar frame values for crisis intensity etc.
         tickerFrame = {
           ...tickerFrameA,
