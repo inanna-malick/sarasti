@@ -241,8 +241,8 @@ function applyRawOverrides(params: FaceParams, state: ExplorerState): void {
 }
 
 function update(set: any, get: any, patch: Partial<ExplorerState>) {
-  set(patch);
-  set(recomputeParams({ ...get(), ...patch }));
+  const merged = { ...get(), ...patch };
+  set({ ...patch, ...recomputeParams(merged) });
 }
 
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
