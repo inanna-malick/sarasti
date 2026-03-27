@@ -1,3 +1,4 @@
+import React from 'react';
 import { interpolateHcl } from 'd3-interpolate';
 import type { RingMeta } from './ringMeta';
 import { MiniArc } from './MiniArc';
@@ -28,20 +29,24 @@ interface RingCardProps {
   theme?: RingCardTheme;
 }
 
-export function RingCard({ meta, value, input, zScores, rawValues, theme = DEFAULT_THEME }: RingCardProps) {
+const CARD_STYLE: React.CSSProperties = {
+  padding: '8px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+  fontFamily: 'monospace',
+};
+
+export const RingCard = React.memo(function RingCard({ meta, value, input, zScores, rawValues, theme = DEFAULT_THEME }: RingCardProps) {
   const accent = value >= 0 ? meta.positiveColor : meta.negativeColor;
   const pole = value >= 0 ? meta.poles[1] : meta.poles[0];
   const barColor = interpolateHcl(theme.bg, accent)(Math.abs(value));
 
   return (
     <div style={{
+      ...CARD_STYLE,
       background: theme.bg,
       border: `1px solid ${theme.border}`,
-      padding: '8px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '4px',
-      fontFamily: 'monospace',
       color: theme.text,
     }}>
       {/* Header */}
@@ -84,4 +89,4 @@ export function RingCard({ meta, value, input, zScores, rawValues, theme = DEFAU
       </div>
     </div>
   );
-}
+});

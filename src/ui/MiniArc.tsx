@@ -1,3 +1,4 @@
+import React from 'react';
 import { interpolateHcl } from 'd3-interpolate';
 
 interface MiniArcProps {
@@ -19,7 +20,7 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
   return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} ${sweep} ${x2} ${y2}`;
 }
 
-export function MiniArc({ value, negativeColor, positiveColor, trackBase = '#002b36', size = 24 }: MiniArcProps) {
+export const MiniArc = React.memo(function MiniArc({ value, negativeColor, positiveColor, trackBase = '#002b36', size = 24 }: MiniArcProps) {
   const r_out = size / 2 - 1;
   const r_in = r_out - 3;
   const center = size / 2;
@@ -53,4 +54,4 @@ export function MiniArc({ value, negativeColor, positiveColor, trackBase = '#002
       <path d={signalPath} fill={signalColor} />
     </svg>
   );
-}
+});
