@@ -122,17 +122,14 @@ function chooseGridCols(n: number, aspect: number): number {
 const CLASS_ORDER = ['energy', 'commodity', 'fear', 'currency', 'equity', 'media'] as const;
 type AssetClass = (typeof CLASS_ORDER)[number];
 
-interface TickerConfigLike {
-  id: string;
-  class: string;
-  age: number;
-}
-
 /**
  * Legacy layout: sorts by threat-proximity, then grids.
  * @deprecated Use gridLayout() for new code.
  */
-export function computeLayout(tickers: TickerConfigLike[], aspect: number = DEFAULT_ASPECT): LayoutResult {
+export function computeLayout(
+  tickers: { id: string; class: string; age: number }[],
+  aspect: number = DEFAULT_ASPECT,
+): LayoutResult {
   const safeAspect = (Number.isFinite(aspect) && aspect > 0) ? aspect : DEFAULT_ASPECT;
   const sorted = [...tickers].sort((a, b) => {
     const ca = CLASS_ORDER.indexOf(a.class as AssetClass);

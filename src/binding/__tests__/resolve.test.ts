@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { resolve, createResolver } from '../resolve';
 import { makeTickerFrame, TEST_TICKERS } from '../../../test-utils/fixtures';
 import { N_SHAPE, N_EXPR } from '../../constants';
-import { TICKERS } from '../../../examples/demo/tickers';
 
 describe('resolve (2-axis circumplex)', () => {
   it('zero data → finite expression and shape', () => {
@@ -97,15 +96,15 @@ describe('resolve (2-axis circumplex)', () => {
 describe('createResolver (cached, 2-axis)', () => {
   it('different frames → different shape (shape evolves via EMA)', () => {
     const resolver = createResolver();
-    const rising = resolver.resolve(TICKERS[0], makeTickerFrame({ momentum: 2.0 }));
-    const falling = resolver.resolve(TICKERS[0], makeTickerFrame({ momentum: -2.0 }));
+    const rising = resolver.resolve(TEST_TICKERS[0], makeTickerFrame({ momentum: 2.0 }));
+    const falling = resolver.resolve(TEST_TICKERS[0], makeTickerFrame({ momentum: -2.0 }));
     expect(rising.shape).not.toBe(falling.shape);
     expect(rising.shape[3]).not.toEqual(falling.shape[3]);
   });
 
   it('updates flush/fatigue and can be reset', () => {
     const resolver = createResolver();
-    const ticker = TICKERS[0];
+    const ticker = TEST_TICKERS[0];
 
     for (let i = 0; i < 30; i++) {
       resolver.resolve(ticker, makeTickerFrame({ deviation: 0.5, volatility: 1.0 }));

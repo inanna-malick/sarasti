@@ -5,25 +5,10 @@
  * the TypeScript loader (consumer). Both sides must agree on this shape.
  */
 
-/** Shape of a single ticker's data point in the JSON file */
-export interface RawTickerValue {
-  close: number;
-  volume: number;
-  /** (close - baseline_close) / baseline_close */
-  deviation: number;
-  /** Δclose/Δt normalized to stddev units */
-  velocity: number;
-  /** Rolling 6hr stddev, normalized to pre-crisis stddev */
-  volatility: number;
-  /** Distance from rolling max. 0 = at peak, negative = in drawdown. */
-  drawdown: number;
-  /** Rate of change over longer window (structural trend). */
-  momentum: number;
-  /** deviation / volatility. How abnormal is this abnormality? */
-  mean_reversion_z: number;
-  /** Rolling beta to market. 1 = with herd. */
-  beta: number;
-}
+import type { TickerFrame } from '../types';
+
+/** Raw JSON value — structurally identical to TickerFrame. Kept as alias for schema documentation. */
+export type RawTickerValue = TickerFrame;
 
 /** Shape of one hourly snapshot in the JSON file */
 export interface RawFrame {

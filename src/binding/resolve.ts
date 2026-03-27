@@ -15,7 +15,13 @@ import { createGazeResolver } from './gaze';
 import type { BindingConfig } from './types';
 import { emptyShape, emptyExpression } from './types';
 import { EXPR_AXES, SHAPE_AXES, applyMapping } from './axes';
-import { DEFAULT_BINDING_CONFIG, TEXTURE_CONFIG } from './config';
+import {
+  DEFAULT_BINDING_CONFIG,
+  TEXTURE_CONFIG,
+  SHAPE_SMOOTHING_ALPHA,
+  EXPR_ALPHA_BY_CLASS,
+  EXPR_SMOOTHING_ALPHA_DEFAULT,
+} from './config';
 import {
   createTextureAccumulator,
   updateAccumulator,
@@ -137,25 +143,6 @@ export function resolve(
     skinAge: 0,
   };
 }
-
-/**
- * Create a cached resolver with EMA accumulators for flush/fatigue.
- * Shape EMA smoothing preserved (α=0.03).
- */
-const SHAPE_SMOOTHING_ALPHA = 0.03;
-/** Per-asset-class expression EMA alpha — drives wave propagation.
- * Higher α = faster reaction. Fear/VIX snaps first, equities follow, commodities lag.
- * This creates visible "wave" across the face field during a crash.
- * α=0.30 → ~2 frames to 50%, α=0.10 → ~7 frames to 50%. */
-const EXPR_ALPHA_BY_CLASS: Record<string, number> = {
-  fear:      0.30,  // VIX, gold — instant reactor (sentinel)
-  equity:    0.20,  // SPY, QQQ — fast follower
-  currency:  0.15,  // forex — moderate
-  energy:    0.12,  // oil, natgas — deliberate
-  commodity: 0.10,  // metals, ags — laggard
-  media:     0.15,  // news — moderate
-};
-const EXPR_SMOOTHING_ALPHA_DEFAULT = 0.15;
 
 export function createResolver(
   config: BindingConfig = DEFAULT_BINDING_CONFIG,
