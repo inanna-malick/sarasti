@@ -45,6 +45,7 @@ export class FrameDriver {
   private positions: Map<string, [number, number, number]>;
   /** Pre-allocated lerp output buffer per ticker — avoids per-frame allocation */
   private lerpBuffers: Map<string, FaceParams> = new Map();
+  private lastSyncedIndex: number = -1;
 
   constructor(dataset: TimelineDataset, renderer: FaceRenderer, initialIndex: number = 0) {
     this.dataset = dataset;
@@ -181,11 +182,14 @@ export class FrameDriver {
 
     this.renderer.setInstances(instances);
 
-    // Sync to store — use the floor index for timeline UI
-    const store = useStore.getState();
-    store.setCurrentIndex(indexA);
-    store.setCurrentTimestamp(frameA.timestamp);
-    store.setInstances(instances);
+    // Only sync to React store when integer index changes
+    if (indexA !== this.lastSyncedIndex) {
+      this.lastSyncedIndex = indexA;
+      const store = useStore.getState();
+      store.setCurrentIndex(indexA);
+      store.setCurrentTimestamp(frameA.timestamp);
+      store.setInstances(instances);
+    }
   }
 
   play(): void {
@@ -208,6 +212,7 @@ export class FrameDriver {
 
   seek(index: number): void {
     this.resolver.resetAccumulators();
+    this.lastSyncedIndex = -1;
     this.engine.seek(index);
   }
 
