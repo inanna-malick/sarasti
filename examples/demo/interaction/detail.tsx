@@ -192,17 +192,23 @@ function Sparkline({
 }) {
   if (data.length < 2) return null;
 
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
+  const { points, zeroY } = React.useMemo(() => {
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
 
-  const points = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x},${y}`;
-    })
-    .join(' ');
+    const pts = data
+      .map((v, i) => {
+        const x = (i / (data.length - 1)) * width;
+        const y = height - ((v - min) / range) * height;
+        return `${x},${y}`;
+      })
+      .join(' ');
+
+    const zY = height - ((0 - min) / range) * height;
+
+    return { points: pts, zeroY: zY };
+  }, [data, width, height]);
 
   const cursorX = (currentIndex / (data.length - 1)) * width;
 
@@ -217,9 +223,9 @@ function Sparkline({
       {/* Zero line */}
       <line
         x1={0}
-        y1={height - ((0 - min) / range) * height}
+        y1={zeroY}
         x2={width}
-        y2={height - ((0 - min) / range) * height}
+        y2={zeroY}
         stroke="rgba(88,110,117,0.2)"
         strokeWidth="1"
         strokeDasharray="2,2"

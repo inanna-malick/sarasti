@@ -53,6 +53,7 @@ export function FaceOverlay({
     }
 
     const currentInstances = instancesRef.current;
+    const instanceMap = new Map(currentInstances.map(ins => [ins.id, ins]));
     const w = container.clientWidth;
     const h = container.clientHeight;
 
@@ -62,7 +63,7 @@ export function FaceOverlay({
       const id = el.dataset.faceId;
       if (!id) continue;
 
-      const inst = currentInstances.find((ins) => ins.id === id);
+      const inst = instanceMap.get(id);
       if (!inst) {
         el.style.display = 'none';
         continue;
